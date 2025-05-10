@@ -40,3 +40,7 @@
 # Linux
 .*.swp
 *~
+
+#cmake
+build/
+tags.*
