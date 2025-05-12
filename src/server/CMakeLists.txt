@@ -1,7 +1,13 @@
 target_sources(taller_server
     PRIVATE
-    # .cpp files
-    main.cpp
+        main.cpp
+        cs2d_game.cpp
+        player.cpp
+        collidable.cpp
     PUBLIC
-    # .h files
-    )
+        vector_2d.h
+        hitbox.h
+        cs2d_game.h
+        player.h
+        collidable.h
+)

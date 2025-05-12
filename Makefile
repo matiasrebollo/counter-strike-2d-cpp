@@ -16,12 +16,15 @@ server:
 	cmake --build build/ --target taller_server
 
 run-server:
-	./build-server/taller_server
+	./build/taller_server
 
 run-tests: compile-debug
 	./build/taller_tests
 
 all: clean run-tests
+
+precommit:
+	pre-commit run --files $(shell git ls-files '*.cpp' '*.h') $(shell git ls-files --others --exclude-standard '*.cpp' '*.h')
 
 clean:
 	rm -Rf build/

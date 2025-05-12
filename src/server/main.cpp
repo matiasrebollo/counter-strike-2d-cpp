@@ -1,9 +1,8 @@
-#include <iostream>
-
-#include "common/foo.h"
+#include "server/cs2d_game.h"
 
 int main() {
-    std::cout << "hola mundo"
-              << "\n";
-    return foo(6);
+    CS2DGame game;
+    game.add_player();
+    game.game_loop();
+    return 0;
 }
