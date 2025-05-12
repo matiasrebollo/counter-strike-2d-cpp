@@ -22,7 +22,6 @@ int main() try {
     Renderer renderer(window, -1, SDL_RENDERER_ACCELERATED);
 
     Surface spriteSheet(DATA_PATH "/player/ct1.bmp");
-
     Texture sprite(renderer, spriteSheet);
 
     int x_center = renderer.GetOutputWidth() / 2;
