@@ -24,21 +24,67 @@ int main() try {
     Surface spriteSheet(DATA_PATH "/player/ct1.bmp");
     Texture sprite(renderer, spriteSheet);
 
-    int x_center = renderer.GetOutputWidth() / 2;
-    int y_center = renderer.GetOutputHeight() / 2;
+    float x_pos = (renderer.GetOutputWidth() - 32) / 2;
+    float y_pos = (renderer.GetOutputHeight() - 32) / 2;
 
-    // Clear screen
-    renderer.Clear();
+    bool w = false, a = false, s = false, d = false;
 
-    renderer.Copy(sprite,
+    unsigned int prev_ticks = SDL_GetTicks();
+    while (true) {
+        unsigned int frame_ticks = SDL_GetTicks();
+        unsigned int frame_delta = frame_ticks - prev_ticks;
+        prev_ticks = frame_ticks;
+
+        SDL_Event event;
+        while (SDL_PollEvent(&event)){
+            if (event.type == SDL_QUIT){
+                return 0;
+            } else if (event.type == SDL_KEYDOWN) {
+                switch (event.key.keysym.sym) {
+                    case SDLK_ESCAPE: return 0;
+                    case SDLK_w: w = true; break;
+                    case SDLK_a: a = true; break;
+                    case SDLK_s: s = true; break;
+                    case SDLK_d: d = true; break;
+                }
+            } else if (event.type == SDL_KEYUP) {
+                switch(event.key.keysym.sym) {
+                    case SDLK_w: w = false; break;
+                    case SDLK_a: a = false; break;
+                    case SDLK_s: s = false; break;
+                    case SDLK_d: d = false; break;
+                }
+            } 
+        }
+
+        float movimiento = frame_delta * 0.2f;
+        if (w && y_pos > 0){
+            y_pos -= movimiento;
+        }
+        if (s && y_pos + 32 < renderer.GetOutputHeight()) {
+            y_pos += movimiento;
+        }
+        if (a && x_pos > 0){
+            x_pos -= movimiento;
+        }
+        if (d && x_pos + 32 < renderer.GetOutputWidth()) {
+            x_pos += movimiento;
+        }
+
+        // Clear screen
+        renderer.Clear();
+
+        renderer.Copy(sprite,
                   Rect(0, 32, 32, 32),
-                  Rect(x_center - 16, y_center - 16, 32, 32));
+                  Rect((int)x_pos, (int)y_pos, 32, 32));
 
-    // Show rendered frame
-    renderer.Present();
+        // Show rendered frame
+        renderer.Present();
 
-    // 5 second delay
-    SDL_Delay(5000);
+        // Duerme un poquito para no quemar el CPU
+        SDL_Delay(1);
+    }
+
 
     // Here all resources are automatically released and library deinitialized
     return 0;
