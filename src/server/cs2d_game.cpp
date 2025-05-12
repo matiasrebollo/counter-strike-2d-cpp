@@ -47,6 +47,8 @@ void CS2DGame::game_loop() {
             dir.x = -1;
         } else if (input == "d") {
             dir.x = 1;
+        } else if (input == "e") {
+            players[0].shoot(this->map_objects);
         } else if (input == "q") {
             running = false;
             continue;
