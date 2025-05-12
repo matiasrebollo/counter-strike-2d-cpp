@@ -6,9 +6,9 @@
 
 #include "common/foo.h"
 
-using SDL2pp::Renderer;
-using SDL2pp::SDL;
-using SDL2pp::Window;
+using namespace SDL2pp;
+
+#define DATA_PATH "/home/matias/Escritorio/TALLER 1/TP-GRUPAL/cs-2d-grupo-5-2025c1/assets/gfx"
 
 int main() try {
     // Initialize SDL library
@@ -21,8 +21,19 @@ int main() try {
     // Create accelerated video renderer with default driver
     Renderer renderer(window, -1, SDL_RENDERER_ACCELERATED);
 
+    Surface spriteSheet(DATA_PATH "/player/ct1.bmp");
+
+    Texture sprite(renderer, spriteSheet);
+
+    int x_center = renderer.GetOutputWidth() / 2;
+    int y_center = renderer.GetOutputHeight() / 2;
+
     // Clear screen
     renderer.Clear();
+
+    renderer.Copy(sprite,
+                  Rect(0, 32, 32, 32),
+                  Rect(x_center - 16, y_center - 16, 32, 32));
 
     // Show rendered frame
     renderer.Present();
