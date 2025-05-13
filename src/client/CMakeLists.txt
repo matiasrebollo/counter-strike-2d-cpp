@@ -5,6 +5,7 @@ target_sources(taller_client
         main.cpp
         lobby/lobby.cpp
         lobby/lobby.ui
+        lobby/resources.qrc
 )
 
 

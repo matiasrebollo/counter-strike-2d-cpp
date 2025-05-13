@@ -57,7 +57,6 @@ void Lobby::on_JoinGameButton_clicked()
 void Lobby::on_createButton_clicked()
 {
     QString game_name = ui->GameName->text();
-    QString user_name = ui->Username->text();
     QString nro_jugadores_minimo = ui->NPlayers->text();
     /*if (protoclo.crearPartida(abc.asd.ads)){
         close();
@@ -66,7 +65,7 @@ void Lobby::on_createButton_clicked()
 
 void Lobby::connect_to_sv(){
     try{
-        QString hostname = ui->Server->text();
+        QString servname = ui->Server->text();
         QString port = ui->Port->text();
         //instanciar protocolo(hostname, port)
         go_to_lobby();
