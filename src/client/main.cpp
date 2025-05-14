@@ -3,14 +3,22 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2pp/SDL2pp.hh>
+#include <QApplication>
 
 #include "common/foo.h"
+#include "lobby/lobby.h"
 
 using SDL2pp::Renderer;
 using SDL2pp::SDL;
 using SDL2pp::Window;
 
-int main() try {
+int main(int argc, char* argv[]) try {
+
+    QApplication a(argc, argv);
+    Lobby w;
+    w.show();
+    a.exec();
+
     // Initialize SDL library
     SDL sdl(SDL_INIT_VIDEO);
 
