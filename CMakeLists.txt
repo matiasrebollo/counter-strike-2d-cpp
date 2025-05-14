@@ -107,15 +107,21 @@ if(TALLER_CLIENT)
     set(CMAKE_AUTOUIC ON)
     set(CMAKE_AUTOMOC ON)
     set(CMAKE_AUTORCC ON)
-
+    
     # Buscar Qt
     find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
     find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
     # Ejecutable y fuentes
     add_executable(taller_client)
+
+    # Make them depend on taller_common lib
+    add_dependencies(taller_client taller_common SDL2pp::SDL2pp)
     
+    # Add source files and enable warnings
     add_subdirectory(src/client)
+    set_project_warnings(taller_client ${TALLER_MAKE_WARNINGS_AS_ERRORS} FALSE)
+
     target_include_directories(taller_client
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/client/lobby
