@@ -6,10 +6,12 @@ target_sources(taller_server
         collidable.cpp
         vector_2d.cpp
         hitbox.cpp
+        shot.cpp
     PUBLIC
         vector_2d.h
         hitbox.h
         cs2d_game.h
         player.h
         collidable.h
+        shot.h
 )

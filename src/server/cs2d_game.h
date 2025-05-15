@@ -10,7 +10,7 @@ class CS2DGame {
 private:
     std::vector<Player> players;
     std::vector<Collidable> map_objects;
-    bool running = true;
+    bool running;
 
 public:
     CS2DGame();

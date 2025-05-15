@@ -3,24 +3,23 @@
 
 #include <vector>
 
+// #include "server/loadout_manager.h"
 #include "server/collidable.h"
 #include "server/hitbox.h"
 
-class Player {
-private:
-    Hitbox hitbox;
-    Vector2D direction;
+#define PLAYER_WIDTH 50
+#define PLAYER_HEIGHT 50
 
-    bool shoot_intersects_hitbox(const Vector2D& shoot_origin, const Vector2D& shoot_dir,
-                                 const Hitbox& hitbox) const;
-    bool shoot_intersects_segment(const Vector2D& shoot_origin, const Vector2D& shoot_dir,
-                                  const Vector2D& seg_start, const Vector2D& seg_end) const;
+class Player: public Collidable {
+private:
+    Vector2D direction;
+    // LoadoutManager loadout;
 
 public:
-    explicit Player(Vector2D pos);
+    Player(Vector2D position, Vector2D direction);
 
-    void step(Vector2D dir, const std::vector<Collidable>& obstacles);
-    void rotate(Vector2D dir);
+    void step(Vector2D direction, const std::vector<Collidable>& obstacles);
+    void rotate(Vector2D direction);
     void shoot(const std::vector<Collidable>& obstacles) const;
 
     void print_position() const;

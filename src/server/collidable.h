@@ -8,8 +8,11 @@ protected:
     Hitbox hitbox;
 
 public:
-    Collidable(Vector2D pos, float w, float h);
-    const Hitbox& get_hitbox() const;
+    Collidable(Vector2D pos, int w, int h);
+
+    virtual bool collides_with(const Collidable& other_collidable) const;
+
+    virtual Hitbox get_hitbox() const;
 
     Collidable(const Collidable&) = delete;
     Collidable& operator=(const Collidable&) = delete;
@@ -17,7 +20,7 @@ public:
     Collidable(Collidable&&) noexcept = default;
     Collidable& operator=(Collidable&&) noexcept = default;
 
-    ~Collidable();
+    virtual ~Collidable();
 };
 
 #endif

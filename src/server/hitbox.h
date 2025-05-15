@@ -3,13 +3,16 @@
 
 #include "server/vector_2d.h"
 
-struct Hitbox {
+class Hitbox {
+public:
     Vector2D position;
-    float width, height;
+    int width, height;
 
-    bool intersects(const Hitbox& other) const;
+    Hitbox(Vector2D position, int width, int height);
 
-    ~Hitbox() = default;
+    bool intersects_with(const Hitbox& other_hitbox) const;
+
+    ~Hitbox();
 };
 
 #endif

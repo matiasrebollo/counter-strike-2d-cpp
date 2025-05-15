@@ -4,25 +4,22 @@
 #include <string>
 #include <utility>
 
-CS2DGame::CS2DGame(): players() {
-    const float mapWidth = 10.5f;
-    const float mapHeight = 10.5f;
-    const float wallThickness = 1.0f;
+CS2DGame::CS2DGame(): running(true) {
+    const float mapWidth = 1000;
+    const float mapHeight = 1000;
+    const float wallThickness = 100;
 
-    map_objects.emplace_back(Vector2D{0, 0 - wallThickness}, mapWidth, wallThickness);
-    map_objects.emplace_back(Vector2D{0 - wallThickness, 0}, wallThickness, mapHeight);
-    map_objects.emplace_back(Vector2D{0, mapHeight}, mapWidth, wallThickness);
-    map_objects.emplace_back(Vector2D{mapWidth, 0}, wallThickness, mapHeight);
+    map_objects.emplace_back(Vector2D(0, 0 - wallThickness), mapWidth, wallThickness);
+    map_objects.emplace_back(Vector2D(0 - wallThickness, 0), wallThickness, mapHeight);
+    map_objects.emplace_back(Vector2D(0, mapHeight), mapWidth, wallThickness);
+    map_objects.emplace_back(Vector2D(mapWidth, 0), wallThickness, mapHeight);
 
-    const float boxThickness = 1.0f;
+    const float boxThickness = 100;
 
-    map_objects.emplace_back(Vector2D{5, 5}, boxThickness, boxThickness);
+    map_objects.emplace_back(Vector2D(500, 500), boxThickness, boxThickness);
 }
 
-void CS2DGame::add_player() {
-    Player player({0.5f, 0.5f});
-    players.emplace_back(std::move(player));
-}
+void CS2DGame::add_player() { players.emplace_back(Vector2D(200, 200), Vector2D(1, 0)); }
 
 void CS2DGame::game_loop() {
     std::string input;
@@ -37,18 +34,20 @@ void CS2DGame::game_loop() {
         std::cout << "> ";
         std::cin >> input;
 
-        Vector2D dir{0, 0};
+        Vector2D dir(0, 0);
 
         if (input == "w") {
-            dir.y = -1;
-        } else if (input == "s") {
             dir.y = 1;
+        } else if (input == "s") {
+            dir.y = -1;
         } else if (input == "a") {
             dir.x = -1;
         } else if (input == "d") {
             dir.x = 1;
         } else if (input == "e") {
             players[0].shoot(this->map_objects);
+        } else if (input == "r") {
+            players[0].rotate(Vector2D(-1, 0));
         } else if (input == "q") {
             running = false;
             continue;
@@ -65,7 +64,7 @@ void CS2DGame::game_loop() {
 
 void CS2DGame::print_map_objects() const {
     for (const auto& obj: map_objects) {
-        Hitbox hitbox = obj.get_hitbox();  // Obtenemos el hitbox
+        Hitbox hitbox = obj.get_hitbox();
 
         std::cout << "Objeto en posición (" << hitbox.position.x << ", " << hitbox.position.y
                   << "), Ancho: " << hitbox.width << ", Alto: " << hitbox.height << "\n";
