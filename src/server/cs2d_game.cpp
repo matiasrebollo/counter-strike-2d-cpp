@@ -7,6 +7,9 @@
 #include <utility>
 #include <vector>
 
+#include "common/game_snapshot.h"
+#include "common/map.h"
+
 
 CS2DGame::CS2DGame() {
     const int mapWidth = 1000;
@@ -37,13 +40,42 @@ void CS2DGame::new_player(std::string& username) {  // recibir Sender/Receiver a
 }
 
 void CS2DGame::broadcast_map() const {
-    // crear struct que corresponda.
-    // recorrer Players y enviar struct a cada uno
+    std::vector<MapObject> objects;
+
+    for (const auto& collidable: collidables) {
+        if (std::dynamic_pointer_cast<Player>(collidable)) {
+            continue;  // ignorar jugadores
+        }
+        Hitbox h = collidable->get_hitbox();
+        Vector2D pos = h.position;
+        int width = h.width;
+        int height = h.height;
+
+        MapObject obj{pos, width, height, MapObjectType::BOX};
+        objects.push_back(obj);
+    }
+
+    Map map{objects};
+
+    /*for (const auto& player: players) {
+        player.second->send_map(map);
+    }*/
 }
 
 void CS2DGame::broadcast_snapshot() const {
-    // crear struct que corresponda.
-    // recorrer Players y enviar struct a cada uno
+    std::vector<PlayerDTO> player_dtos;
+
+    for (const auto& player: players) {
+        const PlayerDTO dto{player.second->get_hitbox().position, player.second->get_direction(),
+                            player.second->get_life()};
+        player_dtos.push_back(dto);
+    }
+
+    const Snapshot snapshot{player_dtos};
+
+    /*for (const auto& player: players) {
+        player.second->send_snapshot(snapshot);
+    }*/
 }
 
 void CS2DGame::move_player(const std::string& username, const Vector2D& direction) {

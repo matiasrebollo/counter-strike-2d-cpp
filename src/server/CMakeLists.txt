@@ -4,14 +4,12 @@ target_sources(taller_server
         cs2d_game.cpp
         player.cpp
         collidable.cpp
-        vector_2d.cpp
         hitbox.cpp
         shot.cpp
         move_command.cpp
         rotate_command.cpp
         shoot_command.cpp
     PUBLIC
-        vector_2d.h
         hitbox.h
         cs2d_game.h
         player.h

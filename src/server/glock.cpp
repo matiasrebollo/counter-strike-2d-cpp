@@ -1,3 +1,3 @@
 #include "server/glock.h"
 
-Glock::Glock(): Gun(WeaponType::Glock, INITIAL_AMMO) {}
+Glock::Glock(): Gun(GunType::GLOCK, INITIAL_AMMO) {}

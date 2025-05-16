@@ -9,6 +9,8 @@ class Glock: public Gun {
 
 public:
     Glock();
+
+    // int damage() const override;
 };
 
 #endif

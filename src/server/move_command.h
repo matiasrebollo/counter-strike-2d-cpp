@@ -3,8 +3,8 @@
 
 #include <string>
 
+#include "common/vector_2d.h"
 #include "server/command.h"
-#include "server/vector_2d.h"
 
 struct MoveCommand: public Command {
     const Vector2D direction;

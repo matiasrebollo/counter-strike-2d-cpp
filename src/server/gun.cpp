@@ -20,6 +20,6 @@ std::unique_ptr<Gun> Gun::new_gun(const WeaponType& type) {
     }
 }
 
-Gun::Gun(WeaponType type, uint16_t initial_ammo): Weapon(type), ammo(initial_ammo) {}
+Gun::Gun(const GunType& type, uint16_t initial_ammo): type(type), ammo(initial_ammo) {}
 
 void Gun::add_ammo(uint16_t ammo_count) { ammo += ammo_count; }

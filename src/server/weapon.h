@@ -3,17 +3,13 @@
 
 #include <memory>
 
-#include "server/weapon_type.h"
+#include "common/weapon_type.h"
 
 class Weapon {
 protected:
-    WeaponType type;
-
-    explicit Weapon(WeaponType type);
+    Weapon();
 
 public:
-    virtual WeaponType get_type() const;
-
     // virtual int damage() const = 0;
 
     virtual ~Weapon() = default;

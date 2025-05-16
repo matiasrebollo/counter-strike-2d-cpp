@@ -8,10 +8,11 @@
 class Gun: public Weapon {
 protected:
     uint16_t ammo;
-    Gun(WeaponType type, uint16_t initial_ammo);
+    const GunType type;
+    explicit Gun(const GunType& type, uint16_t initial_ammo);
 
 public:
-    static std::unique_ptr<Gun> new_gun(const WeaponType& type);
+    static std::unique_ptr<Gun> new_gun(const GunType& type);
 
     void add_ammo(uint16_t ammo_count);
 

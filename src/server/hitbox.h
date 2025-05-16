@@ -1,7 +1,7 @@
 #ifndef HITBOX_H
 #define HITBOX_H
 
-#include "server/vector_2d.h"
+#include "common/vector_2d.h"
 
 class Hitbox {
 public:

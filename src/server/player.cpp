@@ -5,19 +5,22 @@
 #include "server/cs2d_game.h"
 
 Player::Player(Vector2D& position, Vector2D& direction):
-        Collidable(position, PLAYER_WIDTH, PLAYER_HEIGHT), direction(direction) {}
+        Collidable(position, PLAYER_WIDTH, PLAYER_HEIGHT),
+        direction(direction),
+        life(PLAYER_INITIAL_LIFE) {}
+
+Vector2D Player::get_direction() const { return direction; }
+
+uint16_t Player::get_life() const { return life; }
 
 void Player::step(const Vector2D& step_dir, const CS2DGame& game) {
     Hitbox old_hitbox = Hitbox(hitbox);
 
-    hitbox.position = hitbox.position + step_dir * 25;
-    std::cout << "Jugador moviéndose a: (" << hitbox.position.x << "," << hitbox.position.y
-              << ")\n";
+    hitbox.position = hitbox.position + step_dir * PLAYER_SPEED;
 
     const bool collision = game.is_player_in_valid_position(*this);
 
     if (collision) {
-        std::cout << "¡Colisión! No se puede mover ahí.\n";
         hitbox = old_hitbox;
         return;
     }
@@ -33,6 +36,7 @@ void Player::shoot(const CS2DGame& game) const {
     const Collidable* hit = shot.shoot(game);
 
     if (hit != nullptr) {
+        // que hit reciba daño de shot, reemplazar prints
         Hitbox h = hit->get_hitbox();
         std::cout << "¡Impacto! Disparo acertó a objeto en (" << h.position.x << ", "
                   << h.position.y << ")\n";
