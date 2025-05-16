@@ -4,13 +4,22 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2pp/SDL2pp.hh>
+#include <QApplication>
 
 using namespace SDL2pp;
+#include "common/foo.h"
+#include "lobby/lobby.h"
 
 #define DATA_PATH "/home/matias/Escritorio/TALLER 1/TP-GRUPAL/cs-2d-grupo-5-2025c1/assets/gfx" //deberia cambiarlo
 
-int main() try {
-    /* Inicializamos sdl */
+int main(int argc, char* argv[]) try {
+
+    QApplication a(argc, argv);
+    Lobby w;
+    w.show();
+    a.exec();
+
+    // Initialize SDL library
     SDL sdl(SDL_INIT_VIDEO);
 
     /* Creamos la ventana de 640x480 (puede cambiar) y posicionada automaticamente */

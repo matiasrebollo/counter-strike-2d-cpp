@@ -1,7 +1,14 @@
 target_sources(taller_client
-    PRIVATE
-    # .cpp files
-    main.cpp
     PUBLIC
-    # .h files
-    )
+        lobby/lobby.h
+    PRIVATE
+        main.cpp
+        lobby/lobby.cpp
+        lobby/lobby.ui
+        lobby/resources.qrc
+)
+
+
+
+
+
