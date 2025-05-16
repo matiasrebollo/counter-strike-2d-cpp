@@ -17,9 +17,6 @@ public:
     Collidable(const Collidable&) = delete;
     Collidable& operator=(const Collidable&) = delete;
 
-    Collidable(Collidable&&) noexcept = default;
-    Collidable& operator=(Collidable&&) noexcept = default;
-
     virtual ~Collidable();
 };
 

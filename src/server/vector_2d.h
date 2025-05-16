@@ -15,6 +15,11 @@ public:
     int cross(const Vector2D& other) const;
     double magnitude() const;
 
+    // Permito la copia para un vector 2D
+    Vector2D(const Vector2D&) = default;
+    Vector2D& operator=(const Vector2D&) = default;
+
+
     ~Vector2D();
 };
 

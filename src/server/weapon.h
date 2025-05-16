@@ -20,9 +20,6 @@ public:
 
     Weapon(const Weapon&) = delete;
     Weapon& operator=(const Weapon&) = delete;
-
-    Weapon(Weapon&&) noexcept = default;
-    Weapon& operator=(Weapon&&) noexcept = default;
 };
 
 #endif

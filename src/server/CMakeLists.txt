@@ -7,6 +7,9 @@ target_sources(taller_server
         vector_2d.cpp
         hitbox.cpp
         shot.cpp
+        move_command.cpp
+        rotate_command.cpp
+        shoot_command.cpp
     PUBLIC
         vector_2d.h
         hitbox.h
@@ -14,5 +17,7 @@ target_sources(taller_server
         player.h
         collidable.h
         shot.h
-        command.h
+        move_command.h
+        rotate_command.h
+        shoot_command.h
 )

@@ -12,6 +12,10 @@ public:
 
     bool intersects_with(const Hitbox& other_hitbox) const;
 
+    // Permito la copia para una Hitbox
+    Hitbox(const Hitbox&) = default;
+    Hitbox& operator=(const Hitbox&) = default;
+
     ~Hitbox();
 };
 

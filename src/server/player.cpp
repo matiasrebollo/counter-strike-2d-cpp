@@ -2,22 +2,19 @@
 
 #include <iostream>
 
-#include "server/shot.h"
+#include "server/cs2d_game.h"
 
-Player::Player(Vector2D position, Vector2D direction):
+Player::Player(Vector2D& position, Vector2D& direction):
         Collidable(position, PLAYER_WIDTH, PLAYER_HEIGHT), direction(direction) {}
 
-void Player::step(Vector2D dir, const std::list<std::shared_ptr<Collidable>>& obstacles) {
-    Hitbox old_hitbox = hitbox;
+void Player::step(const Vector2D& step_dir, const CS2DGame& game) {
+    Hitbox old_hitbox = Hitbox(hitbox);
 
-    hitbox.position = hitbox.position + dir * 25;
+    hitbox.position = hitbox.position + step_dir * 25;
     std::cout << "Jugador moviéndose a: (" << hitbox.position.x << "," << hitbox.position.y
               << ")\n";
 
-    bool collision = std::any_of(obstacles.begin(), obstacles.end(),
-                                 [this](const std::shared_ptr<Collidable>& collidable) {
-                                     return this->collides_with(*collidable);
-                                 });
+    const bool collision = game.is_player_in_valid_position(*this);
 
     if (collision) {
         std::cout << "¡Colisión! No se puede mover ahí.\n";
@@ -26,18 +23,14 @@ void Player::step(Vector2D dir, const std::list<std::shared_ptr<Collidable>>& ob
     }
 }
 
-void Player::rotate(Vector2D dir) {
-    if (dir.x == 0 && dir.y == 0)
-        return;
-    direction = dir;
-}
+void Player::rotate(const Vector2D& new_dir) { this->direction = new_dir; }
 
-void Player::shoot(const std::list<std::shared_ptr<Collidable>>& obstacles) const {
+void Player::shoot(const CS2DGame& game) const {
     const Vector2D origin(hitbox.position.x + hitbox.width / 2,
                           hitbox.position.y + hitbox.height / 2);
     Shot shot(origin, direction);
 
-    const Collidable* hit = shot.shoot(obstacles);
+    const Collidable* hit = shot.shoot(game);
 
     if (hit != nullptr) {
         Hitbox h = hit->get_hitbox();
