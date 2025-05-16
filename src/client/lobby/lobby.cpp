@@ -37,8 +37,9 @@ void Lobby::on_CreateGame_clicked()
     MessageFromClient request;
     request.commandType = CommandType::CREATE_USERNAME;   // commandType
     request.s = game_name;                  // s
+    protocol.send_command(request);
 
-    ServerResponseLobby response = protocol.Receive_command();
+    ServerResponseLobby response = protocol.receive_command();
     if (response.commandType == CREATE_USERNAME && response.success){
         ui->stack->setCurrentIndex(3);
     }
@@ -50,8 +51,9 @@ void Lobby::on_JoinGame_clicked()
     MessageFromClient request;
     request.commandType = CommandType::CREATE_USERNAME;   // commandType
     request.s = game_name;                  // s
+    protocol.send_command(request);
 
-    ServerResponseLobby response = protocol.Receive_command();
+    ServerResponseLobby response = protocol.receive_command();
     if (response.commandType == CREATE_USERNAME && response.success){
         ui->stack->setCurrentIndex(2);
     }
@@ -69,8 +71,8 @@ void Lobby::on_JoinGameButton_clicked()
     request.tt_skin = TerroristSkin::GUERRILLA;   // tt_skin
     request.ct_skin = CounterTerroristSkin::GIGN; // ct_skin
 
-    protocol.Send_command(request);
-    ServerResponseLobby response = protocol.Receive_command();
+    protocol.send_command(request);
+    ServerResponseLobby response = protocol.receive_command();
     if (response.commandType == JOIN_GAME && response.success){
         close()
     }
@@ -91,8 +93,8 @@ void Lobby::on_createButton_clicked()
         request.ct_skin = CounterTerroristSkin::GIGN; // ct_skin
         request.size_players = n_min_players;
 
-        protocol.Send_command(request);
-        ServerResponseLobby response = protocol.Receive_command();
+        protocol.send_command(request);
+        ServerResponseLobby response = protocol.receive_command();
         if (response.commandType == CREATE_GAME && response.success){
             close()
         }
