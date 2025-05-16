@@ -1,8 +1,8 @@
 #include <iostream>
 
-
 #include "../common/error_codes.h"
 #include "../common/liberror.h"
+
 #include "server.h"
 
 #define AMOUNT_OF_EXPECTED_ARGUMENTS 2
@@ -23,3 +23,4 @@ int main(int argc, char* argv[]) {
     } catch (const LibError& e) {
         return ErrorCodes::SOCKET_ERROR;
     }
+}

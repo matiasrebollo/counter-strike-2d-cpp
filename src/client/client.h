@@ -21,7 +21,6 @@ private:
     int SendMessage(const std::string& message);
     ServerResponseMessage ReceiveMessage();
     void updateIsAlive(const std::string& response);
-    bool isFinalMessage(const std::string& response, const std::string& finalMessage);
     void PrintMessageReceived(const std::string& message);
 
 public:

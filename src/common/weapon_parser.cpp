@@ -1,8 +1,8 @@
-#include "weaponParser.h"
+#include "weapon_parser.h"
 
 #include <unordered_map>
 
-#include "weapon.h"
+#include "weapons.h"
 
 uint8_t WeaponParser::getWeaponToByte(const Weapon& weapon) {
     std::unordered_map<Weapon, uint8_t> map = {{Weapon::NONE, NONE_WEAPON_BINARY_CODE},
@@ -31,7 +31,7 @@ Weapon WeaponParser::getWeaponFromByte(const uint8_t& weaponCode) {
                                                {AWP_WEAPON_BINARY_CODE, Weapon::AWP}};
 
     auto it = map.find(weaponCode);
-    return it != map.end() ? it->second : UNKNOWN_WEAPON;
+    return it != map.end() ? it->second : Weapon::UNKNOWN_WEAPON;
 }
 
 WeaponType WeaponParser::getWeaponTypeFromByte(const uint8_t& weaponCode) {
@@ -40,7 +40,7 @@ WeaponType WeaponParser::getWeaponTypeFromByte(const uint8_t& weaponCode) {
             {SECONDARY_WEAPON_BINARY_CODE, WeaponType::SECONDARY}};
 
     auto it = map.find(weaponCode);
-    return it != map.end() ? it->second : UNKNOWN_WEAPON_TYPE;
+    return it != map.end() ? it->second : WeaponType::UNKNOWN_WEAPON_TYPE;
 }
 
 uint8_t WeaponParser::getWeaponTypeToByte(const WeaponType& weaponType) {
@@ -49,5 +49,5 @@ uint8_t WeaponParser::getWeaponTypeToByte(const WeaponType& weaponType) {
             {WeaponType::SECONDARY, SECONDARY_WEAPON_BINARY_CODE}};
 
     auto it = map.find(weaponType);
-    return it != map.end() ? it->second : UNKNOWN_WEAPON_TYPE;
+    return it != map.end() ? it->second : UNKNOWON_WEAPON_BINARY_CODE;
 }

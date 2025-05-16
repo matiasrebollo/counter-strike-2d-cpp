@@ -1,5 +1,7 @@
 #include "game_monitor.h"
 
+#include <string>
+
 #include "client_handler.h"
 
 GameMonitor::GameMonitor(const std::string& creatorUsername): gameReady(false) {
@@ -18,7 +20,7 @@ bool GameMonitor::AddPlayer(const std::string& playerUsername) {
     }
     return false;
 }
- 
+
 void GameMonitor::updateGameIsReady() {
     if (this->cts.size() == PLAYERS_CT && this->tts.size() == PLAYERS_TT) {
         this->gameReady = true;
@@ -32,9 +34,6 @@ void GameMonitor::WaitPlayers() {
     // aca deberia avisarle a todos que empezó. como hago?
 }
 
-void GameMonitor::MakePlayGame(ClientHandler& client) {
-}
+void GameMonitor::MakePlayGame(ClientHandler& client) {}
 
-bool GameMonitor::isFinished() {
-    return false;
-}
+bool GameMonitor::isFinished() { return false; }

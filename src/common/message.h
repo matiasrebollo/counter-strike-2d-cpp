@@ -5,11 +5,10 @@
 #include <string>
 #include <vector>
 
-#include "movements.h"
-#include "weapon.h"
 #include "commands.h"
-#include "skins.h"
 #include "movements.h"
+#include "skins.h"
+#include "weapons.h"
 
 struct InternalMessage {
     uint8_t code_message;

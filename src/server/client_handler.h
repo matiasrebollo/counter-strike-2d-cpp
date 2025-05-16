@@ -15,15 +15,15 @@ private:
     ServerProtocol protocol;
     std::atomic_bool keepTalking;
     std::atomic_bool isAlive;
-    std::unordered_map<CommandType,
-                       std::function<void(const MessageFromClient& request)>>
+    std::unordered_map<CommandType, std::function<void(const MessageFromClient& request)>>
             managersMap;
     ServerMonitor& server_monitor;
     std::string username;
     bool is_in_game;
     std::string my_game;
 
-    void sendLobbyResponse(const CommandType& command, const bool& success, const std::string& game_name);
+    void sendLobbyResponse(const CommandType& command, const bool& success,
+                           const std::string& game_name);
     void manageCommand(const MessageFromClient& msg);
     void manageCreateUsername(const MessageFromClient& msg);
     void manageCreateGame(const MessageFromClient& msg);

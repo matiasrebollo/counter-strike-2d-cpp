@@ -1,8 +1,6 @@
 #include "server_monitor.h"
 
-ServerMonitor::ServerMonitor() {
-    this->game_id = 0;
-}
+ServerMonitor::ServerMonitor() { this->game_id = 0; }
 
 bool ServerMonitor::CreateUsername(const std::string& username) {
     std::unique_lock<std::mutex> lck(this->mutex);

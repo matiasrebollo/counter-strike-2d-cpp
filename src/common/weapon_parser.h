@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "weapon.h"
+#include "weapons.h"
 
 #define NONE_WEAPON_BINARY_CODE 0x00
 #define GLOCK_WEAPON_BINARY_CODE 0x01
@@ -17,7 +17,6 @@
 
 class WeaponParser {
 public:
-
     uint8_t getWeaponToByte(const Weapon& weapon);
 
     WeaponType getWeaponType(const Weapon& weapon);

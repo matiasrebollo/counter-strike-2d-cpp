@@ -2,15 +2,35 @@ target_sources(taller_common
     PRIVATE
     # .cpp files
     vector_2d.cpp
+    codes_parser.cpp
+    common_protocol.cpp
+    liberror.cpp
+    resolver.cpp
+    socket.cpp
+    resolvererror.cpp
+    weapon_parser.cpp
     PUBLIC
     # .h files
     error_codes.h
     thread.h
     queue.h
+    socket.h
     map.h
     map_object.h
     weapon_type.h
+    weapons.h
     player_dto.h
     game_snapshot.h
     vector_2d.h
+    codes_parser.h
+    commands.h
+    common_protocol.h
+    communication_ended.h
+    error_codes.h
+    liberror.h
+    message.h
+    movements.h
+    resolver.h
+    resolvererror.h
+    weapon_parser.h
     )

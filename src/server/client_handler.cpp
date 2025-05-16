@@ -8,7 +8,11 @@
 #include "server_monitor.h"
 
 ClientHandler::ClientHandler(Socket&& socket, ServerMonitor& server_monitor):
-        protocol(std::move(socket)), server_monitor(server_monitor), username(""), is_in_game(false), my_game("") {
+        protocol(std::move(socket)),
+        server_monitor(server_monitor),
+        username(""),
+        is_in_game(false),
+        my_game("") {
     managersMap[CommandType::CREATE_USERNAME] = [this](const MessageFromClient& request) {
         return manageCreateUsername(request);
     };
@@ -35,8 +39,8 @@ void ClientHandler::run() {
 void ClientHandler::launchLobby() {
     while (!this->isInGame()) {
         MessageFromClient msg = this->protocol.receive_command();
-        // aca en msg en caso de crear o joinear tengo las skins, en algun lado deberia guardarlo, asumo que pasarlo 
-        // al server_monitor -> game_monitor -> el game lo guarda
+        // aca en msg en caso de crear o joinear tengo las skins, en algun lado deberia guardarlo,
+        // asumo que pasarlo al server_monitor -> game_monitor -> el game lo guarda
         this->manageCommand(msg);
     }
 }
@@ -50,7 +54,8 @@ void ClientHandler::launchGame() {
     this->_keep_running = false;
 }
 
-void ClientHandler::sendLobbyResponse(const CommandType& command, const bool& success, const std::string& game_name) {
+void ClientHandler::sendLobbyResponse(const CommandType& command, const bool& success,
+                                      const std::string& game_name) {
     this->protocol.send_lobby_message(ServerResponseLobby{command, success, game_name});
 }
 
@@ -101,9 +106,7 @@ void ClientHandler::manageJoinGame(const MessageFromClient& msg) {
     this->sendLobbyResponse(msg.commandType, false, "");
 }
 
-std::string ClientHandler::GetUsername() {
-    return this->username;
-}
+std::string ClientHandler::GetUsername() { return this->username; }
 
 void ClientHandler::manageEndGame() { this->server_monitor.ManageEndGame(this->my_game); }
 

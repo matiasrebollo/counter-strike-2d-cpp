@@ -2,11 +2,11 @@
 #define LOBBY_H
 
 #include <QMainWindow>
-#include <vector>
-#include <string>
 #include <optional>
+#include <string>
+#include <vector>
 
-#include "../../client/client_protocol.h"
+#include "client/client_protocol.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -14,12 +14,11 @@ class Lobby;
 }
 QT_END_NAMESPACE
 
-class Lobby : public QMainWindow
-{
+class Lobby: public QMainWindow {
     Q_OBJECT
 
 public:
-    Lobby(QWidget *parent = nullptr);
+    explicit Lobby(QWidget* parent = nullptr);
     ~Lobby();
 
 private slots:
@@ -36,9 +35,9 @@ private slots:
     void connect_to_sv();
 
 private:
-    Ui::Lobby *ui;
+    Ui::Lobby* ui;
     std::vector<std::string> partidas;
     std::string username;
     std::optional<ClientProtocol> protocol;
 };
-#endif // LOBBY_H
+#endif  // LOBBY_H

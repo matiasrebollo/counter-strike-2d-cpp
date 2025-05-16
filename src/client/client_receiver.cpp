@@ -1,6 +1,6 @@
 #include "client_receiver.h"
 
-ClientReceiver::ClientReceiver(ClientProtocol& protocol) : protocol(protocol) {}
+ClientReceiver::ClientReceiver(ClientProtocol& protocol): protocol(protocol) {}
 
 void ClientReceiver::run() {
     this->_keep_running = true;
@@ -10,9 +10,7 @@ void ClientReceiver::run() {
     }
 }
 
-Snapshot ClientReceiver::pop_snapshot_from_queue() {
-    return this->queue.pop();
-}
+Snapshot ClientReceiver::pop_snapshot_from_queue() { return this->queue.pop(); }
 
 void ClientReceiver::receive_snapshot_from_server() {
     Snapshot snapshot = this->protocol.Receive_snapshot();

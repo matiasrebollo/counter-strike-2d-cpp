@@ -40,7 +40,8 @@ InternalMessage ClientProtocolParser::ParseMessage(const MessageFromClient& mess
     return this->parsersMap.find(message.commandType)->second(message);
 }
 
-InternalMessage ClientProtocolParser::parseFromCreateUsernameRequest(const MessageFromClient& request) {
+InternalMessage ClientProtocolParser::parseFromCreateUsernameRequest(
+        const MessageFromClient& request) {
     InternalMessage msg = this->getInternalMessageWCode(request);
     msg.s = request.s;
     return msg;
@@ -75,9 +76,11 @@ InternalMessage ClientProtocolParser::parseFromBuyWeaponRequest(const MessageFro
     return msg;
 }
 
-InternalMessage ClientProtocolParser::parseFromBuyWeaponAmmoRequest(const MessageFromClient& request) {
+InternalMessage ClientProtocolParser::parseFromBuyWeaponAmmoRequest(
+        const MessageFromClient& request) {
     InternalMessage msg = this->getInternalMessageWCode(request);
-    msg.code_weapon_type = this->weaponParser.getWeaponTypeToByte(this->weaponParser.getWeaponType(request.weapon));
+    msg.code_weapon_type = this->weaponParser.getWeaponTypeToByte(
+            this->weaponParser.getWeaponType(request.weapon));
     msg.bullets = request.bullets;
     return msg;
 }
@@ -99,7 +102,8 @@ InternalMessage ClientProtocolParser::parseFromShootRequest(const MessageFromCli
     return this->getInternalMessageWCode(request);
 }
 
-InternalMessage ClientProtocolParser::parseFromChangeWeaponRequest(const MessageFromClient& request) {
+InternalMessage ClientProtocolParser::parseFromChangeWeaponRequest(
+        const MessageFromClient& request) {
     InternalMessage msg = this->getInternalMessageWCode(request);
     msg.code_weapon_type = request.weaponType;
     return msg;

@@ -18,8 +18,8 @@ project(taller_tp
 
 option(TALLER_TESTS "Enable / disable tests." ON)
 option(TALLER_CLIENT "Enable / disable client program." ON)
-option(TALLER_SERVER "Enable / disable server program." OFF)
-option(TALLER_EDITOR "Enable / disable editor program." OFF)
+option(TALLER_SERVER "Enable / disable server program." ON)
+option(TALLER_EDITOR "Enable / disable editor program." ON)
 option(TALLER_MAKE_WARNINGS_AS_ERRORS "Enable / disable warnings as errors." ON)
 
 message(CMAKE_CXX_COMPILER_ID="${CMAKE_CXX_COMPILER_ID}")
@@ -129,7 +129,7 @@ if(TALLER_CLIENT)
 
     target_include_directories(taller_client
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/client/lobby
+        ${CMAKE_CURRENT_SOURCE_DIR}/client
     PRIVATE
         ${CMAKE_CURRENT_BINARY_DIR}
         ${libSDL2pp_SOURCE_DIR}

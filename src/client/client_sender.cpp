@@ -1,6 +1,6 @@
 #include "client_sender.h"
 
-ClientSender::ClientSender(ClientProtocol& protocol) : protocol(protocol) {}
+ClientSender::ClientSender(ClientProtocol& protocol): protocol(protocol) {}
 
 void ClientSender::run() {
     this->_keep_running = true;
@@ -10,9 +10,7 @@ void ClientSender::run() {
     }
 }
 
-void ClientSender::add_command_to_queue(const MessageFromClient& msg) {
-    this->queue.push(msg);
-}
+void ClientSender::add_command_to_queue(const MessageFromClient& msg) { this->queue.push(msg); }
 
 void ClientSender::send_command_to_server() {
     MessageFromClient msg = this->queue.pop();

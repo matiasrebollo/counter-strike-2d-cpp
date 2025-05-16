@@ -1,11 +1,9 @@
 #include "client_sender.h"
 
-ClientSender::ClientSender(ServerProtocol& protocol) : protocol(protocol), queue() {
-}
+ClientSender::ClientSender(ServerProtocol& protocol):
+        protocol(protocol), queue(), keep_running(true) {}
 
-void ClientSender::add_snapshot_to_queue(const Snapshot& snapshot) {
-    this->queue.push(snapshot);
-}
+void ClientSender::add_snapshot_to_queue(const Snapshot& snapshot) { this->queue.push(snapshot); }
 void ClientSender::send_snapshot_to_client() {
     Snapshot snapshot = this->queue.pop();
     this->protocol.send_snapshot(snapshot);
@@ -18,6 +16,4 @@ void ClientSender::run() {
     }
 }
 
-ClientSender::~ClientSender() {
-    this->keep_running = false;
-}
+ClientSender::~ClientSender() { this->keep_running = false; }

@@ -8,11 +8,11 @@
 #include <unordered_map>
 #include <vector>
 
+#include "../common/codes_parser.h"
 #include "../common/commands.h"
 #include "../common/common_protocol.h"
 #include "../common/message.h"
 #include "../common/socket.h"
-#include "../common/codes_parser.h"
 
 #include "client_protocol_parser.h"
 
@@ -32,7 +32,7 @@ private:
     void send_aim_request(const InternalMessage& request);
     void send_move_request(const InternalMessage& request);
     void send_shoot_request(const InternalMessage& request);
-    void send_change_weapon_request(const InternalMessage& request); 
+    void send_change_weapon_request(const InternalMessage& request);
     void send_plant_bomb_request(const InternalMessage& request);
     void send_defuse_bomb_request(const InternalMessage& request);
 

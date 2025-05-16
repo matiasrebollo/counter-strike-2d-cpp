@@ -6,12 +6,12 @@
 #include <unordered_map>
 #include <vector>
 
+#include "../common/codes_parser.h"
 #include "../common/commands.h"
 #include "../common/message.h"
-#include "../common/weaponParser.h"
-#include "../common/codes_parser.h"
+#include "../common/weapon_parser.h"
 
-class ClientProtocolParser : public CodesParser {
+class ClientProtocolParser: public CodesParser {
 private:
     WeaponParser weaponParser;
     std::unordered_map<CommandType,
@@ -32,7 +32,7 @@ private:
     InternalMessage parseFromDefuseBombRequest(const MessageFromClient& request);
 
     void parseSkins(const MessageFromClient& request, InternalMessage& msg);
-    
+
     InternalMessage getInternalMessageWCode(const MessageFromClient& request);
 
 public:

@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <unordered_map>
+
 #include "commands.h"
 
 #define CODE_CREATE_USERNAME 0x01
@@ -22,11 +23,12 @@
 #define CODE_BULLETS 0x50
 
 class CodesParser {
-    protected:
-        std::unordered_map<uint8_t, CommandType> codeToCommands;
-        std::unordered_map<CommandType, uint8_t> commandsToCode;
-    public:
-        CodesParser();
+protected:
+    std::unordered_map<uint8_t, CommandType> codeToCommands;
+    std::unordered_map<CommandType, uint8_t> commandsToCode;
+
+public:
+    CodesParser();
 };
 
 #endif

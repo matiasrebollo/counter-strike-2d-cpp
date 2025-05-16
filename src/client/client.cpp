@@ -37,12 +37,6 @@ void Client::PrintMessageReceived(const std::string& message) { std::cout << mes
 
 ServerResponseMessage Client::ReceiveMessage() { return this->protocol.receive_command(); }
 
-void Client::updateIsAlive(const std::string& response) {
-    
-}
-
-bool Client::isFinalMessage(const std::string& response, const std::string& finalMessage) {
-    return response.substr(response.size() - finalMessage.size()) == finalMessage;
-}
+void Client::updateIsAlive(const std::string& response) {}
 
 Client::~Client() {}

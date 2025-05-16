@@ -41,7 +41,7 @@ ClientProtocol::ClientProtocol(const std::string& hostname, const std::string& p
         return this->send_shoot_request(request);
     };
     sendersMap[CommandType::CHANGE_WEAPON] = [this](const InternalMessage& request) {
-        return this->send_change_weapon_request(request); 
+        return this->send_change_weapon_request(request);
     };
     sendersMap[CommandType::PLANT_BOMB] = [this](const InternalMessage& request) {
         return this->send_plant_bomb_request(request);
@@ -53,10 +53,10 @@ ClientProtocol::ClientProtocol(const std::string& hostname, const std::string& p
 
 ServerResponseLobby ClientProtocol::receive_command() {
     // aca para la etapa de lobby recibo:
-        // rta de pedido de crear nombre de usuario
-        // rta de pedido de crear partida
-        // rta de pedio de joinear partida
-        // notificacion de empezó partida -> aca lanzó los hilos y queues
+    // rta de pedido de crear nombre de usuario
+    // rta de pedido de crear partida
+    // rta de pedio de joinear partida
+    // notificacion de empezó partida -> aca lanzó los hilos y queues
     uint8_t code = this->receive_byte();
     ServerResponseLobby response = ServerResponseLobby{this->codeToCommands.find(code)->second};
     if (this->codeToCommands.find(code)->second != CommandType::GAME_STARTED) {
@@ -87,7 +87,7 @@ void ClientProtocol::send_create_game_request(const InternalMessage& request) {
 void ClientProtocol::send_join_game_request(const InternalMessage& request) {
     this->send_string(request.s);
     this->send_select_skins_request(request);
-}   
+}
 
 void ClientProtocol::send_select_skins_request(const InternalMessage& request) {
     this->send_byte(request.skin_id_tt);
@@ -116,21 +116,15 @@ void ClientProtocol::send_move_request(const InternalMessage& request) {
     this->send_byte(request.direction);
 }
 
-void ClientProtocol::send_shoot_request(const InternalMessage& request) {
-    
-}
+void ClientProtocol::send_shoot_request(const InternalMessage& request) {}
 
 void ClientProtocol::send_change_weapon_request(const InternalMessage& request) {
     this->send_byte(request.code_weapon_type);
 }
 
-void ClientProtocol::send_plant_bomb_request(const InternalMessage& request) {
-    
-}
+void ClientProtocol::send_plant_bomb_request(const InternalMessage& request) {}
 
-void ClientProtocol::send_defuse_bomb_request(const InternalMessage& request) {
-
-}
+void ClientProtocol::send_defuse_bomb_request(const InternalMessage& request) {}
 
 /*
 
@@ -165,8 +159,8 @@ std::vector<Player> ClientProtocol::receive_players(const int& size_players) {
         bool have_bomb = this->ReceiveByte() == 0x01;
         bool is_shooting = this->ReceiveByte() == 0x01;
         uint8_t weapon_equipped_code = this->ReceiveByte();
-        players.push_back(Player(username, pos_x, pos_y, pos_cros_x, 
-        pos_cros_y, money, health, have_knife, primary_weapon, 
+        players.push_back(Player(username, pos_x, pos_y, pos_cros_x,
+        pos_cros_y, money, health, have_knife, primary_weapon,
         primary_weapon_bullets, secondary_weapon, secondary_weapon_bullets,
         have_bomb, is_shooting, weapon_equipped_code));
     }

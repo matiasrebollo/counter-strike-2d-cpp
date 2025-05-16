@@ -1,6 +1,7 @@
 #include "client_receiver.h"
 
-ClientReceiver::ClientReceiver(Queue<MessageFromClient>& queue, ServerProtocol& protocol) : queue(queue), protocol(protocol) {}
+ClientReceiver::ClientReceiver(Queue<MessageFromClient>& queue, ServerProtocol& protocol):
+        queue(queue), protocol(protocol) {}
 
 void ClientReceiver::run() {
     this->_keep_running = true;
@@ -15,6 +16,4 @@ void ClientReceiver::receive_command_from_client() {
     add_command_to_queue(msg);
 }
 
-void ClientReceiver::add_command_to_queue(const MessageFromClient& msg) {
-    this->queue.push(msg);
-}
+void ClientReceiver::add_command_to_queue(const MessageFromClient& msg) { this->queue.push(msg); }
