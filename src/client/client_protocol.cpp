@@ -49,7 +49,8 @@ ServerResponseLobby ClientProtocol::receive_command() {
     // rta de pedio de joinear partida
     // notificacion de empezó partida -> aca lanzó los hilos y queues
     uint8_t code = this->receive_byte();
-    ServerResponseLobby response = ServerResponseLobby{this->codeToCommands.find(code)->second, false, ""};
+    ServerResponseLobby response =
+            ServerResponseLobby{this->codeToCommands.find(code)->second, false, ""};
     if (this->codeToCommands.find(code)->second != CommandType::GAME_STARTED) {
         response.success = this->receive_byte();
         if (response.commandType == CommandType::CREATE_GAME) {

@@ -48,7 +48,7 @@ MessageFromClient ClientHandler::ReceivePlay() { return this->protocol.receive_c
 
 void ClientHandler::launchGame() {
     while (!this->server_monitor.GetGameMonitor(this->my_game).isFinished()) {
-        //this->server_monitor.MakePlayGame(this->my_game, *this);
+        // this->server_monitor.MakePlayGame(this->my_game, *this);
         this->server_monitor.MakePlayGame(this->my_game);
     }
     this->stop();
@@ -57,10 +57,6 @@ void ClientHandler::launchGame() {
 void ClientHandler::sendLobbyResponse(const CommandType& command, const bool& success,
                                       const std::string& game_name) {
     this->protocol.send_lobby_message(ServerResponseLobby{command, success, game_name});
-}
-
-void ClientHandler::SendStatusGame(const MessageFromServer& msg) {
-    this->protocol.SendMessage(msg);
 }
 
 void ClientHandler::manageCommand(const MessageFromClient& msg) {

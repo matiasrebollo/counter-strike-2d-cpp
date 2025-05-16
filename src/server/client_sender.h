@@ -3,8 +3,8 @@
 
 #include <atomic>
 
-#include "../common/queue.h"
 #include "../common/game_snapshot.h"
+#include "../common/queue.h"
 
 #include "server_protocol.h"
 
@@ -19,7 +19,6 @@ public:
     void add_snapshot_to_queue(const Snapshot& snapshot);
     void send_snapshot_to_client();
     void run();
-    ~ClientSender();
 };
 
 #endif

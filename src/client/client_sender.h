@@ -17,7 +17,6 @@ public:
     void add_command_to_queue(const MessageFromClient& msg);
     void send_command_to_server();
     void run() override;
-    ~ClientSender();
 };
 
 #endif

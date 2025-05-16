@@ -8,6 +8,7 @@
 
 #include "client/client_protocol.h"
 
+// cppcheck-suppress unknownMacro
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class Lobby;

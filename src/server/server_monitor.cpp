@@ -30,7 +30,7 @@ bool ServerMonitor::JoinGame(const std::string& gameName, const std::string& use
 void ServerMonitor::MakePlayGame(const std::string& gameName) {
     auto it = this->gameMonitors.find(gameName);
     if (it != this->gameMonitors.end()) {
-        //it->second.MakePlayGame(client);
+        // it->second.MakePlayGame(client);
     }
 }
 

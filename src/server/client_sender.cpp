@@ -1,7 +1,7 @@
 #include "client_sender.h"
 
-ClientSender::ClientSender(ServerProtocol& protocol)
-    : queue(), protocol(protocol), keep_running(true) {}
+ClientSender::ClientSender(ServerProtocol& protocol):
+        queue(), protocol(protocol), keep_running(true) {}
 
 void ClientSender::add_snapshot_to_queue(const Snapshot& snapshot) { this->queue.push(snapshot); }
 void ClientSender::send_snapshot_to_client() {
@@ -15,5 +15,3 @@ void ClientSender::run() {
         // Im sleeping inside the queue so i not burning CPU (i think)
     }
 }
-
-ClientSender::~ClientSender() { this->keep_running = false; }

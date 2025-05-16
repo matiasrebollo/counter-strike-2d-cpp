@@ -9,10 +9,10 @@
 #include <vector>
 
 #include "../common/codes_parser.h"
-#include "../common/common_protocol.h"
 #include "../common/commands.h"
-#include "../common/message.h"
+#include "../common/common_protocol.h"
 #include "../common/game_snapshot.h"
+#include "../common/message.h"
 #include "../common/socket.h"
 
 #define CODE_SUCCESS 0x01
@@ -39,16 +39,15 @@ private:
 
     MessageFromClient receive_select_skins_request(const CommandType& command);
 
-    MessageFromClient initialize_message(const CommandType& command) {
+    MessageFromClient initialize_message(const CommandType& command);
 
-    // void send_players(const std::vector<Player>& players);
+    void send_players(const std::vector<PlayerDTO>& players);
     // void send_bullets(const std::vector<Bullet>& bullets);
 public:
     explicit ServerProtocol(Socket&& socket);
     void send_lobby_message(const ServerResponseLobby& msg);
     void send_start_game(const ServerResponseLobby& msg);
     void send_snapshot(const Snapshot& snapshot);
-    void SendMessage(const MessageFromServer& msg);
     MessageFromClient receive_command(void);
     void kill();
     ~ServerProtocol();

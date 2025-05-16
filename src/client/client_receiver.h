@@ -1,8 +1,8 @@
 #ifndef CLIENT_RECEIVER_H
 #define CLIENT_RECEIVER_H
 
-#include "../common/queue.h"
 #include "../common/game_snapshot.h"
+#include "../common/queue.h"
 #include "../common/thread.h"
 
 #include "client_protocol.h"
@@ -17,7 +17,6 @@ public:
     void receive_snapshot_from_server();
     Snapshot pop_snapshot_from_queue();
     void run() override;
-    ~ClientReceiver();
 };
 
 #endif

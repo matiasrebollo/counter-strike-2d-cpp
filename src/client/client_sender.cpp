@@ -15,8 +15,3 @@ void ClientSender::send_command_to_server() {
     MessageFromClient msg = this->queue.pop();
     protocol.send_command(msg);
 }
-
-ClientSender::~ClientSender() {
-    this->stop();
-    this->join();
-}

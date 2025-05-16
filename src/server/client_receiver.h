@@ -18,7 +18,6 @@ public:
     void receive_command_from_client();
     void add_command_to_queue(const MessageFromClient& msg);
     void run() override;
-    ~ClientReceiver();
 };
 
 #endif

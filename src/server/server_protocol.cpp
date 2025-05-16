@@ -61,37 +61,37 @@ void ServerProtocol::send_start_game(const ServerResponseLobby& msg) {
 }
 
 void ServerProtocol::send_snapshot(const Snapshot& snapshot) {
-    //this->send_byte(snapshot.phase);
-    //this->send_byte(snapshot.round_number);
-    //this->send_byte(snapshot.bomb_status);
-    //this->send_byte(snapshot.timer);
-    // this->send_byte(snapshot.players.size());
-    // this->send_players(snapshot.players);
-    // this->send_byte(snapshot.bullets.size());
-    // this->send_bullets(snapshot.bullets);
+    // this->send_byte(snapshot.phase);
+    // this->send_byte(snapshot.round_number);
+    // this->send_byte(snapshot.bomb_status);
+    // this->send_byte(snapshot.timer);
+    this->send_byte(snapshot.players.size());
+    this->send_players(snapshot.players);
+    //  this->send_byte(snapshot.bullets.size());
+    //  this->send_bullets(snapshot.bullets);
 }
 
-/*
-void ServerProtocol::send_players(const std::vector<Player>& players) {
-    for (auto player : players) {
-        this->send_string(player.username);
-        this->send_byte(player.pos_x);
-        this->send_byte(player.pos_y);
-        this->send_byte(player.pos_cros_x);
-        this->send_byte(player.pos_cros_y);
-        this->send_big_endian_number(player.money);
-        this->send_byte(player.health);
-        this->send_byte(player.equipment.have_knife ? 0x01 : 0x00);
-        this->send_byte(this->weaponParser.getWeaponCode(player.equipment.primary_weapon));
-        this->send_big_endian_number(player.equipment.primary_weapon.bullets);
-        this->send_byte(this->weaponParser.getWeaponCode(player.equipment.secondary_weapon));
-        this->send_big_endian_number(player.equipment.secondary_weapon.bullets);
-        this->send_byte(player.equipment.have_bomb ? 0x01 : 0x00);
-        this->send_byte(player.is_shooting ? 0x01 : 0x00);
-        this->send_byte(player.weapon_equipped);
+void ServerProtocol::send_players(const std::vector<PlayerDTO>& players) {
+    for (auto player: players) {
+        // this->send_string(player.username);
+        this->send_byte(player.position.x);
+        this->send_byte(player.position.y);
+        this->send_byte(player.direction.x);
+        this->send_byte(player.direction.y);
+        this->send_byte(player.life);
+        // this->send_big_endian_number(player.money);
+        // this->send_byte(player.health);
+        // this->send_byte(player.equipment.have_knife ? 0x01 : 0x00);
+        // this->send_byte(this->weaponParser.getWeaponCode(player.equipment.primary_weapon));
+        // this->send_big_endian_number(player.equipment.primary_weapon.bullets);
+        // this->send_byte(this->weaponParser.getWeaponCode(player.equipment.secondary_weapon));
+        // this->send_big_endian_number(player.equipment.secondary_weapon.bullets);
+        // this->send_byte(player.equipment.have_bomb ? 0x01 : 0x00);
+        // this->send_byte(player.is_shooting ? 0x01 : 0x00);
+        // this->send_byte(player.weapon_equipped);
     }
 }
-
+/*
 void ServerProtocol::send_bullets(const std::vector<Bullet>& bullets) {
     for (auto bullet : bullets) {
         this->send_byte(bullet.id);
@@ -117,25 +117,23 @@ MessageFromClient ServerProtocol::receive_create_username_request(const CommandT
 }
 
 MessageFromClient ServerProtocol::initialize_message(const CommandType& command) {
-    return MessageFromClient{
-        command,
-        "",
-        GunType::NONE,
-        WeaponType::BOMB,
-        TerroristSkin::ARTIC_AVENGER,
-        CounterTerroristSkin::GIGN,
-        Movement::DOWN,
-        0,
-        0,
-        0,
-        0,
-        false
-    };
+    return MessageFromClient{command,
+                             "",
+                             GunType::NONE,
+                             WeaponType::BOMB,
+                             TerroristSkin::ARTIC_AVENGER,
+                             CounterTerroristSkin::GIGN,
+                             Movement::DOWN,
+                             0,
+                             0,
+                             0,
+                             0,
+                             false};
 }
 
 MessageFromClient ServerProtocol::receive_create_game_request(const CommandType& command) {
     uint8_t size_players = this->receive_byte();
-    MessageFromClient msg = this->receive_select_skins_request(commmand);
+    MessageFromClient msg = this->receive_select_skins_request(command);
     msg.size_players = size_players;
     return msg;
 }

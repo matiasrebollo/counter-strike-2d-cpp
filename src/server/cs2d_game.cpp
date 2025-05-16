@@ -7,8 +7,8 @@
 #include <utility>
 #include <vector>
 
-#include "common/game_snapshot.h"
 #include "common/game_map.h"
+#include "common/game_snapshot.h"
 
 
 CS2DGame::CS2DGame() {

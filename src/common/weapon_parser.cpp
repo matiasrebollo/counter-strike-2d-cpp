@@ -4,10 +4,10 @@
 
 uint8_t WeaponParser::getWeaponToByte(const GunType& weapon) {
     std::unordered_map<GunType, uint8_t> map = {{GunType::NONE, NONE_WEAPON_BINARY_CODE},
-                                               {GunType::GLOCK, GLOCK_WEAPON_BINARY_CODE},
-                                               {GunType::AK47, AK47_WEAPON_BINARY_CODE},
-                                               {GunType::M3, M3_WEAPON_BINARY_CODE},
-                                               {GunType::AWP, AWP_WEAPON_BINARY_CODE}};
+                                                {GunType::GLOCK, GLOCK_WEAPON_BINARY_CODE},
+                                                {GunType::AK47, AK47_WEAPON_BINARY_CODE},
+                                                {GunType::M3, M3_WEAPON_BINARY_CODE},
+                                                {GunType::AWP, AWP_WEAPON_BINARY_CODE}};
 
     auto it = map.find(weapon);
     return it->second;
@@ -23,10 +23,10 @@ WeaponType WeaponParser::getWeaponType(const GunType& weapon) {
 
 GunType WeaponParser::getWeaponFromByte(const uint8_t& weaponCode) {
     std::unordered_map<uint8_t, GunType> map = {{NONE_WEAPON_BINARY_CODE, GunType::NONE},
-                                               {GLOCK_WEAPON_BINARY_CODE, GunType::GLOCK},
-                                               {AK47_WEAPON_BINARY_CODE, GunType::AK47},
-                                               {M3_WEAPON_BINARY_CODE, GunType::M3},
-                                               {AWP_WEAPON_BINARY_CODE, GunType::AWP}};
+                                                {GLOCK_WEAPON_BINARY_CODE, GunType::GLOCK},
+                                                {AK47_WEAPON_BINARY_CODE, GunType::AK47},
+                                                {M3_WEAPON_BINARY_CODE, GunType::M3},
+                                                {AWP_WEAPON_BINARY_CODE, GunType::AWP}};
 
     auto it = map.find(weaponCode);
     return it->second;
