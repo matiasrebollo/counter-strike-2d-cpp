@@ -18,13 +18,11 @@ public:
 class Thread: public Runnable {
 private:
     std::thread thread;
-
-protected:
-    // Subclasses that inherit from Thread will have access to these
-    // flags, mostly to control how Thread::run() will behave
     std::atomic<bool> _keep_running;
     std::atomic<bool> _is_alive;
 
+
+protected:
     bool should_keep_running() const { return _keep_running; }
 
 public:
@@ -60,7 +58,7 @@ public:
     bool is_alive() const override { return _is_alive; }
 
     virtual void run() = 0;
-    virtual ~Thread() override {}
+    virtual ~Thread() {}
 
     Thread(const Thread&) = delete;
     Thread& operator=(const Thread&) = delete;

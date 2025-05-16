@@ -23,4 +23,3 @@ int main(int argc, char* argv[]) {
     } catch (const LibError& e) {
         return ErrorCodes::SOCKET_ERROR;
     }
-}

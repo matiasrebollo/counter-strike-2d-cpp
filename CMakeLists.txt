@@ -18,8 +18,8 @@ project(taller_tp
 
 option(TALLER_TESTS "Enable / disable tests." ON)
 option(TALLER_CLIENT "Enable / disable client program." ON)
-option(TALLER_SERVER "Enable / disable server program." ON)
-option(TALLER_EDITOR "Enable / disable editor program." ON)
+option(TALLER_SERVER "Enable / disable server program." OFF)
+option(TALLER_EDITOR "Enable / disable editor program." OFF)
 option(TALLER_MAKE_WARNINGS_AS_ERRORS "Enable / disable warnings as errors." ON)
 
 message(CMAKE_CXX_COMPILER_ID="${CMAKE_CXX_COMPILER_ID}")
@@ -30,7 +30,7 @@ add_library(taller_common STATIC)
 
 # add the source files that make the lib
 # HEY!! TODO XXX: add more subfolders here
-add_subdirectory(common/)
+add_subdirectory(src/common)
 
 
 # set compiler warnings to the targets
@@ -40,7 +40,12 @@ set_project_warnings(taller_common ${TALLER_MAKE_WARNINGS_AS_ERRORS} FALSE)
 # Say where the headers will be found required by library target
 # Make this PUBLIC so any dependant linking lib will inherit this
 # location (so our dependants will not have to explicitly request this)
-target_include_directories(taller_common PUBLIC .)
+target_include_directories(taller_common PUBLIC ${CMAKE_SOURCE_DIR}/src/)
+
+
+# Enable SDL2pp with Image and TTF support
+set(SDL2PP_WITH_IMAGE YES)
+set(SDL2PP_WITH_TTF YES)
 
 # HEY!! TODO XXX: you need to install some runtime and dev libraries *before*
 # compiling the client/editor code.
@@ -102,23 +107,40 @@ endif()
 # Program section
 # ---------------
 if(TALLER_CLIENT)
-    # HEY!! TODO XXX: Change the name of the executable to the one you like!
+
+    # Reglas de Qt
+    set(CMAKE_AUTOUIC ON)
+    set(CMAKE_AUTOMOC ON)
+    set(CMAKE_AUTORCC ON)
+    
+    # Buscar Qt
+    find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
+    find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+
+    # Ejecutable y fuentes
     add_executable(taller_client)
 
     # Make them depend on taller_common lib
     add_dependencies(taller_client taller_common SDL2pp::SDL2pp)
-
+    
     # Add source files and enable warnings
-    # HEY!! TODO XXX: add more subfolders here
-    add_subdirectory(client)
-
+    add_subdirectory(src/client)
     set_project_warnings(taller_client ${TALLER_MAKE_WARNINGS_AS_ERRORS} FALSE)
 
-    # add libSDL2pp's headers
-    target_include_directories(taller_client PRIVATE ${libSDL2pp_SOURCE_DIR})
+    target_include_directories(taller_client
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/client/lobby
+    PRIVATE
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${libSDL2pp_SOURCE_DIR}
+)
 
-    # Link the taller_common lib target
-    target_link_libraries(taller_client taller_common SDL2pp::SDL2pp)
+    target_link_libraries(taller_client
+    PRIVATE
+        Qt${QT_VERSION_MAJOR}::Widgets
+        taller_common
+        SDL2pp::SDL2pp
+)
 endif()
 
 if(TALLER_SERVER)
@@ -130,7 +152,7 @@ if(TALLER_SERVER)
 
     # Add source files and enable warnings
     # HEY!! TODO XXX: add more subfolders here
-    add_subdirectory(server)
+    add_subdirectory(src/server)
 
     set_project_warnings(taller_server ${TALLER_MAKE_WARNINGS_AS_ERRORS} FALSE)
 
@@ -147,7 +169,7 @@ if(TALLER_EDITOR)
 
     # Add source files and enable warnings
     # HEY!! TODO XXX: add more subfolders here
-    add_subdirectory(editor)
+    add_subdirectory(src/editor)
 
     set_project_warnings(taller_editor ${TALLER_MAKE_WARNINGS_AS_ERRORS} FALSE)
 
