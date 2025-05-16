@@ -2,19 +2,20 @@
 
 #include <algorithm>
 #include <limits>
+#include <vector>
 
 Shot::Shot(Vector2D origin, Vector2D direction): origin(origin), direction(direction) {}
 
-const Collidable* Shot::shoot(const std::vector<Collidable>& map_objects) const {
+const Collidable* Shot::shoot(const std::list<std::shared_ptr<Collidable>>& obstacles) const {
     const Collidable* hit = nullptr;
     double closest = std::numeric_limits<double>::max();
 
-    for (const auto& collidable: map_objects) {
-        double dist = impacts(collidable);
+    for (const auto& collidable: obstacles) {
+        double dist = impacts(*collidable);
         if (dist != 0.0) {
             if (dist < closest) {
                 closest = dist;
-                hit = &collidable;
+                hit = collidable.get();
             }
         }
     }

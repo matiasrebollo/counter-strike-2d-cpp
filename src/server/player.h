@@ -1,7 +1,8 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include <vector>
+#include <list>
+#include <memory>
 
 // #include "server/loadout_manager.h"
 #include "server/collidable.h"
@@ -13,16 +14,15 @@
 class Player: public Collidable {
 private:
     Vector2D direction;
+    // Receiver o Sender con el que comunicarse
     // LoadoutManager loadout;
 
 public:
     Player(Vector2D position, Vector2D direction);
 
-    void step(Vector2D direction, const std::vector<Collidable>& obstacles);
+    void step(Vector2D direction, const std::list<std::shared_ptr<Collidable>>& obstacles);
     void rotate(Vector2D direction);
-    void shoot(const std::vector<Collidable>& obstacles) const;
-
-    void print_position() const;
+    void shoot(const std::list<std::shared_ptr<Collidable>>& obstacles) const;
 
     Player(const Player&) = delete;
     Player& operator=(const Player&) = delete;
@@ -30,7 +30,7 @@ public:
     Player(Player&&) noexcept = default;
     Player& operator=(Player&&) noexcept = default;
 
-    ~Player();
+    ~Player() override;
 };
 
 #endif

@@ -1,8 +1,9 @@
 #ifndef SHOT_H
 #define SHOT_H
 
+#include <list>
+#include <memory>
 #include <optional>
-#include <vector>
 
 #include "server/collidable.h"
 
@@ -19,7 +20,7 @@ private:
 public:
     Shot(Vector2D origin, Vector2D direction);
 
-    const Collidable* shoot(const std::vector<Collidable>& map_objects) const;
+    const Collidable* shoot(const std::list<std::shared_ptr<Collidable>>& obstacless) const;
 
     Shot(const Shot&) = delete;
     Shot& operator=(const Shot&) = delete;

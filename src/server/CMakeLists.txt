@@ -14,4 +14,5 @@ target_sources(taller_server
         player.h
         collidable.h
         shot.h
+        command.h
 )

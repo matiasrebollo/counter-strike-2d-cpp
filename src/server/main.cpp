@@ -2,7 +2,6 @@
 
 int main() {
     CS2DGame game;
-    game.add_player();
-    game.game_loop();
+    game.run();
     return 0;
 }

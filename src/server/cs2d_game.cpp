@@ -4,70 +4,54 @@
 #include <string>
 #include <utility>
 
-CS2DGame::CS2DGame(): running(true) {
-    const float mapWidth = 1000;
-    const float mapHeight = 1000;
-    const float wallThickness = 100;
+CS2DGame::CS2DGame() {
+    const int mapWidth = 1000;
+    const int mapHeight = 1000;
+    const int wallThickness = 100;
 
-    map_objects.emplace_back(Vector2D(0, 0 - wallThickness), mapWidth, wallThickness);
-    map_objects.emplace_back(Vector2D(0 - wallThickness, 0), wallThickness, mapHeight);
-    map_objects.emplace_back(Vector2D(0, mapHeight), mapWidth, wallThickness);
-    map_objects.emplace_back(Vector2D(mapWidth, 0), wallThickness, mapHeight);
+    collidables.emplace_back(
+            std::make_shared<Collidable>(Vector2D(0, -wallThickness), mapWidth, wallThickness));
+    collidables.emplace_back(
+            std::make_shared<Collidable>(Vector2D(-wallThickness, 0), wallThickness, mapHeight));
+    collidables.emplace_back(
+            std::make_shared<Collidable>(Vector2D(0, mapHeight), mapWidth, wallThickness));
+    collidables.emplace_back(
+            std::make_shared<Collidable>(Vector2D(mapWidth, 0), wallThickness, mapHeight));
 
-    const float boxThickness = 100;
+    const int boxThickness = 100;
 
-    map_objects.emplace_back(Vector2D(500, 500), boxThickness, boxThickness);
+    collidables.emplace_back(
+            std::make_shared<Collidable>(Vector2D(500, 500), boxThickness, boxThickness));
 }
 
-void CS2DGame::add_player() { players.emplace_back(Vector2D(200, 200), Vector2D(1, 0)); }
-
-void CS2DGame::game_loop() {
-    std::string input;
-
-    std::cout << "Comandos: w (arriba), s (abajo), a (izquierda), d (derecha), q (salir)\n";
-
-    print_map_objects();
-
-    while (running) {
-        players[0].print_position();
-
-        std::cout << "> ";
-        std::cin >> input;
-
-        Vector2D dir(0, 0);
-
-        if (input == "w") {
-            dir.y = 1;
-        } else if (input == "s") {
-            dir.y = -1;
-        } else if (input == "a") {
-            dir.x = -1;
-        } else if (input == "d") {
-            dir.x = 1;
-        } else if (input == "e") {
-            players[0].shoot(this->map_objects);
-        } else if (input == "r") {
-            players[0].rotate(Vector2D(-1, 0));
-        } else if (input == "q") {
-            running = false;
-            continue;
-        } else {
-            std::cout << "Comando inválido.\n";
-            continue;
-        }
-
-        players[0].step(dir, map_objects);
-    }
-
-    std::cout << "Juego terminado.\n";
+void CS2DGame::new_player(std::string& username) {  // recibir Sender/Receiver aca??
+    auto player = std::make_shared<Player>(Vector2D(200, 200), Vector2D(1, 0));
+    players[username] = player;
+    collidables.push_back(player);
 }
 
-void CS2DGame::print_map_objects() const {
-    for (const auto& obj: map_objects) {
-        Hitbox hitbox = obj.get_hitbox();
+void CS2DGame::broadcast_map() const {
+    // crear struct que corresponda.
+    // recorrer Players y enviar struct a cada uno
+}
 
-        std::cout << "Objeto en posición (" << hitbox.position.x << ", " << hitbox.position.y
-                  << "), Ancho: " << hitbox.width << ", Alto: " << hitbox.height << "\n";
+void CS2DGame::broadcast_snapshot() const {
+    // crear struct que corresponda.
+    // recorrer Players y enviar struct a cada uno
+}
+
+void CS2DGame::run() {
+    broadcast_map();
+
+    while (should_keep_running()) {
+        // std::unique_ptr<Command> cmd;
+        /*if (command_queue.try_pop(cmd)) {
+            cmd->execute(*this);
+
+
+        }*/
+        broadcast_snapshot();
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 }
 
