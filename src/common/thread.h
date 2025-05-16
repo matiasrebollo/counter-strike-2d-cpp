@@ -18,11 +18,9 @@ public:
 class Thread: public Runnable {
 private:
     std::thread thread;
-
-    // Subclasses that inherit from Thread will have access to these
-    // flags, mostly to control how Thread::run() will behave
     std::atomic<bool> _keep_running;
     std::atomic<bool> _is_alive;
+
 
 protected:
     bool should_keep_running() const { return _keep_running; }

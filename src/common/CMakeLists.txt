@@ -4,6 +4,7 @@ target_sources(taller_common
     vector_2d.cpp
     PUBLIC
     # .h files
+    error_codes.h
     thread.h
     queue.h
     map.h
