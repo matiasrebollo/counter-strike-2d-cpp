@@ -34,14 +34,27 @@ void Lobby::go_to_lobby()
 void Lobby::on_CreateGame_clicked()
 {
     this->username = ui->username->text().toStdString()
-    ui->stack->setCurrentIndex(3);
+    MessageFromClient request;
+    request.commandType = CommandType::CREATE_USERNAME;   // commandType
+    request.s = game_name;                  // s
+
+    ServerResponseLobby response = protocol.Receive_command();
+    if (response.commandType == CREATE_USERNAME && response.success){
+        ui->stack->setCurrentIndex(3);
+    }
 }
-
-
+    
 void Lobby::on_JoinGame_clicked()
 {
     this->username = ui->username->text().toStdString()
-    ui->stack->setCurrentIndex(2);
+    MessageFromClient request;
+    request.commandType = CommandType::CREATE_USERNAME;   // commandType
+    request.s = game_name;                  // s
+
+    ServerResponseLobby response = protocol.Receive_command();
+    if (response.commandType == CREATE_USERNAME && response.success){
+        ui->stack->setCurrentIndex(2);
+    }
 }
 
 void Lobby::on_JoinGameButton_clicked()
