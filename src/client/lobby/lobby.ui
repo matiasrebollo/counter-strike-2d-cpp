@@ -87,7 +87,7 @@
        <enum>QFrame::Plain</enum>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="ConectToServer">
        <property name="sizePolicy">
@@ -125,8 +125,11 @@
           </property>
           <item>
            <widget class="QLineEdit" name="Server">
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
             <property name="placeholderText">
-             <string>Server</string>
+             <string>HOST</string>
             </property>
            </widget>
           </item>
@@ -138,8 +141,11 @@
             <property name="text">
              <string/>
             </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
             <property name="placeholderText">
-             <string>Port</string>
+             <string>PUERTO</string>
             </property>
            </widget>
           </item>
@@ -178,23 +184,42 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QLineEdit" name="lineEdit">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>80</width>
-            <height>0</height>
-           </size>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QLineEdit" name="lineEdit">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>80</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>250</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="placeholderText">
+             <string>USERNAME</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0">
+          <property name="sizeConstraint">
+           <enum>QLayout::SetNoConstraint</enum>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
           <item>
            <widget class="QPushButton" name="CreateGame">
             <property name="minimumSize">
@@ -250,32 +275,30 @@
          </widget>
         </item>
         <item>
-         <widget class="QListWidget" name="GamesList">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="mouseTracking">
-           <bool>false</bool>
-          </property>
-          <property name="sizeAdjustPolicy">
-           <enum>QAbstractScrollArea::AdjustToContents</enum>
-          </property>
-          <property name="isWrapping" stdset="0">
-           <bool>false</bool>
-          </property>
-          <property name="resizeMode">
-           <enum>QListView::Fixed</enum>
-          </property>
-          <property name="gridSize">
-           <size>
-            <width>100</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="sortingEnabled">
-           <bool>false</bool>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QLineEdit" name="game_code">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>250</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="placeholderText">
+             <string>CODIGO DE PARTIDA</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
          <widget class="QPushButton" name="JoinGameButton">
@@ -314,15 +337,23 @@
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
            <widget class="QLineEdit" name="NPlayers">
-            <property name="text">
-             <string>Nro</string>
+            <property name="maximumSize">
+             <size>
+              <width>250</width>
+              <height>16777215</height>
+             </size>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="GameName">
             <property name="text">
-             <string>Partida</string>
+             <string/>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="placeholderText">
+             <string>NUMERO MINIMO DE JUGADORES</string>
+            </property>
+            <property name="cursorMoveStyle">
+             <enum>Qt::LogicalMoveStyle</enum>
             </property>
            </widget>
           </item>
@@ -341,6 +372,9 @@
           </property>
           <property name="text">
            <string>CREAR</string>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
           </property>
          </widget>
         </item>

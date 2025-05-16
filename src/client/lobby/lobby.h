@@ -4,6 +4,9 @@
 #include <QMainWindow>
 #include <vector>
 #include <string>
+#include <optional>
+
+#include "../../client/client_protocol.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -35,6 +38,7 @@ private slots:
 private:
     Ui::Lobby *ui;
     std::vector<std::string> partidas;
-    //Protocolo
+    std::string username;
+    std::optional<ClientProtocol> protocol;
 };
 #endif // LOBBY_H

@@ -1,6 +1,12 @@
-#include "lobby.h"
-#include "./ui_lobby.h"
 #include <iostream>
+
+#include "lobby.h"
+#include "ui_lobby.h"
+
+#include "../../common/message.h"
+#include "../../common/command.h"
+#include "../../common/skins.h"
+#include "../../client/client_protocol.h"
 
 Lobby::Lobby(QWidget *parent)
     : QMainWindow(parent)
@@ -27,47 +33,80 @@ void Lobby::go_to_lobby()
 
 void Lobby::on_CreateGame_clicked()
 {
-    ui->stack->setCurrentIndex(3);
+    this->username = ui->username->text().toStdString()
+    MessageFromClient request;
+    request.commandType = CommandType::CREATE_USERNAME;   // commandType
+    request.s = game_name;                  // s
+    protocol.send_command(request);
+
+    ServerResponseLobby response = protocol.receive_command();
+    if (response.commandType == CREATE_USERNAME && response.success){
+        ui->stack->setCurrentIndex(3);
+    }
 }
-
-
+    
 void Lobby::on_JoinGame_clicked()
 {
-    ui->stack->setCurrentIndex(2);
-    //partidas = protocolo.recvPartidas()
-    partidas = {"PArtida1", "partida2", "paartida3"};
-    ui->GamesList->clear();
-    for (const auto &partida : partidas){
-        ui->GamesList->addItem(QString::fromStdString(partida));
+    this->username = ui->username->text().toStdString()
+    MessageFromClient request;
+    request.commandType = CommandType::CREATE_USERNAME;   // commandType
+    request.s = game_name;                  // s
+    protocol.send_command(request);
+
+    ServerResponseLobby response = protocol.receive_command();
+    if (response.commandType == CREATE_USERNAME && response.success){
+        ui->stack->setCurrentIndex(2);
     }
 }
 
 void Lobby::on_JoinGameButton_clicked()
 {
-    //unirse a un juego
     int index = ui->GamesList->currentRow();
-    std::string partida = partidas[index];
-    std::cout << partida;
-    /*if (protoclo.unirsePartida(abc.asd.ads)){
-        close();
-    }*/
+    std::string game_name = partidas[index];
+
+    MessageFromClient request;
+
+    request.commandType = CommandType::JOIN_GAME;   // commandType
+    request.s = game_name;                  // s
+    request.tt_skin = TerroristSkin::GUERRILLA;   // tt_skin
+    request.ct_skin = CounterTerroristSkin::GIGN; // ct_skin
+
+    protocol.send_command(request);
+    ServerResponseLobby response = protocol.receive_command();
+    if (response.commandType == JOIN_GAME && response.success){
+        close()
+    }
 }
 
 
 void Lobby::on_createButton_clicked()
 {
-    QString game_name = ui->GameName->text();
-    QString nro_jugadores_minimo = ui->NPlayers->text();
-    /*if (protoclo.crearPartida(abc.asd.ads)){
-        close();
-    }*/
+    bool ok;
+    int n_min_players = ui->NPlayers->text().toInt(&ok);
+    if (not ok){
+        //error
+    }else {
+        MessageFromClient request;
+
+        request.commandType = CommandType::CREATE_GAME;   // commandType
+        request.tt_skin = TerroristSkin::GUERRILLA;   // tt_skin
+        request.ct_skin = CounterTerroristSkin::GIGN; // ct_skin
+        request.size_players = n_min_players;
+
+        protocol.send_command(request);
+        ServerResponseLobby response = protocol.receive_command();
+        if (response.commandType == CREATE_GAME && response.success){
+            close()
+        }
+    }
 }
 
 void Lobby::connect_to_sv(){
     try{
-        QString servname = ui->Server->text();
+        QString hostname = ui->Hostname->text();
         QString port = ui->Port->text();
-        //instanciar protocolo(hostname, port)
+        
+        ClientProtocol(hostname.toStdString(), port.toStdString())
         go_to_lobby();
     }catch(...){
         //error
