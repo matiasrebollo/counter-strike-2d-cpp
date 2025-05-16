@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "common/game_snapshot.h"
-#include "common/map.h"
+#include "common/game_map.h"
 
 
 CS2DGame::CS2DGame() {
@@ -55,7 +55,7 @@ void CS2DGame::broadcast_map() const {
         objects.push_back(obj);
     }
 
-    Map map{objects};
+    GameMap map{objects};
 
     /*for (const auto& player: players) {
         player.second->send_map(map);

@@ -1,11 +1,11 @@
-#ifndef MAP_H
-#define MAP_H
+#ifndef GAME_MAP_H
+#define GAME_MAP_H
 
 #include <vector>
 
 #include "common/map_object.h"
 
-struct Map {
+struct GameMap {
     const std::vector<MapObject> map_objects;
     // const MapType type; ??? tener un "ambiente" para cada mapa?
 };

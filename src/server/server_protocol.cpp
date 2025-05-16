@@ -159,7 +159,7 @@ MessageFromClient ServerProtocol::receive_select_skins_request(const CommandType
 
 MessageFromClient ServerProtocol::receive_select_map_request(const CommandType& command) {
     MessageFromClient msg = this->initialize_message(command);
-    // msg.map_id = Map(this->receive_byte());
+    // msg.map_id = GameMap(this->receive_byte());
     // falta lo del enum o lo que fuere
     return msg;
 }

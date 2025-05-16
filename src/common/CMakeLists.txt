@@ -15,7 +15,7 @@ target_sources(taller_common
     thread.h
     queue.h
     socket.h
-    map.h
+    game_map.h
     map_object.h
     weapon_type.h
     player_dto.h

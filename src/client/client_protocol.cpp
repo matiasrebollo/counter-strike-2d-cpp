@@ -142,9 +142,9 @@ std::vector<Player> ClientProtocol::receive_players(const int& size_players) {
         uint16_t money = this->ReceiveBigEndianNumber();
         uint8_t health = this->ReceiveByte();
         bool kave_knife = this->ReceiveByte() == 0x01;
-        Weapon primary_weapon = this->weaponParser(this->ReceiveByte());
+        GunType primary_weapon = this->weaponParser(this->ReceiveByte());
         uint16_t primary_weapon_bullets = this->ReceiveBigEndianNumber();
-        Weapon secondary_weapon = this->weaponParser(this->ReceiveByte());
+        GunType secondary_weapon = this->weaponParser(this->ReceiveByte());
         uint16_t secondary_weapon_bullets = this->ReceiveBigEndianNumber();
         bool have_bomb = this->ReceiveByte() == 0x01;
         bool is_shooting = this->ReceiveByte() == 0x01;
