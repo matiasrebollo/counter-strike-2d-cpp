@@ -4,7 +4,6 @@ ClientReceiver::ClientReceiver(Queue<MessageFromClient>& queue, ServerProtocol& 
         queue(queue), protocol(protocol) {}
 
 void ClientReceiver::run() {
-    this->_keep_running = true;
     while (this->should_keep_running()) {
         receive_command_from_client();
         // Im sleeping inside the queue so im not burning CPU (i think)

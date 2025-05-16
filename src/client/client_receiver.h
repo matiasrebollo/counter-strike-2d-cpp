@@ -2,7 +2,7 @@
 #define CLIENT_RECEIVER_H
 
 #include "../common/queue.h"
-#include "../common/snapshot.h"
+#include "../common/game_snapshot.h"
 #include "../common/thread.h"
 
 #include "client_protocol.h"

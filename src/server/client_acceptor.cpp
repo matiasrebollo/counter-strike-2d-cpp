@@ -37,7 +37,7 @@ void ClientAcceptor::clear() {
         delete client;
     }
     this->clients.clear();
-    this->_is_alive = this->_keep_running = false;
+    this->stop();
     this->acceptor.shutdown(SHUT_RDWR);
     this->acceptor.close();
 }

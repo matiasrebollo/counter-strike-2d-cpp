@@ -31,10 +31,7 @@ private:
     void send_buy_weapon_ammo_request(const InternalMessage& request);
     void send_aim_request(const InternalMessage& request);
     void send_move_request(const InternalMessage& request);
-    void send_shoot_request(const InternalMessage& request);
     void send_change_weapon_request(const InternalMessage& request);
-    void send_plant_bomb_request(const InternalMessage& request);
-    void send_defuse_bomb_request(const InternalMessage& request);
 
     /*
     std::vector<Bullet> receive_bullets(const int& size_bullets);

@@ -25,14 +25,13 @@ ClientHandler::ClientHandler(Socket&& socket, ServerMonitor& server_monitor):
 }
 
 void ClientHandler::run() {
-    this->_is_alive = this->_keep_running = true;
     this->is_in_game = false;
-    while (this->_keep_running) {
+    while (this->should_keep_running()) {
         this->launchLobby();
         this->launchGame();
     }
     this->manageEndGame();
-    this->_is_alive = false;
+    this->stop();
     this->protocol.kill();
 }
 
@@ -49,9 +48,10 @@ MessageFromClient ClientHandler::ReceivePlay() { return this->protocol.receive_c
 
 void ClientHandler::launchGame() {
     while (!this->server_monitor.GetGameMonitor(this->my_game).isFinished()) {
-        this->server_monitor.MakePlayGame(this->my_game, *this);
+        //this->server_monitor.MakePlayGame(this->my_game, *this);
+        this->server_monitor.MakePlayGame(this->my_game);
     }
-    this->_keep_running = false;
+    this->stop();
 }
 
 void ClientHandler::sendLobbyResponse(const CommandType& command, const bool& success,
@@ -83,7 +83,7 @@ void ClientHandler::manageCreateGame(const MessageFromClient& msg) {
         this->sendLobbyResponse(msg.commandType, true, this->my_game);
         // DEBO MANDAR EL CODIGO DE LA PARTIDA
         this->server_monitor.GetGameMonitor(std::get<1>(response)).WaitPlayers();
-        this->protocol.send_start_game(ServerResponseLobby{CommandType::GAME_STARTED});
+        this->protocol.send_start_game(ServerResponseLobby{CommandType::GAME_STARTED, true, msg.s});
         // enviar mensaje empezó partida
         // aca deberia lanzar el otro hilo y las queues
         return;
@@ -98,7 +98,7 @@ void ClientHandler::manageJoinGame(const MessageFromClient& msg) {
         this->my_game = msg.s;
         this->sendLobbyResponse(msg.commandType, true, "");
         this->server_monitor.GetGameMonitor(msg.s).WaitPlayers();
-        this->protocol.send_start_game(ServerResponseLobby{CommandType::GAME_STARTED});
+        this->protocol.send_start_game(ServerResponseLobby{CommandType::GAME_STARTED, true, msg.s});
         // enviar mensaje empezó partida
         // aca deberia lanzar el otro hilo y las queues
         return;
@@ -110,6 +110,6 @@ std::string ClientHandler::GetUsername() { return this->username; }
 
 void ClientHandler::manageEndGame() { this->server_monitor.ManageEndGame(this->my_game); }
 
-void ClientHandler::kill() { this->_keep_running = false; }
+void ClientHandler::kill() { this->stop(); }
 
 bool ClientHandler::isInGame() { return this->is_in_game && this->my_game != ""; }

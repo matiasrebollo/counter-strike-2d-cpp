@@ -3,7 +3,6 @@
 ClientSender::ClientSender(ClientProtocol& protocol): protocol(protocol) {}
 
 void ClientSender::run() {
-    this->_keep_running = true;
     while (this->should_keep_running()) {
         send_command_to_server();
         // Im sleeping inside the queue so im not burning CPU (i think)

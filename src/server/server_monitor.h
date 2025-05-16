@@ -24,7 +24,8 @@ public:
     bool CreateUsername(const std::string& username);
     std::tuple<bool, std::string> CreateNewGame(const std::string& username);
     bool JoinGame(const std::string& gameName, const std::string& username);
-    void MakePlayGame(const std::string& gameName, ClientHandler& client);
+    //void MakePlayGame(const std::string& gameName, ClientHandler& client);
+    void MakePlayGame(const std::string& gameName);
     GameMonitor& GetGameMonitor(const std::string& gameName);
     void ManageEndGame(const std::string& gameName);
 };

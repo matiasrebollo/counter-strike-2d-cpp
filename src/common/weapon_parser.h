@@ -1,27 +1,27 @@
 #ifndef WEAPON_PARSER_H
 #define WEAPON_PARSER_H
 
+#include <cstdint>
 #include <string>
 
-#include "weapons.h"
+#include "weapon_type.h"
 
 #define NONE_WEAPON_BINARY_CODE 0x00
 #define GLOCK_WEAPON_BINARY_CODE 0x01
 #define AK47_WEAPON_BINARY_CODE 0x02
 #define M3_WEAPON_BINARY_CODE 0x03
 #define AWP_WEAPON_BINARY_CODE 0x04
-#define UNKNOWON_WEAPON_BINARY_CODE 0x10
 
 #define PRIMARY_WEAPON_BINARY_CODE 0x01
 #define SECONDARY_WEAPON_BINARY_CODE 0x02
 
 class WeaponParser {
 public:
-    uint8_t getWeaponToByte(const Weapon& weapon);
+    uint8_t getWeaponToByte(const GunType& gun);
 
-    WeaponType getWeaponType(const Weapon& weapon);
+    WeaponType getWeaponType(const GunType& gun);
 
-    Weapon getWeaponFromByte(const uint8_t& weaponCode);
+    GunType getWeaponFromByte(const uint8_t& weaponCode);
 
     WeaponType getWeaponTypeFromByte(const uint8_t& weaponCode);
 

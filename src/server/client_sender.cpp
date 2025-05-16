@@ -1,7 +1,7 @@
 #include "client_sender.h"
 
-ClientSender::ClientSender(ServerProtocol& protocol):
-        protocol(protocol), queue(), keep_running(true) {}
+ClientSender::ClientSender(ServerProtocol& protocol)
+    : queue(), protocol(protocol), keep_running(true) {}
 
 void ClientSender::add_snapshot_to_queue(const Snapshot& snapshot) { this->queue.push(snapshot); }
 void ClientSender::send_snapshot_to_client() {

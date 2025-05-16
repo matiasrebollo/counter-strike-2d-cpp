@@ -118,5 +118,19 @@ InternalMessage ClientProtocolParser::parseFromDefuseBombRequest(const MessageFr
 }
 
 InternalMessage ClientProtocolParser::getInternalMessageWCode(const MessageFromClient& request) {
-    return InternalMessage{this->commandsToCode.find(request.commandType)->second};
+    return InternalMessage{
+            this->commandsToCode.find(request.commandType)->second,
+            "",
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+    };
 }

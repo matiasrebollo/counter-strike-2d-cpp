@@ -37,17 +37,8 @@ ClientProtocol::ClientProtocol(const std::string& hostname, const std::string& p
     sendersMap[CommandType::MOVE] = [this](const InternalMessage& request) {
         return this->send_move_request(request);
     };
-    sendersMap[CommandType::SHOOT] = [this](const InternalMessage& request) {
-        return this->send_shoot_request(request);
-    };
     sendersMap[CommandType::CHANGE_WEAPON] = [this](const InternalMessage& request) {
         return this->send_change_weapon_request(request);
-    };
-    sendersMap[CommandType::PLANT_BOMB] = [this](const InternalMessage& request) {
-        return this->send_plant_bomb_request(request);
-    };
-    sendersMap[CommandType::DEFUSE_BOMB] = [this](const InternalMessage& request) {
-        return this->send_defuse_bomb_request(request);
     };
 }
 
@@ -58,7 +49,7 @@ ServerResponseLobby ClientProtocol::receive_command() {
     // rta de pedio de joinear partida
     // notificacion de empezó partida -> aca lanzó los hilos y queues
     uint8_t code = this->receive_byte();
-    ServerResponseLobby response = ServerResponseLobby{this->codeToCommands.find(code)->second};
+    ServerResponseLobby response = ServerResponseLobby{this->codeToCommands.find(code)->second, false, ""};
     if (this->codeToCommands.find(code)->second != CommandType::GAME_STARTED) {
         response.success = this->receive_byte();
         if (response.commandType == CommandType::CREATE_GAME) {
@@ -72,6 +63,11 @@ ServerResponseLobby ClientProtocol::receive_command() {
 void ClientProtocol::send_command(const MessageFromClient& request) {
     InternalMessage msg = this->parser.ParseMessage(request);
     this->send_byte(msg.code_message);
+    if (request.commandType == CommandType::SHOOT ||
+        request.commandType == CommandType::PLANT_BOMB ||
+        request.commandType == CommandType::DEFUSE_BOMB) {
+        return;
+    }
     this->sendersMap.find(request.commandType)->second(msg);
 }
 
@@ -116,19 +112,13 @@ void ClientProtocol::send_move_request(const InternalMessage& request) {
     this->send_byte(request.direction);
 }
 
-void ClientProtocol::send_shoot_request(const InternalMessage& request) {}
-
 void ClientProtocol::send_change_weapon_request(const InternalMessage& request) {
     this->send_byte(request.code_weapon_type);
 }
 
-void ClientProtocol::send_plant_bomb_request(const InternalMessage& request) {}
-
-void ClientProtocol::send_defuse_bomb_request(const InternalMessage& request) {}
-
 /*
 
-Sanpshot ClientProtocol::receive_snapshot() {
+Snapshot ClientProtocol::receive_snapshot() {
     Snapshot snapshot = Snapshot{};
     snasphot.phase = Phase(this->receive_byte());
     snasphot.round_number = this->receive_byte();

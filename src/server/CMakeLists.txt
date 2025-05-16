@@ -7,10 +7,7 @@ target_sources(taller_server
         collidable.cpp
         cs2d_game.cpp
         game_monitor.cpp
-        glock.cpp
-        gun.cpp
         hitbox.cpp
-        loadout_manager.cpp
         main.cpp
         move_command.cpp
         player.cpp
@@ -30,10 +27,7 @@ target_sources(taller_server
         command.h
         cs2d_game.h
         game_monitor.h
-        glock.h
-        gun.h
         hitbox.h
-        loadout_manager.h
         move_command.h
         player.h
         rotate_command.h

@@ -8,7 +8,7 @@
 #include "commands.h"
 #include "movements.h"
 #include "skins.h"
-#include "weapons.h"
+#include "weapon_type.h"
 
 struct InternalMessage {
     uint8_t code_message;
@@ -46,7 +46,7 @@ struct ServerResponseLobby {
 struct MessageFromClient {
     CommandType commandType;
     std::string s;
-    Weapon weapon;
+    GunType weapon;
     WeaponType weaponType;
     TerroristSkin tt_skin;
     CounterTerroristSkin ct_skin;

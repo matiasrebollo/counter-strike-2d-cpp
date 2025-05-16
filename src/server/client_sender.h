@@ -4,7 +4,7 @@
 #include <atomic>
 
 #include "../common/queue.h"
-#include "../common/snapshot.h"
+#include "../common/game_snapshot.h"
 
 #include "server_protocol.h"
 

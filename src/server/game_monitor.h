@@ -29,7 +29,6 @@ public:
     explicit GameMonitor(const std::string& creatorUsername);
     bool AddPlayer(const std::string& playerUsername);
     void WaitPlayers();
-    void MakePlayGame(ClientHandler& client);
 
     bool isFinished();
 };

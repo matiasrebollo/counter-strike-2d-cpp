@@ -10,8 +10,9 @@
 
 #include "../common/codes_parser.h"
 #include "../common/common_protocol.h"
+#include "../common/commands.h"
 #include "../common/message.h"
-#include "../common/snapshot.h"
+#include "../common/game_snapshot.h"
 #include "../common/socket.h"
 
 #define CODE_SUCCESS 0x01
@@ -36,7 +37,9 @@ private:
     MessageFromClient receive_plant_bomb_request(const CommandType& command);
     MessageFromClient receive_defuse_bomb_request(const CommandType& command);
 
-    MessageFromClient receive_select_skins_request();
+    MessageFromClient receive_select_skins_request(const CommandType& command);
+
+    MessageFromClient initialize_message(const CommandType& command) {
 
     // void send_players(const std::vector<Player>& players);
     // void send_bullets(const std::vector<Bullet>& bullets);
@@ -46,7 +49,7 @@ public:
     void send_start_game(const ServerResponseLobby& msg);
     void send_snapshot(const Snapshot& snapshot);
     void SendMessage(const MessageFromServer& msg);
-    MessageFromClient receive_command();
+    MessageFromClient receive_command(void);
     void kill();
     ~ServerProtocol();
 };

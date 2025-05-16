@@ -18,7 +18,6 @@ target_sources(taller_common
     map.h
     map_object.h
     weapon_type.h
-    weapons.h
     player_dto.h
     game_snapshot.h
     vector_2d.h

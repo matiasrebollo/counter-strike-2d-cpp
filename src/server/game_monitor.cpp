@@ -34,6 +34,4 @@ void GameMonitor::WaitPlayers() {
     // aca deberia avisarle a todos que empezó. como hago?
 }
 
-void GameMonitor::MakePlayGame(ClientHandler& client) {}
-
 bool GameMonitor::isFinished() { return false; }
