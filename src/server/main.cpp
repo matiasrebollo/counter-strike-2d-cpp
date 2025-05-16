@@ -1,3 +1,7 @@
-#include "common/foo.h"
+#include "server/cs2d_game.h"
 
-int main() { return foo(6); }
+int main() {
+    CS2DGame game;
+    game.run();
+    return 0;
+}
