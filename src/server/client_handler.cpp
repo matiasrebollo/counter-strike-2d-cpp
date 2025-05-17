@@ -38,6 +38,7 @@ void ClientHandler::run() {
 void ClientHandler::launchLobby() {
     while (!this->isInGame()) {
         MessageFromClient msg = this->protocol.receive_command();
+
         // aca en msg en caso de crear o joinear tengo las skins, en algun lado deberia guardarlo,
         // asumo que pasarlo al server_monitor -> game_monitor -> el game lo guarda
         this->manageCommand(msg);
@@ -74,7 +75,7 @@ void ClientHandler::manageCreateUsername(const MessageFromClient& msg) {
 void ClientHandler::manageCreateGame(const MessageFromClient& msg) {
     auto response = this->server_monitor.CreateNewGame(this->GetUsername());
     if (!this->isInGame() && std::get<0>(response) && this->username != "") {
-        this->my_game = msg.s;
+        this->my_game = std::get<1>(response);
         this->is_in_game = true;
         this->sendLobbyResponse(msg.commandType, true, this->my_game);
         // DEBO MANDAR EL CODIGO DE LA PARTIDA
