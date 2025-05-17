@@ -1,5 +1,6 @@
 #include "client/lobby/lobby.h"
 
+#include <QMessageBox>
 #include <iostream>
 
 #include "client/client_protocol.h"
@@ -61,7 +62,7 @@ void Lobby::on_JoinGameButton_clicked() {
     protocol.value().send_command(request);
     ServerResponseLobby response = protocol.value().receive_command();
     if (response.commandType == JOIN_GAME && response.success) {
-        close();
+        wait_to_start();
     }
 }
 
@@ -82,7 +83,9 @@ void Lobby::on_createButton_clicked() {
         protocol.value().send_command(request);
         ServerResponseLobby response = protocol.value().receive_command();
         if (response.commandType == CREATE_GAME && response.success) {
-            close();
+            QString game_code = QString::fromStdString(response.game_name);
+            QMessageBox::information(this, "Codigo de partida", game_code);
+            wait_to_start();
         }
     }
 }
@@ -96,5 +99,22 @@ void Lobby::connect_to_sv() {
         go_to_lobby();
     } catch (...) {
         // error
+    }
+}
+
+ClientProtocol& Lobby::get_protocol() {
+    if (protocol.has_value()) {
+        return protocol.value();
+    }
+    throw std::runtime_error("Protocolo no inicializado");
+}
+
+void Lobby::wait_to_start() {
+    while (true) {
+        ServerResponseLobby response = protocol.value().receive_command();
+        if (response.commandType == GAME_STARTED && response.success) {
+            this->close();
+            break;
+        }
     }
 }

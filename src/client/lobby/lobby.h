@@ -21,8 +21,9 @@ class Lobby: public QMainWindow {
 public:
     explicit Lobby(QWidget* parent = nullptr);
     ~Lobby();
+    ClientProtocol& get_protocol();
 
-private slots:
+private slots:  // cppcheck-suppress unknownMacro
     void on_CreateGame_clicked();
 
     void on_JoinGame_clicked();
@@ -34,6 +35,8 @@ private slots:
     void on_createButton_clicked();
 
     void connect_to_sv();
+
+    void wait_to_start();
 
 private:
     Ui::Lobby* ui;
