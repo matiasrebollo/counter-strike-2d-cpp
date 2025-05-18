@@ -13,7 +13,7 @@ bool ServerMonitor::CreateUsername(const std::string& username) {
 CreateResponse ServerMonitor::CreateNewGame(const std::string& username) {
     std::unique_lock<std::mutex> lck(this->mutex);
     std::string game_name = std::to_string(this->game_id);
-    auto [it, inserted] = this->games.try_emplace(game_name, CS2DGame());
+    auto [it, inserted] = this->games.try_emplace(game_name, std::make_shared<CS2DGame>());
     CS2DGame& game = *(it->second);
     std::shared_ptr<Queue<Snapshot>> queue = game.new_player(username);
     this->game_id++;
