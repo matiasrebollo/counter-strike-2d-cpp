@@ -48,6 +48,7 @@ public:
     void send_lobby_message(const ServerResponseLobby& msg);
     void send_start_game(const ServerResponseLobby& msg);
     void send_snapshot(const Snapshot& snapshot);
+    void send_map();
     MessageFromClient receive_command(void);
     void kill();
     ~ServerProtocol();

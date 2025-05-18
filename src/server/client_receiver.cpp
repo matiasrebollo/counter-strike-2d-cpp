@@ -1,7 +1,6 @@
 #include "client_receiver.h"
 
-ClientReceiver::ClientReceiver(Queue<MessageFromClient>& queue, ServerProtocol& protocol):
-        queue(queue), protocol(protocol) {}
+ClientReceiver::ClientReceiver(ServerProtocol& protocol): queue(), protocol(protocol) {}
 
 void ClientReceiver::run() {
     while (this->should_keep_running()) {

@@ -31,12 +31,16 @@ CS2DGame::CS2DGame() {
             std::make_shared<Collidable>(Vector2D(500, 500), boxThickness, boxThickness));
 }
 
-void CS2DGame::new_player(std::string& username) {  // recibir Sender/Receiver aca??
+std::shared_ptr<Queue<Snapshot>> CS2DGame::new_player(
+        const std::string& username) {  // recibir Sender/Receiver aca??
     Vector2D pos(200, 200);
     Vector2D dir(1, 0);
     auto player = std::make_shared<Player>(pos, dir);
     players[username] = player;
+    auto queue = std::make_shared<Queue<Snapshot>>();
+    player_queues[username] = queue;
     collidables.push_back(player);
+    return queue;
 }
 
 void CS2DGame::broadcast_map() const {
@@ -62,7 +66,7 @@ void CS2DGame::broadcast_map() const {
     }*/
 }
 
-void CS2DGame::broadcast_snapshot() const {
+void CS2DGame::broadcast_snapshot() {
     std::vector<PlayerDTO> player_dtos;
 
     for (const auto& player: players) {
@@ -72,6 +76,10 @@ void CS2DGame::broadcast_snapshot() const {
     }
 
     const Snapshot snapshot{player_dtos};
+
+    for (auto& entry: player_queues) {
+        entry.second->try_push(snapshot);
+    }
 
     /*for (const auto& player: players) {
         player.second->send_snapshot(snapshot);

@@ -11,7 +11,9 @@
 #include "../common/codes_parser.h"
 #include "../common/commands.h"
 #include "../common/common_protocol.h"
+#include "../common/game_snapshot.h"
 #include "../common/message.h"
+#include "../common/player_dto.h"
 #include "../common/socket.h"
 
 #include "client_protocol_parser.h"
@@ -33,16 +35,16 @@ private:
     void send_move_request(const InternalMessage& request);
     void send_change_weapon_request(const InternalMessage& request);
 
-    /*
-    std::vector<Bullet> receive_bullets(const int& size_bullets);
-    std::vector<Player> receive_players(const int& size_players);
-    */
+    // std::vector<Bullet> receive_bullets(const int& size_bullets);
+    std::vector<PlayerDTO> receive_players(const int& size_players);
+
 
 public:
     ClientProtocol(const std::string& hostname, const std::string& port);
     void send_command(const MessageFromClient& request);
     ServerResponseLobby receive_command();
-    // Snapshot receive_snapshot();
+    Snapshot receive_snapshot();
+    void receive_map();
     void Close();
     ~ClientProtocol();
 };

@@ -152,6 +152,8 @@ Los mensajes que envia el server son
 
 - Snapshot
 
+0x50
+
 _phase_: 
 
 - 0x00 buy_phase

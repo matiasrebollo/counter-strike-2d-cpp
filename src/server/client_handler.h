@@ -1,6 +1,7 @@
 #ifndef CLIENT_HANDLER_H
 #define CLIENT_HANDLER_H
 
+#include <memory>
 #include <string>
 #include <unordered_map>
 
@@ -32,7 +33,6 @@ private:
     bool isInGame();
     MessageFromClient ReceiveMessage();
     void launchLobby();
-    void launchGame();
 
 public:
     ClientHandler(Socket&& socket, ServerMonitor& server_monitor);

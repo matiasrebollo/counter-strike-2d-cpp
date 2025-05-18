@@ -36,8 +36,6 @@ private slots:  // cppcheck-suppress unknownMacro
 
     void connect_to_sv();
 
-    void wait_to_start();
-
 private:
     Ui::Lobby* ui;
     std::vector<std::string> partidas;

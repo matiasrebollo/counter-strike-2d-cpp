@@ -5,6 +5,7 @@
 
 #include <sys/types.h>
 
+#include "../common/player_dto.h"
 #include "../common/skins.h"
 
 ServerProtocol::ServerProtocol(Socket&& socket):
@@ -214,6 +215,8 @@ MessageFromClient ServerProtocol::receive_defuse_bomb_request(const CommandType&
     MessageFromClient msg = this->initialize_message(command);
     return msg;
 }
+
+void ServerProtocol::send_map() {}
 
 void ServerProtocol::kill() {
     this->socket.shutdown(SHUT_RDWR);

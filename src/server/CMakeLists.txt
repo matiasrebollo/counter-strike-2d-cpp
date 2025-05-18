@@ -6,7 +6,6 @@ target_sources(taller_server
         client_sender.cpp
         collidable.cpp
         cs2d_game.cpp
-        game_monitor.cpp
         hitbox.cpp
         main.cpp
         move_command.cpp
@@ -26,7 +25,6 @@ target_sources(taller_server
         collidable.h
         command.h
         cs2d_game.h
-        game_monitor.h
         hitbox.h
         move_command.h
         player.h
