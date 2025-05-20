@@ -21,7 +21,7 @@ private:
 
 public:
     explicit ClientSender(ServerProtocol& protocol);
-    void add_snapshot_to_queue(const Snapshot& snapshot);
+    void push(const Snapshot& snapshot);
     void send_map(const GameMap& map);
 };
 

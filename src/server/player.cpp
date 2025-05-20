@@ -27,8 +27,8 @@ void Player::step(const Vector2D& step_dir, const CS2DGame& game) {
     }
 }
 
-void Player::send_map(const GameMap& map) { sender.send_map(); }
-void Player::send_snapshot(const Snapshot& snapshot) {}
+void Player::send_map(const GameMap& map) { sender.send_map(map); }
+void Player::send_snapshot(const Snapshot& snapshot) { sender.push(snapshot); }
 
 void Player::rotate(const Vector2D& new_dir) { this->direction = new_dir; }
 

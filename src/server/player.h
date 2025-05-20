@@ -7,6 +7,7 @@
 // #include "server/loadout_manager.h"
 class CS2DGame;  // forward declaration
 
+#include "server/client_sender.h"
 #include "server/collidable.h"
 
 #define PLAYER_WIDTH 50

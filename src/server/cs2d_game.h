@@ -21,7 +21,7 @@ private:
     std::map<std::string, std::shared_ptr<Player>> players;
     std::map<std::string, std::shared_ptr<Queue<Snapshot>>> player_queues;
     std::list<std::shared_ptr<Collidable>> collidables;
-    // Queue<std::unique_ptr<MessageFromClient>> command_queue;
+    Queue<MessageFromClient> command_queue;
 
     void broadcast_map() const;
     void broadcast_snapshot();
@@ -35,7 +35,7 @@ public:
     const std::string id;
     explicit CS2DGame(const std::string& id);
 
-    void push(std::unique_ptr<MessageFromClient> command);
+    void push(const MessageFromClient& command);
     void new_player(const std::string& username, ClientSender& sender);
     void move_player(const std::string& username, const Vector2D& direction);
     bool is_player_in_valid_position(const Player& player) const;

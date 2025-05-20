@@ -39,8 +39,8 @@ void CS2DGame::new_player(const std::string& username, ClientSender& sender) {
     collidables.push_back(player);
 }
 
-void CS2DGame::push(std::unique_ptr<MessageFromClient> command) {
-    // command_queue.push(command);  // bloqueante o no?
+void CS2DGame::push(const MessageFromClient& command) {
+    command_queue.push(command);  // bloqueante o no?
 }
 
 void CS2DGame::broadcast_map() const {

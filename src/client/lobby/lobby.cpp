@@ -10,7 +10,7 @@
 
 #include "ui_lobby.h"
 
-Lobby::Lobby(QWidget* parent): QMainWindow(parent), ui(new LobbyUI) {
+Lobby::Lobby(QWidget* parent): QMainWindow(parent), ui(new Ui::Lobby) {
     ui->setupUi(this);
     ui->stack->setCurrentIndex(0);
     connect(ui->backButton, &QPushButton::clicked, this, &Lobby::go_to_lobby);

@@ -4,14 +4,14 @@
 #include <memory>
 
 #include "../common/message.h"
-#include "../common/queue.h"
 #include "../common/thread.h"
+#include "../server/cs2d_game.h"
 
 #include "server_protocol.h"
 
 class ClientReceiver: public Thread {
 private:
-    Queue<MessageFromClient> queue;
+    std::shared_ptr<CS2DGame> game;
     ServerProtocol& protocol;
     // Me guardo la referencia de la queue del gameloop a la que voy a pushear los comandos.
     // creo que deberian ser directamente los MessageFromClient;

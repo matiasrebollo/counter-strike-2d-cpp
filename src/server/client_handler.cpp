@@ -66,7 +66,7 @@ void ClientHandler::manageCreateUsername(const MessageFromClient& msg) {
 }
 
 void ClientHandler::manageCreateGame(const MessageFromClient& msg) {
-    std::shared_ptr<CS2DGame> game = this->server_monitor.CreateNewGame(username);
+    std::shared_ptr<CS2DGame> game = this->server_monitor.CreateNewGame();
     if (!this->isInGame() && this->username != "") {
         this->my_game = game->id;
         this->is_in_game = true;
@@ -82,7 +82,7 @@ void ClientHandler::manageCreateGame(const MessageFromClient& msg) {
 }
 
 void ClientHandler::manageJoinGame(const MessageFromClient& msg) {
-    std::shared_ptr<CS2DGame> game = this->server_monitor.JoinGame(msg.s, username);
+    std::shared_ptr<CS2DGame> game = this->server_monitor.JoinGame(msg.s);
     if (!this->isInGame() && this->username != "") {
         this->is_in_game = true;
         this->my_game = msg.s;

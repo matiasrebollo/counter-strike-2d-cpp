@@ -5,9 +5,7 @@
 ClientSender::ClientSender(ServerProtocol& protocol):
         queue(), protocol(protocol), keep_running(true) {}
 
-void ClientSender::add_snapshot_to_queue(const Snapshot& snapshot) {
-    this->queue.try_push(snapshot);
-}
+void ClientSender::push(const Snapshot& snapshot) { this->queue.try_push(snapshot); }
 
 void ClientSender::send_snapshot_to_client() {
     Snapshot snapshot = this->queue.pop();  // bloqueante??
