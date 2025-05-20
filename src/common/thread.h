@@ -59,7 +59,7 @@ public:
 
     virtual void run() = 0;
 
-    virtual ~Thread() {}
+    virtual ~Thread() override {}
 
     Thread(const Thread&) = delete;
     Thread& operator=(const Thread&) = delete;

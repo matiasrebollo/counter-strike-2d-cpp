@@ -249,15 +249,15 @@ public:
     explicit Queue(const unsigned int max_size): Queue<void*>(max_size) {}
 
 
-    bool try_push(T* const& val) { return Queue<void*>::try_push(val); }
+    bool try_push(T* const& val) override { return Queue<void*>::try_push(val); }
 
-    bool try_pop(T*& val) { return Queue<void*>::try_pop((void*&)val); }
+    bool try_pop(T*& val) override { return Queue<void*>::try_pop(reinterpret_cast<void*&>(val)); }
 
-    void push(T* const& val) { return Queue<void*>::push(val); }
+    void push(T* const& val) override { return Queue<void*>::push(val); }
 
-    T* pop() { return (T*)Queue<void*>::pop(); }
+    T* pop() override { return (T*)Queue<void*>::pop(); }
 
-    void close() { return Queue<void*>::close(); }
+    void close() override { return Queue<void*>::close(); }
 
 private:
     Queue(const Queue&) = delete;

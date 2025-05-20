@@ -27,8 +27,8 @@ public:
     Vector2D get_direction() const;
     uint16_t get_life() const;
 
-    void send_map(const GameMap);
-    void send_snapshot(const Snapshot);
+    void send_map(const GameMap& map);
+    void send_snapshot(const Snapshot& map);
 
     void step(const Vector2D& step_dir, const CS2DGame& game);
     void rotate(const Vector2D& new_dir);

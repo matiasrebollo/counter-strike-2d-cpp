@@ -11,7 +11,9 @@
 #include "../common/codes_parser.h"
 #include "../common/commands.h"
 #include "../common/common_protocol.h"
+#include "../common/game_map.h"
 #include "../common/game_snapshot.h"
+#include "../common/map_object.h"
 #include "../common/message.h"
 #include "../common/player_dto.h"
 #include "../common/socket.h"
@@ -37,14 +39,14 @@ private:
 
     // std::vector<Bullet> receive_bullets(const int& size_bullets);
     std::vector<PlayerDTO> receive_players(const int& size_players);
-
+    std::vector<MapObject> receive_map_objects(const uint8_t& size);
 
 public:
     ClientProtocol(const std::string& hostname, const std::string& port);
     void send_command(const MessageFromClient& request);
     ServerResponseLobby receive_command();
     Snapshot receive_snapshot();
-    void receive_map();
+    GameMap receive_map();
     void Close();
     ~ClientProtocol();
 };
