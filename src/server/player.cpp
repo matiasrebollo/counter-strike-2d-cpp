@@ -4,10 +4,11 @@
 
 #include "server/cs2d_game.h"
 
-Player::Player(Vector2D& position, Vector2D& direction):
+Player::Player(Vector2D& position, Vector2D& direction, ClientSender& sender):
         Collidable(position, PLAYER_WIDTH, PLAYER_HEIGHT),
         direction(direction),
-        life(PLAYER_INITIAL_LIFE) {}
+        life(PLAYER_INITIAL_LIFE),
+        sender(sender) {}
 
 Vector2D Player::get_direction() const { return direction; }
 
@@ -25,6 +26,9 @@ void Player::step(const Vector2D& step_dir, const CS2DGame& game) {
         return;
     }
 }
+
+void send_map(const GameMap) { sender.send_map(); }
+void send_snapshot(const Snapshot) {}
 
 void Player::rotate(const Vector2D& new_dir) { this->direction = new_dir; }
 

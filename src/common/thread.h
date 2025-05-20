@@ -12,7 +12,6 @@ public:
     virtual void stop() = 0;
     virtual bool is_alive() const = 0;
 
-    // cppcheck-suppress missingOverride
     virtual ~Runnable() {}
 };
 
@@ -60,7 +59,6 @@ public:
 
     virtual void run() = 0;
 
-    // cppcheck-suppress missingOverride
     virtual ~Thread() {}
 
     Thread(const Thread&) = delete;

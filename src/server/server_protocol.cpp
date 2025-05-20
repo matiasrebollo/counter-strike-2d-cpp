@@ -216,7 +216,7 @@ MessageFromClient ServerProtocol::receive_defuse_bomb_request(const CommandType&
     return msg;
 }
 
-void ServerProtocol::send_map() {}
+void ServerProtocol::send_map(const GameMap& map) {}
 
 void ServerProtocol::kill() {
     this->socket.shutdown(SHUT_RDWR);

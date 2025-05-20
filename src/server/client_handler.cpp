@@ -66,13 +66,14 @@ void ClientHandler::manageCreateUsername(const MessageFromClient& msg) {
 }
 
 void ClientHandler::manageCreateGame(const MessageFromClient& msg) {
-    CreateResponse response = this->server_monitor.CreateNewGame(this->GetUsername());
-    if (!this->isInGame() && response.success && this->username != "") {
-        this->my_game = response.gamename;
+    std::shared_ptr<CS2DGame> game = this->server_monitor.CreateNewGame(username);
+    if (!this->isInGame() && this->username != "") {
+        this->my_game = game->id;
         this->is_in_game = true;
         this->sendLobbyResponse(msg.commandType, true, this->my_game);
-        ClientReceiver(this->protocol).run();  // este es el que es el thread
-        ClientSender(response.queue, this->protocol).run();
+        ClientReceiver(this->protocol, game).run();  // este es el que es el thread
+        ClientSender sender(this->protocol);
+        game->new_player(username, sender);
         // enviar mensaje empezó partida
         // aca deberia lanzar el otro hilo y las queues
         return;
@@ -81,13 +82,14 @@ void ClientHandler::manageCreateGame(const MessageFromClient& msg) {
 }
 
 void ClientHandler::manageJoinGame(const MessageFromClient& msg) {
-    CreateResponse response = this->server_monitor.JoinGame(msg.s, this->GetUsername());
-    if (!this->isInGame() && response.success && this->username != "") {
+    std::shared_ptr<CS2DGame> game = this->server_monitor.JoinGame(msg.s, username);
+    if (!this->isInGame() && this->username != "") {
         this->is_in_game = true;
         this->my_game = msg.s;
         this->sendLobbyResponse(msg.commandType, true, "");
-        ClientReceiver(this->protocol).run();
-        ClientSender(response.queue, this->protocol).run();
+        ClientReceiver(this->protocol, game).run();
+        ClientSender sender(this->protocol);
+        game->new_player(username, sender);
         // enviar mensaje empezó partida
         // aca deberia lanzar el otro hilo y las queues
         return;

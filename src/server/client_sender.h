@@ -4,6 +4,7 @@
 #include <atomic>
 #include <memory>
 
+#include "../common/game_map.h"
 #include "../common/game_snapshot.h"
 #include "../common/queue.h"
 
@@ -11,17 +12,17 @@
 
 class ClientSender {
 private:
-    std::shared_ptr<Queue<Snapshot>> queue;
+    Queue<Snapshot> queue;
     ServerProtocol& protocol;
     std::atomic_bool keep_running;
 
-    void send_map();
+    void run();
+    void send_snapshot_to_client();
 
 public:
-    explicit ClientSender(std::shared_ptr<Queue<Snapshot>> queue, ServerProtocol& protocol);
+    explicit ClientSender(ServerProtocol& protocol);
     void add_snapshot_to_queue(const Snapshot& snapshot);
-    void send_snapshot_to_client();
-    void run();
+    void send_map(const GameMap& map);
 };
 
 #endif

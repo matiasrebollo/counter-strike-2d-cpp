@@ -8,7 +8,6 @@
 
 #include "client/client_protocol.h"
 
-// cppcheck-suppress unknownMacro
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class Lobby;
@@ -23,7 +22,7 @@ public:
     ~Lobby();
     ClientProtocol& get_protocol();
 
-private slots:  // cppcheck-suppress unknownMacro
+private slots:
     void on_CreateGame_clicked();
 
     void on_JoinGame_clicked();

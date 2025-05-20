@@ -10,23 +10,25 @@ bool ServerMonitor::CreateUsername(const std::string& username) {
     return result.second;
 }
 
-CreateResponse ServerMonitor::CreateNewGame(const std::string& username) {
+std::shared_ptr<CS2DGame> ServerMonitor::CreateNewGame(const std::string& username) {
     std::unique_lock<std::mutex> lck(this->mutex);
     std::string game_name = std::to_string(this->game_id);
-    auto [it, inserted] = this->games.try_emplace(game_name, std::make_shared<CS2DGame>());
-    CS2DGame& game = *(it->second);
-    std::shared_ptr<Queue<Snapshot>> queue = game.new_player(username);
+    auto [it, inserted] = this->games.try_emplace(game_name, std::make_shared<CS2DGame>(game_name));
     this->game_id++;
-    return CreateResponse{true, game_name, queue};
+    return it->second;
+    /*std::shared_ptr<Queue<Snapshot>> queue = game.new_player(username);
+
+    return CreateResponse{true, game_name, queue};*/
 }
 
-CreateResponse ServerMonitor::JoinGame(const std::string& gameName, const std::string& username) {
+std::shared_ptr<CS2DGame> ServerMonitor::JoinGame(const std::string& gameName,
+                                                  const std::string& username) {
     std::unique_lock<std::mutex> lck(this->mutex);
     auto it = this->games.find(gameName);
 
-    CS2DGame& game = *(it->second);
-    std::shared_ptr<Queue<Snapshot>> queue = game.new_player(username);
-    return CreateResponse{true, gameName, queue};
+    return it->second;
+    /*std::shared_ptr<Queue<Snapshot>> queue = game.new_player(username);
+    return CreateResponse{true, gameName, queue};*/
 }
 
 void ServerMonitor::MakePlayGame(const std::string& gameName) {

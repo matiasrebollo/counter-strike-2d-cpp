@@ -11,6 +11,7 @@
 #include "../common/codes_parser.h"
 #include "../common/commands.h"
 #include "../common/common_protocol.h"
+#include "../common/game_map.h"
 #include "../common/game_snapshot.h"
 #include "../common/message.h"
 #include "../common/socket.h"
@@ -48,7 +49,7 @@ public:
     void send_lobby_message(const ServerResponseLobby& msg);
     void send_start_game(const ServerResponseLobby& msg);
     void send_snapshot(const Snapshot& snapshot);
-    void send_map();
+    void send_map(const GameMap& map);
     MessageFromClient receive_command(void);
     void kill();
     ~ServerProtocol();

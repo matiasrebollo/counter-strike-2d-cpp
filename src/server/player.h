@@ -18,14 +18,17 @@ class Player: public Collidable {
 private:
     Vector2D direction;
     uint16_t life;
-    // ClientReceiver con el que comunicarse!!
+    ClientSender& sender;
     // LoadoutManager loadout;
 
 public:
-    Player(Vector2D& position, Vector2D& direction);
+    Player(Vector2D& position, Vector2D& direction, ClientSender& sender);
 
     Vector2D get_direction() const;
     uint16_t get_life() const;
+
+    void send_map(const GameMap);
+    void send_snapshot(const Snapshot);
 
     void step(const Vector2D& step_dir, const CS2DGame& game);
     void rotate(const Vector2D& new_dir);

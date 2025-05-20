@@ -1,6 +1,8 @@
 #ifndef CLIENT_RECEIVER_H
 #define CLIENT_RECEIVER_H
 
+#include <memory>
+
 #include "../common/message.h"
 #include "../common/queue.h"
 #include "../common/thread.h"
@@ -14,7 +16,7 @@ private:
     // Me guardo la referencia de la queue del gameloop a la que voy a pushear los comandos.
     // creo que deberian ser directamente los MessageFromClient;
 public:
-    explicit ClientReceiver(ServerProtocol& protocol);
+    explicit ClientReceiver(ServerProtocol& protocol, std::shared_ptr<CS2DGame> game);
     void receive_command_from_client();
     void add_command_to_queue(const MessageFromClient& msg);
     void run() override;
