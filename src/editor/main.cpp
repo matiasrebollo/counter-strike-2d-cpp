@@ -1,2 +1,3 @@
+#include "common/foo.h"
 
-int main() { return 0; }
+int main() { return foo(4); }

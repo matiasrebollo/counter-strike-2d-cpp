@@ -1,38 +1,7 @@
 target_sources(taller_server
     PRIVATE
-        client_acceptor.cpp
-        client_handler.cpp
-        client_receiver.cpp
-        client_sender.cpp
-        collidable.cpp
-        cs2d_game.cpp
-        hitbox.cpp
-        main.cpp
-        move_command.cpp
-        player.cpp
-        rotate_command.cpp
-        server.cpp
-        server_monitor.cpp
-        server_protocol.cpp
-        shoot_command.cpp
-        shot.cpp
-        weapon.cpp
+    # .cpp files
+    main.cpp
     PUBLIC
-        client_acceptor.h
-        client_handler.h
-        client_receiver.h
-        client_sender.h
-        collidable.h
-        command.h
-        cs2d_game.h
-        hitbox.h
-        move_command.h
-        player.h
-        rotate_command.h
-        server.h
-        server_monitor.h
-        server_protocol.h
-        shoot_command.h
-        shot.h
-        weapon.h
-)
+    # .h files
+    )
