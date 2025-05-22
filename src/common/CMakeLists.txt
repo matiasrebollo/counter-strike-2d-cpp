@@ -9,6 +9,7 @@ target_sources(taller_common
     socket.cpp
     resolvererror.cpp
     weapon_parser.cpp
+    clock.cpp
     PUBLIC
     # .h files
     error_codes.h
@@ -32,4 +33,5 @@ target_sources(taller_common
     resolver.h
     resolvererror.h
     weapon_parser.h
+    clock.h
     )

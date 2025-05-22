@@ -1,6 +1,7 @@
 #include "client.h"
 #include "client/lobby/lobby.h"
 #include "../common/game_map.h"
+#include "../common/clock.h"
 
 #include <QApplication>
 #include <SDL2pp/SDL2pp.hh>
@@ -18,8 +19,10 @@ void Client::run(int argc, char* argv[]) {
 
 
     SDL2pp::SDL sdl(SDL_INIT_VIDEO);
+    
 
-    SDL2pp::Window window("SDL2pp demo", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1000, 1000,
+    // modificar a 640 x 480
+    SDL2pp::Window window("SDL2pp demo", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480,
                           SDL_WINDOW_RESIZABLE);
 
     SDL2pp::Renderer renderer(window, -1, SDL_RENDERER_ACCELERATED);
@@ -38,10 +41,10 @@ void Client::run(int argc, char* argv[]) {
     bool w = false, a = false, s = false, d = false;
 
     // ESTA HARDCODEADA DE OBJETOS CUANDO ESTEN LOS SNAPSHOTS SE SACA
-    const int mapWidth = 1000;
-    const int mapHeight = 1000;
-    const int wallThickness = 100;
-    const int boxThickness = 100;
+    const int mapWidth = 640;
+    const int mapHeight = 480;
+    const int wallThickness = 40;
+    const int boxThickness = 60;
 
     std::vector<MapObject> objects;
 
@@ -69,19 +72,18 @@ void Client::run(int argc, char* argv[]) {
     MapObject obj4{pos, width, height, MapObjectType::BOX};
     objects.push_back(obj4);
 
-    pos = Vector2D(450, 450);
+    pos = Vector2D((mapWidth - boxThickness) / 2, (mapHeight - boxThickness) / 2);
     width = boxThickness;
     height = boxThickness;
     MapObject obj5{pos, width, height, MapObjectType::BOX};
     objects.push_back(obj5);
 
     const GameMap map{objects};
-
-    unsigned int prev_ticks = SDL_GetTicks();
+    
+    int it = 0;
+    int FPS = 30;
+    Clock clock;
     while (true) {
-        unsigned int frame_ticks = SDL_GetTicks();
-        unsigned int frame_delta = frame_ticks - prev_ticks;
-        prev_ticks = frame_ticks;
 
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
@@ -111,7 +113,7 @@ void Client::run(int argc, char* argv[]) {
             primeraVez = false;
         }
 
-        float movimiento = frame_delta * 0.2f;
+        float movimiento = 10.0f;
 
         if (w && y_pos > 0) y_pos -= movimiento;
         if (s && y_pos + 32 < renderer.GetOutputHeight()) y_pos += movimiento;
@@ -143,6 +145,8 @@ void Client::run(int argc, char* argv[]) {
                       SDL2pp::Rect((int)x_pos, (int)y_pos, 32, 32),
                       angulo, SDL2pp::Point(16.0f, 16.0f));
         renderer.Present();
-        SDL_Delay(1);
+        
+        //SDL_Delay(1000);
+        it = clock.sleep_and_calc_next_it(FPS, it);
     }
 }
