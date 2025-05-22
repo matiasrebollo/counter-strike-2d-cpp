@@ -6,8 +6,11 @@
 #include <memory>
 #include <string>
 
+#include "common/game_snapshot.h"
+#include "common/message.h"
 #include "common/queue.h"
 #include "common/thread.h"
+#include "server/client_sender.h"
 #include "server/collidable.h"
 #include "server/command.h"
 #include "server/player.h"
@@ -16,11 +19,12 @@
 class CS2DGame: public Thread {
 private:
     std::map<std::string, std::shared_ptr<Player>> players;
+    std::map<std::string, std::shared_ptr<Queue<Snapshot>>> player_queues;
     std::list<std::shared_ptr<Collidable>> collidables;
-    // Queue<std::unique_ptr<Command>> command_queue; problemas al usar unique_ptr
+    Queue<MessageFromClient> command_queue;
 
     void broadcast_map() const;
-    void broadcast_snapshot() const;
+    void broadcast_snapshot();
 
     // devuelve la distancia del objeto con el que impactó o 0 si no impactó.
     double impacts(const Shot& shot, const Collidable& collidable) const;
@@ -28,9 +32,11 @@ private:
                               const Vector2D& seg_end) const;
 
 public:
-    CS2DGame();
+    const std::string id;
+    explicit CS2DGame(const std::string& id);
 
-    void new_player(std::string& username);
+    void push(const MessageFromClient& command);
+    void new_player(const std::string& username, ClientSender& sender);
     void move_player(const std::string& username, const Vector2D& direction);
     bool is_player_in_valid_position(const Player& player) const;
     void rotate_player(const std::string& username, const Vector2D& direction);
@@ -42,7 +48,7 @@ public:
     CS2DGame(const CS2DGame&) = delete;
     CS2DGame& operator=(const CS2DGame&) = delete;
 
-    ~CS2DGame();
+    ~CS2DGame() override;
 };
 
 #endif

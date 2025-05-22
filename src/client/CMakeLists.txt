@@ -5,6 +5,7 @@ target_sources(taller_client
         client_protocol.h
         client_receiver.h
         client_sender.h
+        client.h
     PRIVATE
         main.cpp
         lobby/lobby.cpp
@@ -14,6 +15,7 @@ target_sources(taller_client
         client_protocol.cpp
         client_receiver.cpp
         client_sender.cpp
+        client.cpp
 )
 
 

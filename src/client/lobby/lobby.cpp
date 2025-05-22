@@ -62,7 +62,7 @@ void Lobby::on_JoinGameButton_clicked() {
     protocol.value().send_command(request);
     ServerResponseLobby response = protocol.value().receive_command();
     if (response.commandType == JOIN_GAME && response.success) {
-        wait_to_start();
+        close();
     }
 }
 
@@ -85,7 +85,7 @@ void Lobby::on_createButton_clicked() {
         if (response.commandType == CREATE_GAME && response.success) {
             QString game_code = QString::fromStdString(response.game_name);
             QMessageBox::information(this, "Codigo de partida", game_code);
-            wait_to_start();
+            close();
         }
     }
 }
@@ -107,14 +107,4 @@ ClientProtocol& Lobby::get_protocol() {
         return protocol.value();
     }
     throw std::runtime_error("Protocolo no inicializado");
-}
-
-void Lobby::wait_to_start() {
-    while (true) {
-        ServerResponseLobby response = protocol.value().receive_command();
-        if (response.commandType == GAME_STARTED && response.success) {
-            this->close();
-            break;
-        }
-    }
 }

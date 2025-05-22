@@ -7,6 +7,7 @@
 // #include "server/loadout_manager.h"
 class CS2DGame;  // forward declaration
 
+#include "server/client_sender.h"
 #include "server/collidable.h"
 
 #define PLAYER_WIDTH 50
@@ -18,14 +19,17 @@ class Player: public Collidable {
 private:
     Vector2D direction;
     uint16_t life;
-    // ClientReceiver con el que comunicarse!!
+    ClientSender& sender;
     // LoadoutManager loadout;
 
 public:
-    Player(Vector2D& position, Vector2D& direction);
+    Player(Vector2D& position, Vector2D& direction, ClientSender& sender);
 
     Vector2D get_direction() const;
     uint16_t get_life() const;
+
+    void send_map(const GameMap& map);
+    void send_snapshot(const Snapshot& map);
 
     void step(const Vector2D& step_dir, const CS2DGame& game);
     void rotate(const Vector2D& new_dir);

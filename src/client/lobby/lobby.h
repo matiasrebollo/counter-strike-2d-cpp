@@ -23,7 +23,7 @@ public:
     ~Lobby();
     ClientProtocol& get_protocol();
 
-private slots:  // cppcheck-suppress unknownMacro
+private slots:
     void on_CreateGame_clicked();
 
     void on_JoinGame_clicked();
@@ -35,8 +35,6 @@ private slots:  // cppcheck-suppress unknownMacro
     void on_createButton_clicked();
 
     void connect_to_sv();
-
-    void wait_to_start();
 
 private:
     Ui::Lobby* ui;

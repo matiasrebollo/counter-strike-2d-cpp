@@ -10,6 +10,7 @@
 #include "../common/commands.h"
 #include "../common/communication_ended.h"
 #include "../common/message.h"
+#include "../common/vector_2d.h"
 
 ClientProtocol::ClientProtocol(const std::string& hostname, const std::string& port):
         CommonProtocol(hostname, port), parser(), isAlive(true) {
@@ -117,48 +118,34 @@ void ClientProtocol::send_change_weapon_request(const InternalMessage& request) 
     this->send_byte(request.code_weapon_type);
 }
 
-/*
-
 Snapshot ClientProtocol::receive_snapshot() {
-    Snapshot snapshot = Snapshot{};
-    snasphot.phase = Phase(this->receive_byte());
-    snasphot.round_number = this->receive_byte();
-    snasphot.bomb_status = BombStatus(this->receive_byte());
-    snasphot.timer = this->receive_byte();
+    // snasphot.phase = Phase(this->receive_byte());
+    // snasphot.round_number = this->receive_byte();
+    // snasphot.bomb_status = BombStatus(this->receive_byte());
+    // snasphot.timer = this->receive_byte();
     int size_players = this->receive_byte();
-    //snapshot.players = this->receive_players(size_players);
-    int size_bullets = this->receive_byte();
-    //snapshot.bullets = this->receive_bullets(size_bullets);
+    Snapshot snapshot = Snapshot{this->receive_players(size_players)};
+    // int size_bullets = this->receive_byte();
+    // snapshot.bullets = this->receive_bullets(size_bullets);
     return snapshot;
 }
 
-std::vector<Player> ClientProtocol::receive_players(const int& size_players) {
-    std::vector<Player> players = {};
+std::vector<PlayerDTO> ClientProtocol::receive_players(const int& size_players) {
+    std::vector<PlayerDTO> players = {};
     for (int i = 0; i < size_players; i++) {
-        std::string username = this->receive_string();
-        uint8_t pos_x = this->ReceiveByte();
-        uint8_t pos_y = this->ReceiveByte();
-        uint8_t pos_cros_x = this->ReceiveByte();
-        uint8_t pos_cros_y = this->ReceiveByte();
-        uint16_t money = this->ReceiveBigEndianNumber();
-        uint8_t health = this->ReceiveByte();
-        bool kave_knife = this->ReceiveByte() == 0x01;
-        GunType primary_weapon = this->weaponParser(this->ReceiveByte());
-        uint16_t primary_weapon_bullets = this->ReceiveBigEndianNumber();
-        GunType secondary_weapon = this->weaponParser(this->ReceiveByte());
-        uint16_t secondary_weapon_bullets = this->ReceiveBigEndianNumber();
-        bool have_bomb = this->ReceiveByte() == 0x01;
-        bool is_shooting = this->ReceiveByte() == 0x01;
-        uint8_t weapon_equipped_code = this->ReceiveByte();
-        players.push_back(Player(username, pos_x, pos_y, pos_cros_x,
-        pos_cros_y, money, health, have_knife, primary_weapon,
-        primary_weapon_bullets, secondary_weapon, secondary_weapon_bullets,
-        have_bomb, is_shooting, weapon_equipped_code));
+        int position_x = this->receive_byte();
+        int position_y = this->receive_byte();
+        int direction_x = this->receive_byte();
+        int direction_y = this->receive_byte();
+        int life = this->receive_byte();
+        uint16_t life16 = static_cast<uint16_t>(life);
+        players.push_back(PlayerDTO{Vector2D(position_x, position_y),
+                                    Vector2D(direction_x, direction_y), life16});
     }
     return players;
 }
 
-
+/*
 std::vector<Bullet> ClientProtocol::receive_bullets(const int& size_bullets) {
     std::vector<Bullet> bullets = {};
     for (int i = 0; i < size_bullets; i++) {
@@ -172,6 +159,25 @@ std::vector<Bullet> ClientProtocol::receive_bullets(const int& size_bullets) {
     return bullets;
 }
 */
+
+GameMap ClientProtocol::receive_map() {
+    this->receive_byte();
+    uint8_t size = this->receive_byte();
+    return GameMap{this->receive_map_objects(size)};
+}
+
+std::vector<MapObject> ClientProtocol::receive_map_objects(const uint8_t& size) {
+    std::vector<MapObject> objects = {};
+    for (int i = 0; i < size; i++) {
+        uint8_t type = this->receive_byte();
+        uint8_t x = this->receive_byte();
+        uint8_t y = this->receive_byte();
+        uint8_t height = this->receive_byte();
+        uint8_t width = this->receive_byte();
+        objects.push_back(MapObject{Vector2D(x, y), height, width, MapObjectType(type)});
+    }
+    return objects;
+}
 
 void ClientProtocol::Close() {
     this->socket.shutdown(SHUT_RDWR);

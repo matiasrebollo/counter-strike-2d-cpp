@@ -11,7 +11,7 @@
 #include "common/game_snapshot.h"
 
 
-CS2DGame::CS2DGame() {
+CS2DGame::CS2DGame(const std::string& id): id(id) {
     const int mapWidth = 1000;
     const int mapHeight = 1000;
     const int wallThickness = 100;
@@ -31,12 +31,16 @@ CS2DGame::CS2DGame() {
             std::make_shared<Collidable>(Vector2D(500, 500), boxThickness, boxThickness));
 }
 
-void CS2DGame::new_player(std::string& username) {  // recibir Sender/Receiver aca??
+void CS2DGame::new_player(const std::string& username, ClientSender& sender) {
     Vector2D pos(200, 200);
     Vector2D dir(1, 0);
-    auto player = std::make_shared<Player>(pos, dir);
+    auto player = std::make_shared<Player>(pos, dir, sender);
     players[username] = player;
     collidables.push_back(player);
+}
+
+void CS2DGame::push(const MessageFromClient& command) {
+    command_queue.push(command);  // bloqueante o no?
 }
 
 void CS2DGame::broadcast_map() const {
@@ -55,14 +59,14 @@ void CS2DGame::broadcast_map() const {
         objects.push_back(obj);
     }
 
-    GameMap map{objects};
+    const GameMap map{objects};
 
-    /*for (const auto& player: players) {
+    for (const auto& player: players) {
         player.second->send_map(map);
-    }*/
+    }
 }
 
-void CS2DGame::broadcast_snapshot() const {
+void CS2DGame::broadcast_snapshot() {
     std::vector<PlayerDTO> player_dtos;
 
     for (const auto& player: players) {
@@ -73,9 +77,9 @@ void CS2DGame::broadcast_snapshot() const {
 
     const Snapshot snapshot{player_dtos};
 
-    /*for (const auto& player: players) {
+    for (const auto& player: players) {
         player.second->send_snapshot(snapshot);
-    }*/
+    }
 }
 
 void CS2DGame::move_player(const std::string& username, const Vector2D& direction) {

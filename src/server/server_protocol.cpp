@@ -5,6 +5,7 @@
 
 #include <sys/types.h>
 
+#include "../common/player_dto.h"
 #include "../common/skins.h"
 
 ServerProtocol::ServerProtocol(Socket&& socket):
@@ -213,6 +214,18 @@ MessageFromClient ServerProtocol::receive_plant_bomb_request(const CommandType& 
 MessageFromClient ServerProtocol::receive_defuse_bomb_request(const CommandType& command) {
     MessageFromClient msg = this->initialize_message(command);
     return msg;
+}
+
+void ServerProtocol::send_map(const GameMap& map) {
+    this->send_byte(CODE_SEND_MAP);
+    this->send_byte(map.map_objects.size());
+    for (auto object: map.map_objects) {
+        this->send_byte(object.type);
+        this->send_byte(object.position.x);
+        this->send_byte(object.position.y);
+        this->send_byte(object.height);
+        this->send_byte(object.width);
+    }
 }
 
 void ServerProtocol::kill() {
