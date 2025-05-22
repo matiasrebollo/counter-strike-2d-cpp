@@ -70,6 +70,7 @@ void ClientHandler::manageCreateGame(const MessageFromClient& msg) {
     if (!this->isInGame() && this->username != "") {
         this->my_game = game->id;
         this->is_in_game = true;
+        std::cout << "ENTRE" << std::endl;
         this->sendLobbyResponse(msg.commandType, true, this->my_game);
         ClientReceiver(this->protocol, game).run();  // este es el que es el thread
         ClientSender sender(this->protocol);
