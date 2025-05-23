@@ -8,7 +8,7 @@
 
 struct PlayerDTO {
     const Vector2D position;
-    const Vector2D direction;
+    const float orientation;
     /*const GunType primary_gun;
     const uint16_t primary_ammo;
     const GunType secondary_gun;

@@ -77,8 +77,8 @@ void ServerProtocol::send_players(const std::vector<PlayerDTO>& players) {
         // this->send_string(player.username);
         this->send_byte(player.position.x);
         this->send_byte(player.position.y);
-        this->send_byte(player.direction.x);
-        this->send_byte(player.direction.y);
+        // this->send_byte(player.direction.x);
+        // this->send_byte(player.direction.y);
         this->send_byte(player.life);
         // this->send_big_endian_number(player.money);
         // this->send_byte(player.health);

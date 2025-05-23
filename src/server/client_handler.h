@@ -14,8 +14,6 @@
 class ClientHandler: public Thread {
 private:
     ServerProtocol protocol;
-    std::atomic_bool keepTalking;
-    std::atomic_bool isAlive;
     std::unordered_map<CommandType, std::function<void(const MessageFromClient& request)>>
             managersMap;
     ServerMonitor& server_monitor;

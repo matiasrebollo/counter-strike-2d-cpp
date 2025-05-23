@@ -16,9 +16,6 @@ std::shared_ptr<CS2DGame> ServerMonitor::CreateNewGame() {
     auto [it, inserted] = this->games.try_emplace(game_name, std::make_shared<CS2DGame>(game_name));
     this->game_id++;
     return it->second;
-    /*std::shared_ptr<Queue<Snapshot>> queue = game.new_player(username);
-
-    return CreateResponse{true, game_name, queue};*/
 }
 
 std::shared_ptr<CS2DGame> ServerMonitor::JoinGame(const std::string& gameName) {
@@ -26,8 +23,6 @@ std::shared_ptr<CS2DGame> ServerMonitor::JoinGame(const std::string& gameName) {
     auto it = this->games.find(gameName);
 
     return it->second;
-    /*std::shared_ptr<Queue<Snapshot>> queue = game.new_player(username);
-    return CreateResponse{true, gameName, queue};*/
 }
 
 void ServerMonitor::MakePlayGame(const std::string& gameName) {

@@ -12,9 +12,9 @@ class CS2DGame;  // forward declaration
 class Shot {
 public:
     const Vector2D origin;
-    const Vector2D direction;
+    const float orientation;
 
-    Shot(const Vector2D& origin, const Vector2D& direction);
+    Shot(const Vector2D& origin, const float& orientation);
 
     const Collidable* shoot(const CS2DGame& game) const;
 

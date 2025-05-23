@@ -8,14 +8,12 @@ target_sources(taller_server
         cs2d_game.cpp
         hitbox.cpp
         main.cpp
-        move_command.cpp
+        command.cpp
+        move_commands.cpp
         player.cpp
-        rotate_command.cpp
         server.cpp
         server_monitor.cpp
         server_protocol.cpp
-        shoot_command.cpp
-        shot.cpp
         weapon.cpp
     PUBLIC
         client_acceptor.h
@@ -26,13 +24,10 @@ target_sources(taller_server
         command.h
         cs2d_game.h
         hitbox.h
-        move_command.h
+        move_commands.h
         player.h
-        rotate_command.h
         server.h
         server_monitor.h
         server_protocol.h
-        shoot_command.h
-        shot.h
         weapon.h
 )

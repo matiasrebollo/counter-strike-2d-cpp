@@ -71,11 +71,10 @@ void ClientHandler::manageCreateGame(const MessageFromClient& msg) {
         this->my_game = game->id;
         this->is_in_game = true;
         this->sendLobbyResponse(msg.commandType, true, this->my_game);
-        ClientReceiver(this->protocol, game).run();  // este es el que es el thread
+        ClientReceiver(this->protocol, this->username, game).run();
         ClientSender sender(this->protocol);
         game->new_player(username, sender);
-        // enviar mensaje empezó partida
-        // aca deberia lanzar el otro hilo y las queues
+        sender.run();
         return;
     }
     this->sendLobbyResponse(msg.commandType, false, "");
@@ -87,11 +86,10 @@ void ClientHandler::manageJoinGame(const MessageFromClient& msg) {
         this->is_in_game = true;
         this->my_game = msg.s;
         this->sendLobbyResponse(msg.commandType, true, "");
-        ClientReceiver(this->protocol, game).run();
+        ClientReceiver(this->protocol, this->username, game).run();
         ClientSender sender(this->protocol);
         game->new_player(username, sender);
-        // enviar mensaje empezó partida
-        // aca deberia lanzar el otro hilo y las queues
+        sender.run();
         return;
     }
     this->sendLobbyResponse(msg.commandType, false, "");

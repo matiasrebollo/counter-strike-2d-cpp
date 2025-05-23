@@ -133,14 +133,14 @@ Snapshot ClientProtocol::receive_snapshot() {
 std::vector<PlayerDTO> ClientProtocol::receive_players(const int& size_players) {
     std::vector<PlayerDTO> players = {};
     for (int i = 0; i < size_players; i++) {
-        int position_x = this->receive_byte();
+        /*int position_x = this->receive_byte();
         int position_y = this->receive_byte();
         int direction_x = this->receive_byte();
         int direction_y = this->receive_byte();
         int life = this->receive_byte();
         uint16_t life16 = static_cast<uint16_t>(life);
-        players.push_back(PlayerDTO{Vector2D(position_x, position_y),
-                                    Vector2D(direction_x, direction_y), life16});
+        players.push_back(PlayerDTO{Vector2D(position_x, position_y), Vector2D(direction_x,
+        direction_y), life16});*/
     }
     return players;
 }

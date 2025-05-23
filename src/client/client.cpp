@@ -1,13 +1,16 @@
 #include "client.h"
-#include "client/lobby/lobby.h"
-#include "../common/game_map.h"
-#include "../common/clock.h"
 
 #include <QApplication>
-#include <SDL2pp/SDL2pp.hh>
-#include <SDL2/SDL.h>
 #include <cmath>
 #include <iostream>
+#include <vector>
+
+#include <SDL2/SDL.h>
+#include <SDL2pp/SDL2pp.hh>
+
+#include "../common/clock.h"
+#include "../common/game_map.h"
+#include "client/lobby/lobby.h"
 
 Client::Client() {}
 
@@ -19,19 +22,19 @@ void Client::run(int argc, char* argv[]) {
 
 
     SDL2pp::SDL sdl(SDL_INIT_VIDEO);
-    
+
 
     // modificar a 640 x 480
     SDL2pp::Window window("SDL2pp demo", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480,
                           SDL_WINDOW_RESIZABLE);
 
     SDL2pp::Renderer renderer(window, -1, SDL_RENDERER_ACCELERATED);
-    
-    //Jugador
+
+    // Jugador
     SDL2pp::Surface playerSheet("../assets/gfx/player/ct1.bmp");
     SDL2pp::Texture player(renderer, playerSheet);
 
-    //Caja
+    // Caja
     SDL2pp::Surface boxSheet("../assets/gfx/tiles/aztec.bmp");
     SDL2pp::Texture box(renderer, boxSheet);
 
@@ -51,8 +54,8 @@ void Client::run(int argc, char* argv[]) {
     Vector2D pos(0, 0);
     int width = mapWidth;
     int height = wallThickness;
-    MapObject obj{pos, width, height, MapObjectType::BOX};
-    objects.push_back(obj);
+    MapObject obj1{pos, width, height, MapObjectType::BOX};
+    objects.push_back(obj1);
 
     pos = Vector2D(0, 0);
     width = wallThickness;
@@ -79,7 +82,7 @@ void Client::run(int argc, char* argv[]) {
     objects.push_back(obj5);
 
     const GameMap map{objects};
-    
+
     int it = 0;
     int FPS = 30;
     Clock clock;
@@ -87,26 +90,44 @@ void Client::run(int argc, char* argv[]) {
 
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) return;
+            if (event.type == SDL_QUIT)
+                return;
             if (event.type == SDL_KEYDOWN) {
                 switch (event.key.keysym.sym) {
-                    case SDLK_ESCAPE: return;
-                    case SDLK_w: w = true; break;
-                    case SDLK_a: a = true; break;
-                    case SDLK_s: s = true; break;
-                    case SDLK_d: d = true; break;
+                    case SDLK_ESCAPE:
+                        return;
+                    case SDLK_w:
+                        w = true;
+                        break;
+                    case SDLK_a:
+                        a = true;
+                        break;
+                    case SDLK_s:
+                        s = true;
+                        break;
+                    case SDLK_d:
+                        d = true;
+                        break;
                 }
             } else if (event.type == SDL_KEYUP) {
                 switch (event.key.keysym.sym) {
-                    case SDLK_w: w = false; break;
-                    case SDLK_a: a = false; break;
-                    case SDLK_s: s = false; break;
-                    case SDLK_d: d = false; break;
+                    case SDLK_w:
+                        w = false;
+                        break;
+                    case SDLK_a:
+                        a = false;
+                        break;
+                    case SDLK_s:
+                        s = false;
+                        break;
+                    case SDLK_d:
+                        d = false;
+                        break;
                 }
             }
         }
 
-        // Primer frame 
+        // Primer frame
         if (primeraVez) {
             x_pos = (renderer.GetOutputWidth() - 32) / 2;
             y_pos = (renderer.GetOutputHeight() - 32) / 2;
@@ -115,10 +136,14 @@ void Client::run(int argc, char* argv[]) {
 
         float movimiento = 10.0f;
 
-        if (w && y_pos > 0) y_pos -= movimiento;
-        if (s && y_pos + 32 < renderer.GetOutputHeight()) y_pos += movimiento;
-        if (a && x_pos > 0) x_pos -= movimiento;
-        if (d && x_pos + 32 < renderer.GetOutputWidth()) x_pos += movimiento;
+        if (w && y_pos > 0)
+            y_pos -= movimiento;
+        if (s && y_pos + 32 < renderer.GetOutputHeight())
+            y_pos += movimiento;
+        if (a && x_pos > 0)
+            x_pos -= movimiento;
+        if (d && x_pos + 32 < renderer.GetOutputWidth())
+            x_pos += movimiento;
 
         int mouse_x, mouse_y;
         SDL_GetMouseState(&mouse_x, &mouse_y);
@@ -131,22 +156,20 @@ void Client::run(int argc, char* argv[]) {
         renderer.Clear();
 
         // ACA SI ITERO EL MAPA (POR AHORA SOLO TIPO BOX)
-        for (const MapObject& obj : map.map_objects) {
+        for (const MapObject& obj: map.map_objects) {
             if (obj.type == MapObjectType::BOX) {
-                SDL2pp::Rect rect_origen(416, 64, 32, 32); //por ahora lo hardcodeo
+                SDL2pp::Rect rect_origen(416, 64, 32, 32);  // por ahora lo hardcodeo
                 SDL2pp::Rect rect_destino(obj.position.x, obj.position.y, obj.width, obj.height);
-                renderer.Copy(box,
-                              rect_origen,
-                              rect_destino);
+                renderer.Copy(box, rect_origen, rect_destino);
             }
         }
         // podria tambien crear los rect y point antes en lugar de en el copy
         renderer.Copy(player, SDL2pp::Rect(0, 32, 32, 32),
-                      SDL2pp::Rect((int)x_pos, (int)y_pos, 32, 32),
-                      angulo, SDL2pp::Point(16.0f, 16.0f));
+                      SDL2pp::Rect((int)x_pos, (int)y_pos, 32, 32), angulo,
+                      SDL2pp::Point(16.0f, 16.0f));
         renderer.Present();
-        
-        //SDL_Delay(1000);
+
+        // SDL_Delay(1000);
         it = clock.sleep_and_calc_next_it(FPS, it);
     }
 }
