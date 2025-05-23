@@ -22,6 +22,7 @@ public:
     explicit Lobby(QWidget* parent = nullptr);
     ~Lobby();
     ClientProtocol& get_protocol();
+    std::string get_username();
 
 private slots:
     void on_CreateGame_clicked();

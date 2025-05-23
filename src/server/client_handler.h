@@ -3,7 +3,9 @@
 
 #include <memory>
 #include <string>
+#include <type_traits>
 #include <unordered_map>
+#include <variant>
 
 #include "../common/socket.h"
 #include "../common/thread.h"
@@ -14,10 +16,6 @@
 class ClientHandler: public Thread {
 private:
     ServerProtocol protocol;
-    std::atomic_bool keepTalking;
-    std::atomic_bool isAlive;
-    std::unordered_map<CommandType, std::function<void(const MessageFromClient& request)>>
-            managersMap;
     ServerMonitor& server_monitor;
     std::string username;
     bool is_in_game;
@@ -25,10 +23,10 @@ private:
 
     void sendLobbyResponse(const CommandType& command, const bool& success,
                            const std::string& game_name);
-    void manageCommand(const MessageFromClient& msg);
-    void manageCreateUsername(const MessageFromClient& msg);
-    void manageCreateGame(const MessageFromClient& msg);
-    void manageJoinGame(const MessageFromClient& msg);
+    void manage_lobby_request(const LobbyRequestDTO& dto);
+    void manage_create_username(const CreateUsernameDTO& dto);
+    void manage_create_game(const CreateGameDTO&);
+    void manage_join_game(const JoinGameDTO& dto);
     void manageEndGame();
     bool isInGame();
     MessageFromClient ReceiveMessage();

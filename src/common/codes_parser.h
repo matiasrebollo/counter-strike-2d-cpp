@@ -12,7 +12,7 @@
 #define CODE_SELECT_MAP 0x05
 #define CODE_BUY_WEAPON 0x06
 #define CODE_BUY_BULLETS 0x07
-#define CODE_AIM 0x08
+#define CODE_ROTATE 0x08
 #define CODE_MOVE 0x09
 #define CODE_SHOOT 0x10
 #define CODE_CHANGE_WEAPON 0x11

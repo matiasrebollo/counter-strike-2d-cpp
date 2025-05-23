@@ -7,45 +7,36 @@
 #include <utility>
 #include <vector>
 
+#include "common/clock.h"
 #include "common/game_map.h"
 #include "common/game_snapshot.h"
 
+CS2DGame::CS2DGame(const std::string& id): last_it(0), id(id) {
+    const int mapWidth = 640;
+    const int mapHeight = 480;
+    const int wallThickness = 40;
 
-CS2DGame::CS2DGame(const std::string& id): id(id) {
-    const int mapWidth = 1000;
-    const int mapHeight = 1000;
-    const int wallThickness = 100;
+    collidables.emplace_back(std::make_shared<Collidable>(Vector2D(0, 0), mapWidth, wallThickness));
+    collidables.emplace_back(
+            std::make_shared<Collidable>(Vector2D(0, 0), wallThickness, mapHeight));
+    collidables.emplace_back(std::make_shared<Collidable>(Vector2D(0, mapHeight - wallThickness),
+                                                          mapWidth, wallThickness));
+    collidables.emplace_back(std::make_shared<Collidable>(Vector2D(mapWidth - wallThickness, 0),
+                                                          wallThickness, mapHeight));
 
-    collidables.emplace_back(
-            std::make_shared<Collidable>(Vector2D(0, -wallThickness), mapWidth, wallThickness));
-    collidables.emplace_back(
-            std::make_shared<Collidable>(Vector2D(-wallThickness, 0), wallThickness, mapHeight));
-    collidables.emplace_back(
-            std::make_shared<Collidable>(Vector2D(0, mapHeight), mapWidth, wallThickness));
-    collidables.emplace_back(
-            std::make_shared<Collidable>(Vector2D(mapWidth, 0), wallThickness, mapHeight));
+    const int boxThickness = 60;
 
-    const int boxThickness = 100;
-
-    collidables.emplace_back(
-            std::make_shared<Collidable>(Vector2D(500, 500), boxThickness, boxThickness));
+    collidables.emplace_back(std::make_shared<Collidable>(
+            Vector2D((mapWidth - boxThickness) / 2, (mapHeight - boxThickness) / 2), boxThickness,
+            boxThickness));
 }
 
 void CS2DGame::new_player(const std::string& username, ClientSender& sender) {
-    Vector2D pos(200, 200);
-    Vector2D dir(1, 0);
-    auto player = std::make_shared<Player>(pos, dir, sender);
-    players[username] = player;
-    collidables.push_back(player);
-}
+    Vector2D position(100, 100);
+    double orientation = 0.0;
+    auto player = std::make_shared<Player>(position, orientation, sender);
 
-void CS2DGame::push(const MessageFromClient& command) {
-    command_queue.push(command);  // bloqueante o no?
-}
-
-void CS2DGame::broadcast_map() const {
     std::vector<MapObject> objects;
-
     for (const auto& collidable: collidables) {
         if (std::dynamic_pointer_cast<Player>(collidable)) {
             continue;  // ignorar jugadores
@@ -58,20 +49,21 @@ void CS2DGame::broadcast_map() const {
         MapObject obj{pos, width, height, MapObjectType::BOX};
         objects.push_back(obj);
     }
-
     const GameMap map{objects};
 
-    for (const auto& player: players) {
-        player.second->send_map(map);
-    }
+    player->send_map(map);
+    players[username] = player;
+    collidables.push_back(player);
 }
+
+void CS2DGame::push(std::unique_ptr<Command> command) { command_queue.push(std::move(command)); }
 
 void CS2DGame::broadcast_snapshot() {
     std::vector<PlayerDTO> player_dtos;
 
     for (const auto& player: players) {
-        const PlayerDTO dto{player.second->get_hitbox().position, player.second->get_direction(),
-                            player.second->get_life()};
+        const PlayerDTO dto{player.first, player.second->get_hitbox().position,
+                            player.second->get_orientation(), player.second->get_life()};
         player_dtos.push_back(dto);
     }
 
@@ -82,32 +74,37 @@ void CS2DGame::broadcast_snapshot() {
     }
 }
 
-void CS2DGame::move_player(const std::string& username, const Vector2D& direction) {
-    auto it = players.find(username);
-    if (it != players.end()) {
-        it->second->step(direction, *this);
-    } else {
-        throw std::invalid_argument("Username does not correspond to a player in this game.");
-    }
+void CS2DGame::rotate_player(const std::string& username, const double& angle) {
+    with_player(username, [angle](Player& p) { p.rotate(angle); });
 }
 
-bool CS2DGame::is_player_in_valid_position(const Player& player) const {
+void CS2DGame::move_player_up(const std::string& username) {
+    with_player(username, [](Player& p) { p.move_up(); });
+}
+
+void CS2DGame::move_player_down(const std::string& username) {
+    with_player(username, [](Player& p) { p.move_down(); });
+}
+
+void CS2DGame::move_player_left(const std::string& username) {
+    with_player(username, [](Player& p) { p.move_left(); });
+}
+
+void CS2DGame::move_player_right(const std::string& username) {
+    with_player(username, [](Player& p) { p.move_right(); });
+}
+
+
+bool CS2DGame::is_player_not_in_valid_position(const Player& player) const {
     return std::any_of(collidables.begin(), collidables.end(),
                        [&player](const std::shared_ptr<Collidable>& collidable) {
+                           if (collidable.get() == &player)
+                               return false;
                            return player.collides_with(*collidable);
                        });
 }
 
-void CS2DGame::rotate_player(const std::string& username, const Vector2D& direction) {
-    auto it = players.find(username);
-    if (it != players.end()) {
-        it->second->rotate(direction);
-    } else {
-        throw std::invalid_argument("Username does not correspond to a player in this game.");
-    }
-}
-
-double CS2DGame::impacts(const Shot& shot, const Collidable& collidable) const {
+/*double CS2DGame::impacts(const Shot& shot, const Collidable& collidable) const {
     Hitbox h = collidable.get_hitbox();
     Vector2D v1 = h.position;
     Vector2D v2 = {h.position.x + h.width, h.position.y};
@@ -127,7 +124,7 @@ double CS2DGame::impacts(const Shot& shot, const Collidable& collidable) const {
     });
 
     return (it != distances.end() && *it > 0.0) ? *it : 0.0;
-}
+}*/
 
 // R(t) = origin + direction * t, con t ≥ 0 - Semirrecta por la que recorrerá el disparo.
 // S(u) = seg_start + seg_dir * u, con 0 ≤ u ≤ 1 - Segmento, se quiere ver si la recta lo corta.
@@ -136,7 +133,7 @@ double CS2DGame::impacts(const Shot& shot, const Collidable& collidable) const {
 // => direction * t + (-seg_dir) * u = r (siendo r = seg_start - origin)
 // => ... (wolfram) =>  t = (r x (seg_dir)) / ((direction))x(seg_dir)), u = (r x direction) /
 // ((shoot_direction))x(seg_dir))
-double CS2DGame::intersects_segment(const Shot& shot, const Vector2D& seg_start,
+/*double CS2DGame::intersects_segment(const Shot& shot, const Vector2D& seg_start,
                                     const Vector2D& seg_end) const {
 
     Vector2D seg_dir = seg_end - seg_start;
@@ -157,9 +154,9 @@ double CS2DGame::intersects_segment(const Shot& shot, const Vector2D& seg_start,
     }
 
     return 0.0;
-}
+}*/
 
-const Collidable* CS2DGame::first_impact(const Shot& shot) const {
+/*const Collidable* CS2DGame::first_impact(const Shot& shot) const {
     const Collidable* hit = nullptr;
     double closest = std::numeric_limits<double>::max();
 
@@ -174,26 +171,40 @@ const Collidable* CS2DGame::first_impact(const Shot& shot) const {
     }
 
     return hit;
-}
+}*/
 
-void CS2DGame::shoot(const std::string& username) {
+/*void CS2DGame::shoot(const std::string& username) {
     auto it = players.find(username);
     if (it != players.end()) {
         it->second->shoot(*this);
     } else {
         throw std::invalid_argument("Username does not correspond to a player in this game.");
     }
+}*/
+
+void CS2DGame::update(const size_t& it) {
+    for (size_t i = 0; i < it - this->last_it; ++i) {
+        // actualizar cosas propias del juego
+        for (const auto& [_, player]: players) {
+            player->update(*this);
+        }
+    }
+    this->last_it = it;
 }
 
 void CS2DGame::run() {
-    broadcast_map();
-
+    int FPS = 60;
+    Clock clock;
+    size_t it = 1;
     while (should_keep_running()) {
-        /*std::unique_ptr<Command> cmd;
+        std::unique_ptr<Command> cmd;
         if (command_queue.try_pop(cmd))
-            cmd->execute(*this);*/
+            cmd->execute(*this);
+        update(it);
         broadcast_snapshot();
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        // std::cout << "last it: " << it << std::endl;
+        it = clock.sleep_and_calc_next_it(FPS, it);
+        // std::cout << "new it: " << it << std::endl;
     }
 }
 

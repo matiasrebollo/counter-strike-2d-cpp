@@ -1,5 +1,6 @@
-#include "client.h"
 #include <iostream>
+
+#include "client.h"
 
 int main(int argc, char* argv[]) {
     try {
@@ -11,4 +12,3 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 }
-

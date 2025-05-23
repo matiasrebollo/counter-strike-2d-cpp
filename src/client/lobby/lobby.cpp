@@ -5,6 +5,7 @@
 
 #include "client/client_protocol.h"
 #include "common/commands.h"
+#include "common/lobby_request.h"
 #include "common/message.h"
 #include "common/skins.h"
 
@@ -24,42 +25,39 @@ void Lobby::go_to_lobby() { ui->stack->setCurrentIndex(1); }
 
 
 void Lobby::on_CreateGame_clicked() {
-    this->username = ui->lineEdit->text().toStdString();
-    MessageFromClient request;
-    request.commandType = CommandType::CREATE_USERNAME;  // commandType
-    request.s = this->username;                          // s
-    protocol.value().send_command(request);
+    CreateUsernameDTO request;
+    request.username = ui->lineEdit->text().toStdString();
+    protocol.value().send_lobby_request(request);
 
     ServerResponseLobby response = protocol.value().receive_command();
     if (response.commandType == CREATE_USERNAME && response.success) {
         ui->stack->setCurrentIndex(3);
+        this->username = ui->lineEdit->text().toStdString();
     }
 }
 
 void Lobby::on_JoinGame_clicked() {
-    this->username = ui->lineEdit->text().toStdString();
-    MessageFromClient request;
-    request.commandType = CommandType::CREATE_USERNAME;  // commandType
-    request.s = this->username;                          // s
-    protocol.value().send_command(request);
+    CreateUsernameDTO request;
+    request.username = ui->lineEdit->text().toStdString();
+    protocol.value().send_lobby_request(request);
 
     ServerResponseLobby response = protocol.value().receive_command();
     if (response.commandType == CREATE_USERNAME && response.success) {
         ui->stack->setCurrentIndex(2);
+        this->username = ui->lineEdit->text().toStdString();
     }
 }
 
 void Lobby::on_JoinGameButton_clicked() {
     std::string game_name = ui->game_code->text().toStdString();
 
-    MessageFromClient request;
+    JoinGameDTO request;
 
-    request.commandType = CommandType::JOIN_GAME;  // commandType
-    request.s = game_name;                         // s
-    request.tt_skin = TerroristSkin::GUERRILLA;    // tt_skin
-    request.ct_skin = CounterTerroristSkin::GIGN;  // ct_skin
+    request.gamename = game_name;
+    request.tt_skin = TerroristSkin::GUERRILLA;
+    request.ct_skin = CounterTerroristSkin::GIGN;
 
-    protocol.value().send_command(request);
+    protocol.value().send_lobby_request(request);
     ServerResponseLobby response = protocol.value().receive_command();
     if (response.commandType == JOIN_GAME && response.success) {
         close();
@@ -73,14 +71,13 @@ void Lobby::on_createButton_clicked() {
     if (not ok) {
         // error
     } else {
-        MessageFromClient request;
+        CreateGameDTO request;
 
-        request.commandType = CommandType::CREATE_GAME;  // commandType
-        request.tt_skin = TerroristSkin::GUERRILLA;      // tt_skin
-        request.ct_skin = CounterTerroristSkin::GIGN;    // ct_skin
+        request.tt_skin = TerroristSkin::GUERRILLA;
+        request.ct_skin = CounterTerroristSkin::GIGN;
         request.size_players = n_min_players;
 
-        protocol.value().send_command(request);
+        protocol.value().send_lobby_request(request);
         ServerResponseLobby response = protocol.value().receive_command();
         if (response.commandType == CREATE_GAME && response.success) {
             QString game_code = QString::fromStdString(response.game_name);
@@ -108,3 +105,5 @@ ClientProtocol& Lobby::get_protocol() {
     }
     throw std::runtime_error("Protocolo no inicializado");
 }
+
+std::string Lobby::get_username() { return this->username; }

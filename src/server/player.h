@@ -10,30 +10,41 @@ class CS2DGame;  // forward declaration
 #include "server/client_sender.h"
 #include "server/collidable.h"
 
-#define PLAYER_WIDTH 50
-#define PLAYER_HEIGHT 50
-#define PLAYER_SPEED 25
+#define PLAYER_WIDTH 32
+#define PLAYER_HEIGHT 32
+#define PLAYER_SPEED 2
 #define PLAYER_INITIAL_LIFE 1000
 
 class Player: public Collidable {
 private:
-    Vector2D direction;
+    bool moving_up;
+    bool moving_down;
+    bool moving_left;
+    bool moving_right;
+    double orientation;
     uint16_t life;
     ClientSender& sender;
+
     // LoadoutManager loadout;
 
-public:
-    Player(Vector2D& position, Vector2D& direction, ClientSender& sender);
+    void step(const Vector2D& step_dir, CS2DGame& game);
 
-    Vector2D get_direction() const;
+public:
+    Player(Vector2D& position, double& orientation, ClientSender& sender);
+
+    float get_orientation() const;
     uint16_t get_life() const;
 
     void send_map(const GameMap& map);
     void send_snapshot(const Snapshot& map);
 
-    void step(const Vector2D& step_dir, const CS2DGame& game);
-    void rotate(const Vector2D& new_dir);
-    void shoot(const CS2DGame& game) const;
+    void update(CS2DGame& game);
+    void rotate(const double& new_orientation);
+    void move_up();
+    void move_down();
+    void move_left();
+    void move_right();
+    // void shoot(const CS2DGame& game) const;
 
     Player(const Player&) = delete;
     Player& operator=(const Player&) = delete;

@@ -19,7 +19,7 @@ ClientProtocolParser::ClientProtocolParser() {
     parsersMap[CommandType::BUY_AMMO] = [this](const MessageFromClient& request) {
         return this->parseFromBuyWeaponAmmoRequest(request);
     };
-    parsersMap[CommandType::AIM] = [this](const MessageFromClient& request) {
+    parsersMap[CommandType::ROTATE] = [this](const MessageFromClient& request) {
         return this->parseFromAimRequest(request);
     };
     parsersMap[CommandType::MOVE] = [this](const MessageFromClient& request) {

@@ -16,13 +16,14 @@ private:
     ServerProtocol& protocol;
     std::atomic_bool keep_running;
 
-    void run();
-    void send_snapshot_to_client();
+
+    void send_snapshot();
 
 public:
     explicit ClientSender(ServerProtocol& protocol);
     void push(const Snapshot& snapshot);
     void send_map(const GameMap& map);
+    void run();
 };
 
 #endif

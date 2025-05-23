@@ -1,6 +1,7 @@
 #include "server_protocol.h"
 
 #include <cstring>
+#include <numbers>
 #include <utility>
 
 #include <sys/types.h>
@@ -11,14 +12,14 @@
 ServerProtocol::ServerProtocol(Socket&& socket):
         CommonProtocol(std::move(socket)),
         codeSuccessResponse({{true, CODE_SUCCESS}, {false, CODE_FAIL}}) {
-    commandsManagers[CommandType::CREATE_USERNAME] = [this](const CommandType& command) {
-        return receive_create_username_request(command);
+    lobbyCommandManagers[CommandType::CREATE_USERNAME] = [this]() -> LobbyRequestDTO {
+        return receive_create_username_request();
     };
-    commandsManagers[CommandType::CREATE_GAME] = [this](const CommandType& command) {
-        return receive_create_game_request(command);
+    lobbyCommandManagers[CommandType::CREATE_GAME] = [this]() -> LobbyRequestDTO {
+        return receive_create_game_request();
     };
-    commandsManagers[CommandType::JOIN_GAME] = [this](const CommandType& command) {
-        return receive_join_game_request(command);
+    lobbyCommandManagers[CommandType::JOIN_GAME] = [this]() -> LobbyRequestDTO {
+        return receive_join_game_request();
     };
     commandsManagers[CommandType::SELECT_MAP] = [this](const CommandType& command) {
         return receive_select_map_request(command);
@@ -29,7 +30,7 @@ ServerProtocol::ServerProtocol(Socket&& socket):
     commandsManagers[CommandType::BUY_AMMO] = [this](const CommandType& command) {
         return receive_buy_weapon_ammo_request(command);
     };
-    commandsManagers[CommandType::AIM] = [this](const CommandType& command) {
+    commandsManagers[CommandType::ROTATE] = [this](const CommandType& command) {
         return receive_aim_request(command);
     };
     commandsManagers[CommandType::MOVE] = [this](const CommandType& command) {
@@ -74,11 +75,12 @@ void ServerProtocol::send_snapshot(const Snapshot& snapshot) {
 
 void ServerProtocol::send_players(const std::vector<PlayerDTO>& players) {
     for (auto player: players) {
-        // this->send_string(player.username);
+        this->send_string(player.username);
         this->send_byte(player.position.x);
         this->send_byte(player.position.y);
-        this->send_byte(player.direction.x);
-        this->send_byte(player.direction.y);
+        this->send_angle(player.orientation);
+        // this->send_byte(player.direction.x);
+        // this->send_byte(player.direction.y);
         this->send_byte(player.life);
         // this->send_big_endian_number(player.money);
         // this->send_byte(player.health);
@@ -110,11 +112,60 @@ MessageFromClient ServerProtocol::receive_command(void) {
     return this->commandsManagers.find(command)->second(command);
 }
 
-MessageFromClient ServerProtocol::receive_create_username_request(const CommandType& command) {
+LobbyRequestDTO ServerProtocol::receive_lobby_request() {
+    uint8_t commandCode = this->receive_byte();
+    CommandType command = this->codeToCommands.find(commandCode)->second;
+    return this->lobbyCommandManagers.find(command)->second();
+}
+
+CommandDTO ServerProtocol::receive_move_request() {
+    uint8_t code = this->receive_byte();
+    if (code == CODE_ROTATE) {
+        return this->receive_rotate();
+    } else {
+        uint8_t code_movement = this->receive_byte();
+        switch (static_cast<Movement>(code_movement - 1)) {
+            case Movement::UP:
+                return MoveUpDTO{};
+            case Movement::DOWN:
+                return MoveDownDTO{};
+            case Movement::LEFT:
+                return MoveLeftDTO{};
+            case Movement::RIGHT:
+                return MoveRightDTO{};
+            default:
+                throw std::runtime_error("Unknown move code");
+        }
+    }
+}
+
+CreateUsernameDTO ServerProtocol::receive_create_username_request() {
+    CreateUsernameDTO dto;
     std::string username = this->receive_string();
-    MessageFromClient msg = this->initialize_message(command);
-    msg.s = username;
-    return msg;
+    dto.username = username;
+    return dto;
+}
+
+CreateGameDTO ServerProtocol::receive_create_game_request() {
+    CreateGameDTO dto;
+    uint8_t size_players = this->receive_byte();
+    uint8_t skin_id_tt = this->receive_byte();
+    uint8_t skin_id_ct = this->receive_byte();
+    dto.tt_skin = TerroristSkin(skin_id_tt - 1);
+    dto.ct_skin = CounterTerroristSkin(skin_id_ct - 1);
+    dto.size_players = size_players;
+    return dto;
+}
+
+JoinGameDTO ServerProtocol::receive_join_game_request() {
+    JoinGameDTO dto;
+    std::string gamename = this->receive_string();
+    uint8_t skin_id_tt = this->receive_byte();
+    uint8_t skin_id_ct = this->receive_byte();
+    dto.tt_skin = TerroristSkin(skin_id_tt - 1);
+    dto.ct_skin = CounterTerroristSkin(skin_id_ct - 1);
+    dto.gamename = gamename;
+    return dto;
 }
 
 MessageFromClient ServerProtocol::initialize_message(const CommandType& command) {
@@ -132,29 +183,8 @@ MessageFromClient ServerProtocol::initialize_message(const CommandType& command)
                              false};
 }
 
-MessageFromClient ServerProtocol::receive_create_game_request(const CommandType& command) {
-    uint8_t size_players = this->receive_byte();
-    MessageFromClient msg = this->receive_select_skins_request(command);
-    msg.size_players = size_players;
-    return msg;
-}
 
-MessageFromClient ServerProtocol::receive_join_game_request(const CommandType& command) {
-    std::string gameName = this->receive_string();
-    MessageFromClient msg = this->receive_select_skins_request(command);
-    msg.commandType = command;
-    msg.s = gameName;
-    return msg;
-}
-
-MessageFromClient ServerProtocol::receive_select_skins_request(const CommandType& command) {
-    uint8_t skin_id_tt = this->receive_byte();
-    uint8_t skin_id_ct = this->receive_byte();
-    MessageFromClient msg = this->initialize_message(command);
-    msg.tt_skin = TerroristSkin(skin_id_tt - 1);
-    msg.ct_skin = CounterTerroristSkin(skin_id_ct - 1);
-    return msg;
-}
+RotateDTO ServerProtocol::receive_rotate() { return RotateDTO{this->receive_angle()}; }
 
 MessageFromClient ServerProtocol::receive_select_map_request(const CommandType& command) {
     MessageFromClient msg = this->initialize_message(command);
@@ -218,13 +248,13 @@ MessageFromClient ServerProtocol::receive_defuse_bomb_request(const CommandType&
 
 void ServerProtocol::send_map(const GameMap& map) {
     this->send_byte(CODE_SEND_MAP);
-    this->send_byte(map.map_objects.size());
+    this->send_big_endian_number(map.map_objects.size());
     for (auto object: map.map_objects) {
         this->send_byte(object.type);
-        this->send_byte(object.position.x);
-        this->send_byte(object.position.y);
-        this->send_byte(object.height);
-        this->send_byte(object.width);
+        this->send_big_endian_number(object.position.x);
+        this->send_big_endian_number(object.position.y);
+        this->send_big_endian_number(object.height);
+        this->send_big_endian_number(object.width);
     }
 }
 
