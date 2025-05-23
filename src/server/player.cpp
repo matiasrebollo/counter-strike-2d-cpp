@@ -4,7 +4,7 @@
 
 #include "server/cs2d_game.h"
 
-Player::Player(Vector2D& position, float& orientation, ClientSender& sender):
+Player::Player(Vector2D& position, double& orientation, ClientSender& sender):
         Collidable(position, PLAYER_WIDTH, PLAYER_HEIGHT),
         moving_up(false),
         moving_down(false),
@@ -50,7 +50,7 @@ void Player::move_up() { moving_up = !moving_up; }
 void Player::move_down() { moving_down = !moving_down; }
 void Player::move_left() { moving_left = !moving_left; }
 void Player::move_right() { moving_right = !moving_right; }
-void Player::rotate(const float& new_orientation) { this->orientation = new_orientation; }
+void Player::rotate(const double& new_orientation) { this->orientation = new_orientation; }
 
 void Player::send_map(const GameMap& map) { sender.send_map(map); }
 void Player::send_snapshot(const Snapshot& snapshot) { sender.push(snapshot); }

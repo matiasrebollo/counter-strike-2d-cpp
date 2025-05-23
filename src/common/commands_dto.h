@@ -9,7 +9,7 @@ struct MoveLeftDTO {};
 struct MoveRightDTO {};
 
 struct RotateDTO {
-    const float angle;
+    const double angle;
 };
 
 using CommandDTO = std::variant<MoveUpDTO, MoveDownDTO, MoveLeftDTO, MoveRightDTO, RotateDTO>;

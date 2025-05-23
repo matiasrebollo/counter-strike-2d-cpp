@@ -35,8 +35,8 @@ public:
 
 class RotateCommand: public Command {
 public:
-    const float angle;
-    explicit RotateCommand(const std::string& username, const float& angle);
+    const double angle;
+    RotateCommand(const std::string& username, const double& angle);
     void execute(CS2DGame& game) const override;
     ~RotateCommand() override = default;
 };

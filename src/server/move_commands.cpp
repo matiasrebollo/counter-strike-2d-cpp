@@ -23,7 +23,7 @@ MoveRightCommand::MoveRightCommand(const std::string& username): Command(usernam
 void MoveRightCommand::execute(CS2DGame& game) const { game.move_player_right(username); }
 
 
-RotateCommand::RotateCommand(const std::string& username, const float& angle):
+RotateCommand::RotateCommand(const std::string& username, const double& angle):
         Command(username), angle(angle) {}
 
 void RotateCommand::execute(CS2DGame& game) const { game.rotate_player(username, angle); }

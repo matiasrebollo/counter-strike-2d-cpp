@@ -9,7 +9,6 @@
 #include <SDL2pp/SDL2pp.hh>
 
 #include "../common/clock.h"
-#include "../common/game_map.h"
 #include "client/lobby/lobby.h"
 
 #include "client_receiver.h"
@@ -46,8 +45,8 @@ void Client::run(int argc, char* argv[]) {
     SDL2pp::Surface boxSheet("../assets/gfx/tiles/aztec.bmp");
     SDL2pp::Texture box(renderer, boxSheet);
 
-    float x_pos = (renderer.GetOutputWidth() - 32) / 2;
-    float y_pos = (renderer.GetOutputHeight() - 32) / 2;
+    float x_pos = 200;
+    float y_pos = 200;
 
     int it = 0;
     int FPS = 30;
@@ -83,10 +82,13 @@ void Client::run(int argc, char* argv[]) {
                 float dy = mouse_y - y_pos;
                 float ang_radianes = atan2(dy, dx);
                 const double angulo = (ang_radianes * 180.0f / M_PI) + 90;
-                sender.add_command_to_queue(RotateDTO{static_cast<float>(angulo)});
+                sender.add_command_to_queue(RotateDTO{angulo});
             }
         }
 
+        Snapshot snapshot = receiver.pop_snapshot_from_queue();
+        PlayerDTO p = snapshot.players[0];
+        double angulo = p.orientation;
 
         renderer.Clear();
 
@@ -98,13 +100,13 @@ void Client::run(int argc, char* argv[]) {
                 renderer.Copy(box, rect_origen, rect_destino);
             }
         }
-        /*
+
         // podria tambien crear los rect y point antes en lugar de en el copy
         renderer.Copy(player, SDL2pp::Rect(0, 32, 32, 32),
-                      SDL2pp::Rect((int)x_pos, (int)y_pos, 32, 32), angulo,
+                      SDL2pp::Rect(p.position.x, p.position.y, 32, 32), angulo,
                       SDL2pp::Point(16.0f, 16.0f));
         renderer.Present();
-        */
+
 
         it = clock.sleep_and_calc_next_it(FPS, it);
     }
