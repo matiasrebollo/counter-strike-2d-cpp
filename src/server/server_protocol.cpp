@@ -1,6 +1,7 @@
 #include "server_protocol.h"
 
 #include <cstring>
+#include <numbers>
 #include <utility>
 
 #include <sys/types.h>
@@ -29,7 +30,7 @@ ServerProtocol::ServerProtocol(Socket&& socket):
     commandsManagers[CommandType::BUY_AMMO] = [this](const CommandType& command) {
         return receive_buy_weapon_ammo_request(command);
     };
-    commandsManagers[CommandType::AIM] = [this](const CommandType& command) {
+    commandsManagers[CommandType::ROTATE] = [this](const CommandType& command) {
         return receive_aim_request(command);
     };
     commandsManagers[CommandType::MOVE] = [this](const CommandType& command) {
@@ -116,6 +117,27 @@ LobbyRequestDTO ServerProtocol::receive_lobby_request() {
     return this->lobbyCommandManagers.find(command)->second();
 }
 
+CommandDTO ServerProtocol::receive_move_request() {
+    uint8_t code = this->receive_byte();
+    if (code == CODE_ROTATE) {
+        return this->receive_rotate();
+    } else {
+        uint8_t code_movement = this->receive_byte();
+        switch (static_cast<Movement>(code_movement - 1)) {
+            case Movement::UP:
+                return MoveUpDTO{};
+            case Movement::DOWN:
+                return MoveDownDTO{};
+            case Movement::LEFT:
+                return MoveLeftDTO{};
+            case Movement::RIGHT:
+                return MoveRightDTO{};
+            default:
+                throw std::runtime_error("Unknown move code");
+        }
+    }
+}
+
 CreateUsernameDTO ServerProtocol::receive_create_username_request() {
     CreateUsernameDTO dto;
     std::string username = this->receive_string();
@@ -145,7 +167,6 @@ JoinGameDTO ServerProtocol::receive_join_game_request() {
     return dto;
 }
 
-
 MessageFromClient ServerProtocol::initialize_message(const CommandType& command) {
     return MessageFromClient{command,
                              "",
@@ -159,6 +180,13 @@ MessageFromClient ServerProtocol::initialize_message(const CommandType& command)
                              0,
                              0,
                              false};
+}
+
+
+RotateDTO ServerProtocol::receive_rotate() {
+    uint16_t encoded = this->receive_big_endian_number();
+    return RotateDTO{static_cast<float>(((float)encoded / 65535.0f) * (2 * std::numbers::pi) -
+                                        std::numbers::pi)};
 }
 
 MessageFromClient ServerProtocol::receive_select_map_request(const CommandType& command) {

@@ -98,11 +98,13 @@ void Client::run(int argc, char* argv[]) {
                 renderer.Copy(box, rect_origen, rect_destino);
             }
         }
+        /*
         // podria tambien crear los rect y point antes en lugar de en el copy
         renderer.Copy(player, SDL2pp::Rect(0, 32, 32, 32),
                       SDL2pp::Rect((int)x_pos, (int)y_pos, 32, 32), angulo,
                       SDL2pp::Point(16.0f, 16.0f));
         renderer.Present();
+        */
 
         it = clock.sleep_and_calc_next_it(FPS, it);
     }

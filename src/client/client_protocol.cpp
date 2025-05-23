@@ -133,17 +133,30 @@ void ClientProtocol::send_aim_request(const InternalMessage& request) {
 }
 */
 
-void ClientProtocol::handle_move_up() { this->send_byte(Movement::UP + 1); }
+void ClientProtocol::handle_move_up() {
+    this->send_byte(CODE_MOVE);
+    this->send_byte(Movement::UP + 1);
+}
 
-void ClientProtocol::handle_move_down() { this->send_byte(Movement::DOWN + 1); }
+void ClientProtocol::handle_move_down() {
+    this->send_byte(CODE_MOVE);
+    this->send_byte(Movement::DOWN + 1);
+}
 
-void ClientProtocol::handle_move_left() { this->send_byte(Movement::LEFT + 1); }
+void ClientProtocol::handle_move_left() {
+    this->send_byte(CODE_MOVE);
+    this->send_byte(Movement::LEFT + 1);
+}
 
-void ClientProtocol::handle_move_right() { this->send_byte(Movement::RIGHT + 1); }
+void ClientProtocol::handle_move_right() {
+    this->send_byte(CODE_MOVE);
+    this->send_byte(Movement::RIGHT + 1);
+}
 
 void ClientProtocol::handle_rotate(const RotateDTO& dto) {
     uint16_t encoded =
             static_cast<uint16_t>((dto.angle + std::numbers::pi) / (2 * std::numbers::pi * 65535));
+    this->send_byte(CODE_ROTATE);
     this->send_big_endian_number(encoded);
 }
 

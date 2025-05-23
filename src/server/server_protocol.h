@@ -10,6 +10,7 @@
 
 #include "../common/codes_parser.h"
 #include "../common/commands.h"
+#include "../common/commands_dto.h"
 #include "../common/common_protocol.h"
 #include "../common/game_map.h"
 #include "../common/game_snapshot.h"
@@ -40,6 +41,8 @@ private:
     MessageFromClient receive_plant_bomb_request(const CommandType& command);
     MessageFromClient receive_defuse_bomb_request(const CommandType& command);
 
+    RotateDTO receive_rotate();
+
     MessageFromClient initialize_message(const CommandType& command);
 
     void send_players(const std::vector<PlayerDTO>& players);
@@ -50,6 +53,7 @@ public:
     void send_start_game(const ServerResponseLobby& msg);
     void send_snapshot(const Snapshot& snapshot);
     void send_map(const GameMap& map);
+    CommandDTO receive_move_request();
     MessageFromClient receive_command(void);
     LobbyRequestDTO receive_lobby_request();
     void kill();
