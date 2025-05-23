@@ -28,8 +28,8 @@ void Client::run(int argc, char* argv[]) {
     ClientSender sender = ClientSender(lobby.get_protocol());
     ClientReceiver receiver = ClientReceiver(lobby.get_protocol());
 
-    sender.run();
-    receiver.run();
+    sender.start();
+    receiver.start();
 
     SDL2pp::SDL sdl(SDL_INIT_VIDEO);
 

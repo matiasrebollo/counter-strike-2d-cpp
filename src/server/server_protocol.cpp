@@ -11,14 +11,14 @@
 ServerProtocol::ServerProtocol(Socket&& socket):
         CommonProtocol(std::move(socket)),
         codeSuccessResponse({{true, CODE_SUCCESS}, {false, CODE_FAIL}}) {
-    commandsManagers[CommandType::CREATE_USERNAME] = [this](const CommandType& command) {
-        return receive_create_username_request(command);
+    lobbyCommandManagers[CommandType::CREATE_USERNAME] = [this]() -> LobbyRequestDTO {
+        return receive_create_username_request();
     };
-    commandsManagers[CommandType::CREATE_GAME] = [this](const CommandType& command) {
-        return receive_create_game_request(command);
+    lobbyCommandManagers[CommandType::CREATE_GAME] = [this]() -> LobbyRequestDTO {
+        return receive_create_game_request();
     };
-    commandsManagers[CommandType::JOIN_GAME] = [this](const CommandType& command) {
-        return receive_join_game_request(command);
+    lobbyCommandManagers[CommandType::JOIN_GAME] = [this]() -> LobbyRequestDTO {
+        return receive_join_game_request();
     };
     commandsManagers[CommandType::SELECT_MAP] = [this](const CommandType& command) {
         return receive_select_map_request(command);
@@ -110,12 +110,41 @@ MessageFromClient ServerProtocol::receive_command(void) {
     return this->commandsManagers.find(command)->second(command);
 }
 
-MessageFromClient ServerProtocol::receive_create_username_request(const CommandType& command) {
-    std::string username = this->receive_string();
-    MessageFromClient msg = this->initialize_message(command);
-    msg.s = username;
-    return msg;
+LobbyRequestDTO ServerProtocol::receive_lobby_request() {
+    uint8_t commandCode = this->receive_byte();
+    CommandType command = this->codeToCommands.find(commandCode)->second;
+    return this->lobbyCommandManagers.find(command)->second();
 }
+
+CreateUsernameDTO ServerProtocol::receive_create_username_request() {
+    CreateUsernameDTO dto;
+    std::string username = this->receive_string();
+    dto.username = username;
+    return dto;
+}
+
+CreateGameDTO ServerProtocol::receive_create_game_request() {
+    CreateGameDTO dto;
+    uint8_t size_players = this->receive_byte();
+    uint8_t skin_id_tt = this->receive_byte();
+    uint8_t skin_id_ct = this->receive_byte();
+    dto.tt_skin = TerroristSkin(skin_id_tt - 1);
+    dto.ct_skin = CounterTerroristSkin(skin_id_ct - 1);
+    dto.size_players = size_players;
+    return dto;
+}
+
+JoinGameDTO ServerProtocol::receive_join_game_request() {
+    JoinGameDTO dto;
+    std::string gamename = this->receive_string();
+    uint8_t skin_id_tt = this->receive_byte();
+    uint8_t skin_id_ct = this->receive_byte();
+    dto.tt_skin = TerroristSkin(skin_id_tt - 1);
+    dto.ct_skin = CounterTerroristSkin(skin_id_ct - 1);
+    dto.gamename = gamename;
+    return dto;
+}
+
 
 MessageFromClient ServerProtocol::initialize_message(const CommandType& command) {
     return MessageFromClient{command,
@@ -130,30 +159,6 @@ MessageFromClient ServerProtocol::initialize_message(const CommandType& command)
                              0,
                              0,
                              false};
-}
-
-MessageFromClient ServerProtocol::receive_create_game_request(const CommandType& command) {
-    uint8_t size_players = this->receive_byte();
-    MessageFromClient msg = this->receive_select_skins_request(command);
-    msg.size_players = size_players;
-    return msg;
-}
-
-MessageFromClient ServerProtocol::receive_join_game_request(const CommandType& command) {
-    std::string gameName = this->receive_string();
-    MessageFromClient msg = this->receive_select_skins_request(command);
-    msg.commandType = command;
-    msg.s = gameName;
-    return msg;
-}
-
-MessageFromClient ServerProtocol::receive_select_skins_request(const CommandType& command) {
-    uint8_t skin_id_tt = this->receive_byte();
-    uint8_t skin_id_ct = this->receive_byte();
-    MessageFromClient msg = this->initialize_message(command);
-    msg.tt_skin = TerroristSkin(skin_id_tt - 1);
-    msg.ct_skin = CounterTerroristSkin(skin_id_ct - 1);
-    return msg;
 }
 
 MessageFromClient ServerProtocol::receive_select_map_request(const CommandType& command) {
