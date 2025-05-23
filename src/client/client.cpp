@@ -57,7 +57,7 @@ void Client::run(int argc, char* argv[]) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT)
                 return;
-            if (event.type == SDL_KEYDOWN) {
+            /*if (event.type == SDL_KEYDOWN) {
                 switch (event.key.keysym.sym) {
                     case SDLK_ESCAPE:
                         return;
@@ -74,7 +74,7 @@ void Client::run(int argc, char* argv[]) {
                         sender.add_command_to_queue(MoveRightDTO{});
                         break;
                 }
-            }
+            }*/
             if (event.type == SDL_MOUSEMOTION) {
                 int mouse_x = event.motion.x;
                 int mouse_y = event.motion.y;

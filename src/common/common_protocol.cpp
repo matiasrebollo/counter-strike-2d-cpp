@@ -71,7 +71,7 @@ std::string CommonProtocol::receive_string() {
 
 void CommonProtocol::send_angle(const double& angle) {
     uint16_t encoded =
-            static_cast<uint16_t>((angle + std::numbers::pi) / (2 * std::numbers::pi * 65535));
+            static_cast<uint16_t>((angle + std::numbers::pi) / (2 * std::numbers::pi) * 65535);
     this->send_big_endian_number(encoded);
 }
 
