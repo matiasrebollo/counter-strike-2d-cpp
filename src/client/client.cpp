@@ -12,6 +12,9 @@
 #include "../common/game_map.h"
 #include "client/lobby/lobby.h"
 
+#include "client_receiver.h"
+#include "client_sender.h"
+
 Client::Client() {}
 
 void Client::run(int argc, char* argv[]) {
@@ -20,7 +23,13 @@ void Client::run(int argc, char* argv[]) {
     lobby.show();
     app.exec();
 
-    std::cout << lobby.get_username() << std::endl;
+    // std::string username = lobby.get_username();
+
+    ClientSender sender = ClientSender(lobby.get_protocol());
+    ClientReceiver receiver = ClientReceiver(lobby.get_protocol());
+
+    sender.run();
+    receiver.run();
 
     SDL2pp::SDL sdl(SDL_INIT_VIDEO);
 
