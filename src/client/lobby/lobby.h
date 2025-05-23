@@ -59,7 +59,7 @@ private:
     std::string username;
     std::optional<ClientProtocol> protocol;
 
-    enum TerroristSkin skins_tt[4] = {PHEONIX, L3337_KREW, ARTIC_AVENGER, GUERRILLA};
-    enum CounterTerroristSkin skins_ct[4] = {SEAL_FORCE, GSG_9, UK_SAS, GIGN};
+    enum TerroristSkin skins_tt[4] = {ARTIC_AVENGER, PHEONIX, L3337_KREW, GUERRILLA};
+    enum CounterTerroristSkin skins_ct[4] = {SEAL_FORCE, UK_SAS, GSG_9, GIGN};
 };
 #endif  // LOBBY_H

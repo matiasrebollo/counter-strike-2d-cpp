@@ -68,8 +68,8 @@ void Lobby::on_JoinGameButton_clicked() {
 
     request.commandType = CommandType::JOIN_GAME;  // commandType
     request.s = game_name;                         // s
-    request.tt_skin = TerroristSkin::GUERRILLA;    // tt_skin
-    request.ct_skin = CounterTerroristSkin::GIGN;  // ct_skin
+    request.tt_skin = selected_tt_skin;            // tt_skin
+    request.ct_skin = selected_ct_skin;            // ct_skin
 
     protocol.value().send_command(request);
     ServerResponseLobby response = protocol.value().receive_command();
@@ -88,8 +88,8 @@ void Lobby::on_createButton_clicked() {
         MessageFromClient request;
 
         request.commandType = CommandType::CREATE_GAME;  // commandType
-        request.tt_skin = TerroristSkin::GUERRILLA;      // tt_skin
-        request.ct_skin = CounterTerroristSkin::GIGN;    // ct_skin
+        request.tt_skin = selected_tt_skin;              // tt_skin
+        request.ct_skin = selected_ct_skin;              // ct_skin
         request.size_players = n_min_players;
 
         protocol.value().send_command(request);

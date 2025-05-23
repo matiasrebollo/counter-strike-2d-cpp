@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>789</width>
-    <height>500</height>
+    <width>1000</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -15,6 +15,12 @@
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1000</width>
+    <height>600</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Lobby</string>
@@ -151,7 +157,7 @@
            <number>0</number>
           </property>
           <property name="topMargin">
-           <number>0</number>
+           <number>120</number>
           </property>
           <property name="rightMargin">
            <number>0</number>
@@ -237,6 +243,40 @@
            </widget>
           </item>
          </layout>
+        </item>
+        <item>
+         <widget class="QPushButton" name="connectButton">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Counter-Strike</family>
+            <pointsize>13</pointsize>
+            <italic>false</italic>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton {
+	background-color: transparent;
+	border: none;
+	padding: 5px;
+	color: white;
+	width: 50%;
+	margin-bottom:20px;
+}</string>
+          </property>
+          <property name="text">
+           <string>CONECTARSE</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -390,6 +430,12 @@
        <layout class="QVBoxLayout" name="verticalLayout_7">
         <item>
          <widget class="QPushButton" name="backButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="maximumSize">
            <size>
             <width>60</width>
@@ -405,10 +451,15 @@
            <string notr="true">QPushButton {
 	background-color: transparent;
 	border: none;
+	
+	color: rgb(255, 255, 255);
 }</string>
           </property>
           <property name="text">
            <string>Atras</string>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -485,6 +536,12 @@
         <string notr="true"/>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_8">
+        <property name="leftMargin">
+         <number>30</number>
+        </property>
+        <property name="rightMargin">
+         <number>30</number>
+        </property>
         <item>
          <widget class="QPushButton" name="backButton_2">
           <property name="maximumSize">
@@ -501,11 +558,15 @@
           <property name="styleSheet">
            <string notr="true">QPushButton {
 	background-color: transparent;
+	color: rgb(255, 255, 255);
 	border: none;
 }</string>
           </property>
           <property name="text">
            <string>Atras</string>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -588,8 +649,41 @@
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
          <widget class="QPushButton" name="back_to_lobby3">
+          <property name="minimumSize">
+           <size>
+            <width>40</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>60</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="baseSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Counter-Strike</family>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton {
+	background-color: transparent;
+	color: rgb(255, 255, 255);
+	border: none;
+}</string>
+          </property>
           <property name="text">
            <string>Atras</string>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -601,15 +695,51 @@
              <layout class="QHBoxLayout" name="horizontalLayout_6">
               <item>
                <widget class="QPushButton" name="prev_tt_skin">
+                <property name="maximumSize">
+                 <size>
+                  <width>200</width>
+                  <height>30</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>15</pointsize>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">color: rgb(255, 255, 255);</string>
+                </property>
                 <property name="text">
-                 <string>&lt;--</string>
+                 <string>←</string>
+                </property>
+                <property name="flat">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QPushButton" name="next_tt_skin">
+                <property name="maximumSize">
+                 <size>
+                  <width>200</width>
+                  <height>30</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>15</pointsize>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">color: rgb(255, 255, 255);</string>
+                </property>
                 <property name="text">
-                 <string>--&gt;</string>
+                 <string>→</string>
+                </property>
+                <property name="flat">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
@@ -617,11 +747,17 @@
             </item>
             <item>
              <widget class="QStackedWidget" name="skins_tt_stack">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>16777214</height>
+               </size>
+              </property>
               <property name="styleSheet">
                <string notr="true"/>
               </property>
               <property name="currentIndex">
-               <number>0</number>
+               <number>3</number>
               </property>
               <widget class="QWidget" name="artc_page">
                <property name="sizePolicy">
@@ -636,6 +772,9 @@
                <layout class="QVBoxLayout" name="verticalLayout_11">
                 <item>
                  <widget class="QLabel" name="label">
+                  <property name="styleSheet">
+                   <string notr="true">background-color: rgb(154, 153, 150);</string>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -658,6 +797,9 @@
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">background-color: rgb(181, 131, 90);</string>
                   </property>
                   <property name="text">
                    <string/>
@@ -685,6 +827,9 @@
                <layout class="QVBoxLayout" name="verticalLayout_9">
                 <item>
                  <widget class="QLabel" name="crew">
+                  <property name="styleSheet">
+                   <string notr="true">background-color: rgb(38, 162, 105);</string>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -710,6 +855,9 @@
                     <pointsize>10</pointsize>
                    </font>
                   </property>
+                  <property name="styleSheet">
+                   <string notr="true">background-color: rgb(224, 27, 36);</string>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -727,10 +875,24 @@
             </item>
             <item>
              <widget class="QPushButton" name="select_tt_skin">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>50</height>
+               </size>
+              </property>
               <property name="font">
                <font>
                 <family>Counter-Strike</family>
                </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+	background-color: transparent;
+	border: none;
+	padding: 5px;
+	color: white;
+}</string>
               </property>
               <property name="text">
                <string>Seleccionar</string>
@@ -745,15 +907,56 @@
              <layout class="QHBoxLayout" name="horizontalLayout_8">
               <item>
                <widget class="QPushButton" name="prev_ct_skin">
+                <property name="maximumSize">
+                 <size>
+                  <width>200</width>
+                  <height>30</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>15</pointsize>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">color: rgb(255, 255, 255);</string>
+                </property>
                 <property name="text">
-                 <string>&lt;--</string>
+                 <string> ←</string>
+                </property>
+                <property name="flat">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QPushButton" name="next_ct_skin">
+                <property name="maximumSize">
+                 <size>
+                  <width>200</width>
+                  <height>30</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Counter-Strike</family>
+                  <pointsize>15</pointsize>
+                  <italic>false</italic>
+                  <bold>true</bold>
+                  <underline>false</underline>
+                  <strikeout>false</strikeout>
+                  <kerning>false</kerning>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">color: rgb(255, 255, 255);</string>
+                </property>
                 <property name="text">
-                 <string>--&gt;</string>
+                 <string>→</string>
+                </property>
+                <property name="flat">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
@@ -762,12 +965,15 @@
             <item>
              <widget class="QStackedWidget" name="skins_ct_stack">
               <property name="currentIndex">
-               <number>0</number>
+               <number>3</number>
               </property>
               <widget class="QWidget" name="seal_page">
                <layout class="QVBoxLayout" name="verticalLayout_12">
                 <item>
                  <widget class="QLabel" name="seal">
+                  <property name="styleSheet">
+                   <string notr="true">background-color: rgb(51, 209, 122);</string>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -785,6 +991,9 @@
                <layout class="QVBoxLayout" name="verticalLayout_3">
                 <item>
                  <widget class="QLabel" name="sas">
+                  <property name="styleSheet">
+                   <string notr="true">background-color: rgb(61, 56, 70);</string>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -802,6 +1011,9 @@
                <layout class="QVBoxLayout" name="verticalLayout_14">
                 <item>
                  <widget class="QLabel" name="gs9">
+                  <property name="styleSheet">
+                   <string notr="true">background-color: rgb(28, 113, 216);</string>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -819,6 +1031,9 @@
                <layout class="QVBoxLayout" name="verticalLayout_13">
                 <item>
                  <widget class="QLabel" name="gign">
+                  <property name="styleSheet">
+                   <string notr="true">background-color: rgb(153, 193, 241);</string>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -836,10 +1051,24 @@
             </item>
             <item>
              <widget class="QPushButton" name="select_ct_skin">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>50</height>
+               </size>
+              </property>
               <property name="font">
                <font>
                 <family>Counter-Strike</family>
                </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+	background-color: transparent;
+	border: none;
+	padding: 5px;
+	color: white;
+}</string>
               </property>
               <property name="text">
                <string>Seleccionar</string>
@@ -852,40 +1081,6 @@
         </item>
        </layout>
       </widget>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="connectButton">
-      <property name="enabled">
-       <bool>true</bool>
-      </property>
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="font">
-       <font>
-        <family>Counter-Strike</family>
-        <pointsize>13</pointsize>
-        <italic>false</italic>
-        <bold>false</bold>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">QPushButton {
-	background-color: transparent;
-	border: none;
-	padding: 5px;
-	color: white;
-	width: 50%;
-	margin-bottom:20px;
-}</string>
-      </property>
-      <property name="text">
-       <string>CONECTARSE</string>
-      </property>
      </widget>
     </item>
    </layout>
