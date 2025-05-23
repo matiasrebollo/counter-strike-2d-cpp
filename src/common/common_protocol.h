@@ -16,7 +16,8 @@ public:
     CommonProtocol(const std::string& hostname, const std::string& port);
     explicit CommonProtocol(Socket&& socket);
 
-    double receive_angle() void send_angle(const double& angle);
+    double receive_angle();
+    void send_angle(const double& angle);
     uint8_t receive_byte();
     uint16_t receive_big_endian_number();
     void send_byte(const uint8_t& number);

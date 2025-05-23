@@ -154,7 +154,7 @@ void ClientProtocol::handle_move_right() {
 
 void ClientProtocol::handle_rotate(const RotateDTO& dto) {
     this->send_byte(CODE_ROTATE);
-    this->send_(encoded);
+    this->send_angle(dto.angle);
 }
 
 
