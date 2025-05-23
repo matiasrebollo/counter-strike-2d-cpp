@@ -17,10 +17,6 @@
 Lobby::Lobby(QWidget* parent): QMainWindow(parent), ui(new Ui::Lobby) {
     ui->setupUi(this);
     ui->stack->setCurrentIndex(0);
-    QFontDatabase::addApplicationFont(PATH_CS_FONT);
-    QString fontFamily = QFontDatabase::applicationFontFamilies(fontId).at(0);
-    QFont customFont(fontFamily, 14);
-    this->setFont(customFont);
     connect(ui->backButton, &QPushButton::clicked, this, &Lobby::go_to_lobby);
     connect(ui->backButton_2, &QPushButton::clicked, this, &Lobby::go_to_lobby);
     connect(ui->connectButton, &QPushButton::clicked, this, &Lobby::connect_to_sv);
