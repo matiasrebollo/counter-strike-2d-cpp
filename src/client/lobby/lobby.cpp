@@ -1,5 +1,7 @@
 #include "client/lobby/lobby.h"
 
+#include <QFont>
+#include <QFontDatabase>
 #include <QMessageBox>
 #include <iostream>
 
@@ -9,6 +11,8 @@
 #include "common/skins.h"
 
 #include "ui_lobby.h"
+
+#define PATH_CS_FONT "../../../assets/cs_regular.ttf"
 
 Lobby::Lobby(QWidget* parent): QMainWindow(parent), ui(new Ui::Lobby) {
     ui->setupUi(this);
