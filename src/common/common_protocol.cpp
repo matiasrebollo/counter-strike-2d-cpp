@@ -76,5 +76,6 @@ void CommonProtocol::send_angle(const double& angle) {
 
 double CommonProtocol::receive_angle() {
     uint16_t encoded = this->receive_big_endian_number();
+
     return (static_cast<double>(encoded) / 65535.0f) * 360.0f;
 }
