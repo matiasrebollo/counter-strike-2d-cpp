@@ -1,9 +1,5 @@
 <RCC>
     <qresource prefix="/images">
         <file alias="fondo">header.jpg</file>
-        <file>../../../assets/gfx/lobby/phnx_conn.png</file>
-        <file>../../../assets/gfx/lobby/artic.png</file>
-        <file>../../../assets/gfx/lobby/elite_crew.png</file>
-        <file>../../../assets/gfx/lobby/guerrilla.png</file>
     </qresource>
 </RCC>
