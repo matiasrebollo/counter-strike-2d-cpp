@@ -209,7 +209,7 @@ std::vector<Bullet> ClientProtocol::receive_bullets(const int& size_bullets) {
 
 GameMap ClientProtocol::receive_map() {
     this->receive_byte();
-    uint8_t size = this->receive_byte();
+    uint16_t size = this->receive_big_endian_number();
     return GameMap{this->receive_map_objects(size)};
 }
 
@@ -217,11 +217,11 @@ std::vector<MapObject> ClientProtocol::receive_map_objects(const uint8_t& size) 
     std::vector<MapObject> objects = {};
     for (int i = 0; i < size; i++) {
         uint8_t type = this->receive_byte();
-        uint8_t x = this->receive_byte();
-        uint8_t y = this->receive_byte();
-        uint8_t height = this->receive_byte();
-        uint8_t width = this->receive_byte();
-        objects.push_back(MapObject{Vector2D(x, y), height, width, MapObjectType(type)});
+        uint16_t x = this->receive_big_endian_number();
+        uint16_t y = this->receive_big_endian_number();
+        uint16_t height = this->receive_big_endian_number();
+        uint16_t width = this->receive_big_endian_number();
+        objects.push_back(MapObject{Vector2D(x, y), width, height, MapObjectType(type)});
     }
     return objects;
 }

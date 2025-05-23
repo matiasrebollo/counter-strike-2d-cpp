@@ -248,13 +248,13 @@ MessageFromClient ServerProtocol::receive_defuse_bomb_request(const CommandType&
 
 void ServerProtocol::send_map(const GameMap& map) {
     this->send_byte(CODE_SEND_MAP);
-    this->send_byte(map.map_objects.size());
+    this->send_big_endian_number(map.map_objects.size());
     for (auto object: map.map_objects) {
         this->send_byte(object.type);
-        this->send_byte(object.position.x);
-        this->send_byte(object.position.y);
-        this->send_byte(object.height);
-        this->send_byte(object.width);
+        this->send_big_endian_number(object.position.x);
+        this->send_big_endian_number(object.position.y);
+        this->send_big_endian_number(object.height);
+        this->send_big_endian_number(object.width);
     }
 }
 
