@@ -15,7 +15,6 @@ Player::Player(Vector2D& position, float& orientation, ClientSender& sender):
         sender(sender) {}
 
 float Player::get_orientation() const { return orientation; }
-
 uint16_t Player::get_life() const { return life; }
 
 void Player::step(const Vector2D& step_dir, const CS2DGame& game) {

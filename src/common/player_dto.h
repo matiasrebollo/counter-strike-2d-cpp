@@ -2,11 +2,13 @@
 #define PLAYER_DTO_H
 
 #include <cstdint>
+#include <string>
 
 #include "common/vector_2d.h"
 #include "common/weapon_type.h"
 
 struct PlayerDTO {
+    const std::string username;
     const Vector2D position;
     const float orientation;
     /*const GunType primary_gun;

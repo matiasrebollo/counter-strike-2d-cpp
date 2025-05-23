@@ -35,8 +35,6 @@ void CS2DGame::new_player(const std::string& username, ClientSender& sender) {
     Vector2D position(200, 200);
     float orientation = 0.0f;
     auto player = std::make_shared<Player>(position, orientation, sender);
-    players[username] = player;
-    collidables.push_back(player);
 
     std::vector<MapObject> objects;
     for (const auto& collidable: collidables) {
@@ -54,6 +52,8 @@ void CS2DGame::new_player(const std::string& username, ClientSender& sender) {
     const GameMap map{objects};
 
     player->send_map(map);
+    players[username] = player;
+    collidables.push_back(player);
 }
 
 void CS2DGame::push(std::unique_ptr<Command> command) { command_queue.push(std::move(command)); }
@@ -62,8 +62,8 @@ void CS2DGame::broadcast_snapshot() {
     std::vector<PlayerDTO> player_dtos;
 
     for (const auto& player: players) {
-        const PlayerDTO dto{player.second->get_hitbox().position, player.second->get_orientation(),
-                            player.second->get_life()};
+        const PlayerDTO dto{player.first, player.second->get_hitbox().position,
+                            player.second->get_orientation(), player.second->get_life()};
         player_dtos.push_back(dto);
     }
 
@@ -197,7 +197,7 @@ void CS2DGame::run() {
         std::unique_ptr<Command> cmd;
         if (command_queue.try_pop(cmd))
             cmd->execute(*this);
-        update_game(it);
+        // update_game(it);
         broadcast_snapshot();
         it = clock.sleep_and_calc_next_it(FPS, it);
     }
