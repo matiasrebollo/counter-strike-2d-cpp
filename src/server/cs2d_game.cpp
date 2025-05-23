@@ -95,9 +95,11 @@ void CS2DGame::move_player_right(const std::string& username) {
 }
 
 
-bool CS2DGame::is_player_in_valid_position(const Player& player) const {
+bool CS2DGame::is_player_not_in_valid_position(const Player& player) const {
     return std::any_of(collidables.begin(), collidables.end(),
                        [&player](const std::shared_ptr<Collidable>& collidable) {
+                           if (collidable.get() == &player)
+                               return false;
                            return player.collides_with(*collidable);
                        });
 }
@@ -191,7 +193,7 @@ void CS2DGame::update(const size_t& it) {
 }
 
 void CS2DGame::run() {
-    int FPS = 30;
+    int FPS = 60;
     Clock clock;
     size_t it = 1;
     while (should_keep_running()) {
@@ -200,7 +202,9 @@ void CS2DGame::run() {
             cmd->execute(*this);
         update(it);
         broadcast_snapshot();
+        // std::cout << "last it: " << it << std::endl;
         it = clock.sleep_and_calc_next_it(FPS, it);
+        // std::cout << "new it: " << it << std::endl;
     }
 }
 

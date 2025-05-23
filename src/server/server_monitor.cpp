@@ -22,7 +22,6 @@ std::shared_ptr<CS2DGame> ServerMonitor::CreateNewGame() {
 std::shared_ptr<CS2DGame> ServerMonitor::JoinGame(const std::string& gameName) {
     std::unique_lock<std::mutex> lck(this->mutex);
     auto it = this->games.find(gameName);
-
     return it->second;
 }
 

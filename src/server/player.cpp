@@ -38,7 +38,7 @@ void Player::step(const Vector2D& step_dir, CS2DGame& game) {
 
     hitbox.position = hitbox.position + step_dir * PLAYER_SPEED;
 
-    const bool collision = game.is_player_in_valid_position(*this);
+    const bool collision = game.is_player_not_in_valid_position(*this);
     if (collision) {
         // ver de "avanzar lo mas posible" en vez de calcelar el movimiento???
         hitbox = old_hitbox;
@@ -54,7 +54,6 @@ void Player::rotate(const double& new_orientation) { this->orientation = new_ori
 
 void Player::send_map(const GameMap& map) { sender.send_map(map); }
 void Player::send_snapshot(const Snapshot& snapshot) { sender.push(snapshot); }
-
 
 /*
 void Player::shoot(const CS2DGame& game) const {

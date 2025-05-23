@@ -56,7 +56,7 @@ public:
     void move_player_down(const std::string& username);
     void move_player_left(const std::string& username);
     void move_player_right(const std::string& username);
-    bool is_player_in_valid_position(const Player& player) const;
+    bool is_player_not_in_valid_position(const Player& player) const;
     // void shoot(const std::string& username);
     // const Collidable* first_impact(const Shot& shot) const;
 
