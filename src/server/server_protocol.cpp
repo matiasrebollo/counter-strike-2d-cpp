@@ -75,9 +75,10 @@ void ServerProtocol::send_snapshot(const Snapshot& snapshot) {
 
 void ServerProtocol::send_players(const std::vector<PlayerDTO>& players) {
     for (auto player: players) {
-        // this->send_string(player.username);
+        this->send_string(player.username);
         this->send_byte(player.position.x);
         this->send_byte(player.position.y);
+        this->send_angle(player.orientation);
         // this->send_byte(player.direction.x);
         // this->send_byte(player.direction.y);
         this->send_byte(player.life);
@@ -183,11 +184,7 @@ MessageFromClient ServerProtocol::initialize_message(const CommandType& command)
 }
 
 
-RotateDTO ServerProtocol::receive_rotate() {
-    uint16_t encoded = this->receive_big_endian_number();
-    return RotateDTO{static_cast<float>(((float)encoded / 65535.0f) * (2 * std::numbers::pi) -
-                                        std::numbers::pi)};
-}
+RotateDTO ServerProtocol::receive_rotate() { return RotateDTO{this->receive_angle()}; }
 
 MessageFromClient ServerProtocol::receive_select_map_request(const CommandType& command) {
     MessageFromClient msg = this->initialize_message(command);

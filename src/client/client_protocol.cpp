@@ -2,7 +2,6 @@
 
 #include <cstdint>
 #include <cstring>
-#include <numbers>
 #include <string>
 
 #include <arpa/inet.h>
@@ -154,10 +153,8 @@ void ClientProtocol::handle_move_right() {
 }
 
 void ClientProtocol::handle_rotate(const RotateDTO& dto) {
-    uint16_t encoded =
-            static_cast<uint16_t>((dto.angle + std::numbers::pi) / (2 * std::numbers::pi * 65535));
     this->send_byte(CODE_ROTATE);
-    this->send_big_endian_number(encoded);
+    this->send_(encoded);
 }
 
 
@@ -180,16 +177,17 @@ Snapshot ClientProtocol::receive_snapshot() {
 std::vector<PlayerDTO> ClientProtocol::receive_players(const int& size_players) {
     std::vector<PlayerDTO> players = {};
     for (int i = 0; i < size_players; i++) {
-        /*
         std::string username = this->receive_string();
         int position_x = this->receive_byte();
         int position_y = this->receive_byte();
+        double angle = this->receive_angle();
+        /*
         int direction_x = this->receive_byte();
         int direction_y = this->receive_byte();
+        */
         int life = this->receive_byte();
         uint16_t life16 = static_cast<uint16_t>(life);
-        players.push_back(PlayerDTO{Vector2D(position_x, position_y), Vector2D(direction_x,
-        direction_y), life16});*/
+        players.push_back(PlayerDTO{username, Vector2D(position_x, position_y), angle, life16});
     }
     return players;
 }
