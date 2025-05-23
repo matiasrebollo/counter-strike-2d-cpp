@@ -24,28 +24,28 @@ void Lobby::go_to_lobby() { ui->stack->setCurrentIndex(1); }
 
 
 void Lobby::on_CreateGame_clicked() {
-    this->username = ui->lineEdit->text().toStdString();
     MessageFromClient request;
     request.commandType = CommandType::CREATE_USERNAME;  // commandType
-    request.s = this->username;                          // s
+    request.s = ui->lineEdit->text().toStdString();      // s
     protocol.value().send_command(request);
 
     ServerResponseLobby response = protocol.value().receive_command();
     if (response.commandType == CREATE_USERNAME && response.success) {
         ui->stack->setCurrentIndex(3);
+        this->username = ui->lineEdit->text().toStdString();
     }
 }
 
 void Lobby::on_JoinGame_clicked() {
-    this->username = ui->lineEdit->text().toStdString();
     MessageFromClient request;
     request.commandType = CommandType::CREATE_USERNAME;  // commandType
-    request.s = this->username;                          // s
+    request.s = ui->lineEdit->text().toStdString();      // s
     protocol.value().send_command(request);
 
     ServerResponseLobby response = protocol.value().receive_command();
     if (response.commandType == CREATE_USERNAME && response.success) {
         ui->stack->setCurrentIndex(2);
+        this->username = ui->lineEdit->text().toStdString();
     }
 }
 
@@ -108,3 +108,5 @@ ClientProtocol& Lobby::get_protocol() {
     }
     throw std::runtime_error("Protocolo no inicializado");
 }
+
+std::string Lobby::get_username() { return this->username; }

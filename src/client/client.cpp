@@ -20,6 +20,7 @@ void Client::run(int argc, char* argv[]) {
     lobby.show();
     app.exec();
 
+    std::cout << lobby.get_username() << std::endl;
 
     SDL2pp::SDL sdl(SDL_INIT_VIDEO);
 
