@@ -33,7 +33,7 @@ CS2DGame::CS2DGame(const std::string& id): last_it(0), id(id) {
 
 void CS2DGame::new_player(const std::string& username, ClientSender& sender) {
     Vector2D position(200, 200);
-    float orientation = 0.0f;
+    double orientation = 0.0;
     auto player = std::make_shared<Player>(position, orientation, sender);
 
     std::vector<MapObject> objects;
@@ -74,7 +74,7 @@ void CS2DGame::broadcast_snapshot() {
     }
 }
 
-void CS2DGame::rotate_player(const std::string& username, const float& angle) {
+void CS2DGame::rotate_player(const std::string& username, const double& angle) {
     with_player(username, [angle](Player& p) { p.rotate(angle); });
 }
 

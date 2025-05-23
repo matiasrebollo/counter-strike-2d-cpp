@@ -10,7 +10,7 @@
 struct PlayerDTO {
     const std::string username;
     const Vector2D position;
-    const float orientation;
+    const double orientation;
     /*const GunType primary_gun;
     const uint16_t primary_ammo;
     const GunType secondary_gun;

@@ -51,7 +51,7 @@ public:
 
     void push(const std::unique_ptr<Command> command);
     void new_player(const std::string& username, ClientSender& sender);
-    void rotate_player(const std::string& username, const float& angle);
+    void rotate_player(const std::string& username, const double& angle);
     void move_player_up(const std::string& username);
     void move_player_down(const std::string& username);
     void move_player_left(const std::string& username);

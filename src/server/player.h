@@ -21,7 +21,7 @@ private:
     bool moving_down;
     bool moving_left;
     bool moving_right;
-    float orientation;
+    double orientation;
     uint16_t life;
     ClientSender& sender;
 
@@ -30,7 +30,7 @@ private:
     void step(const Vector2D& step_dir, CS2DGame& game);
 
 public:
-    Player(Vector2D& position, float& orientation, ClientSender& sender);
+    Player(Vector2D& position, double& orientation, ClientSender& sender);
 
     float get_orientation() const;
     uint16_t get_life() const;
@@ -39,7 +39,7 @@ public:
     void send_snapshot(const Snapshot& map);
 
     void update(CS2DGame& game);
-    void rotate(const float& new_orientation);
+    void rotate(const double& new_orientation);
     void move_up();
     void move_down();
     void move_left();
