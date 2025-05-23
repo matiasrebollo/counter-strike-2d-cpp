@@ -1,9 +1,13 @@
 <RCC>
     <qresource prefix="/images">
         <file alias="fondo">header.jpg</file>
-        <file>../../../assets/gfx/lobby/phnx_conn.png</file>
         <file>../../../assets/gfx/lobby/artic.png</file>
         <file>../../../assets/gfx/lobby/elite_crew.png</file>
         <file>../../../assets/gfx/lobby/guerrilla.png</file>
+        <file>../../../assets/gfx/lobby/gign.png</file>
+        <file>../../../assets/gfx/lobby/gsg9.png</file>
+        <file>../../../assets/gfx/lobby/sas.png</file>
+        <file>../../../assets/gfx/lobby/seal.png</file>
+        <file>../../../assets/gfx/lobby/phnx_conexion.png</file>
     </qresource>
 </RCC>

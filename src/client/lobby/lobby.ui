@@ -47,8 +47,7 @@
     background-repeat: no-repeat;
     background-position: center;
     background-attachment: fixed;
-    background-size: cover;
-}
+  }
 </string>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -109,7 +108,7 @@
        <number>0</number>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="ConectToServer">
        <property name="sizePolicy">
@@ -158,7 +157,7 @@
            <number>0</number>
           </property>
           <item>
-           <widget class="QLineEdit" name="Server">
+           <widget class="QLineEdit" name="Host">
             <property name="font">
              <font>
               <family>Counter-Strike</family>
@@ -182,7 +181,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="label">
+           <widget class="QLabel" name="cs2d">
             <property name="maximumSize">
              <size>
               <width>536</width>
@@ -259,9 +258,9 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_5">
-          <item>
-           <widget class="QLineEdit" name="lineEdit">
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="1" column="0">
+           <widget class="QLineEdit" name="username">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
               <horstretch>0</horstretch>
@@ -295,6 +294,18 @@
             </property>
             <property name="placeholderText">
              <string>USERNAME</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QPushButton" name="go_to_select_skin_btn">
+            <property name="font">
+             <font>
+              <family>Counter-Strike</family>
+             </font>
+            </property>
+            <property name="text">
+             <string>SELECCIONAR SKINS</string>
             </property>
            </widget>
           </item>
@@ -548,6 +559,8 @@
           <property name="font">
            <font>
             <family>Counter-Strike</family>
+            <pointsize>16</pointsize>
+            <italic>false</italic>
            </font>
           </property>
           <property name="cursor">
@@ -604,19 +617,25 @@
             </item>
             <item>
              <widget class="QStackedWidget" name="skins_tt_stack">
-              <property name="currentIndex">
-               <number>2</number>
+              <property name="styleSheet">
+               <string notr="true"/>
               </property>
-              <widget class="QWidget" name="page_5">
+              <property name="currentIndex">
+               <number>0</number>
+              </property>
+              <widget class="QWidget" name="artc_page">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
+               <property name="styleSheet">
+                <string notr="true"/>
+               </property>
                <layout class="QVBoxLayout" name="verticalLayout_11">
                 <item>
-                 <widget class="QLabel" name="label_3">
+                 <widget class="QLabel" name="label">
                   <property name="text">
                    <string/>
                   </property>
@@ -630,7 +649,7 @@
                 </item>
                </layout>
               </widget>
-              <widget class="QWidget" name="page_11">
+              <widget class="QWidget" name="phnx_page">
                <layout class="QVBoxLayout" name="verticalLayout_6">
                 <item>
                  <widget class="QLabel" name="phoenix_connexion">
@@ -647,7 +666,7 @@
                    <enum>Qt::AutoText</enum>
                   </property>
                   <property name="pixmap">
-                   <pixmap resource="resources.qrc">:/images/assets/gfx/lobby/phnx_conn.png</pixmap>
+                   <pixmap resource="resources.qrc">:/images/assets/gfx/lobby/phnx_conexion.png</pixmap>
                   </property>
                   <property name="scaledContents">
                    <bool>true</bool>
@@ -662,10 +681,10 @@
                 </item>
                </layout>
               </widget>
-              <widget class="QWidget" name="page_12">
+              <widget class="QWidget" name="crw_page">
                <layout class="QVBoxLayout" name="verticalLayout_9">
                 <item>
-                 <widget class="QLabel" name="label">
+                 <widget class="QLabel" name="crew">
                   <property name="text">
                    <string/>
                   </property>
@@ -682,10 +701,10 @@
                 </item>
                </layout>
               </widget>
-              <widget class="QWidget" name="page_6">
+              <widget class="QWidget" name="guerr_page">
                <layout class="QVBoxLayout" name="verticalLayout_10">
                 <item>
-                 <widget class="QLabel" name="label_2">
+                 <widget class="QLabel" name="guerrilla">
                   <property name="font">
                    <font>
                     <pointsize>10</pointsize>
@@ -708,6 +727,11 @@
             </item>
             <item>
              <widget class="QPushButton" name="select_tt_skin">
+              <property name="font">
+               <font>
+                <family>Counter-Strike</family>
+               </font>
+              </property>
               <property name="text">
                <string>Seleccionar</string>
               </property>
@@ -737,24 +761,86 @@
             </item>
             <item>
              <widget class="QStackedWidget" name="skins_ct_stack">
-              <widget class="QWidget" name="page_7">
+              <property name="currentIndex">
+               <number>0</number>
+              </property>
+              <widget class="QWidget" name="seal_page">
                <layout class="QVBoxLayout" name="verticalLayout_12">
                 <item>
-                 <widget class="QLabel" name="label_4">
+                 <widget class="QLabel" name="seal">
                   <property name="text">
-                   <string>TextLabel</string>
+                   <string/>
+                  </property>
+                  <property name="pixmap">
+                   <pixmap resource="resources.qrc">:/images/assets/gfx/lobby/seal.png</pixmap>
+                  </property>
+                  <property name="scaledContents">
+                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>
                </layout>
               </widget>
-              <widget class="QWidget" name="page_9"/>
-              <widget class="QWidget" name="page_10"/>
-              <widget class="QWidget" name="page_8"/>
+              <widget class="QWidget" name="sas_page">
+               <layout class="QVBoxLayout" name="verticalLayout_3">
+                <item>
+                 <widget class="QLabel" name="sas">
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="pixmap">
+                   <pixmap resource="resources.qrc">:/images/assets/gfx/lobby/sas.png</pixmap>
+                  </property>
+                  <property name="scaledContents">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+              <widget class="QWidget" name="gs9_page">
+               <layout class="QVBoxLayout" name="verticalLayout_14">
+                <item>
+                 <widget class="QLabel" name="gs9">
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="pixmap">
+                   <pixmap resource="resources.qrc">:/images/assets/gfx/lobby/gsg9.png</pixmap>
+                  </property>
+                  <property name="scaledContents">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+              <widget class="QWidget" name="gign_page">
+               <layout class="QVBoxLayout" name="verticalLayout_13">
+                <item>
+                 <widget class="QLabel" name="gign">
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="pixmap">
+                   <pixmap resource="resources.qrc">:/images/assets/gfx/lobby/gign.png</pixmap>
+                  </property>
+                  <property name="scaledContents">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
              </widget>
             </item>
             <item>
              <widget class="QPushButton" name="select_ct_skin">
+              <property name="font">
+               <font>
+                <family>Counter-Strike</family>
+               </font>
+              </property>
               <property name="text">
                <string>Seleccionar</string>
               </property>
