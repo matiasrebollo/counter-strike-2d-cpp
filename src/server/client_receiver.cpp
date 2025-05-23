@@ -14,8 +14,8 @@ void ClientReceiver::run() {
 }
 
 void ClientReceiver::receive_command() {
-    /*CommandDTO command = this->protocol.receive_command();
-    push_command(command);*/
+    CommandDTO command = this->protocol.receive_move_request();
+    push_command(command);
 }
 
 void ClientReceiver::push_command(const CommandDTO& command_data) {

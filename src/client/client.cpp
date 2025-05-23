@@ -45,8 +45,8 @@ void Client::run(int argc, char* argv[]) {
     SDL2pp::Surface boxSheet("../assets/gfx/tiles/aztec.bmp");
     SDL2pp::Texture box(renderer, boxSheet);
 
-    float x_pos = 200;
-    float y_pos = 200;
+    float x_pos = 100;
+    float y_pos = 100;
 
     int it = 0;
     int FPS = 30;

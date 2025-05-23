@@ -72,9 +72,10 @@ void ClientHandler::manage_create_game(const CreateGameDTO&) {
         this->my_game = game->id;
         this->is_in_game = true;
         this->sendLobbyResponse(CommandType::CREATE_GAME, true, this->my_game);
-        ClientReceiver(this->protocol, this->username, game).start();
+        ClientReceiver receiver(this->protocol, this->username, game);
         ClientSender sender(this->protocol);
         game->new_player(username, sender);
+        receiver.start();
         sender.run();
         return;
     }
@@ -87,9 +88,10 @@ void ClientHandler::manage_join_game(const JoinGameDTO& dto) {
         this->is_in_game = true;
         this->my_game = dto.gamename;
         this->sendLobbyResponse(CommandType::JOIN_GAME, true, "");
-        ClientReceiver(this->protocol, this->username, game).start();
+        ClientReceiver receiver(this->protocol, this->username, game);
         ClientSender sender(this->protocol);
         game->new_player(username, sender);
+        receiver.start();
         sender.run();
         return;
     }

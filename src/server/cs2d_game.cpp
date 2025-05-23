@@ -12,27 +12,27 @@
 #include "common/game_snapshot.h"
 
 CS2DGame::CS2DGame(const std::string& id): last_it(0), id(id) {
-    const int mapWidth = 1000;
-    const int mapHeight = 1000;
-    const int wallThickness = 100;
+    const int mapWidth = 640;
+    const int mapHeight = 480;
+    const int wallThickness = 40;
 
+    collidables.emplace_back(std::make_shared<Collidable>(Vector2D(0, 0), mapWidth, wallThickness));
     collidables.emplace_back(
-            std::make_shared<Collidable>(Vector2D(0, -wallThickness), mapWidth, wallThickness));
-    collidables.emplace_back(
-            std::make_shared<Collidable>(Vector2D(-wallThickness, 0), wallThickness, mapHeight));
-    collidables.emplace_back(
-            std::make_shared<Collidable>(Vector2D(0, mapHeight), mapWidth, wallThickness));
-    collidables.emplace_back(
-            std::make_shared<Collidable>(Vector2D(mapWidth, 0), wallThickness, mapHeight));
+            std::make_shared<Collidable>(Vector2D(0, 0), wallThickness, mapHeight));
+    collidables.emplace_back(std::make_shared<Collidable>(Vector2D(0, mapHeight - wallThickness),
+                                                          mapWidth, wallThickness));
+    collidables.emplace_back(std::make_shared<Collidable>(Vector2D(mapWidth - wallThickness, 0),
+                                                          wallThickness, mapHeight));
 
-    const int boxThickness = 100;
+    const int boxThickness = 60;
 
-    collidables.emplace_back(
-            std::make_shared<Collidable>(Vector2D(500, 500), boxThickness, boxThickness));
+    collidables.emplace_back(std::make_shared<Collidable>(
+            Vector2D((mapWidth - boxThickness) / 2, (mapHeight - boxThickness) / 2), boxThickness,
+            boxThickness));
 }
 
 void CS2DGame::new_player(const std::string& username, ClientSender& sender) {
-    Vector2D position(200, 200);
+    Vector2D position(100, 100);
     double orientation = 0.0;
     auto player = std::make_shared<Player>(position, orientation, sender);
 
