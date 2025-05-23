@@ -23,7 +23,7 @@ private:
     std::map<std::string, std::shared_ptr<Queue<Snapshot>>> player_queues;
     std::list<std::shared_ptr<Collidable>> collidables;
     Queue<std::unique_ptr<Command>> command_queue;
-    GameMap map;
+    size_t last_it;
 
     void broadcast_snapshot();
 
@@ -37,7 +37,8 @@ private:
         }
     }
 
-    void move_player(const std::string& username, const Vector2D& direction);
+    void update(const size_t& it);
+
     // devuelve la distancia del objeto con el que impactó o 0 si no impactó.
     // double impacts(const Shot& shot, const Collidable& collidable) const;
     // double intersects_segment(const Shot& shot, const Vector2D& seg_start, const Vector2D&
@@ -45,6 +46,7 @@ private:
 
 public:
     const std::string id;
+
     explicit CS2DGame(const std::string& id);
 
     void push(const std::unique_ptr<Command> command);

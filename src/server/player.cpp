@@ -17,14 +17,30 @@ Player::Player(Vector2D& position, float& orientation, ClientSender& sender):
 float Player::get_orientation() const { return orientation; }
 uint16_t Player::get_life() const { return life; }
 
-void Player::step(const Vector2D& step_dir, const CS2DGame& game) {
+void Player::update(CS2DGame& game) {
+    if (moving_up) {
+        step(Vector2D(0, -1), game);
+    }
+    if (moving_down) {
+        step(Vector2D(0, 1), game);
+    }
+    if (moving_left) {
+        step(Vector2D(-1, 0), game);
+    }
+    if (moving_right) {
+        step(Vector2D(1, 0), game);
+    }
+    // si esta disparando, ...
+}
+
+void Player::step(const Vector2D& step_dir, CS2DGame& game) {
     Hitbox old_hitbox = Hitbox(hitbox);
 
     hitbox.position = hitbox.position + step_dir * PLAYER_SPEED;
 
     const bool collision = game.is_player_in_valid_position(*this);
-
     if (collision) {
+        // ver de "avanzar lo mas posible" en vez de calcelar el movimiento???
         hitbox = old_hitbox;
         return;
     }

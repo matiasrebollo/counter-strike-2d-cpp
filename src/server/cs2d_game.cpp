@@ -11,7 +11,7 @@
 #include "common/game_map.h"
 #include "common/game_snapshot.h"
 
-CS2DGame::CS2DGame(const std::string& id): id(id) {
+CS2DGame::CS2DGame(const std::string& id): last_it(0), id(id) {
     const int mapWidth = 1000;
     const int mapHeight = 1000;
     const int wallThickness = 100;
@@ -71,15 +71,6 @@ void CS2DGame::broadcast_snapshot() {
 
     for (const auto& player: players) {
         player.second->send_snapshot(snapshot);
-    }
-}
-
-void CS2DGame::move_player(const std::string& username, const Vector2D& direction) {
-    auto it = players.find(username);
-    if (it != players.end()) {
-        it->second->step(direction, *this);
-    } else {
-        throw std::invalid_argument("Username does not correspond to a player in this game.");
     }
 }
 
@@ -189,15 +180,25 @@ bool CS2DGame::is_player_in_valid_position(const Player& player) const {
     }
 }*/
 
+void CS2DGame::update(const size_t& it) {
+    for (size_t i = 0; i < it - this->last_it; ++i) {
+        // actualizar cosas propias del juego
+        for (const auto& [_, player]: players) {
+            player->update(*this);
+        }
+    }
+    this->last_it = it;
+}
+
 void CS2DGame::run() {
-    int it = 0;
     int FPS = 30;
     Clock clock;
+    size_t it = 1;
     while (should_keep_running()) {
         std::unique_ptr<Command> cmd;
         if (command_queue.try_pop(cmd))
             cmd->execute(*this);
-        // update_game(it);
+        update(it);
         broadcast_snapshot();
         it = clock.sleep_and_calc_next_it(FPS, it);
     }
