@@ -82,9 +82,8 @@ void Client::run(int argc, char* argv[]) {
                 float dx = mouse_x - x_pos;
                 float dy = mouse_y - y_pos;
                 float ang_radianes = atan2(dy, dx);
-                double angulo = (ang_radianes * 180.0f / M_PI) + 90;
-
-                sender.add_command_to_queue(RotateDTO{angulo});
+                const double angulo = (ang_radianes * 180.0f / M_PI) + 90;
+                sender.add_command_to_queue(RotateDTO{static_cast<float>(angulo)});
             }
         }
 
