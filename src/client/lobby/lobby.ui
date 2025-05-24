@@ -773,7 +773,17 @@
                 <item>
                  <widget class="QLabel" name="label">
                   <property name="styleSheet">
-                   <string notr="true">background-color: rgb(154, 153, 150);</string>
+                   <string notr="true">
+                      QLabel {
+                        background-color: transparent;
+                        border: none;
+                        background-image: url(:/images/artic);
+                        background-repeat: no-repeat;
+                        background-attachment: fixed;
+                        background-position: center;
+                        background-size: 1200% 1200%;
+                      }
+                    </string>
                   </property>
                   <property name="text">
                    <string/>
@@ -799,7 +809,17 @@
                    </sizepolicy>
                   </property>
                   <property name="styleSheet">
-                   <string notr="true">background-color: rgb(181, 131, 90);</string>
+                   <string notr="true">
+                      QLabel {
+                        background-color: transparent;
+                        border: none;
+                        background-image: url(:/images/pheonix);
+                        background-repeat: no-repeat;
+                        background-attachment: fixed;
+                        background-position: center;
+                        background-size: 1200% 1200%;
+                      }
+                    </string>
                   </property>
                   <property name="text">
                    <string/>
@@ -827,8 +847,18 @@
                <layout class="QVBoxLayout" name="verticalLayout_9">
                 <item>
                  <widget class="QLabel" name="crew">
-                  <property name="styleSheet">
-                   <string notr="true">background-color: rgb(38, 162, 105);</string>
+                                    <property name="styleSheet">
+                   <string notr="true">
+                      QLabel {
+                        background-color: transparent;
+                        border: none;
+                        background-image: url(:/images/l337-crew);
+                        background-repeat: no-repeat;
+                        background-attachment: fixed;
+                        background-position: center;
+                        background-size: 1200% 1200%;
+                      }
+                    </string>
                   </property>
                   <property name="text">
                    <string/>
@@ -855,8 +885,18 @@
                     <pointsize>10</pointsize>
                    </font>
                   </property>
-                  <property name="styleSheet">
-                   <string notr="true">background-color: rgb(224, 27, 36);</string>
+                    <property name="styleSheet">
+                   <string notr="true">
+                      QLabel {
+                        background-color: transparent;
+                        border: none;
+                        background-image: url(:/images/guerrilla);
+                        background-repeat: no-repeat;
+                        background-attachment: fixed;
+                        background-position: center;
+                        background-size: 1200% 1200%;
+                      }
+                    </string>
                   </property>
                   <property name="text">
                    <string/>
@@ -972,7 +1012,17 @@
                 <item>
                  <widget class="QLabel" name="seal">
                   <property name="styleSheet">
-                   <string notr="true">background-color: rgb(51, 209, 122);</string>
+                   <string notr="true">
+                      QLabel {
+                        background-color: transparent;
+                        border: none;
+                        background-image: url(:/images/seal-force);
+                        background-repeat: no-repeat;
+                        background-attachment: fixed;
+                        background-position: center;
+                        background-size: 1200% 1200%;
+                      }
+                    </string>
                   </property>
                   <property name="text">
                    <string/>
@@ -992,7 +1042,17 @@
                 <item>
                  <widget class="QLabel" name="sas">
                   <property name="styleSheet">
-                   <string notr="true">background-color: rgb(61, 56, 70);</string>
+                   <string notr="true">
+                      QLabel {
+                        background-color: transparent;
+                        border: none;
+                        background-image: url(:/images/sas);
+                        background-repeat: no-repeat;
+                        background-attachment: fixed;
+                        background-position: center;
+                        background-size: 1200% 1200%;
+                      }
+                    </string>
                   </property>
                   <property name="text">
                    <string/>
@@ -1011,8 +1071,18 @@
                <layout class="QVBoxLayout" name="verticalLayout_14">
                 <item>
                  <widget class="QLabel" name="gs9">
-                  <property name="styleSheet">
-                   <string notr="true">background-color: rgb(28, 113, 216);</string>
+                   <property name="styleSheet">
+                   <string notr="true">
+                      QLabel {
+                        background-color: transparent;
+                        border: none;
+                        background-image: url(:/images/gsg9);
+                        background-repeat: no-repeat;
+                        background-attachment: fixed;
+                        background-position: center;
+                        background-size: 1200% 1200%;
+                      }
+                    </string>
                   </property>
                   <property name="text">
                    <string/>
@@ -1031,8 +1101,18 @@
                <layout class="QVBoxLayout" name="verticalLayout_13">
                 <item>
                  <widget class="QLabel" name="gign">
-                  <property name="styleSheet">
-                   <string notr="true">background-color: rgb(153, 193, 241);</string>
+                                    <property name="styleSheet">
+                   <string notr="true">
+                      QLabel {
+                        background-color: transparent;
+                        border: none;
+                        background-image: url(:/images/gign);
+                        background-repeat: no-repeat;
+                        background-attachment: fixed;
+                        background-position: center;
+                        background-size: 1200% 1200%;
+                      }
+                    </string>
                   </property>
                   <property name="text">
                    <string/>
