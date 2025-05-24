@@ -23,6 +23,7 @@ public:
     ~Lobby();
     ClientProtocol& get_protocol();
     std::string get_username();
+    std::string get_gamecode();
 
 private slots:
     void on_CreateGame_clicked();
@@ -39,8 +40,8 @@ private slots:
 
 private:
     Ui::Lobby* ui;
-    std::vector<std::string> partidas;
     std::string username;
+    std::string gamecode;
     std::optional<ClientProtocol> protocol;
 };
 #endif  // LOBBY_H

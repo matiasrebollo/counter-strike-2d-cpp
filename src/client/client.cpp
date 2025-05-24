@@ -3,6 +3,7 @@
 #include <QApplication>
 #include <cmath>
 #include <iostream>
+#include <stdexcept>
 #include <vector>
 
 #include <SDL2/SDL.h>
@@ -23,6 +24,10 @@ void Client::run(int argc, char* argv[]) {
     app.exec();
 
     // std::string username = lobby.get_username();
+
+    if (!this->validate_qt_results(lobby)) {
+        return;
+    }
 
     ClientSender sender = ClientSender(lobby.get_protocol());
     ClientReceiver receiver = ClientReceiver(lobby.get_protocol());
@@ -112,3 +117,22 @@ void Client::run(int argc, char* argv[]) {
         // std::cout << "new it: " << it << std::endl;
     }
 }
+
+bool Client::validate_qt_results(Lobby& lobby) {
+    try {
+        lobby.get_protocol();
+    } catch (const std::runtime_error& e) {
+        this->print_message(MSG_NO_PROTOCOL);
+        return false;
+    }
+    if (lobby.get_username() == "") {
+        this->print_message(MSG_NO_USERNAME);
+        return false;
+    } else if (lobby.get_gamecode() == "") {
+        this->print_message(MSG_NO_GAME);
+        return false;
+    }
+    return true;
+}
+
+void Client::print_message(const std::string& s) { std::cout << s << std::endl; }
