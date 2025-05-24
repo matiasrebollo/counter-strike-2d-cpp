@@ -6,8 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "../../common/skins.h"
 #include "client/client_protocol.h"
-#include "common/skins.h"
 
 // cppcheck-suppress unknownMacro
 QT_BEGIN_NAMESPACE
@@ -23,6 +23,8 @@ public:
     explicit Lobby(QWidget* parent = nullptr);
     ~Lobby();
     ClientProtocol& get_protocol();
+    TerroristSkin& get_tt_skin();
+    CounterTerroristSkin& get_ct_skin();
 
 private slots:
     void on_CreateGame_clicked();
@@ -53,8 +55,8 @@ private slots:
 
 private:
     Ui::Lobby* ui;
-    enum CounterTerroristSkin selected_ct_skin;
-    enum TerroristSkin selected_tt_skin;
+    CounterTerroristSkin selected_ct_skin;
+    TerroristSkin selected_tt_skin;
     std::vector<std::string> partidas;
     std::string username;
     std::optional<ClientProtocol> protocol;

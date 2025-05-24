@@ -122,14 +122,13 @@ ClientProtocol& Lobby::get_protocol() {
 }
 
 void Lobby::on_select_tt_skin_clicked() {
-    selected_tt_skin = skins_tt[ui->skins_tt_stack->currentIndex()];
+    this->selected_tt_skin = skins_tt[ui->skins_tt_stack->currentIndex()];
 }
 
 
 void Lobby::on_select_ct_skin_clicked() {
-    selected_ct_skin = skins_ct[ui->skins_ct_stack->currentIndex()];
+    this->selected_ct_skin = skins_ct[ui->skins_ct_stack->currentIndex()];
 }
-
 
 void Lobby::on_next_tt_skin_clicked() {
     int index = ui->skins_tt_stack->currentIndex();
@@ -156,3 +155,7 @@ void Lobby::on_next_ct_skin_clicked() {
 }
 
 void Lobby::on_go_to_select_skin_btn_clicked() { ui->stack->setCurrentIndex(4); }
+
+TerroristSkin& Lobby::get_tt_skin() { return this->selected_tt_skin; }
+
+CounterTerroristSkin& Lobby::get_ct_skin() { return this->selected_ct_skin; }

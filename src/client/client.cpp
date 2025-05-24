@@ -12,7 +12,15 @@
 #include "../common/game_map.h"
 #include "client/lobby/lobby.h"
 
-Client::Client() {}
+Client::Client():
+        skins_tt({{TerroristSkin::PHEONIX, PATH_PHEONIX_SKIN},
+                  {TerroristSkin::L3337_KREW, PATH_L337_CREW_SKIN},
+                  {TerroristSkin::ARTIC_AVENGER, PATH_ARTIC_SKIN},
+                  {TerroristSkin::GUERRILLA, PATH_GUERRILLA_SKIN}}),
+        skins_ct({{CounterTerroristSkin::SEAL_FORCE, PATH_SEAL_FORCE_SKIN},
+                  {CounterTerroristSkin::GSG_9, PATH_GSG9_SKIN},
+                  {CounterTerroristSkin::UK_SAS, PATH_SAS_SKIN},
+                  {CounterTerroristSkin::GIGN, PATH_GIGN_SKIN}}) {}
 
 void Client::run(int argc, char* argv[]) {
     QApplication app(argc, argv);
@@ -31,7 +39,7 @@ void Client::run(int argc, char* argv[]) {
     SDL2pp::Renderer renderer(window, -1, SDL_RENDERER_ACCELERATED);
 
     // Jugador
-    SDL2pp::Surface playerSheet("../assets/gfx/player/ct1.bmp");
+    SDL2pp::Surface playerSheet(this->skins_tt.find(lobby.get_tt_skin())->second);
     SDL2pp::Texture player(renderer, playerSheet);
 
     // Caja
