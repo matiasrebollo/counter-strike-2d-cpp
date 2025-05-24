@@ -50,8 +50,8 @@ void Client::run(int argc, char* argv[]) {
     Snapshot last_snapshot;
     receiver.try_pop_snapshot_from_queue(last_snapshot);
     const PlayerDTO& p_inicial = last_snapshot.players[0];
-    float x_pos = p_inicial.position.x;
-    float y_pos = p_inicial.position.y;
+    int x_pos = p_inicial.position.x;
+    int y_pos = p_inicial.position.y;
 
     bool w = false, a = false, s = false, d = false;
 
@@ -126,8 +126,8 @@ void Client::run(int argc, char* argv[]) {
             if (event.type == SDL_MOUSEMOTION) {
                 int mouse_x = event.motion.x;
                 int mouse_y = event.motion.y;
-                float dx = mouse_x - x_pos;
-                float dy = mouse_y - y_pos;
+                float dx = mouse_x - (float)(x_pos + 16);
+                float dy = mouse_y - (float)(y_pos + 16);
                 float ang_radianes = atan2(dy, dx);
                 const double angulo = (ang_radianes * 180.0f / M_PI) + 90;
 
@@ -182,7 +182,8 @@ void Client::run(int argc, char* argv[]) {
 
         // podria tambien crear los rect y point antes en lugar de en el copy
         renderer.Copy(player, SDL2pp::Rect(0, 32, 32, 32), SDL2pp::Rect(x_pos, y_pos, 32, 32),
-                      angulo, SDL2pp::Point(16.0f, 16.0f));
+                      angulo, SDL2pp::Point(16, 16));
+
         renderer.Present();
 
         // auto render_end = std::chrono::steady_clock::now();
