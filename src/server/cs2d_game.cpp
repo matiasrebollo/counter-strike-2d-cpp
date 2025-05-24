@@ -198,8 +198,9 @@ void CS2DGame::run() {
     size_t it = 1;
     while (should_keep_running()) {
         std::unique_ptr<Command> cmd;
-        if (command_queue.try_pop(cmd))
+        while (command_queue.try_pop(cmd)) {
             cmd->execute(*this);
+        }
         update(it);
         broadcast_snapshot();
         // std::cout << "last it: " << it << std::endl;
