@@ -1,8 +1,10 @@
 #include "client.h"
 
 #include <QApplication>
+#include <chrono>  // al principio del archivo
 #include <cmath>
 #include <iostream>
+#include <utility>
 #include <vector>
 
 #include <SDL2/SDL.h>
@@ -51,13 +53,15 @@ void Client::run(int argc, char* argv[]) {
     int it = 0;
     int FPS = 30;
     Clock clock;
+    Snapshot last_snapshot;
+    receiver.try_pop_snapshot_from_queue(last_snapshot);
     while (true) {
-
+        auto frame_start = std::chrono::steady_clock::now();  // INICIO DEL FRAME
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT)
                 return;
-            if (event.type == SDL_KEYDOWN) {
+            /*if (event.type == SDL_KEYDOWN) {
                 switch (event.key.keysym.sym) {
                     case SDLK_ESCAPE:
                         return;
@@ -74,7 +78,7 @@ void Client::run(int argc, char* argv[]) {
                         sender.add_command_to_queue(MoveRightDTO{});
                         break;
                 }
-            }
+            }*/
             if (event.type == SDL_MOUSEMOTION) {
                 int mouse_x = event.motion.x;
                 int mouse_y = event.motion.y;
@@ -82,14 +86,35 @@ void Client::run(int argc, char* argv[]) {
                 float dy = mouse_y - y_pos;
                 float ang_radianes = atan2(dy, dx);
                 const double angulo = (ang_radianes * 180.0f / M_PI) + 90;
+
+                auto send_start = std::chrono::steady_clock::now();
                 sender.add_command_to_queue(RotateDTO{angulo});
+                auto send_end = std::chrono::steady_clock::now();
+                std::cout << "[TIMER] Envío comando: "
+                          << std::chrono::duration_cast<std::chrono::microseconds>(send_end -
+                                                                                   send_start)
+                                     .count()
+                          << " us\n";
             }
         }
 
-        Snapshot snapshot = receiver.pop_snapshot_from_queue();
-        PlayerDTO p = snapshot.players[0];
+        auto pop_start = std::chrono::steady_clock::now();
+        int pop_count = 0;
+        Snapshot snapshot_tmp;
+        while (receiver.try_pop_snapshot_from_queue(snapshot_tmp)) {
+            last_snapshot = std::move(snapshot_tmp);
+            pop_count++;
+        }
+        auto pop_end = std::chrono::steady_clock::now();
+        std::cout << "[TIMER] try_pop_snapshot: "
+                  << std::chrono::duration_cast<std::chrono::microseconds>(pop_end - pop_start)
+                             .count()
+                  << " us | Snapshots nuevos: " << pop_count << "\n";
+
+        const PlayerDTO& p = last_snapshot.players[0];
         double angulo = p.orientation;
 
+        auto render_start = std::chrono::steady_clock::now();
         renderer.Clear();
 
         // ACA SI ITERO EL MAPA (POR AHORA SOLO TIPO BOX)
@@ -107,8 +132,25 @@ void Client::run(int argc, char* argv[]) {
                       SDL2pp::Point(16.0f, 16.0f));
         renderer.Present();
 
-        // std::cout << "last it: " << it << std::endl;
+        auto render_end = std::chrono::steady_clock::now();
+        std::cout << "[TIMER] Render: "
+                  << std::chrono::duration_cast<std::chrono::microseconds>(render_end -
+                                                                           render_start)
+                             .count()
+                  << " us\n";
+
+        auto sleep_start = std::chrono::steady_clock::now();
         it = clock.sleep_and_calc_next_it(FPS, it);
-        // std::cout << "new it: " << it << std::endl;
+        auto sleep_end = std::chrono::steady_clock::now();
+        std::cout << "[TIMER] Sleep: "
+                  << std::chrono::duration_cast<std::chrono::microseconds>(sleep_end - sleep_start)
+                             .count()
+                  << " us\n";
+
+        auto frame_end = std::chrono::steady_clock::now();
+        std::cout << "[TIMER] Frame completo: "
+                  << std::chrono::duration_cast<std::chrono::milliseconds>(frame_end - frame_start)
+                             .count()
+                  << " ms\n\n";
     }
 }
