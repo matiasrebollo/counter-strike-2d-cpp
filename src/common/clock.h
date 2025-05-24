@@ -4,11 +4,11 @@
 #include <chrono>
 
 class Clock {
-    private:
+private:
     std::chrono::time_point<std::chrono::high_resolution_clock> start;
     std::chrono::time_point<std::chrono::high_resolution_clock> end;
 
-    public:
+public:
     Clock();
 
     void restart();
@@ -21,4 +21,3 @@ class Clock {
 };
 
 #endif
-
