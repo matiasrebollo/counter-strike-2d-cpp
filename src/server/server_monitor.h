@@ -33,6 +33,7 @@ public:
     bool CreateUsername(const std::string& username);
     std::shared_ptr<CS2DGame> CreateNewGame();
     std::shared_ptr<CS2DGame> JoinGame(const std::string& gameName);
+    void delete_username(const std::string& username);
     // void MakePlayGame(const std::string& gameName, ClientHandler& client);
     void MakePlayGame(const std::string& gameName);
     CS2DGame& GetGame(const std::string& gameName);

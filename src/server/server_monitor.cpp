@@ -37,3 +37,5 @@ CS2DGame& ServerMonitor::GetGame(const std::string& gamename) {
 }
 
 void ServerMonitor::ManageEndGame(const std::string& gameName) { this->games.erase(gameName); }
+
+void ServerMonitor::delete_username(const std::string& username) { this->players.erase(username); }
