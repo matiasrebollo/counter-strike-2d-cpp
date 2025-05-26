@@ -178,8 +178,8 @@ std::vector<PlayerDTO> ClientProtocol::receive_players(const int& size_players) 
     std::vector<PlayerDTO> players = {};
     for (int i = 0; i < size_players; i++) {
         std::string username = this->receive_string();
-        int position_x = this->receive_byte();
-        int position_y = this->receive_byte();
+        int position_x = this->receive_big_endian_number();
+        int position_y = this->receive_big_endian_number();
         double angle = this->receive_angle();
         /*
         int direction_x = this->receive_byte();

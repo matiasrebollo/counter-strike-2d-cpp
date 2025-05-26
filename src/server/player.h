@@ -12,7 +12,7 @@ class CS2DGame;  // forward declaration
 
 #define PLAYER_WIDTH 32
 #define PLAYER_HEIGHT 32
-#define PLAYER_SPEED 2
+#define PLAYER_SPEED 4
 #define PLAYER_INITIAL_LIFE 1000
 
 class Player: public Collidable {

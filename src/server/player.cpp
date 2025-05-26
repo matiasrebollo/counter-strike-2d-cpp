@@ -34,16 +34,23 @@ void Player::update(CS2DGame& game) {
 }
 
 void Player::step(const Vector2D& step_dir, CS2DGame& game) {
-    Hitbox old_hitbox = Hitbox(hitbox);
+    Hitbox old_hitbox = Hitbox(this->hitbox);
+    std::cout << "posicion anterior: x: " << old_hitbox.position.x
+              << ", y: " << old_hitbox.position.y << std::endl;
 
-    hitbox.position = hitbox.position + step_dir * PLAYER_SPEED;
-
+    this->hitbox.position = hitbox.position + step_dir * PLAYER_SPEED;
+    std::cout << "me quiero mover a: x: " << this->hitbox.position.x
+              << ", y: " << this->hitbox.position.y << std::endl;
     const bool collision = game.is_player_not_in_valid_position(*this);
     if (collision) {
+        std::cout << "colision!" << std::endl;
         // ver de "avanzar lo mas posible" en vez de calcelar el movimiento???
-        hitbox = old_hitbox;
+        this->hitbox = old_hitbox;
         return;
     }
+    std::cout << "posicion final: x: " << this->hitbox.position.x
+              << ", y: " << this->hitbox.position.y << std::endl;
+    std::cout << "\n";
 }
 
 void Player::move_up() { moving_up = !moving_up; }

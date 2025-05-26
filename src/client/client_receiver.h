@@ -17,7 +17,7 @@ public:
     explicit ClientReceiver(ClientProtocol& protocol);
     GameMap receive_initial_map();
     void receive_snapshot_from_server();
-    Snapshot pop_snapshot_from_queue();
+    bool try_pop_snapshot_from_queue(Snapshot& snapshot);
     void run() override;
 };
 

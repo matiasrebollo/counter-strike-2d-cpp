@@ -9,7 +9,9 @@ void ClientReceiver::run() {
     }
 }
 
-Snapshot ClientReceiver::pop_snapshot_from_queue() { return this->queue.pop(); }
+bool ClientReceiver::try_pop_snapshot_from_queue(Snapshot& snapshot) {
+    return this->queue.try_pop(snapshot);
+}
 
 GameMap ClientReceiver::receive_initial_map() { return this->protocol.receive_map(); }
 
