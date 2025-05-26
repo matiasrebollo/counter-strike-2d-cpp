@@ -26,6 +26,7 @@ private:
     ClientProtocol protocol;
     ClientSender sender;
     ClientReceiver receiver;
+    std::string username;
 
     bool validate_qt_results(Lobby& lobby);
     void print_message(const std::string& s);

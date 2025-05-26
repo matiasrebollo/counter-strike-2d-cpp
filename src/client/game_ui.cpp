@@ -3,7 +3,8 @@
 GameUI::GameUI(Lobby& lobby):
         protocol(std::move(lobby.get_protocol())),
         sender(this->protocol),
-        receiver(this->protocol) {
+        receiver(this->protocol),
+        username(lobby.get_username()) {
     if (!this->validate_qt_results(lobby)) {
         throw std::runtime_error("Error creating SDL interface");
     }
@@ -29,13 +30,31 @@ void GameUI::run() {
     SDL2pp::Surface boxSheet("../assets/gfx/tiles/aztec.bmp");
     SDL2pp::Texture box(renderer, boxSheet);
 
+    // Texto hardcodeado por ahora, luego hay que borrarlo
+    SDL2pp::SDLTTF ttf;
+    SDL2pp::Font font("../assets/gfx/fonts/sourcesans.ttf", 24);
+    SDL2pp::Surface textSurface =
+            font.RenderText_Solid("Waiting for players...", SDL2pp::Color(255, 255, 255));
+    SDL2pp::Texture textTexture(renderer, textSurface);
+    renderer.Clear();
+    int textW = textSurface.GetWidth();
+    int textH = textSurface.GetHeight();
+    SDL2pp::Rect dstRect(210, 210, textW, textH);
+    renderer.Copy(textTexture, SDL2pp::NullOpt, dstRect);
+    renderer.Present();
+
     Snapshot last_snapshot = this->receiver.receive_initial_snapshot();
-    const PlayerDTO& p_inicial = last_snapshot.players[0];
-    int x_pos = p_inicial.position.x;
-    int y_pos = p_inicial.position.y;
+
+    int my_x_pos = 0, my_y_pos = 0;
+    for (const PlayerDTO& p: last_snapshot.players) {
+        if (p.username == this->username) {
+            my_x_pos = p.position.x;
+            my_y_pos = p.position.y;
+            break;
+        }
+    }
 
     bool w = false, a = false, s = false, d = false;
-
 
     int it = 0;
     int FPS = 30;
@@ -107,8 +126,8 @@ void GameUI::run() {
             if (event.type == SDL_MOUSEMOTION) {
                 int mouse_x = event.motion.x;
                 int mouse_y = event.motion.y;
-                float dx = mouse_x - (float)(x_pos + 16);
-                float dy = mouse_y - (float)(y_pos + 16);
+                float dx = mouse_x - (float)(my_x_pos + 16);
+                float dy = mouse_y - (float)(my_y_pos + 16);
                 float ang_radianes = atan2(dy, dx);
                 const double angulo = (ang_radianes * 180.0f / M_PI) + 90;
 
@@ -123,27 +142,6 @@ void GameUI::run() {
             }
         }
 
-        // auto pop_start = std::chrono::steady_clock::now();
-        // int pop_count = 0;
-        Snapshot snapshot_tmp;
-        while (this->receiver.try_pop_snapshot_from_queue(snapshot_tmp)) {
-            last_snapshot = std::move(snapshot_tmp);
-            // pop_count++;
-        }
-        // auto pop_end = std::chrono::steady_clock::now();
-        /*std::cout << "[TIMER] try_pop_snapshot: "
-                  << std::chrono::duration_cast<std::chrono::microseconds>(pop_end - pop_start)
-                             .count()
-                  << " us | Snapshots nuevos: " << pop_count << "\n";*/
-
-        const PlayerDTO& p = last_snapshot.players[0];
-        double angulo = p.orientation;
-        x_pos = p.position.x;
-        y_pos = p.position.y;
-
-        std::cout << "Posicion x: " << x_pos << std::endl;
-        std::cout << "Posicion y: " << y_pos << std::endl;
-        std::cout << "\n";
 
         // auto render_start = std::chrono::steady_clock::now();
         renderer.Clear();
@@ -161,9 +159,34 @@ void GameUI::run() {
             }
         }
 
-        // podria tambien crear los rect y point antes en lugar de en el copy
-        renderer.Copy(player, SDL2pp::Rect(0, 32, 32, 32), SDL2pp::Rect(x_pos, y_pos, 32, 32),
-                      angulo, SDL2pp::Point(16, 16));
+        // auto pop_start = std::chrono::steady_clock::now();
+        // int pop_count = 0;
+        Snapshot snapshot_tmp;
+        while (this->receiver.try_pop_snapshot_from_queue(snapshot_tmp)) {
+            last_snapshot = std::move(snapshot_tmp);
+            // pop_count++;
+        }
+        // auto pop_end = std::chrono::steady_clock::now();
+        /*std::cout << "[TIMER] try_pop_snapshot: "
+                  << std::chrono::duration_cast<std::chrono::microseconds>(pop_end - pop_start)
+                             .count()
+                  << " us | Snapshots nuevos: " << pop_count << "\n";*/
+
+        for (const PlayerDTO& p: last_snapshot.players) {
+            if (p.username == this->username) {
+                my_x_pos = p.position.x;
+                my_y_pos = p.position.y;
+            }
+            double angulo = p.orientation;
+            int x_pos = p.position.x;
+            int y_pos = p.position.y;
+
+            SDL2pp::Rect rect_origen(0, 32, 32, 32);
+            SDL2pp::Rect rect_destino(x_pos, y_pos, 32, 32);
+            SDL2pp::Point centro(16, 16);
+
+            renderer.Copy(player, rect_origen, rect_destino, angulo, centro);
+        }
 
         renderer.Present();
 
