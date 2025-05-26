@@ -1,18 +1,17 @@
 #include "client.h"
 
 #include <QApplication>
+#include <chrono>  // al principio del archivo
 #include <cmath>
 #include <iostream>
 #include <vector>
 
 #include <SDL2/SDL.h>
 #include <SDL2pp/SDL2pp.hh>
-#include <chrono>  // al principio del archivo
-#include <cmath>
-
-#include "game_ui.h"
 
 #include "client/lobby/lobby.h"
+
+#include "game_ui.h"
 
 Client::Client():
         skins_tt({{TerroristSkin::PHEONIX, PATH_PHEONIX_SKIN},

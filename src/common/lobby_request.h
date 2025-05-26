@@ -9,11 +9,13 @@
 struct CreateUsernameDTO {
     std::string username;
 };
+
 struct CreateGameDTO {
     int size_players;
     TerroristSkin tt_skin;
     CounterTerroristSkin ct_skin;
 };
+
 struct JoinGameDTO {
     std::string gamename;
     TerroristSkin tt_skin;
