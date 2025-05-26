@@ -10,9 +10,11 @@
 
 #include "../common/codes_parser.h"
 #include "../common/commands.h"
+#include "../common/commands_dto.h"
 #include "../common/common_protocol.h"
 #include "../common/game_map.h"
 #include "../common/game_snapshot.h"
+#include "../common/lobby_request.h"
 #include "../common/message.h"
 #include "../common/socket.h"
 
@@ -24,10 +26,11 @@ private:
     std::unordered_map<bool, uint8_t> codeSuccessResponse;
     std::unordered_map<CommandType, std::function<MessageFromClient(const CommandType& command)>>
             commandsManagers;
+    std::unordered_map<CommandType, std::function<LobbyRequestDTO()>> lobbyCommandManagers;
 
-    MessageFromClient receive_create_username_request(const CommandType& command);
-    MessageFromClient receive_create_game_request(const CommandType& command);
-    MessageFromClient receive_join_game_request(const CommandType& command);
+    CreateUsernameDTO receive_create_username_request();
+    CreateGameDTO receive_create_game_request();
+    JoinGameDTO receive_join_game_request();
     MessageFromClient receive_select_map_request(const CommandType& command);
     MessageFromClient receive_buy_weapon_request(const CommandType& command);
     MessageFromClient receive_buy_weapon_ammo_request(const CommandType& command);
@@ -38,7 +41,7 @@ private:
     MessageFromClient receive_plant_bomb_request(const CommandType& command);
     MessageFromClient receive_defuse_bomb_request(const CommandType& command);
 
-    MessageFromClient receive_select_skins_request(const CommandType& command);
+    RotateDTO receive_rotate();
 
     MessageFromClient initialize_message(const CommandType& command);
 
@@ -50,7 +53,9 @@ public:
     void send_start_game(const ServerResponseLobby& msg);
     void send_snapshot(const Snapshot& snapshot);
     void send_map(const GameMap& map);
+    CommandDTO receive_move_request();
     MessageFromClient receive_command(void);
+    LobbyRequestDTO receive_lobby_request();
     void kill();
     ~ServerProtocol();
 };

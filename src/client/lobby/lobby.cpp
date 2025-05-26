@@ -7,6 +7,7 @@
 
 #include "client/client_protocol.h"
 #include "common/commands.h"
+#include "common/lobby_request.h"
 #include "common/message.h"
 #include "common/skins.h"
 
@@ -45,35 +46,35 @@ void Lobby::on_CreateGame_clicked() {
     ServerResponseLobby response = protocol.value().receive_command();
     if (response.commandType == CREATE_USERNAME && response.success) {
         ui->stack->setCurrentIndex(3);
+        this->username = ui->lineEdit->text().toStdString();
     }
 }
 
 void Lobby::on_JoinGame_clicked() {
-    this->username = ui->username->text().toStdString();
-    MessageFromClient request;
-    request.commandType = CommandType::CREATE_USERNAME;  // commandType
-    request.s = this->username;                          // s
-    protocol.value().send_command(request);
+    CreateUsernameDTO request;
+    request.username = ui->lineEdit->text().toStdString();
+    protocol.value().send_lobby_request(request);
 
     ServerResponseLobby response = protocol.value().receive_command();
     if (response.commandType == CREATE_USERNAME && response.success) {
         ui->stack->setCurrentIndex(2);
+        this->username = ui->lineEdit->text().toStdString();
     }
 }
 
 void Lobby::on_JoinGameButton_clicked() {
     std::string game_name = ui->game_code->text().toStdString();
 
-    MessageFromClient request;
-
+    JoinGameDTO request;
     request.commandType = CommandType::JOIN_GAME;  // commandType
     request.s = game_name;                         // s
     request.tt_skin = selected_tt_skin;            // tt_skin
     request.ct_skin = selected_ct_skin;            // ct_skin
 
-    protocol.value().send_command(request);
+    protocol.value().send_lobby_request(request);
     ServerResponseLobby response = protocol.value().receive_command();
     if (response.commandType == JOIN_GAME && response.success) {
+        this->gamecode = game_name;
         close();
     }
 }
@@ -85,16 +86,17 @@ void Lobby::on_createButton_clicked() {
     if (not ok) {
         // error
     } else {
-        MessageFromClient request;
+        CreateGameDTO request;
 
         request.commandType = CommandType::CREATE_GAME;  // commandType
         request.tt_skin = selected_tt_skin;              // tt_skin
         request.ct_skin = selected_ct_skin;              // ct_skin
         request.size_players = n_min_players;
 
-        protocol.value().send_command(request);
+        protocol.value().send_lobby_request(request);
         ServerResponseLobby response = protocol.value().receive_command();
         if (response.commandType == CREATE_GAME && response.success) {
+            this->gamecode = response.game_name;
             QString game_code = QString::fromStdString(response.game_name);
             QMessageBox::information(this, "Codigo de partida", game_code);
             close();
@@ -159,3 +161,7 @@ void Lobby::on_go_to_select_skin_btn_clicked() { ui->stack->setCurrentIndex(4); 
 TerroristSkin& Lobby::get_tt_skin() { return this->selected_tt_skin; }
 
 CounterTerroristSkin& Lobby::get_ct_skin() { return this->selected_ct_skin; }
+
+std::string Lobby::get_username() { return this->username; }
+
+std::string Lobby::get_gamecode() { return this->gamecode; }

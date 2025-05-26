@@ -10,7 +10,7 @@ enum CommandType {
     SELECT_MAP,
     BUY_WEAPON,
     BUY_AMMO,
-    AIM,
+    ROTATE,
     MOVE,
     SHOOT,
     CHANGE_WEAPON,

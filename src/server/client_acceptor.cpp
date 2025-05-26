@@ -32,7 +32,6 @@ void ClientAcceptor::reap() {
 
 void ClientAcceptor::clear() {
     for (auto* client: this->clients) {
-        client->kill();
         client->join();
         delete client;
     }

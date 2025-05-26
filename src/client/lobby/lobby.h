@@ -25,6 +25,8 @@ public:
     ClientProtocol& get_protocol();
     TerroristSkin& get_tt_skin();
     CounterTerroristSkin& get_ct_skin();
+    std::string get_username();
+    std::string get_gamecode();
 
 private slots:
     void on_CreateGame_clicked();
@@ -59,6 +61,7 @@ private:
     TerroristSkin selected_tt_skin;
     std::vector<std::string> partidas;
     std::string username;
+    std::string gamecode;
     std::optional<ClientProtocol> protocol;
 
     enum TerroristSkin skins_tt[4] = {ARTIC_AVENGER, PHEONIX, L3337_KREW, GUERRILLA};

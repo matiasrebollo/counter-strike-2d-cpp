@@ -24,6 +24,7 @@ target_sources(taller_common
     vector_2d.h
     codes_parser.h
     commands.h
+    commands_dto.h
     common_protocol.h
     communication_ended.h
     error_codes.h

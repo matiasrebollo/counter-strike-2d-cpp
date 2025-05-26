@@ -14,33 +14,26 @@
 
 ClientProtocol::ClientProtocol(const std::string& hostname, const std::string& port):
         CommonProtocol(hostname, port), parser(), isAlive(true) {
-    sendersMap[CommandType::CREATE_USERNAME] = [this](const InternalMessage& request) {
-        this->send_create_username_request(request);
-    };
-    sendersMap[CommandType::CREATE_GAME] = [this](const InternalMessage& request) {
-        return this->send_create_game_request(request);
-    };
-    sendersMap[CommandType::JOIN_GAME] = [this](const InternalMessage& request) {
-        return this->send_join_game_request(request);
-    };
-    sendersMap[CommandType::SELECT_MAP] = [this](const InternalMessage& request) {
-        return this->send_select_map_request(request);
-    };
-    sendersMap[CommandType::BUY_WEAPON] = [this](const InternalMessage& request) {
-        return this->send_buy_weapon_request(request);
-    };
-    sendersMap[CommandType::BUY_AMMO] = [this](const InternalMessage& request) {
-        return this->send_buy_weapon_ammo_request(request);
-    };
-    sendersMap[CommandType::AIM] = [this](const InternalMessage& request) {
-        return this->send_aim_request(request);
-    };
-    sendersMap[CommandType::MOVE] = [this](const InternalMessage& request) {
-        return this->send_move_request(request);
-    };
-    sendersMap[CommandType::CHANGE_WEAPON] = [this](const InternalMessage& request) {
-        return this->send_change_weapon_request(request);
-    };
+    /*
+sendersMap[CommandType::SELECT_MAP] = [this](const InternalMessage& request) {
+return this->send_select_map_request(request);
+};
+sendersMap[CommandType::BUY_WEAPON] = [this](const InternalMessage& request) {
+return this->send_buy_weapon_request(request);
+};
+sendersMap[CommandType::BUY_AMMO] = [this](const InternalMessage& request) {
+return this->send_buy_weapon_ammo_request(request);
+};
+sendersMap[CommandType::AIM] = [this](const InternalMessage& request) {
+return this->send_aim_request(request);
+};
+sendersMap[CommandType::MOVE] = [this](const InternalMessage& request) {
+return this->send_move_request(request);
+};
+sendersMap[CommandType::CHANGE_WEAPON] = [this](const InternalMessage& request) {
+return this->send_change_weapon_request(request);
+};
+*/
 }
 
 ServerResponseLobby ClientProtocol::receive_command() {
@@ -62,36 +55,64 @@ ServerResponseLobby ClientProtocol::receive_command() {
     return response;
 }
 
-void ClientProtocol::send_command(const MessageFromClient& request) {
-    InternalMessage msg = this->parser.ParseMessage(request);
-    this->send_byte(msg.code_message);
-    if (request.commandType == CommandType::SHOOT ||
-        request.commandType == CommandType::PLANT_BOMB ||
-        request.commandType == CommandType::DEFUSE_BOMB) {
-        return;
-    }
-    this->sendersMap.find(request.commandType)->second(msg);
+void ClientProtocol::send_lobby_request(const LobbyRequestDTO& request) {
+    std::visit(
+            [this](const auto& request_dto) {
+                using T = std::decay_t<decltype(request_dto)>;
+                if constexpr (std::is_same_v<T, CreateUsernameDTO>) {
+                    this->send_create_username_request(request_dto);
+                } else if constexpr (std::is_same_v<T, CreateGameDTO>) {
+                    this->send_create_game_request(request_dto);
+                } else if constexpr (std::is_same_v<T, JoinGameDTO>) {
+                    this->send_join_game_request(request_dto);
+                } else {
+                    static_assert(always_false_v<T>, "Unhandled CommandDTO type");
+                }
+            },
+            request);
 }
 
-void ClientProtocol::send_create_username_request(const InternalMessage& request) {
-    this->send_string(request.s);
+void ClientProtocol::send_command(const CommandDTO& command) {
+    std::visit(
+            [this](const auto& d) {
+                using T = std::decay_t<decltype(d)>;
+                if constexpr (std::is_same_v<T, MoveUpDTO>) {
+                    handle_move_up();
+                } else if constexpr (std::is_same_v<T, MoveDownDTO>) {
+                    handle_move_down();
+                } else if constexpr (std::is_same_v<T, MoveLeftDTO>) {
+                    handle_move_left();
+                } else if constexpr (std::is_same_v<T, MoveRightDTO>) {
+                    handle_move_right();
+                } else if constexpr (std::is_same_v<T, RotateDTO>) {
+                    handle_rotate(d);
+                } else {
+                    static_assert(always_false_v<T>, "Unhandled CommandDTO type");
+                }
+            },
+            command);
 }
 
-void ClientProtocol::send_create_game_request(const InternalMessage& request) {
-    this->send_byte(request.size_players);
-    this->send_select_skins_request(request);
+void ClientProtocol::send_create_username_request(const CreateUsernameDTO& dto) {
+    this->send_byte(commandsToCode.find(CommandType::CREATE_USERNAME)->second);
+    this->send_string(dto.username);
 }
 
-void ClientProtocol::send_join_game_request(const InternalMessage& request) {
-    this->send_string(request.s);
-    this->send_select_skins_request(request);
+void ClientProtocol::send_create_game_request(const CreateGameDTO& dto) {
+    this->send_byte(commandsToCode.find(CommandType::CREATE_GAME)->second);
+    this->send_byte(dto.size_players);
+    this->send_byte(dto.tt_skin + 1);
+    this->send_byte(dto.ct_skin + 1);
 }
 
-void ClientProtocol::send_select_skins_request(const InternalMessage& request) {
-    this->send_byte(request.skin_id_tt);
-    this->send_byte(request.skin_id_ct);
+void ClientProtocol::send_join_game_request(const JoinGameDTO& dto) {
+    this->send_byte(commandsToCode.find(CommandType::JOIN_GAME)->second);
+    this->send_string(dto.gamename);
+    this->send_byte(dto.tt_skin + 1);
+    this->send_byte(dto.ct_skin + 1);
 }
 
+/*
 void ClientProtocol::send_select_map_request(const InternalMessage& request) {
     this->send_byte(request.map_id);
 }
@@ -109,10 +130,33 @@ void ClientProtocol::send_aim_request(const InternalMessage& request) {
     this->send_byte(request.pos_x);
     this->send_byte(request.pos_y);
 }
+*/
 
-void ClientProtocol::send_move_request(const InternalMessage& request) {
-    this->send_byte(request.direction);
+void ClientProtocol::handle_move_up() {
+    this->send_byte(CODE_MOVE);
+    this->send_byte(Movement::UP + 1);
 }
+
+void ClientProtocol::handle_move_down() {
+    this->send_byte(CODE_MOVE);
+    this->send_byte(Movement::DOWN + 1);
+}
+
+void ClientProtocol::handle_move_left() {
+    this->send_byte(CODE_MOVE);
+    this->send_byte(Movement::LEFT + 1);
+}
+
+void ClientProtocol::handle_move_right() {
+    this->send_byte(CODE_MOVE);
+    this->send_byte(Movement::RIGHT + 1);
+}
+
+void ClientProtocol::handle_rotate(const RotateDTO& dto) {
+    this->send_byte(CODE_ROTATE);
+    this->send_angle(dto.angle);
+}
+
 
 void ClientProtocol::send_change_weapon_request(const InternalMessage& request) {
     this->send_byte(request.code_weapon_type);
@@ -133,14 +177,17 @@ Snapshot ClientProtocol::receive_snapshot() {
 std::vector<PlayerDTO> ClientProtocol::receive_players(const int& size_players) {
     std::vector<PlayerDTO> players = {};
     for (int i = 0; i < size_players; i++) {
-        int position_x = this->receive_byte();
-        int position_y = this->receive_byte();
+        std::string username = this->receive_string();
+        int position_x = this->receive_big_endian_number();
+        int position_y = this->receive_big_endian_number();
+        double angle = this->receive_angle();
+        /*
         int direction_x = this->receive_byte();
         int direction_y = this->receive_byte();
+        */
         int life = this->receive_byte();
         uint16_t life16 = static_cast<uint16_t>(life);
-        players.push_back(PlayerDTO{Vector2D(position_x, position_y),
-                                    Vector2D(direction_x, direction_y), life16});
+        players.push_back(PlayerDTO{username, Vector2D(position_x, position_y), angle, life16});
     }
     return players;
 }
@@ -162,7 +209,7 @@ std::vector<Bullet> ClientProtocol::receive_bullets(const int& size_bullets) {
 
 GameMap ClientProtocol::receive_map() {
     this->receive_byte();
-    uint8_t size = this->receive_byte();
+    uint16_t size = this->receive_big_endian_number();
     return GameMap{this->receive_map_objects(size)};
 }
 
@@ -170,18 +217,23 @@ std::vector<MapObject> ClientProtocol::receive_map_objects(const uint8_t& size) 
     std::vector<MapObject> objects = {};
     for (int i = 0; i < size; i++) {
         uint8_t type = this->receive_byte();
-        uint8_t x = this->receive_byte();
-        uint8_t y = this->receive_byte();
-        uint8_t height = this->receive_byte();
-        uint8_t width = this->receive_byte();
-        objects.push_back(MapObject{Vector2D(x, y), height, width, MapObjectType(type)});
+        uint16_t x = this->receive_big_endian_number();
+        uint16_t y = this->receive_big_endian_number();
+        uint16_t height = this->receive_big_endian_number();
+        uint16_t width = this->receive_big_endian_number();
+        objects.push_back(MapObject{Vector2D(x, y), width, height, MapObjectType(type)});
     }
     return objects;
 }
 
-void ClientProtocol::Close() {
+void ClientProtocol::close() {
     this->socket.shutdown(SHUT_RDWR);
     this->socket.close();
+}
+
+ClientProtocol::ClientProtocol(ClientProtocol&& other): CommonProtocol(std::move(other.socket)) {
+    this->isAlive = other.isAlive;
+    other.isAlive = false;
 }
 
 ClientProtocol::~ClientProtocol() {}

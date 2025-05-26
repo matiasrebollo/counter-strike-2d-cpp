@@ -14,6 +14,10 @@
 #define PATH_L337_CREW_SKIN "../assets/gfx/player/t2.bmp"
 #define PATH_ARTIC_SKIN "../assets/gfx/player/t3.bmp"
 #define PATH_GUERRILLA_SKIN "../assets/gfx/player/t4.bmp"
+#include <optional>
+#include <string>
+
+#include "lobby/lobby.h"
 
 class Client {
 private:

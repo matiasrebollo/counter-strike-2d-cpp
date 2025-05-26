@@ -68,3 +68,14 @@ std::string CommonProtocol::receive_string() {
     std::string s(vectorBytes.begin(), vectorBytes.end());
     return s;
 }
+
+void CommonProtocol::send_angle(const double& angle) {
+    uint16_t encoded = static_cast<uint16_t>((angle / 360.0f) * 65535.0f);
+    this->send_big_endian_number(encoded);
+}
+
+double CommonProtocol::receive_angle() {
+    uint16_t encoded = this->receive_big_endian_number();
+
+    return (static_cast<double>(encoded) / 65535.0f) * 360.0f;
+}

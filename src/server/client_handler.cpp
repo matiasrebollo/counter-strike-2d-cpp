@@ -14,93 +14,91 @@ ClientHandler::ClientHandler(Socket&& socket, ServerMonitor& server_monitor):
         server_monitor(server_monitor),
         username(""),
         is_in_game(false),
-        my_game("") {
-    managersMap[CommandType::CREATE_USERNAME] = [this](const MessageFromClient& request) {
-        return manageCreateUsername(request);
-    };
-    managersMap[CommandType::CREATE_GAME] = [this](const MessageFromClient& request) {
-        return manageCreateGame(request);
-    };
-    managersMap[CommandType::JOIN_GAME] = [this](const MessageFromClient& request) {
-        return manageJoinGame(request);
-    };
-}
+        my_game("") {}
 
 void ClientHandler::run() {
     this->is_in_game = false;
     while (this->should_keep_running()) {
-        this->launchLobby();
+        try {
+            this->launch_lobby();
+        } catch (const CommunicationEnded& e) {
+            std::cout << MSG_CLIENT_DISCONNECTED << std::endl;
+            this->stop();
+        }
     }
-    this->manageEndGame();
-    this->stop();
+    this->server_monitor.delete_username(this->get_username());
     this->protocol.kill();
 }
 
-void ClientHandler::launchLobby() {
-    while (!this->isInGame()) {
-        MessageFromClient msg = this->protocol.receive_command();
-
-        // aca en msg en caso de crear o joinear tengo las skins, en algun lado deberia guardarlo,
-        // asumo que pasarlo al server_monitor -> game_monitor -> el game lo guarda
-        this->manageCommand(msg);
+void ClientHandler::launch_lobby() {
+    while (!this->in_game()) {
+        LobbyRequestDTO dto = this->protocol.receive_lobby_request();
+        this->manage_lobby_request(dto);
     }
 }
 
-MessageFromClient ClientHandler::ReceivePlay() { return this->protocol.receive_command(); }
-
-void ClientHandler::sendLobbyResponse(const CommandType& command, const bool& success,
-                                      const std::string& game_name) {
+void ClientHandler::send_lobby_response(const CommandType& command, const bool& success,
+                                        const std::string& game_name) {
     this->protocol.send_lobby_message(ServerResponseLobby{command, success, game_name});
 }
 
-void ClientHandler::manageCommand(const MessageFromClient& msg) {
-    this->managersMap.find(msg.commandType)->second(msg);
+void ClientHandler::manage_lobby_request(const LobbyRequestDTO& dto) {
+    std::visit(
+            [this](auto&& request) {
+                using T = std::decay_t<decltype(request)>;
+                if constexpr (std::is_same_v<T, CreateUsernameDTO>) {
+                    this->manage_create_username(request);
+                } else if constexpr (std::is_same_v<T, CreateGameDTO>) {
+                    this->manage_create_game(request);
+                } else if constexpr (std::is_same_v<T, JoinGameDTO>) {
+                    this->manage_join_game(request);
+                }
+            },
+            dto);
 }
 
-void ClientHandler::manageCreateUsername(const MessageFromClient& msg) {
-    bool success = this->server_monitor.CreateUsername(msg.s);
+void ClientHandler::manage_create_username(const CreateUsernameDTO& dto) {
+    bool success = this->server_monitor.create_username(dto.username);
     if (success) {
-        this->username = msg.s;
+        this->server_monitor.delete_username(this->get_username());
+        // usa erase, si existe el nombre actual lo va a sacar del map, si no no hace nada
+        this->username = dto.username;
     }
-    this->sendLobbyResponse(msg.commandType, success, "");
+    this->send_lobby_response(CommandType::CREATE_USERNAME, success, "");
 }
 
-void ClientHandler::manageCreateGame(const MessageFromClient& msg) {
-    std::shared_ptr<CS2DGame> game = this->server_monitor.CreateNewGame();
-    if (!this->isInGame() && this->username != "") {
+void ClientHandler::manage_create_game(const CreateGameDTO&) {
+    std::shared_ptr<CS2DGame> game = this->server_monitor.CreateNewGame(this->username);
+    if (!this->in_game() && this->username != "") {
         this->my_game = game->id;
         this->is_in_game = true;
-        this->sendLobbyResponse(msg.commandType, true, this->my_game);
-        ClientReceiver(this->protocol, game).run();  // este es el que es el thread
-        ClientSender sender(this->protocol);
-        game->new_player(username, sender);
-        // enviar mensaje empezó partida
-        // aca deberia lanzar el otro hilo y las queues
+        this->send_lobby_response(CommandType::CREATE_GAME, true, this->my_game);
+        ClientReceiver receiver(this->protocol, this->username, game);
+        auto sender = std::make_shared<ClientSender>(this->protocol);
+        game->add_player_sender(username, sender);
+        receiver.start();
+        sender->run();
         return;
     }
-    this->sendLobbyResponse(msg.commandType, false, "");
+    this->send_lobby_response(CommandType::CREATE_GAME, false, "");
 }
 
-void ClientHandler::manageJoinGame(const MessageFromClient& msg) {
-    std::shared_ptr<CS2DGame> game = this->server_monitor.JoinGame(msg.s);
-    if (!this->isInGame() && this->username != "") {
+void ClientHandler::manage_join_game(const JoinGameDTO& dto) {
+    std::shared_ptr<CS2DGame> game = this->server_monitor.JoinGame(dto.gamename, this->username);
+    if (game != nullptr && !this->in_game() && this->username != "") {
         this->is_in_game = true;
-        this->my_game = msg.s;
-        this->sendLobbyResponse(msg.commandType, true, "");
-        ClientReceiver(this->protocol, game).run();
-        ClientSender sender(this->protocol);
-        game->new_player(username, sender);
-        // enviar mensaje empezó partida
-        // aca deberia lanzar el otro hilo y las queues
+        this->my_game = dto.gamename;
+        this->send_lobby_response(CommandType::JOIN_GAME, true, "");
+        ClientReceiver receiver(this->protocol, this->username, game);
+        auto sender = std::make_shared<ClientSender>(this->protocol);
+        game->add_player_sender(username, sender);
+        receiver.start();
+        sender->run();
         return;
     }
-    this->sendLobbyResponse(msg.commandType, false, "");
+    this->send_lobby_response(CommandType::JOIN_GAME, false, "");
 }
 
-std::string ClientHandler::GetUsername() { return this->username; }
+std::string ClientHandler::get_username() { return this->username; }
 
-void ClientHandler::manageEndGame() { this->server_monitor.ManageEndGame(this->my_game); }
-
-void ClientHandler::kill() { this->stop(); }
-
-bool ClientHandler::isInGame() { return this->is_in_game && this->my_game != ""; }
+bool ClientHandler::in_game() { return this->is_in_game && this->my_game != ""; }
