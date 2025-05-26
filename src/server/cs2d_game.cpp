@@ -40,10 +40,8 @@ bool CS2DGame::should_start() const {
     if (players.size() < MIN_PLAYERS)
         return false;
 
-    for (const auto& [nombre, player]: players) {
-        if (!player)  // Si alguno es nullptr, no se creó bien
-            return false;
-    }
+    if (players.size() > players_senders.size())
+        return false;
 
     return true;
 }
