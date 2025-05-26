@@ -47,8 +47,7 @@ void Client::run(int argc, char* argv[]) {
     SDL2pp::Surface boxSheet("../assets/gfx/tiles/aztec.bmp");
     SDL2pp::Texture box(renderer, boxSheet);
 
-    Snapshot last_snapshot;
-    receiver.try_pop_snapshot_from_queue(last_snapshot);
+    Snapshot last_snapshot = receiver.receive_initial_snapshot();
     const PlayerDTO& p_inicial = last_snapshot.players[0];
     int x_pos = p_inicial.position.x;
     int y_pos = p_inicial.position.y;

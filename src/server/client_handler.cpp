@@ -67,32 +67,32 @@ void ClientHandler::manage_create_username(const CreateUsernameDTO& dto) {
 }
 
 void ClientHandler::manage_create_game(const CreateGameDTO&) {
-    std::shared_ptr<CS2DGame> game = this->server_monitor.CreateNewGame();
+    std::shared_ptr<CS2DGame> game = this->server_monitor.CreateNewGame(this->username);
     if (!this->isInGame() && this->username != "") {
         this->my_game = game->id;
         this->is_in_game = true;
         this->sendLobbyResponse(CommandType::CREATE_GAME, true, this->my_game);
         ClientReceiver receiver(this->protocol, this->username, game);
-        ClientSender sender(this->protocol);
-        game->new_player(username, sender);
+        auto sender = std::make_shared<ClientSender>(this->protocol);
+        game->add_player_sender(username, sender);
         receiver.start();
-        sender.run();
+        sender->run();
         return;
     }
     this->sendLobbyResponse(CommandType::CREATE_GAME, false, "");
 }
 
 void ClientHandler::manage_join_game(const JoinGameDTO& dto) {
-    std::shared_ptr<CS2DGame> game = this->server_monitor.JoinGame(dto.gamename);
-    if (!this->isInGame() && this->username != "") {
+    std::shared_ptr<CS2DGame> game = this->server_monitor.JoinGame(dto.gamename, this->username);
+    if (game != nullptr && !this->isInGame() && this->username != "") {
         this->is_in_game = true;
         this->my_game = dto.gamename;
         this->sendLobbyResponse(CommandType::JOIN_GAME, true, "");
         ClientReceiver receiver(this->protocol, this->username, game);
-        ClientSender sender(this->protocol);
-        game->new_player(username, sender);
+        auto sender = std::make_shared<ClientSender>(this->protocol);
+        game->add_player_sender(username, sender);
         receiver.start();
-        sender.run();
+        sender->run();
         return;
     }
     this->sendLobbyResponse(CommandType::JOIN_GAME, false, "");
