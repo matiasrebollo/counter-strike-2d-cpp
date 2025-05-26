@@ -13,8 +13,6 @@ void Client::run(int argc, char* argv[]) {
     Lobby lobby;
     lobby.show();
     app.exec();
-  
+
     GameUI(lobby).run();
-    
-    }
 }
