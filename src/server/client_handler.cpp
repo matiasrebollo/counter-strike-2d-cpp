@@ -69,7 +69,7 @@ void ClientHandler::manage_create_username(const CreateUsernameDTO& dto) {
 
 void ClientHandler::manage_create_game(const CreateGameDTO&) {
     std::shared_ptr<CS2DGame> game = this->server_monitor.CreateNewGame(this->username);
-    if (!this->isInGame() && this->username != "") {
+    if (!this->in_game() && this->username != "") {
         this->my_game = game->id;
         this->is_in_game = true;
         this->send_lobby_response(CommandType::CREATE_GAME, true, this->my_game);
@@ -85,7 +85,7 @@ void ClientHandler::manage_create_game(const CreateGameDTO&) {
 
 void ClientHandler::manage_join_game(const JoinGameDTO& dto) {
     std::shared_ptr<CS2DGame> game = this->server_monitor.JoinGame(dto.gamename, this->username);
-    if (game != nullptr && !this->isInGame() && this->username != "") {
+    if (game != nullptr && !this->in_game() && this->username != "") {
         this->is_in_game = true;
         this->my_game = dto.gamename;
         this->send_lobby_response(CommandType::JOIN_GAME, true, "");

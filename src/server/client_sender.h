@@ -19,11 +19,10 @@ private:
     Queue<Snapshot> queue;
     ServerProtocol& protocol;
     std::atomic_bool keep_running;
-    std::string& username;
     void send_snapshot();
 
 public:
-    explicit ClientSender(ServerProtocol& protocol, std::string& username);
+    explicit ClientSender(ServerProtocol& protocol);
     void push(const Snapshot& snapshot);
     void send_map(const GameMap& map);
     void run();

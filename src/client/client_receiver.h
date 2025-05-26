@@ -21,7 +21,7 @@ public:
     GameMap receive_initial_map();
     Snapshot receive_initial_snapshot();
     void receive_snapshot_from_server();
-    Snapshot pop_snapshot_from_queue();
+    bool try_pop_snapshot_from_queue(Snapshot& snapshot);
     void close_queue();
     void run() override;
 };

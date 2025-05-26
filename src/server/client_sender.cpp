@@ -1,15 +1,13 @@
 #include "client_sender.h"
 
-#include <memory>
-
-ClientSender::ClientSender(ServerProtocol& protocol, std::string& username):
-        queue(), protocol(protocol), keep_running(true), username(username) {}
+ClientSender::ClientSender(ServerProtocol& protocol):
+        queue(), protocol(protocol), keep_running(true) {}
 
 void ClientSender::push(const Snapshot& snapshot) {
     try {
         this->queue.try_push(snapshot);
-    } catch (const ClosedQueue& e) {
-        std::cout << "Intente pushear a queue cerrada" << std::endl;
+    } catch (const std::exception& e) {
+        std::cout << "Intente pushear a queue cerrada " << e.what() << std::endl;
     }
 }
 
