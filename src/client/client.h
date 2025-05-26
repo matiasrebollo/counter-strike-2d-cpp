@@ -2,8 +2,9 @@
 #define CLIENT_H
 
 #include <optional>
+#include <string>
 
-#include "client_protocol.h"
+#include "lobby/lobby.h"
 
 class Client {
 public:

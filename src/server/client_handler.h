@@ -13,6 +13,8 @@
 #include "server_monitor.h"
 #include "server_protocol.h"
 
+#define MSG_CLIENT_DISCONNECTED "Client " + this->username + " has disconnected!"
+
 class ClientHandler: public Thread {
 private:
     ServerProtocol protocol;
@@ -21,23 +23,19 @@ private:
     bool is_in_game;
     std::string my_game;
 
-    void sendLobbyResponse(const CommandType& command, const bool& success,
-                           const std::string& game_name);
+    void send_lobby_response(const CommandType& command, const bool& success,
+                             const std::string& game_name);
     void manage_lobby_request(const LobbyRequestDTO& dto);
     void manage_create_username(const CreateUsernameDTO& dto);
     void manage_create_game(const CreateGameDTO&);
     void manage_join_game(const JoinGameDTO& dto);
-    void manageEndGame();
-    bool isInGame();
-    MessageFromClient ReceiveMessage();
-    void launchLobby();
+    bool in_game();
+    void launch_lobby();
 
 public:
     ClientHandler(Socket&& socket, ServerMonitor& server_monitor);
-    std::string GetUsername();
-    MessageFromClient ReceivePlay();
+    std::string get_username();
     void run() override;
-    void kill();
 };
 
 #endif

@@ -4,11 +4,12 @@
 
 ServerMonitor::ServerMonitor() { this->game_id = 0; }
 
-bool ServerMonitor::CreateUsername(const std::string& username) {
+bool ServerMonitor::create_username(const std::string& username) {
     std::unique_lock<std::mutex> lck(this->mutex);
     auto result = this->players.insert(username);
     return result.second;
 }
+
 
 std::shared_ptr<CS2DGame> ServerMonitor::CreateNewGame(const std::string& username) {
     std::unique_lock<std::mutex> lck(this->mutex);
@@ -18,6 +19,15 @@ std::shared_ptr<CS2DGame> ServerMonitor::CreateNewGame(const std::string& userna
     it->second->add_player(username);
     return it->second;
 }
+
+
+CS2DGame& ServerMonitor::get_game(const std::string& gamename) {
+    return *(this->games.at(gamename));
+}
+
+void ServerMonitor::manage_end_game(const std::string& gameName) { this->games.erase(gameName); }
+
+void ServerMonitor::delete_username(const std::string& username) { this->players.erase(username); }
 
 std::shared_ptr<CS2DGame> ServerMonitor::JoinGame(const std::string& gameName,
                                                   const std::string& username) {
@@ -30,5 +40,3 @@ std::shared_ptr<CS2DGame> ServerMonitor::JoinGame(const std::string& gameName,
         return nullptr;  // devuelve nullptr si no se pudo unir al juego al jugador
     }
 }
-
-void ServerMonitor::ManageEndGame(const std::string& gameName) { this->games.erase(gameName); }

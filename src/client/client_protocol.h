@@ -12,6 +12,8 @@
 template <class>
 inline constexpr bool always_false_v = false;
 
+#include <utility>
+
 #include "../common/codes_parser.h"
 #include "../common/commands.h"
 #include "../common/commands_dto.h"
@@ -52,12 +54,13 @@ private:
 
 public:
     ClientProtocol(const std::string& hostname, const std::string& port);
+    ClientProtocol(ClientProtocol&&);
     void send_command(const CommandDTO& command);
     ServerResponseLobby receive_command();
     Snapshot receive_snapshot();
     void send_lobby_request(const LobbyRequestDTO& request);
     GameMap receive_map();
-    void Close();
+    void close();
     ~ClientProtocol();
 };
 

@@ -4,8 +4,16 @@ ClientReceiver::ClientReceiver(ClientProtocol& protocol): protocol(protocol) {}
 
 void ClientReceiver::run() {
     while (this->should_keep_running()) {
-        receive_snapshot_from_server();
-        // Im sleeping inside the queue so im not burning CPU (i think)
+        try {
+            receive_snapshot_from_server();
+            // Im sleeping inside the queue so im not burning CPU (i think)
+        } catch (const CommunicationEnded& e) {
+            std::cout << MSG_CLOSE_RECEIVER << std::endl;
+            return;
+        } catch (const ClosedQueue& e) {
+            std::cout << MSG_CLOSE_RECEIVER << std::endl;
+            return;
+        }
     }
 }
 
@@ -17,8 +25,9 @@ Snapshot ClientReceiver::receive_initial_snapshot() { return this->queue.pop(); 
 
 GameMap ClientReceiver::receive_initial_map() { return this->protocol.receive_map(); }
 
+void ClientReceiver::close_queue() { this->queue.close(); }
+
 void ClientReceiver::receive_snapshot_from_server() {
     Snapshot snapshot = this->protocol.receive_snapshot();
-    //  salta error porque la tengo comentada en el protocolo
     this->queue.push(snapshot);
 }

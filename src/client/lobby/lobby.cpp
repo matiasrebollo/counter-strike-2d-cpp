@@ -11,7 +11,7 @@
 
 #include "ui_lobby.h"
 
-Lobby::Lobby(QWidget* parent): QMainWindow(parent), ui(new Ui::Lobby) {
+Lobby::Lobby(QWidget* parent): QMainWindow(parent), ui(new Ui::Lobby), username(""), gamecode("") {
     ui->setupUi(this);
     ui->stack->setCurrentIndex(0);
     connect(ui->backButton, &QPushButton::clicked, this, &Lobby::go_to_lobby);
@@ -60,6 +60,7 @@ void Lobby::on_JoinGameButton_clicked() {
     protocol.value().send_lobby_request(request);
     ServerResponseLobby response = protocol.value().receive_command();
     if (response.commandType == JOIN_GAME && response.success) {
+        this->gamecode = game_name;
         close();
     }
 }
@@ -80,6 +81,7 @@ void Lobby::on_createButton_clicked() {
         protocol.value().send_lobby_request(request);
         ServerResponseLobby response = protocol.value().receive_command();
         if (response.commandType == CREATE_GAME && response.success) {
+            this->gamecode = response.game_name;
             QString game_code = QString::fromStdString(response.game_name);
             QMessageBox::information(this, "Codigo de partida", game_code);
             close();
@@ -107,3 +109,5 @@ ClientProtocol& Lobby::get_protocol() {
 }
 
 std::string Lobby::get_username() { return this->username; }
+
+std::string Lobby::get_gamecode() { return this->gamecode; }

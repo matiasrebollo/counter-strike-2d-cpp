@@ -6,6 +6,7 @@ target_sources(taller_client
         client_receiver.h
         client_sender.h
         client.h
+        game_ui.h
     PRIVATE
         main.cpp
         lobby/lobby.cpp
@@ -16,6 +17,7 @@ target_sources(taller_client
         client_receiver.cpp
         client_sender.cpp
         client.cpp
+        game_ui.cpp
 )
 
 
