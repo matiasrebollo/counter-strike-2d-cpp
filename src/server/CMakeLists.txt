@@ -6,7 +6,7 @@ target_sources(taller_server
         client_sender.cpp
         collidable.cpp
         cs2d_game.cpp
-        hitbox.cpp
+        rect.cpp
         main.cpp
         command.cpp
         move_commands.cpp
@@ -23,7 +23,7 @@ target_sources(taller_server
         collidable.h
         command.h
         cs2d_game.h
-        hitbox.h
+        rect.h
         move_commands.h
         player.h
         server.h

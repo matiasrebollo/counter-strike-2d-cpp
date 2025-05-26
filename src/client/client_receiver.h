@@ -19,6 +19,7 @@ private:
 public:
     explicit ClientReceiver(ClientProtocol& protocol);
     GameMap receive_initial_map();
+    Snapshot receive_initial_snapshot();
     void receive_snapshot_from_server();
     Snapshot pop_snapshot_from_queue();
     void close_queue();

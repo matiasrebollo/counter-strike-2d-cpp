@@ -77,8 +77,8 @@ void ServerProtocol::send_snapshot(const Snapshot& snapshot) {
 void ServerProtocol::send_players(const std::vector<PlayerDTO>& players) {
     for (auto player: players) {
         this->send_string(player.username);
-        this->send_byte(player.position.x);
-        this->send_byte(player.position.y);
+        this->send_big_endian_number(player.position.x);
+        this->send_big_endian_number(player.position.y);
         this->send_angle(player.orientation);
         // this->send_byte(player.direction.x);
         // this->send_byte(player.direction.y);

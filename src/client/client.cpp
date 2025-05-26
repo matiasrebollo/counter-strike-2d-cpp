@@ -1,6 +1,7 @@
 #include "client.h"
 
 #include <QApplication>
+#include <chrono>  // al principio del archivo
 #include <cmath>
 
 #include "game_ui.h"
@@ -12,6 +13,8 @@ void Client::run(int argc, char* argv[]) {
     Lobby lobby;
     lobby.show();
     app.exec();
-
+  
     GameUI(lobby).run();
+    
+    }
 }

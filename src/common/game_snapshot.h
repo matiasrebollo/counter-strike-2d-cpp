@@ -10,7 +10,7 @@ struct Snapshot {
     // const int round_number;
     // const BombStatus bomb_status;
     // const int timer;
-    const std::vector<PlayerDTO> players;
+    std::vector<PlayerDTO> players;
     // const std::vector<const itemDTO> items;
 };
 

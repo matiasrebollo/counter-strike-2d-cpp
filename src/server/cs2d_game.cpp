@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <iostream>
 #include <limits>
+#include <random>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
@@ -11,7 +13,8 @@
 #include "common/game_map.h"
 #include "common/game_snapshot.h"
 
-CS2DGame::CS2DGame(const std::string& id): last_it(0), id(id) {
+CS2DGame::CS2DGame(const std::string& id):
+        spawn_zone(Vector2D(0, 0), 640, 480), last_it(0), id(id) {
     const int mapWidth = 640;
     const int mapHeight = 480;
     const int wallThickness = 40;
@@ -31,17 +34,54 @@ CS2DGame::CS2DGame(const std::string& id): last_it(0), id(id) {
             boxThickness));
 }
 
-void CS2DGame::new_player(const std::string& username, ClientSender& sender) {
-    Vector2D position(100, 100);
+bool CS2DGame::can_add_player() const { return players.size() < MAX_PLAYERS; }
+
+bool CS2DGame::should_start() const {
+    if (players.size() < MIN_PLAYERS)
+        return false;
+
+    if (players.size() > players_senders.size())
+        return false;
+
+    return true;
+}
+
+Vector2D CS2DGame::random_position() const {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_int_distribution<> disX(spawn_zone.position.x,
+                                         spawn_zone.position.x + spawn_zone.width);
+    std::uniform_int_distribution<> disY(spawn_zone.position.y,
+                                         spawn_zone.position.y + spawn_zone.height);
+    return Vector2D(disX(gen), disY(gen));
+}
+
+void CS2DGame::add_player(const std::string& username) {
     double orientation = 0.0;
-    auto player = std::make_shared<Player>(position, orientation, sender);
+    Vector2D position = random_position();
+    auto player = std::make_shared<Player>(position, orientation);
+    while (is_player_not_in_valid_position(*player)) {
+        position = random_position();
+        player = std::make_shared<Player>(position, orientation);
+    }
+
+    collidables.push_back(player);
+    players[username] = player;
+}
+
+void CS2DGame::add_player_sender(const std::string& username,
+                                 std::shared_ptr<ClientSender> sender) {
+    if (players.find(username) == players.end()) {
+        throw std::runtime_error("Cannot add sender: player with username '" + username +
+                                 "' does not exist.");
+    }
 
     std::vector<MapObject> objects;
     for (const auto& collidable: collidables) {
         if (std::dynamic_pointer_cast<Player>(collidable)) {
             continue;  // ignorar jugadores
         }
-        Hitbox h = collidable->get_hitbox();
+        Rect h = collidable->get_rect();
         Vector2D pos = h.position;
         int width = h.width;
         int height = h.height;
@@ -50,27 +90,28 @@ void CS2DGame::new_player(const std::string& username, ClientSender& sender) {
         objects.push_back(obj);
     }
     const GameMap map{objects};
+    sender->send_map(map);
 
-    player->send_map(map);
-    players[username] = player;
-    collidables.push_back(player);
+    players_senders[username] = sender;
+    if (this->should_start())
+        this->start();
 }
 
 void CS2DGame::push(std::unique_ptr<Command> command) { command_queue.push(std::move(command)); }
 
-void CS2DGame::broadcast_snapshot() {
+void CS2DGame::broadcast_snapshot() const {
     std::vector<PlayerDTO> player_dtos;
 
     for (const auto& player: players) {
-        const PlayerDTO dto{player.first, player.second->get_hitbox().position,
+        const PlayerDTO dto{player.first, player.second->get_rect().position,
                             player.second->get_orientation(), player.second->get_life()};
         player_dtos.push_back(dto);
     }
 
     const Snapshot snapshot{player_dtos};
 
-    for (const auto& player: players) {
-        player.second->send_snapshot(snapshot);
+    for (const auto& [_, sender]: players_senders) {
+        sender->push(snapshot);
     }
 }
 
@@ -104,8 +145,42 @@ bool CS2DGame::is_player_not_in_valid_position(const Player& player) const {
                        });
 }
 
+void CS2DGame::update(const size_t& it) {
+    for (size_t i = 0; i < it - this->last_it; ++i) {
+        // actualizar cosas propias del juego
+        for (const auto& [_, player]: players) {
+            player->update(*this);
+        }
+    }
+    this->last_it = it;
+}
+
+void CS2DGame::run() {
+    if (!should_start()) {
+        throw(std::runtime_error("Cannot start game: not all players are ready."));
+    }
+
+    int FPS = 60;
+    Clock clock;
+    size_t it = 1;
+    broadcast_snapshot();
+    while (should_keep_running()) {
+        std::unique_ptr<Command> cmd;
+        while (command_queue.try_pop(cmd)) {
+            cmd->execute(*this);
+        }
+        update(it);
+        broadcast_snapshot();
+        // std::cout << "last it: " << it << std::endl;
+        it = clock.sleep_and_calc_next_it(FPS, it);
+        // std::cout << "new it: " << it << std::endl;
+    }
+}
+
+CS2DGame::~CS2DGame() {}
+
 /*double CS2DGame::impacts(const Shot& shot, const Collidable& collidable) const {
-    Hitbox h = collidable.get_hitbox();
+    Rect h = collidable.get_Rect();
     Vector2D v1 = h.position;
     Vector2D v2 = {h.position.x + h.width, h.position.y};
     Vector2D v3 = {h.position.x + h.width, h.position.y + h.height};
@@ -181,34 +256,3 @@ bool CS2DGame::is_player_not_in_valid_position(const Player& player) const {
         throw std::invalid_argument("Username does not correspond to a player in this game.");
     }
 }*/
-
-void CS2DGame::update(const size_t& it) {
-    for (size_t i = 0; i < it - this->last_it; ++i) {
-        // actualizar cosas propias del juego
-        for (const auto& [_, player]: players) {
-            player->update(*this);
-        }
-    }
-    this->last_it = it;
-}
-
-void CS2DGame::run() {
-    int FPS = 60;
-    Clock clock;
-    size_t it = 1;
-    while (should_keep_running()) {
-        std::unique_ptr<Command> cmd;
-        if (command_queue.try_pop(cmd))
-            cmd->execute(*this);
-        update(it);
-        broadcast_snapshot();
-        // std::cout << "last it: " << it << std::endl;
-        it = clock.sleep_and_calc_next_it(FPS, it);
-        // std::cout << "new it: " << it << std::endl;
-    }
-}
-
-CS2DGame::~CS2DGame() {
-    this->stop();
-    this->join();
-}

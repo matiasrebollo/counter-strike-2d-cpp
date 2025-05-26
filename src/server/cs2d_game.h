@@ -1,6 +1,7 @@
 #ifndef CS2D_GAME_H
 #define CS2D_GAME_H
 
+#include <functional>
 #include <list>
 #include <map>
 #include <memory>
@@ -17,15 +18,25 @@
 #include "server/player.h"
 // #include "server/shot.h"
 
+#define MAX_PLAYERS 10
+#define MIN_PLAYERS 2
+
 class CS2DGame: public Thread {
 private:
     std::map<std::string, std::shared_ptr<Player>> players;
+    std::map<std::string, std::shared_ptr<ClientSender>> players_senders;
     std::map<std::string, std::shared_ptr<Queue<Snapshot>>> player_queues;
     std::list<std::shared_ptr<Collidable>> collidables;
+    const Rect spawn_zone;
     Queue<std::unique_ptr<Command>> command_queue;
     size_t last_it;
 
-    void broadcast_snapshot();
+    bool should_start() const;
+    Vector2D random_position() const;
+    Vector2D spawn_position() const;
+
+    void broadcast_map() const;
+    void broadcast_snapshot() const;
 
     template <typename PlayerAction>
     void with_player(const std::string& username, PlayerAction action) {
@@ -48,9 +59,10 @@ public:
     const std::string id;
 
     explicit CS2DGame(const std::string& id);
-
+    bool can_add_player() const;
+    void add_player(const std::string& username);
+    void add_player_sender(const std::string& username, std::shared_ptr<ClientSender> sender);
     void push(const std::unique_ptr<Command> command);
-    void new_player(const std::string& username, ClientSender& sender);
     void rotate_player(const std::string& username, const double& angle);
     void move_player_up(const std::string& username);
     void move_player_down(const std::string& username);
