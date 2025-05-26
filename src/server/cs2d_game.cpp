@@ -208,4 +208,7 @@ void CS2DGame::run() {
     }
 }
 
-CS2DGame::~CS2DGame() {}
+CS2DGame::~CS2DGame() {
+    this->stop();
+    this->join();
+}

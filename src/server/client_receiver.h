@@ -5,24 +5,28 @@
 #include <string>
 
 #include "common/commands_dto.h"
+#include "common/communication_ended.h"
 #include "common/message.h"
 #include "common/thread.h"
 #include "server/cs2d_game.h"
+
+#define MSG_CLOSE_RECEIVER \
+    "Player " + this->username + " has disconnected! Closing receiver thread ..."
 
 #include "server_protocol.h"
 
 class ClientReceiver: public Thread {
 private:
     ServerProtocol& protocol;
-    const std::string username;
+    std::string& username;
     std::shared_ptr<CS2DGame> game;
 
 public:
-    ClientReceiver(ServerProtocol& protocol, const std::string& username,
-                   std::shared_ptr<CS2DGame> game);
+    ClientReceiver(ServerProtocol& protocol, std::string& username, std::shared_ptr<CS2DGame> game);
     void receive_command();
     void push_command(const CommandDTO& command_data);
     void run() override;
+    ~ClientReceiver() override;
 };
 
 #endif

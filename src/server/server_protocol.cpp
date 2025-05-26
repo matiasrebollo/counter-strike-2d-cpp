@@ -4,6 +4,7 @@
 #include <numbers>
 #include <utility>
 
+#include <sys/socket.h>
 #include <sys/types.h>
 
 #include "../common/player_dto.h"
@@ -259,7 +260,12 @@ void ServerProtocol::send_map(const GameMap& map) {
 }
 
 void ServerProtocol::kill() {
-    this->socket.shutdown(SHUT_RDWR);
+    if (!this->socket.is_stream_recv_closed()) {
+        this->socket.shutdown(SHUT_RD);
+    }
+    if (!this->socket.is_stream_send_closed()) {
+        this->socket.shutdown(SHUT_WR);
+    }
     this->socket.close();
 }
 

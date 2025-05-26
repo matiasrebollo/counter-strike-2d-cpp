@@ -226,9 +226,14 @@ std::vector<MapObject> ClientProtocol::receive_map_objects(const uint8_t& size) 
     return objects;
 }
 
-void ClientProtocol::Close() {
+void ClientProtocol::close() {
     this->socket.shutdown(SHUT_RDWR);
     this->socket.close();
+}
+
+ClientProtocol::ClientProtocol(ClientProtocol&& other): CommonProtocol(std::move(other.socket)) {
+    this->isAlive = other.isAlive;
+    other.isAlive = false;
 }
 
 ClientProtocol::~ClientProtocol() {}

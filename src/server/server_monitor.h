@@ -30,14 +30,12 @@ private:
 
 public:
     ServerMonitor();
-    bool CreateUsername(const std::string& username);
-    std::shared_ptr<CS2DGame> CreateNewGame();
-    std::shared_ptr<CS2DGame> JoinGame(const std::string& gameName);
+    bool create_username(const std::string& username);
+    std::shared_ptr<CS2DGame> create_new_game();
+    std::shared_ptr<CS2DGame> join_game(const std::string& gameName);
     void delete_username(const std::string& username);
-    // void MakePlayGame(const std::string& gameName, ClientHandler& client);
-    void MakePlayGame(const std::string& gameName);
-    CS2DGame& GetGame(const std::string& gameName);
-    void ManageEndGame(const std::string& gameName);
+    CS2DGame& get_game(const std::string& gameName);
+    void manage_end_game(const std::string& gameName);
 };
 
 #endif

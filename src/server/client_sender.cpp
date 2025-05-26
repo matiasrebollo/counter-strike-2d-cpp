@@ -2,10 +2,16 @@
 
 #include <memory>
 
-ClientSender::ClientSender(ServerProtocol& protocol):
-        queue(), protocol(protocol), keep_running(true) {}
+ClientSender::ClientSender(ServerProtocol& protocol, std::string& username):
+        queue(), protocol(protocol), keep_running(true), username(username) {}
 
-void ClientSender::push(const Snapshot& snapshot) { this->queue.push(snapshot); }
+void ClientSender::push(const Snapshot& snapshot) {
+    try {
+        this->queue.try_push(snapshot);
+    } catch (const ClosedQueue& e) {
+        std::cout << "Intente pushear a queue cerrada" << std::endl;
+    }
+}
 
 void ClientSender::send_snapshot() {
     Snapshot snapshot = this->queue.pop();
@@ -16,6 +22,14 @@ void ClientSender::send_map(const GameMap& map) { this->protocol.send_map(map); 
 
 void ClientSender::run() {
     while (this->keep_running) {
-        send_snapshot();
+        try {
+            this->send_snapshot();
+        } catch (const ClosedQueue& e) {
+            std::cout << "Intente popear de queue cerrada" << std::endl;
+            break;
+        }
     }
+    this->queue.close();
 }
+
+ClientSender::~ClientSender() {}

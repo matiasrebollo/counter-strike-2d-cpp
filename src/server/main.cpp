@@ -6,9 +6,7 @@
 #include "server.h"
 
 #define AMOUNT_OF_EXPECTED_ARGUMENTS 2
-#define MESSAGE_BAD_AMOUNT_OF_EXPECTED_ARGUMENTS                     \
-    "You must pass " << std::to_string(AMOUNT_OF_EXPECTED_ARGUMENTS) \
-                     << " arguments including the executable."
+#define MESSAGE_BAD_AMOUNT_OF_EXPECTED_ARGUMENTS "You have to enter the port as an argument"
 #define ARG_INDEX_PORT 1
 
 int main(int argc, char* argv[]) {
