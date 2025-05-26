@@ -6,7 +6,7 @@
 ClientAcceptor::ClientAcceptor(const std::string& port): acceptor(port.c_str()), server_monitor() {}
 
 void ClientAcceptor::run() {
-    while (!(this->acceptor.is_stream_recv_closed() && this->acceptor.is_stream_send_closed())) {
+    while ((this->should_keep_running())) {
         try {
             Socket socket = this->acceptor.accept();
             ClientHandler* client = new ClientHandler(std::move(socket), this->server_monitor);
