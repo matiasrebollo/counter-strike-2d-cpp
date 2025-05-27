@@ -25,11 +25,8 @@ void ClientAcceptor::reap() {
     for (size_t i = 0; i < this->clients.size();) {
         ClientHandler* client = this->clients[i];
         if (!client->is_alive()) {
-
             client->join();
-
             delete client;
-
             this->clients.erase(this->clients.begin() + i);
         } else {
             i++;
