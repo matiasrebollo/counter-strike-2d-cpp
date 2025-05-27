@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>tiles/default_dust.png</file>
+    </qresource>
+</RCC>
