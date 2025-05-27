@@ -26,7 +26,7 @@ public:
 
     void clear_display();
     void show_screen();
-    void render_in_z_order(const GameMap& map, const Snapshot& snapshot, MyPlayer& player);
+    void render_in_z_order(const GameMap& map, const Snapshot& snapshot);
     void texto_prueba();
 };
 

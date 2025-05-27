@@ -7,7 +7,8 @@ GameUI::GameUI(Lobby& lobby):
         sdl(SDLManager()),
         my_player(MyPlayer(lobby.get_username())) {
     if (!this->validate_qt_results(lobby)) {
-        throw std::runtime_error("Error creating SDL interface");
+        throw std::runtime_error(
+                "Error creating SDL interface");  // quizas ponerlo en los get de lobby.
     }
 }
 
@@ -103,15 +104,18 @@ void GameUI::run() {
             }
         }
 
-
-        sdl.clear_display();
-
         Snapshot snapshot_tmp;
         while (this->receiver.try_pop_snapshot_from_queue(snapshot_tmp)) {
             last_snapshot = std::move(snapshot_tmp);
         }
 
-        sdl.render_in_z_order(map, last_snapshot, my_player);
+        for (const PlayerDTO& p: last_snapshot.players) {
+            my_player.update_my_position(p);
+        }
+
+        sdl.clear_display();
+
+        sdl.render_in_z_order(map, last_snapshot);
 
         sdl.show_screen();
 

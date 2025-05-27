@@ -7,9 +7,6 @@
 #include <utility>
 #include <vector>
 
-#include <SDL2/SDL.h>
-#include <SDL2pp/SDL2pp.hh>
-
 #include "../common/clock.h"
 #include "lobby/lobby.h"
 

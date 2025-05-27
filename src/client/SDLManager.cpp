@@ -14,7 +14,7 @@ void SDLManager::clear_display() { renderer.Clear(); }
 
 void SDLManager::show_screen() { renderer.Present(); }
 
-void SDLManager::render_in_z_order(const GameMap& map, const Snapshot& snapshot, MyPlayer& player) {
+void SDLManager::render_in_z_order(const GameMap& map, const Snapshot& snapshot) {
 
     // ACA SI ITERO EL MAPA (POR AHORA SOLO TIPO BOX)
     for (const MapObject& obj: map.map_objects) {
@@ -30,7 +30,6 @@ void SDLManager::render_in_z_order(const GameMap& map, const Snapshot& snapshot,
     }
 
     for (const PlayerDTO& p: snapshot.players) {
-        player.update_my_position(p);
         double angulo = p.orientation;
         int x_pos = p.position.x;
         int y_pos = p.position.y;
