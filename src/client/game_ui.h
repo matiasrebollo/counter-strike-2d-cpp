@@ -13,9 +13,11 @@
 #include "../common/clock.h"
 #include "lobby/lobby.h"
 
+#include "SDLManager.h"
 #include "client_protocol.h"
 #include "client_receiver.h"
 #include "client_sender.h"
+#include "my_player.h"
 
 #define MSG_NO_PROTOCOL "You have to connect yourself to a server to play :)"
 #define MSG_NO_USERNAME "You have to enter your username to login in our server"
@@ -26,7 +28,9 @@ private:
     ClientProtocol protocol;
     ClientSender sender;
     ClientReceiver receiver;
-    std::string username;
+
+    SDLManager sdl;
+    MyPlayer my_player;
 
     bool validate_qt_results(Lobby& lobby);
     void print_message(const std::string& s);
