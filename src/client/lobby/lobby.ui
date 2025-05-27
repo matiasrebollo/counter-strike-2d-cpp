@@ -99,7 +99,7 @@
        </size>
       </property>
       <property name="cursor">
-       <cursorShape>CrossCursor</cursorShape>
+       <cursorShape>ArrowCursor</cursorShape>
       </property>
       <property name="styleSheet">
        <string notr="true"/>
@@ -244,7 +244,7 @@
           </item>
          </layout>
         </item>
-        <item>
+        <item alignment="Qt::AlignHCenter">
          <widget class="QPushButton" name="connectButton">
           <property name="enabled">
            <bool>true</bool>
@@ -255,22 +255,35 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="maximumSize">
+           <size>
+            <width>300</width>
+            <height>70</height>
+           </size>
+          </property>
           <property name="font">
            <font>
             <family>Counter-Strike</family>
             <pointsize>13</pointsize>
+            <weight>50</weight>
             <italic>false</italic>
             <bold>false</bold>
            </font>
           </property>
+          <property name="cursor">
+           <cursorShape>CrossCursor</cursorShape>
+          </property>
           <property name="styleSheet">
            <string notr="true">QPushButton {
 	background-color: transparent;
-	border: none;
-	padding: 5px;
+	border: 1px solid white;
+	border-radius: 10px;
+	padding: 15px;
 	color: white;
-	width: 50%;
 	margin-bottom:20px;
+}
+QPushButton:hover {
+	qproperty-cursor: PointingHandCursor;
 }</string>
           </property>
           <property name="text">
@@ -339,10 +352,28 @@
           </item>
           <item row="2" column="0">
            <widget class="QPushButton" name="go_to_select_skin_btn">
+            <property name="maximumSize">
+             <size>
+              <width>300</width>
+              <height>30</height>
+             </size>
+            </property>
             <property name="font">
              <font>
               <family>Counter-Strike</family>
              </font>
+            </property>
+            <property name="cursor">
+             <cursorShape>CrossCursor</cursorShape>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton{
+	background-color: transparent;
+	border: 1px solid white;
+	padding: 10px;
+	color: white;
+	border-radius: 5px;
+}</string>
             </property>
             <property name="text">
              <string>SELECCIONAR SKINS</string>
@@ -367,19 +398,33 @@
               <height>30</height>
              </size>
             </property>
+            <property name="maximumSize">
+             <size>
+              <width>300</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="font">
              <font>
               <family>Counter-Strike</family>
               <pointsize>13</pointsize>
              </font>
             </property>
+            <property name="cursor">
+             <cursorShape>CrossCursor</cursorShape>
+            </property>
             <property name="styleSheet">
              <string notr="true">QPushButton{
 	background-color: transparent;
-	border: none;
-	padding: 5px;
+	border: 1px solid white;
+	padding: 10px;
 	color: white;
-}</string>
+	border-radius: 5px;
+}
+QPushButton:hover {
+	qproperty-cursor: PointingHandCursor;
+}
+</string>
             </property>
             <property name="text">
              <string>CREAR</string>
@@ -394,18 +439,31 @@
               <height>30</height>
              </size>
             </property>
+            <property name="maximumSize">
+             <size>
+              <width>300</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="font">
              <font>
               <family>Counter-Strike</family>
               <pointsize>13</pointsize>
              </font>
             </property>
+            <property name="cursor">
+             <cursorShape>CrossCursor</cursorShape>
+            </property>
             <property name="styleSheet">
              <string notr="true">QPushButton{
 	background-color: transparent;
-	border: none;
-	padding: 5px;
+	border: 1px solid white;
+	padding: 10px;
 	color: white;
+	border-radius: 5px;
+}
+QPushButton:hover {
+	qproperty-cursor: PointingHandCursor;
 }</string>
             </property>
             <property name="text">
@@ -438,8 +496,8 @@
           </property>
           <property name="maximumSize">
            <size>
-            <width>60</width>
-            <height>25</height>
+            <width>80</width>
+            <height>35</height>
            </size>
           </property>
           <property name="font">
@@ -447,12 +505,19 @@
             <family>Counter-Strike</family>
            </font>
           </property>
+          <property name="cursor">
+           <cursorShape>CrossCursor</cursorShape>
+          </property>
           <property name="styleSheet">
-           <string notr="true">QPushButton {
+           <string notr="true">QPushButton{
 	background-color: transparent;
-	border: none;
-	
-	color: rgb(255, 255, 255);
+	border: 1px solid white;
+	padding: 10px;
+	color: white;
+	border-radius: 5px;
+}
+QPushButton:hover {
+	qproperty-cursor: PointingHandCursor;
 }</string>
           </property>
           <property name="text">
@@ -502,20 +567,39 @@
           </item>
          </layout>
         </item>
-        <item>
+        <item alignment="Qt::AlignHCenter">
          <widget class="QPushButton" name="JoinGameButton">
+          <property name="minimumSize">
+           <size>
+            <width>300</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>200</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="font">
            <font>
             <family>Counter-Strike</family>
             <pointsize>13</pointsize>
            </font>
           </property>
+          <property name="cursor">
+           <cursorShape>CrossCursor</cursorShape>
+          </property>
           <property name="styleSheet">
            <string notr="true">QPushButton{
 	background-color: transparent;
-	border: none;
-	padding: 5px;
+	border: 1px solid white;
+	padding: 10px;
 	color: white;
+	border-radius: 5px;
+}
+QPushButton:hover {
+	qproperty-cursor: PointingHandCursor;
 }</string>
           </property>
           <property name="text">
@@ -546,8 +630,8 @@
          <widget class="QPushButton" name="backButton_2">
           <property name="maximumSize">
            <size>
-            <width>60</width>
-            <height>25</height>
+            <width>80</width>
+            <height>35</height>
            </size>
           </property>
           <property name="font">
@@ -555,11 +639,19 @@
             <family>Counter-Strike</family>
            </font>
           </property>
+          <property name="cursor">
+           <cursorShape>CrossCursor</cursorShape>
+          </property>
           <property name="styleSheet">
-           <string notr="true">QPushButton {
+           <string notr="true">QPushButton{
 	background-color: transparent;
-	color: rgb(255, 255, 255);
-	border: none;
+	border: 1px solid white;
+	padding: 10px;
+	color: white;
+	border-radius: 5px;
+}
+QPushButton:hover {
+	qproperty-cursor: PointingHandCursor;
 }</string>
           </property>
           <property name="text">
@@ -609,11 +701,17 @@
           </item>
          </layout>
         </item>
-        <item>
+        <item alignment="Qt::AlignHCenter">
          <widget class="QPushButton" name="createButton">
+          <property name="minimumSize">
+           <size>
+            <width>300</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="maximumSize">
            <size>
-            <width>16777215</width>
+            <width>300</width>
             <height>16777215</height>
            </size>
           </property>
@@ -628,11 +726,15 @@
            <cursorShape>CrossCursor</cursorShape>
           </property>
           <property name="styleSheet">
-           <string notr="true">QPushButton {
+           <string notr="true">QPushButton{
 	background-color: transparent;
-	border: none;
-	padding: 5px;
+	border: 1px solid white;
+	padding: 10px;
 	color: white;
+	border-radius: 5px;
+}
+QPushButton:hover {
+	qproperty-cursor: PointingHandCursor;
 }</string>
           </property>
           <property name="text">
@@ -651,8 +753,8 @@
          <widget class="QPushButton" name="back_to_lobby3">
           <property name="minimumSize">
            <size>
-            <width>40</width>
-            <height>30</height>
+            <width>80</width>
+            <height>35</height>
            </size>
           </property>
           <property name="maximumSize">
@@ -672,11 +774,19 @@
             <family>Counter-Strike</family>
            </font>
           </property>
+          <property name="cursor">
+           <cursorShape>CrossCursor</cursorShape>
+          </property>
           <property name="styleSheet">
-           <string notr="true">QPushButton {
+           <string notr="true">QPushButton{
 	background-color: transparent;
-	color: rgb(255, 255, 255);
-	border: none;
+	border: 1px solid white;
+	padding: 10px;
+	color: white;
+	border-radius: 5px;
+}
+QPushButton:hover {
+	qproperty-cursor: PointingHandCursor;
 }</string>
           </property>
           <property name="text">
@@ -704,8 +814,12 @@
                 <property name="font">
                  <font>
                   <pointsize>15</pointsize>
+                  <weight>75</weight>
                   <bold>true</bold>
                  </font>
+                </property>
+                <property name="cursor">
+                 <cursorShape>CrossCursor</cursorShape>
                 </property>
                 <property name="styleSheet">
                  <string notr="true">color: rgb(255, 255, 255);</string>
@@ -729,8 +843,12 @@
                 <property name="font">
                  <font>
                   <pointsize>15</pointsize>
+                  <weight>75</weight>
                   <bold>true</bold>
                  </font>
+                </property>
+                <property name="cursor">
+                 <cursorShape>CrossCursor</cursorShape>
                 </property>
                 <property name="styleSheet">
                  <string notr="true">color: rgb(255, 255, 255);</string>
@@ -789,7 +907,7 @@
                    <string/>
                   </property>
                   <property name="pixmap">
-                   <pixmap resource="resources.qrc">:/images/assets/gfx/lobby/artic.png</pixmap>
+                   <pixmap>:/images/assets/gfx/lobby/artic.png</pixmap>
                   </property>
                   <property name="scaledContents">
                    <bool>true</bool>
@@ -828,7 +946,7 @@
                    <enum>Qt::AutoText</enum>
                   </property>
                   <property name="pixmap">
-                   <pixmap resource="resources.qrc">:/images/assets/gfx/lobby/phnx_conexion.png</pixmap>
+                   <pixmap>:/images/assets/gfx/lobby/phnx_conexion.png</pixmap>
                   </property>
                   <property name="scaledContents">
                    <bool>true</bool>
@@ -847,7 +965,7 @@
                <layout class="QVBoxLayout" name="verticalLayout_9">
                 <item>
                  <widget class="QLabel" name="crew">
-                                    <property name="styleSheet">
+                  <property name="styleSheet">
                    <string notr="true">
                       QLabel {
                         background-color: transparent;
@@ -864,7 +982,7 @@
                    <string/>
                   </property>
                   <property name="pixmap">
-                   <pixmap resource="resources.qrc">:/images/assets/gfx/lobby/elite_crew.png</pixmap>
+                   <pixmap>:/images/assets/gfx/lobby/elite_crew.png</pixmap>
                   </property>
                   <property name="scaledContents">
                    <bool>true</bool>
@@ -885,7 +1003,7 @@
                     <pointsize>10</pointsize>
                    </font>
                   </property>
-                    <property name="styleSheet">
+                  <property name="styleSheet">
                    <string notr="true">
                       QLabel {
                         background-color: transparent;
@@ -902,7 +1020,7 @@
                    <string/>
                   </property>
                   <property name="pixmap">
-                   <pixmap resource="resources.qrc">:/images/assets/gfx/lobby/guerrilla.png</pixmap>
+                   <pixmap>:/images/assets/gfx/lobby/guerrilla.png</pixmap>
                   </property>
                   <property name="scaledContents">
                    <bool>true</bool>
@@ -913,12 +1031,18 @@
               </widget>
              </widget>
             </item>
-            <item>
+            <item alignment="Qt::AlignHCenter">
              <widget class="QPushButton" name="select_tt_skin">
               <property name="minimumSize">
                <size>
-                <width>0</width>
+                <width>300</width>
                 <height>50</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>300</width>
+                <height>16777215</height>
                </size>
               </property>
               <property name="font">
@@ -927,11 +1051,15 @@
                </font>
               </property>
               <property name="styleSheet">
-               <string notr="true">QPushButton {
+               <string notr="true">QPushButton{
 	background-color: transparent;
-	border: none;
-	padding: 5px;
+	border: 1px solid white;
+	padding: 10px;
 	color: white;
+	border-radius: 5px;
+}
+QPushButton:hover {
+	qproperty-cursor: PointingHandCursor;
 }</string>
               </property>
               <property name="text">
@@ -956,8 +1084,12 @@
                 <property name="font">
                  <font>
                   <pointsize>15</pointsize>
+                  <weight>75</weight>
                   <bold>true</bold>
                  </font>
+                </property>
+                <property name="cursor">
+                 <cursorShape>CrossCursor</cursorShape>
                 </property>
                 <property name="styleSheet">
                  <string notr="true">color: rgb(255, 255, 255);</string>
@@ -980,14 +1112,18 @@
                 </property>
                 <property name="font">
                  <font>
-                  <family>Counter-Strike</family>
+                  <family>Cantarell</family>
                   <pointsize>15</pointsize>
+                  <weight>50</weight>
                   <italic>false</italic>
-                  <bold>true</bold>
+                  <bold>false</bold>
                   <underline>false</underline>
                   <strikeout>false</strikeout>
                   <kerning>false</kerning>
                  </font>
+                </property>
+                <property name="cursor">
+                 <cursorShape>CrossCursor</cursorShape>
                 </property>
                 <property name="styleSheet">
                  <string notr="true">color: rgb(255, 255, 255);</string>
@@ -1028,7 +1164,7 @@
                    <string/>
                   </property>
                   <property name="pixmap">
-                   <pixmap resource="resources.qrc">:/images/assets/gfx/lobby/seal.png</pixmap>
+                   <pixmap>:/images/assets/gfx/lobby/seal.png</pixmap>
                   </property>
                   <property name="scaledContents">
                    <bool>true</bool>
@@ -1058,7 +1194,7 @@
                    <string/>
                   </property>
                   <property name="pixmap">
-                   <pixmap resource="resources.qrc">:/images/assets/gfx/lobby/sas.png</pixmap>
+                   <pixmap>:/images/assets/gfx/lobby/sas.png</pixmap>
                   </property>
                   <property name="scaledContents">
                    <bool>true</bool>
@@ -1071,7 +1207,7 @@
                <layout class="QVBoxLayout" name="verticalLayout_14">
                 <item>
                  <widget class="QLabel" name="gs9">
-                   <property name="styleSheet">
+                  <property name="styleSheet">
                    <string notr="true">
                       QLabel {
                         background-color: transparent;
@@ -1088,7 +1224,7 @@
                    <string/>
                   </property>
                   <property name="pixmap">
-                   <pixmap resource="resources.qrc">:/images/assets/gfx/lobby/gsg9.png</pixmap>
+                   <pixmap>:/images/assets/gfx/lobby/gsg9.png</pixmap>
                   </property>
                   <property name="scaledContents">
                    <bool>true</bool>
@@ -1101,7 +1237,7 @@
                <layout class="QVBoxLayout" name="verticalLayout_13">
                 <item>
                  <widget class="QLabel" name="gign">
-                                    <property name="styleSheet">
+                  <property name="styleSheet">
                    <string notr="true">
                       QLabel {
                         background-color: transparent;
@@ -1118,7 +1254,7 @@
                    <string/>
                   </property>
                   <property name="pixmap">
-                   <pixmap resource="resources.qrc">:/images/assets/gfx/lobby/gign.png</pixmap>
+                   <pixmap>:/images/assets/gfx/lobby/gign.png</pixmap>
                   </property>
                   <property name="scaledContents">
                    <bool>true</bool>
@@ -1129,12 +1265,18 @@
               </widget>
              </widget>
             </item>
-            <item>
+            <item alignment="Qt::AlignHCenter">
              <widget class="QPushButton" name="select_ct_skin">
               <property name="minimumSize">
                <size>
-                <width>0</width>
+                <width>300</width>
                 <height>50</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>300</width>
+                <height>16777215</height>
                </size>
               </property>
               <property name="font">
@@ -1143,11 +1285,15 @@
                </font>
               </property>
               <property name="styleSheet">
-               <string notr="true">QPushButton {
+               <string notr="true">QPushButton{
 	background-color: transparent;
-	border: none;
-	padding: 5px;
+	border: 1px solid white;
+	padding: 10px;
 	color: white;
+	border-radius: 5px;
+}
+QPushButton:hover {
+	qproperty-cursor: PointingHandCursor;
 }</string>
               </property>
               <property name="text">
