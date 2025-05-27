@@ -7,6 +7,8 @@ target_sources(taller_client
         client_sender.h
         client.h
         game_ui.h
+        SDLManager.h
+        my_player.h
     PRIVATE
         main.cpp
         lobby/lobby.cpp
@@ -18,6 +20,8 @@ target_sources(taller_client
         client_sender.cpp
         client.cpp
         game_ui.cpp
+        SDLManager.cpp
+        my_player.cpp
 )
 
 
