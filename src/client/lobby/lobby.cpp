@@ -37,6 +37,10 @@ void Lobby::go_to_lobby() { ui->stack->setCurrentIndex(1); }
 
 
 void Lobby::on_CreateGame_clicked() {
+    if (this->username != "") {
+        ui->stack->setCurrentIndex(3);
+        return;
+    }
     CreateUsernameDTO request;
     request.username = ui->username->text().toStdString();
     if (request.username == "") {
@@ -55,6 +59,10 @@ void Lobby::on_CreateGame_clicked() {
 }
 
 void Lobby::on_JoinGame_clicked() {
+    if (this->username != "") {
+        ui->stack->setCurrentIndex(2);
+        return;
+    }
     CreateUsernameDTO request;
     request.username = ui->username->text().toStdString();
     if (request.username == "") {
