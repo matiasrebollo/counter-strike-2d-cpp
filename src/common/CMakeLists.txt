@@ -10,6 +10,7 @@ target_sources(taller_common
     resolvererror.cpp
     weapon_parser.cpp
     clock.cpp
+    block_texture_parser.cpp
     PUBLIC
     # .h files
     error_codes.h
@@ -35,4 +36,5 @@ target_sources(taller_common
     resolvererror.h
     weapon_parser.h
     clock.h
+    block_texture_parser.h
     )
