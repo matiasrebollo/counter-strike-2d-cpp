@@ -39,24 +39,36 @@ void Lobby::go_to_lobby() { ui->stack->setCurrentIndex(1); }
 void Lobby::on_CreateGame_clicked() {
     CreateUsernameDTO request;
     request.username = ui->username->text().toStdString();
+    if (request.username == "") {
+        QMessageBox::information(this, TITLE_MSG_CREATE, MSG_NO_USERNAME);
+        return;
+    }
     protocol.value().send_lobby_request(request);
 
     ServerResponseLobby response = protocol.value().receive_command();
-    if (response.commandType == CREATE_USERNAME && response.success) {
+    if (response.success) {
         ui->stack->setCurrentIndex(3);
         this->username = ui->username->text().toStdString();
+    } else {
+        QMessageBox::information(this, TITLE_MSG_CREATE, MSG_USERNAME_ALREADY_USED);
     }
 }
 
 void Lobby::on_JoinGame_clicked() {
     CreateUsernameDTO request;
     request.username = ui->username->text().toStdString();
+    if (request.username == "") {
+        QMessageBox::information(this, TITLE_MSG_JOIN, MSG_NO_USERNAME);
+        return;
+    }
     protocol.value().send_lobby_request(request);
 
     ServerResponseLobby response = protocol.value().receive_command();
-    if (response.commandType == CREATE_USERNAME && response.success) {
+    if (response.success) {
         ui->stack->setCurrentIndex(2);
         this->username = ui->username->text().toStdString();
+    } else {
+        QMessageBox::information(this, TITLE_MSG_JOIN, MSG_USERNAME_ALREADY_USED);
     }
 }
 
@@ -70,9 +82,11 @@ void Lobby::on_JoinGameButton_clicked() {
 
     protocol.value().send_lobby_request(request);
     ServerResponseLobby response = protocol.value().receive_command();
-    if (response.commandType == JOIN_GAME && response.success) {
+    if (response.success) {
         this->gamecode = game_name;
         close();
+    } else {
+        QMessageBox::information(this, TITLE_MSG_JOIN, MSG_GAME_ALREADY_STARTED);
     }
 }
 
@@ -95,6 +109,8 @@ void Lobby::on_createButton_clicked() {
             QString game_code = QString::fromStdString(response.game_name);
             QMessageBox::information(this, "Codigo de partida", game_code);
             close();
+        } else {
+            QMessageBox::information(this, TITLE_MSG_CREATE, MSG_GAME_NOT_CREATED);
         }
     }
 }
