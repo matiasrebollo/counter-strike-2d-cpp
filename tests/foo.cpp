@@ -6,6 +6,7 @@ using ::testing::HasSubstr;
 using ::testing::ThrowsMessage;
 
 
-namespace {
-TEST(FooTest, Check) { EXPECT_EQ(0, (int)(0 + 0)); }
-}  // namespace
+int main(int argc, char** argv) {
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+}

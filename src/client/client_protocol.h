@@ -34,9 +34,9 @@ private:
     bool isAlive;
     std::unordered_map<CommandType, std::function<void(const InternalMessage& request)>> sendersMap;
 
-    void send_create_username_request(const CreateUsernameDTO& dto);
-    void send_create_game_request(const CreateGameDTO& dto);
-    void send_join_game_request(const JoinGameDTO& dto);
+    virtual void send_create_username_request(const CreateUsernameDTO& dto);
+    virtual void send_create_game_request(const CreateGameDTO& dto);
+    virtual void send_join_game_request(const JoinGameDTO& dto);
     void send_select_map_request(const InternalMessage& request);
     void send_buy_weapon_request(const InternalMessage& request);
     void send_buy_weapon_ammo_request(const InternalMessage& request);
@@ -56,9 +56,9 @@ public:
     ClientProtocol(const std::string& hostname, const std::string& port);
     ClientProtocol(ClientProtocol&&);
     void send_command(const CommandDTO& command);
-    ServerResponseLobby receive_command();
+    virtual ServerResponseLobby receive_command();
     Snapshot receive_snapshot();
-    void send_lobby_request(const LobbyRequestDTO& request);
+    virtual void send_lobby_request(const LobbyRequestDTO& request);
     GameMap receive_map();
     void close();
     ~ClientProtocol();
