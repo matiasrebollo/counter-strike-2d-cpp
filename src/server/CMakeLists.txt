@@ -9,7 +9,7 @@ target_sources(taller_server
         rect.cpp
         main.cpp
         command.cpp
-        move_commands.cpp
+        attack_phase_commands.cpp
         player.cpp
         server.cpp
         server_monitor.cpp
@@ -24,7 +24,7 @@ target_sources(taller_server
         command.h
         cs2d_game.h
         rect.h
-        move_commands.h
+        attack_phase_commands.h
         player.h
         server.h
         server_monitor.h

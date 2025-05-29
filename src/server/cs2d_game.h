@@ -20,6 +20,9 @@
 
 #define MAX_PLAYERS 10
 #define MIN_PLAYERS 2
+#define BUY_PHASE_DURATION 20
+#define ATTACK_PHASE_DURATION 60
+#define ROUNDS 10
 
 class CS2DGame: public Thread {
 private:
@@ -29,6 +32,9 @@ private:
     std::list<std::shared_ptr<Collidable>> collidables;
     const Rect spawn_zone;
     Queue<std::unique_ptr<Command>> command_queue;
+    Phase phase;
+    float phase_time;
+    size_t round;
     size_t last_it;
 
     bool should_start() const;
@@ -54,6 +60,11 @@ private:
     // double impacts(const Shot& shot, const Collidable& collidable) const;
     // double intersects_segment(const Shot& shot, const Vector2D& seg_start, const Vector2D&
     // seg_end) const;
+
+    void start_phase(const Phase new_phase);
+    void end_attack_phase();
+    void swap_teams();
+    void end_game();
 
 public:
     const std::string id;
