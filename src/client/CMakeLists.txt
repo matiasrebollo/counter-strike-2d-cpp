@@ -9,6 +9,7 @@ target_sources(taller_client
         game_ui.h
         SDLManager.h
         my_player.h
+        camera.h
     PRIVATE
         main.cpp
         lobby/lobby.cpp
@@ -22,6 +23,7 @@ target_sources(taller_client
         game_ui.cpp
         SDLManager.cpp
         my_player.cpp
+        camera.cpp
 )
 
 

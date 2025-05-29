@@ -98,7 +98,7 @@ void GameUI::run() {
             if (event.type == SDL_MOUSEMOTION) {
                 int mouse_x = event.motion.x;
                 int mouse_y = event.motion.y;
-                const double angulo = my_player.calculate_angle(mouse_x, mouse_y);
+                const double angulo = sdl.calculate_angle_to_mouse(mouse_x, mouse_y);
 
                 sender.add_command_to_queue(RotateDTO{angulo});
             }
@@ -115,7 +115,8 @@ void GameUI::run() {
 
         sdl.clear_display();
 
-        sdl.render_in_z_order(map, last_snapshot);
+        sdl.update_camera(my_player.get_x_pos() + 16, my_player.get_y_pos() + 16);
+        sdl.render_in_z_order(map, last_snapshot, my_player.get_username());
 
         sdl.show_screen();
 
