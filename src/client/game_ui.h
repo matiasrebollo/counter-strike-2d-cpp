@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "../common/clock.h"
+#include "../common/skins.h"
 #include "lobby/lobby.h"
 
 #include "SDLManager.h"
@@ -25,6 +26,9 @@ private:
     ClientProtocol protocol;
     ClientSender sender;
     ClientReceiver receiver;
+
+    CounterTerroristSkin ct_skin;
+    TerroristSkin tt_skin;
 
     SDLManager sdl;
     MyPlayer my_player;

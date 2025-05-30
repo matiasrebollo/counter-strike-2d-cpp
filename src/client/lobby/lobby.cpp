@@ -26,7 +26,6 @@ Lobby::Lobby(QWidget* parent):
     ui->skins_ct_stack->setCurrentIndex(0);
 
     connect(ui->backButton, &QPushButton::clicked, this, &Lobby::go_to_lobby);
-    connect(ui->backButton_2, &QPushButton::clicked, this, &Lobby::go_to_lobby);
     connect(ui->back_to_lobby3, &QPushButton::clicked, this, &Lobby::go_to_lobby);
     connect(ui->connectButton, &QPushButton::clicked, this, &Lobby::connect_to_sv);
 }
@@ -47,14 +46,26 @@ void Lobby::on_CreateGame_clicked() {
         QMessageBox::information(this, TITLE_MSG_CREATE, MSG_NO_USERNAME);
         return;
     }
+
     protocol.value().send_lobby_request(request);
 
     ServerResponseLobby response = protocol.value().receive_command();
     if (response.success) {
-        ui->stack->setCurrentIndex(3);
         this->username = ui->username->text().toStdString();
     } else {
         QMessageBox::information(this, TITLE_MSG_CREATE, MSG_USERNAME_ALREADY_USED);
+        return;
+    }
+
+    CreateGameDTO second_request;
+
+    protocol.value().send_lobby_request(second_request);
+    response = protocol.value().receive_command();
+    if (response.commandType == CREATE_GAME && response.success) {
+        this->gamecode = response.game_name;
+        QString game_code = QString::fromStdString(response.game_name);
+        QMessageBox::information(this, "Codigo de partida", game_code);
+        close();
     }
 }
 
@@ -83,10 +94,7 @@ void Lobby::on_JoinGame_clicked() {
 void Lobby::on_JoinGameButton_clicked() {
     std::string game_name = ui->game_code->text().toStdString();
 
-    JoinGameDTO request;
-    request.gamename = game_name;
-    request.tt_skin = selected_tt_skin;
-    request.ct_skin = selected_ct_skin;
+    JoinGameDTO request = {game_name};
 
     protocol.value().send_lobby_request(request);
     ServerResponseLobby response = protocol.value().receive_command();
@@ -95,31 +103,6 @@ void Lobby::on_JoinGameButton_clicked() {
         close();
     } else {
         QMessageBox::information(this, TITLE_MSG_JOIN, MSG_GAME_ALREADY_STARTED);
-    }
-}
-
-
-void Lobby::on_createButton_clicked() {
-    bool ok;
-    int n_min_players = ui->NPlayers->text().toInt(&ok);
-    if (not ok) {
-        // error
-    } else {
-        CreateGameDTO request;
-        request.tt_skin = selected_tt_skin;
-        request.ct_skin = selected_ct_skin;
-        request.size_players = n_min_players;
-
-        protocol.value().send_lobby_request(request);
-        ServerResponseLobby response = protocol.value().receive_command();
-        if (response.commandType == CREATE_GAME && response.success) {
-            this->gamecode = response.game_name;
-            QString game_code = QString::fromStdString(response.game_name);
-            QMessageBox::information(this, "Codigo de partida", game_code);
-            close();
-        } else {
-            QMessageBox::information(this, TITLE_MSG_CREATE, MSG_GAME_NOT_CREATED);
-        }
     }
 }
 
@@ -175,7 +158,7 @@ void Lobby::on_next_ct_skin_clicked() {
     ui->skins_ct_stack->setCurrentIndex(index);
 }
 
-void Lobby::on_go_to_select_skin_btn_clicked() { ui->stack->setCurrentIndex(4); }
+void Lobby::on_go_to_select_skin_btn_clicked() { ui->stack->setCurrentIndex(3); }
 
 TerroristSkin& Lobby::get_tt_skin() { return this->selected_tt_skin; }
 

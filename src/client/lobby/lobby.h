@@ -44,8 +44,6 @@ private slots:
 
     void on_JoinGameButton_clicked();
 
-    void on_createButton_clicked();
-
     void connect_to_sv();
 
     void on_select_tt_skin_clicked();
