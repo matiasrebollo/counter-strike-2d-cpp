@@ -6,8 +6,9 @@
 #include "common/map_object.h"
 
 struct GameMap {
-    const std::vector<MapObject> map_objects;
-    // const MapType type; ??? tener un "ambiente" para cada mapa?
+    int width;
+    int height;
+    std::vector<MapObject> map_objects;
 };
 
 

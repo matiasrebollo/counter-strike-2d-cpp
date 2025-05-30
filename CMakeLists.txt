@@ -151,6 +151,9 @@ if(TALLER_SERVER)
     # Make them depend on taller_common lib
     add_dependencies(taller_server taller_common)
 
+    # Agrego yaml-cpp
+    find_package(yaml-cpp REQUIRED)
+
     # Add source files and enable warnings
     # HEY!! TODO XXX: add more subfolders here
     add_subdirectory(src/server)
@@ -158,7 +161,7 @@ if(TALLER_SERVER)
     set_project_warnings(taller_server ${TALLER_MAKE_WARNINGS_AS_ERRORS} FALSE)
 
     # Link the taller_common lib target
-    target_link_libraries(taller_server taller_common)
+    target_link_libraries(taller_server taller_common yaml-cpp)
 endif()
 
 if(TALLER_EDITOR)
@@ -170,6 +173,9 @@ if(TALLER_EDITOR)
     # Buscar Qt
     find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
     find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+
+    # Agrego yaml-cpp
+    find_package(yaml-cpp REQUIRED)
 
     # HEY!! TODO XXX: Change the name of the executable to the one you like!
     add_executable(taller_editor)
@@ -195,6 +201,7 @@ if(TALLER_EDITOR)
     PRIVATE
         Qt${QT_VERSION_MAJOR}::Widgets
         taller_common
+        yaml-cpp
 )
 endif()
 

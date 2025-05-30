@@ -11,6 +11,8 @@ target_sources(taller_common
     weapon_parser.cpp
     clock.cpp
     block_texture_parser.cpp
+    map_object.cpp
+    yaml_parser.cpp
     PUBLIC
     # .h files
     error_codes.h
@@ -37,4 +39,5 @@ target_sources(taller_common
     weapon_parser.h
     clock.h
     block_texture_parser.h
+    yaml_parser.h
     )

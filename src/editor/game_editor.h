@@ -2,8 +2,10 @@
 #define GAME_EDITOR_H
 
 #include <QMainWindow>
+#include <vector>
 
 #include "../common/block_texture_parser.h"
+#include "../common/game_map.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -18,11 +20,17 @@ public:
     explicit Game_editor(QWidget* parent = nullptr);
     ~Game_editor();
 
+private slots:
+    void on_save_button_clicked();
+
 private:
     Ui::Game_editor* ui;
     void setupUi();
+    GameMap create_map(const std::vector<std::vector<MapObjectType>>& grid);
+
 
     BlockTextureParser texture_parser;
     MapObjectType selected_block;
+    std::vector<std::vector<MapObjectType>> grid;
 };
 #endif  // GAME_EDITOR_H
