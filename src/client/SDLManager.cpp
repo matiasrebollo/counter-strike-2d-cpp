@@ -1,5 +1,9 @@
 #include "SDLManager.h"
 
+#include <string>
+
+#include "../common/block_texture_parser.h"
+
 SDLManager::SDLManager():
         sdl(SDL_INIT_VIDEO),
         window("GAME", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480,
@@ -17,16 +21,24 @@ void SDLManager::show_screen() { renderer.Present(); }
 void SDLManager::render_in_z_order(const GameMap& map, const Snapshot& snapshot, MyPlayer& player) {
 
     // ACA SI ITERO EL MAPA (POR AHORA SOLO TIPO BOX)
+    BlockTextureParser texture_parser;
     for (const MapObject& obj: map.map_objects) {
-        if (obj.type == MapObjectType::BOX) {
-            SDL2pp::Rect rect_origen(416, 64, 32, 32);  // por ahora lo hardcodeo
-            std::cout << "Posicion caja x: " << obj.position.x << std::endl;
-            std::cout << "Posicion caja y: " << obj.position.y << std::endl;
-            std::cout << "Caja ancho: " << obj.width << std::endl;
-            std::cout << "Caja alto: " << obj.height << std::endl;
-            SDL2pp::Rect rect_destino(obj.position.x, obj.position.y, obj.width, obj.height);
-            renderer.Copy(box, rect_origen, rect_destino);
+        BlockTextureInfo txt = texture_parser.get_texture_info(obj.type);
+        std::string path = "../assets/gfx/tiles" + txt.tileset_path;
+
+        SDL2pp::Surface boxSheet2(path);
+        SDL2pp::Texture box2(renderer, boxSheet2);
+
+        SDL2pp::Rect rect_origen(txt.x, txt.y, txt.width, txt.height);
+        for (const auto& vec: obj.positions) {
+            SDL2pp::Rect rect_destino(vec.x, vec.y, 32, 32);
+            renderer.Copy(box2, rect_origen, rect_destino);
         }
+        /*if (obj.type == MapObjectType::BOX) {
+            SDL2pp::Rect rect_origen(416, 64, 32, 32);  // por ahora lo hardcodeo
+            SDL2pp::Rect rect_destino(obj.position.x, obj.position.y,32,32);
+            renderer.Copy(box, rect_origen, rect_destino);
+        }*/
     }
 
     for (const PlayerDTO& p: snapshot.players) {
