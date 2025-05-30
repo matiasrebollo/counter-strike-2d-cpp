@@ -75,7 +75,7 @@ void ServerProtocol::send_snapshot(const Snapshot& snapshot) {
 }
 
 void ServerProtocol::send_players(const std::vector<PlayerDTO>& players) {
-    for (auto player: players) {
+    for (const auto& player: players) {
         this->send_string(player.username);
         this->send_big_endian_number(player.position.x);
         this->send_big_endian_number(player.position.y);
@@ -252,10 +252,11 @@ void ServerProtocol::send_map(const GameMap& map) {
     this->send_big_endian_number(map.map_objects.size());
     for (auto object: map.map_objects) {
         this->send_byte(object.type);
-        this->send_big_endian_number(object.position.x);
-        this->send_big_endian_number(object.position.y);
-        this->send_big_endian_number(object.height);
-        this->send_big_endian_number(object.width);
+        this->send_byte(object.positions.size());
+        for (auto vec: object.positions) {
+            this->send_big_endian_number(vec.x);
+            this->send_big_endian_number(vec.y);
+        }
     }
 }
 
