@@ -2,9 +2,9 @@
 
 GameUI::GameUI(Lobby& lobby):
         protocol(std::move(lobby.get_protocol())),
-        sender(this->protocol),
-        receiver(this->protocol),
         sdl(SDLManager()),
+        input_handler(sdl, this->protocol),
+        receiver(this->protocol),
         my_player(MyPlayer(lobby.get_username())) {
     if (!this->validate_qt_results(lobby)) {
         throw std::runtime_error(
@@ -15,7 +15,7 @@ GameUI::GameUI(Lobby& lobby):
 void GameUI::run() {
 
 
-    this->sender.start();
+    input_handler.start_sender();
     this->receiver.start();
 
     sdl.texto_prueba();
@@ -24,82 +24,11 @@ void GameUI::run() {
         my_player.update_my_position(p);
     }
 
-    bool w = false, a = false, s = false, d = false;
-
     int it = 0;
-    int FPS = 30;
     Clock clock;
-    while (true) {
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT)
-                return;
-            if (event.type == SDL_KEYDOWN) {
-                switch (event.key.keysym.sym) {
-                    case SDLK_ESCAPE:
-                        return;
-                    case SDLK_w:
-                        if (!w) {
-                            sender.add_command_to_queue(MoveUpDTO{});
-                            w = true;
-                        }
-                        break;
-                    case SDLK_a:
-                        if (!a) {
-                            sender.add_command_to_queue(MoveLeftDTO{});
-                            a = true;
-                        }
-                        break;
-                    case SDLK_s:
-                        if (!s) {
-                            sender.add_command_to_queue(MoveDownDTO{});
-                            s = true;
-                        }
-                        break;
-                    case SDLK_d:
-                        if (!d) {
-                            sender.add_command_to_queue(MoveRightDTO{});
-                            d = true;
-                        }
-                        break;
-                }
-            }
-            if (event.type == SDL_KEYUP) {
-                switch (event.key.keysym.sym) {
-                    case SDLK_w:
-                        if (w) {
-                            sender.add_command_to_queue(MoveUpDTO{});
-                            w = false;
-                        }
-                        break;
-                    case SDLK_a:
-                        if (a) {
-                            sender.add_command_to_queue(MoveLeftDTO{});
-                            a = false;
-                        }
-                        break;
-                    case SDLK_s:
-                        if (s) {
-                            sender.add_command_to_queue(MoveDownDTO{});
-                            s = false;
-                        }
-                        break;
-                    case SDLK_d:
-                        if (d) {
-                            sender.add_command_to_queue(MoveRightDTO{});
-                            d = false;
-                        }
-                        break;
-                }
-            }
-            if (event.type == SDL_MOUSEMOTION) {
-                int mouse_x = event.motion.x;
-                int mouse_y = event.motion.y;
-                const double angulo = my_player.calculate_angle(mouse_x, mouse_y);
-
-                sender.add_command_to_queue(RotateDTO{angulo});
-            }
-        }
+    bool loop_game = true;
+    while (loop_game) {
+        loop_game = input_handler.handle_events();
 
         Snapshot snapshot_tmp;
         while (this->receiver.try_pop_snapshot_from_queue(snapshot_tmp)) {
@@ -112,7 +41,7 @@ void GameUI::run() {
 
         sdl.clear_display();
 
-        sdl.render_in_z_order(map, last_snapshot);
+        sdl.render_in_z_order(map, last_snapshot, my_player.get_username());
 
         sdl.show_screen();
 
@@ -140,11 +69,11 @@ bool GameUI::validate_qt_results(Lobby& lobby) {
 void GameUI::print_message(const std::string& s) { std::cout << s << std::endl; }
 
 GameUI::~GameUI() {
-    this->sender.stop();
-    this->receiver.stop();
-    this->sender.close_queue();
-    this->receiver.close_queue();
-    this->protocol.close();
-    this->sender.join();
-    this->receiver.join();
+    input_handler.stop_sender();
+    receiver.stop();
+    input_handler.close_sender_queue();
+    receiver.close_queue();
+    protocol.close();
+    input_handler.join_sender();
+    receiver.join();
 }

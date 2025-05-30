@@ -13,20 +13,20 @@
 #include "SDLManager.h"
 #include "client_protocol.h"
 #include "client_receiver.h"
-#include "client_sender.h"
+#include "input_handler.h"
 #include "my_player.h"
 
 #define MSG_NO_PROTOCOL "You have to connect yourself to a server to play :)"
 #define MSG_NO_USERNAME "You have to enter your username to login in our server"
 #define MSG_NO_GAME "You have to create a game or join one to play!"
+#define FPS 30
 
 class GameUI {
 private:
     ClientProtocol protocol;
-    ClientSender sender;
-    ClientReceiver receiver;
-
     SDLManager sdl;
+    InputHandler input_handler;
+    ClientReceiver receiver;
     MyPlayer my_player;
 
     bool validate_qt_results(Lobby& lobby);
