@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "../common/clock.h"
+#include "../common/skins.h"
 #include "lobby/lobby.h"
 
 #include "SDLManager.h"
@@ -17,7 +18,7 @@
 #include "my_player.h"
 
 #define MSG_NO_PROTOCOL "You have to connect yourself to a server to play :)"
-#define MSG_NO_USERNAME "You have to enter your username to login in our server"
+#define BASH_MSG_NO_USERNAME "You have to enter your username to login in our server"
 #define MSG_NO_GAME "You have to create a game or join one to play!"
 
 class GameUI {
@@ -25,6 +26,9 @@ private:
     ClientProtocol protocol;
     ClientSender sender;
     ClientReceiver receiver;
+
+    CounterTerroristSkin ct_skin;
+    TerroristSkin tt_skin;
 
     SDLManager sdl;
     MyPlayer my_player;

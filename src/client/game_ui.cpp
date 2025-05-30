@@ -4,6 +4,8 @@ GameUI::GameUI(Lobby& lobby):
         protocol(std::move(lobby.get_protocol())),
         sender(this->protocol),
         receiver(this->protocol),
+        ct_skin(lobby.get_ct_skin()),
+        tt_skin(lobby.get_tt_skin()),
         sdl(SDLManager()),
         my_player(MyPlayer(lobby.get_username())) {
     if (!this->validate_qt_results(lobby)) {
@@ -131,7 +133,7 @@ bool GameUI::validate_qt_results(Lobby& lobby) {
         return false;
     }
     if (lobby.get_username() == "") {
-        this->print_message(MSG_NO_USERNAME);
+        this->print_message(BASH_MSG_NO_USERNAME);
         return false;
     } else if (lobby.get_gamecode() == "") {
         this->print_message(MSG_NO_GAME);
