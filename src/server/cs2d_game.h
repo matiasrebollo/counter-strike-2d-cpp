@@ -30,6 +30,7 @@ private:
     const Rect spawn_zone;
     Queue<std::unique_ptr<Command>> command_queue;
     size_t last_it;
+    GameMap game_map;
 
     bool should_start() const;
     Vector2D random_position() const;

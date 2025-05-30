@@ -12,13 +12,27 @@
 #include "common/clock.h"
 #include "common/game_map.h"
 #include "common/game_snapshot.h"
+#include "common/yaml_parser.h"
 
 CS2DGame::CS2DGame(const std::string& id):
         spawn_zone(Vector2D(0, 0), 640, 480), last_it(0), id(id) {
-    const int mapWidth = 640;
-    const int mapHeight = 480;
+    // const int mapWidth = 640;
+    // const int mapHeight = 480;
     const int wallThickness = 40;
 
+    YamlParser parser_yaml;
+    this->game_map = parser_yaml.yaml_to_game_map("../common/maps/mapa.yaml");
+
+    for (const auto& block: game_map.map_objects) {
+        if (block.collidable) {
+            for (const auto& vec: block.positions) {
+                collidables.emplace_back(std::make_shared<Collidable>(
+                        Vector2D(vec.x * wallThickness, vec.y * wallThickness), wallThickness,
+                        wallThickness));
+            }
+        }
+    }
+    /*
     collidables.emplace_back(std::make_shared<Collidable>(Vector2D(0, 0), mapWidth, wallThickness));
     collidables.emplace_back(
             std::make_shared<Collidable>(Vector2D(0, 0), wallThickness, mapHeight));
@@ -32,6 +46,7 @@ CS2DGame::CS2DGame(const std::string& id):
     collidables.emplace_back(std::make_shared<Collidable>(
             Vector2D((mapWidth - boxThickness) / 2, (mapHeight - boxThickness) / 2), boxThickness,
             boxThickness));
+    */
 }
 
 bool CS2DGame::can_add_player() const { return players.size() < MAX_PLAYERS; }
@@ -76,7 +91,7 @@ void CS2DGame::add_player_sender(const std::string& username,
                                  "' does not exist.");
     }
 
-    std::vector<MapObject> objects;
+    /*std::vector<MapObject> objects;
     for (const auto& collidable: collidables) {
         if (std::dynamic_pointer_cast<Player>(collidable)) {
             continue;  // ignorar jugadores
@@ -89,8 +104,8 @@ void CS2DGame::add_player_sender(const std::string& username,
         MapObject obj{pos, width, height, MapObjectType::BOX};
         objects.push_back(obj);
     }
-    const GameMap map{objects};
-    sender->send_map(map);
+    const GameMap map{objects};*/
+    sender->send_map(this->game_map);
 
     players_senders[username] = sender;
     if (this->should_start())
