@@ -37,7 +37,7 @@ void Lobby::go_to_lobby() { ui->stack->setCurrentIndex(1); }
 
 void Lobby::on_CreateGame_clicked() {
     if (this->username != "") {
-        ui->stack->setCurrentIndex(3);
+        this->create_game();
         return;
     }
     CreateUsernameDTO request;
@@ -57,10 +57,14 @@ void Lobby::on_CreateGame_clicked() {
         return;
     }
 
+    this->create_game();
+}
+
+void Lobby::create_game() {
     CreateGameDTO second_request;
 
     protocol.value().send_lobby_request(second_request);
-    response = protocol.value().receive_command();
+    ServerResponseLobby response = protocol.value().receive_command();
     if (response.commandType == CREATE_GAME && response.success) {
         this->gamecode = response.game_name;
         QString game_code = QString::fromStdString(response.game_name);

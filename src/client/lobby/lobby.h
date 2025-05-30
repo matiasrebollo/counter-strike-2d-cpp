@@ -69,6 +69,8 @@ private:
     std::string gamecode;
     std::optional<ClientProtocol> protocol;
 
+    void create_game();
+
     enum TerroristSkin skins_tt[4] = {PHEONIX, L3337_KREW, ARTIC_AVENGER, GUERRILLA};
     enum CounterTerroristSkin skins_ct[4] = {SEAL_FORCE, GSG_9, UK_SAS, GIGN};
 };
