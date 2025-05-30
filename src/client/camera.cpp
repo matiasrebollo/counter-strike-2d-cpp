@@ -4,6 +4,11 @@
 Camera::Camera(int screen_w, int screen_h):
         screen_width(screen_w), screen_height(screen_h), center_x(0), center_y(0) {}
 
+SDL2pp::Rect Camera::get_viewport() const {
+    return SDL2pp::Rect((center_x - screen_width / 2), (center_y - screen_height / 2), screen_width,
+                        screen_height);
+}
+
 double Camera::calculate_angle_from_center(int mouse_x, int mouse_y) const {
     float dx = mouse_x - static_cast<float>(screen_width / 2.0f);
     float dy = mouse_y - static_cast<float>(screen_height / 2.0f);
@@ -14,12 +19,6 @@ double Camera::calculate_angle_from_center(int mouse_x, int mouse_y) const {
 void Camera::follow(int x, int y) {
     center_x = x;
     center_y = y;
-}
-
-
-SDL2pp::Rect Camera::get_viewport() const {
-    return SDL2pp::Rect((center_x - screen_width / 2), (center_y - screen_height / 2), screen_width,
-                        screen_height);
 }
 
 SDL2pp::Rect Camera::world_to_screen(const SDL2pp::Rect& rect_mundo) const {

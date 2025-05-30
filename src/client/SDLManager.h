@@ -10,7 +10,20 @@
 #include "../common/game_snapshot.h"
 
 #include "camera.h"
-#include "my_player.h"
+
+#define WINDOW_HEIGHT 320
+#define WINDOW_WIDTH 240
+#define CAMERA_HEIGHT 320
+#define CAMERA_WIDTH 240
+
+#define BOX_X_POS_SPRITE 414
+#define BOX_Y_POS_SPRITE 64
+#define SIZE_BOX 32
+
+#define PLAYER_X_POS_SPRITE 0
+#define PLAYER_Y_POS_SPRITE 32
+#define SIZE_PLAYER 32
+
 
 class SDLManager {
 private:
@@ -26,13 +39,14 @@ private:
 
     Camera camera;
 
+    void update_camera(int player_x, int player_y);
+
 public:
     SDLManager();
 
     double calculate_angle_to_mouse(int mouse_x, int mouse_y) const;
     void clear_display();
     void show_screen();
-    void update_camera(int player_x, int player_y);
     void render_in_z_order(const GameMap& map, const Snapshot& snapshot,
                            const std::string& my_username);
     void texto_prueba();

@@ -11,14 +11,14 @@ private:
     int center_x;
     int center_y;
 
+    SDL2pp::Rect get_viewport() const;
+
 public:
     Camera(int screen_w, int screen_h);
 
     double calculate_angle_from_center(int mouse_x, int mouse_y) const;
 
     void follow(int x, int y);
-
-    SDL2pp::Rect get_viewport() const;
 
     SDL2pp::Rect world_to_screen(const SDL2pp::Rect& rect_mundo) const;
 
