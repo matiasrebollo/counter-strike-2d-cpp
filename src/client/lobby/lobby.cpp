@@ -65,11 +65,13 @@ void Lobby::create_game() {
 
     protocol.value().send_lobby_request(second_request);
     ServerResponseLobby response = protocol.value().receive_command();
-    if (response.commandType == CREATE_GAME && response.success) {
+    if (response.success) {
         this->gamecode = response.game_name;
         QString game_code = QString::fromStdString(response.game_name);
         QMessageBox::information(this, "Codigo de partida", game_code);
         close();
+    } else {
+        QMessageBox::information(this, TITLE_MSG_CREATE, MSG_GAME_NOT_CREATED);
     }
 }
 
