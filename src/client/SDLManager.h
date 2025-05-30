@@ -16,7 +16,7 @@
 #define CAMERA_HEIGHT 320
 #define CAMERA_WIDTH 240
 
-#define BOX_X_POS_SPRITE 414
+#define BOX_X_POS_SPRITE 416
 #define BOX_Y_POS_SPRITE 64
 #define SIZE_BOX 32
 

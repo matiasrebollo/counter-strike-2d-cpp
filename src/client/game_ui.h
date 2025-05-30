@@ -31,6 +31,7 @@ private:
     ClientReceiver receiver;
     MyPlayer my_player;
     std::unique_ptr<GameUIState> state;
+    bool keep_running;
 
     bool validate_qt_results(Lobby& lobby);
     void print_message(const std::string& s);

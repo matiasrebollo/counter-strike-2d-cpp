@@ -217,7 +217,6 @@ std::vector<Bullet> ClientProtocol::receive_bullets(const int& size_bullets) {
 */
 
 GameMap ClientProtocol::receive_map() {
-    this->receive_byte();
     uint16_t size = this->receive_big_endian_number();
     return GameMap{this->receive_map_objects(size)};
 }

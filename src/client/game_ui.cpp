@@ -10,7 +10,8 @@ GameUI::GameUI(Lobby& lobby):
         input_handler(sdl, this->protocol),
         receiver(this->protocol),
         my_player(MyPlayer(lobby.get_username())),
-        state(std::make_unique<WaitingForGameState>()) {
+        state(std::make_unique<WaitingForGameState>()),
+        keep_running(true) {
     if (!this->validate_qt_results(lobby)) {
         throw std::runtime_error(
                 "Error creating SDL interface");  // quizas ponerlo en los get de lobby.
@@ -21,7 +22,7 @@ void GameUI::run() {
     input_handler.start_sender();
     this->receiver.start();
 
-    while (true) {
+    while (this->keep_running) {
         state->handle(*this);
     }
 }
@@ -34,6 +35,10 @@ void GameUI::handle_waiting_for_game() {
     bool loop_game = true;
     while (loop_game) {
         loop_game = input_handler.handle_waiting_events();
+        if (!loop_game) {
+            keep_running = false;
+            break;
+        }
 
         GameDTO game_dto;
         bool pop = true;
@@ -76,6 +81,11 @@ void GameUI::handle_attack_phase(const GameMap& map) {
     bool loop_game = true;
     while (loop_game) {
         loop_game = input_handler.handle_events();
+        if (!loop_game) {
+            keep_running = false;
+            break;
+        }
+
 
         GameDTO snapshot_tmp;
         while (this->receiver.try_pop_game_dto(snapshot_tmp)) {
