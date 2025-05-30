@@ -162,7 +162,7 @@ void ClientProtocol::send_change_weapon_request(const InternalMessage& request) 
     this->send_byte(request.code_weapon_type);
 }
 
-GameResponseDTO ClientProtocol::receive_game_response() {
+GameDTO ClientProtocol::receive_game_dto() {
     uint8_t code = this->receive_byte();
     if (code == CODE_SEND_MAP) {
         return this->receive_map();

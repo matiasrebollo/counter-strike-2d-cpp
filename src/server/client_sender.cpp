@@ -3,7 +3,7 @@
 ClientSender::ClientSender(ServerProtocol& protocol):
         queue(), protocol(protocol), keep_running(true) {}
 
-void ClientSender::send_game_dto(const GameResponseDTO& message) {
+void ClientSender::send_game_dto(const GameDTO& message) {
     try {
         this->queue.try_push(message);
     } catch (const std::exception& e) {
@@ -12,7 +12,7 @@ void ClientSender::send_game_dto(const GameResponseDTO& message) {
 }
 
 void ClientSender::send_response() {
-    GameResponseDTO msg = this->queue.pop();
+    GameDTO msg = this->queue.pop();
     this->protocol.send_game_dto(msg);
 }
 

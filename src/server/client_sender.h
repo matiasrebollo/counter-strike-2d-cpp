@@ -6,8 +6,8 @@
 #include <string>
 
 #include "../common/communication_ended.h"
+#include "../common/game_dto.h"
 #include "../common/queue.h"
-#include "../common/server_message.h"
 
 #include "server_protocol.h"
 
@@ -15,14 +15,14 @@
 
 class ClientSender {
 private:
-    Queue<GameResponseDTO> queue;
+    Queue<GameDTO> queue;
     ServerProtocol& protocol;
     std::atomic_bool keep_running;
     void send_response();
 
 public:
     explicit ClientSender(ServerProtocol& protocol);
-    void send_game_dto(const GameResponseDTO& message);
+    void send_game_dto(const GameDTO& message);
     void run();
     ~ClientSender();
 };

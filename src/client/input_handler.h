@@ -30,6 +30,7 @@ public:
     InputHandler(SDLManager& sdl, ClientProtocol& protocol);
 
     bool handle_events();
+    bool handle_waiting_events();
 
     void start_sender();
     void stop_sender();

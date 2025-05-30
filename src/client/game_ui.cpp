@@ -1,11 +1,16 @@
 #include "game_ui.h"
 
+#include <variant>
+
+#include "common/game_dto.h"
+
 GameUI::GameUI(Lobby& lobby):
         protocol(std::move(lobby.get_protocol())),
         sdl(SDLManager()),
         input_handler(sdl, this->protocol),
         receiver(this->protocol),
-        my_player(MyPlayer(lobby.get_username())) {
+        my_player(MyPlayer(lobby.get_username())),
+        state(std::make_unique<WaitingForGameState>()) {
     if (!this->validate_qt_results(lobby)) {
         throw std::runtime_error(
                 "Error creating SDL interface");  // quizas ponerlo en los get de lobby.
@@ -13,16 +18,58 @@ GameUI::GameUI(Lobby& lobby):
 }
 
 void GameUI::run() {
-
-
     input_handler.start_sender();
     this->receiver.start();
 
-    sdl.texto_prueba();
-
-    for (const PlayerDTO& p: last_snapshot.players) {
-        my_player.update_my_position(p);
+    while (true) {
+        state->handle(*this);
     }
+}
+
+void GameUI::handle_waiting_for_game() {
+    Snapshot last_snapshot;
+
+    int it = 0;
+    Clock clock;
+    bool loop_game = true;
+    while (loop_game) {
+        loop_game = input_handler.handle_waiting_events();
+
+        GameDTO game_dto;
+        bool pop = true;
+        while (pop) {
+            if (!this->receiver.try_pop_game_dto(game_dto)) {
+                pop = false;
+                continue;
+            }
+
+            std::visit(
+                    [this, &last_snapshot, &loop_game, &pop](const auto& game_dto) {
+                        using T = std::decay_t<decltype(game_dto)>;
+                        if constexpr (std::is_same_v<T, Snapshot>) {
+                            last_snapshot = std::move(game_dto);
+                        } else if constexpr (std::is_same_v<T, GameMap>) {
+                            state = std::make_unique<AttackPhaseState>(
+                                    game_dto);  // deberia usarse buy phase
+                            pop = false;
+                            loop_game = false;
+                        } else {
+                            static_assert(always_false_v<T>, "Unhandled GameDTO type");
+                        }
+                    },
+                    game_dto);
+        }
+
+        sdl.texto_prueba();
+        // hacer algo con la snapshot??
+        // actualizar el cartel de esperando players!!!
+
+        it = clock.sleep_and_calc_next_it(FPS, it);
+    }
+}
+void GameUI::handle_buy_phase(const GameMap& /*map*/) {}
+void GameUI::handle_attack_phase(const GameMap& map) {
+    Snapshot last_snapshot = std::get<Snapshot>(this->receiver.pop_game_dto());
 
     int it = 0;
     Clock clock;
@@ -30,9 +77,9 @@ void GameUI::run() {
     while (loop_game) {
         loop_game = input_handler.handle_events();
 
-        Snapshot snapshot_tmp;
-        while (this->receiver.try_pop_snapshot_from_queue(snapshot_tmp)) {
-            last_snapshot = std::move(snapshot_tmp);
+        GameDTO snapshot_tmp;
+        while (this->receiver.try_pop_game_dto(snapshot_tmp)) {
+            last_snapshot = std::move(std::get<Snapshot>(snapshot_tmp));
         }
 
         for (const PlayerDTO& p: last_snapshot.players) {

@@ -91,6 +91,15 @@ bool InputHandler::handle_events() {
     return true;
 }
 
+bool InputHandler::handle_waiting_events() {
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        if (handle_quit_event(event))
+            return false;
+    }
+    return true;
+}
+
 
 void InputHandler::start_sender() { sender.start(); }
 

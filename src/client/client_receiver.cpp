@@ -17,13 +17,13 @@ void ClientReceiver::run() {
     }
 }
 
-bool ClientReceiver::try_pop_game_response(GameResponseDTO& response) {
-    return this->queue.try_pop(response);
-}
+bool ClientReceiver::try_pop_game_dto(GameDTO& response) { return this->queue.try_pop(response); }
+
+GameDTO ClientReceiver::pop_game_dto() { return this->queue.pop(); }
 
 void ClientReceiver::close_queue() { this->queue.close(); }
 
 void ClientReceiver::receive_snapshot_from_server() {
-    GameResponseDTO response = this->protocol.receive_game_response();
+    GameDTO response = this->protocol.receive_game_dto();
     this->queue.push(response);
 }

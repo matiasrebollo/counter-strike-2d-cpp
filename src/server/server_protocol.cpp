@@ -63,7 +63,7 @@ void ServerProtocol::send_start_game(const ServerResponseLobby& msg) {
     this->send_byte(this->commandsToCode.find(msg.commandType)->second);
 }
 
-void ServerProtocol::send_game_dto(const GameResponseDTO& response) {
+void ServerProtocol::send_game_dto(const GameDTO& response) {
     std::visit(
             [this](const auto& response) {
                 using T = std::decay_t<decltype(response)>;

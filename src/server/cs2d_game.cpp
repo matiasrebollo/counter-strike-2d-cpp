@@ -41,12 +41,7 @@ CS2DGame::CS2DGame(const std::string& id):
 
 bool CS2DGame::can_add_player() const { return players.size() < MAX_PLAYERS; }
 
-bool CS2DGame::should_start() const {
-    if (players_senders.size() < MIN_PLAYERS)
-        return false;
-
-    return true;
-}
+bool CS2DGame::should_start() const { return players_senders.size() >= MIN_PLAYERS; }
 
 Vector2D CS2DGame::random_position() const {
     static std::random_device rd;
@@ -212,7 +207,7 @@ void CS2DGame::run() {
             std::unique_ptr<Command> cmd;
             while (command_queue.try_pop(cmd)) {}
             this->last_it = it;
-            std::cout << this->phase_time << std::endl;
+            // std::cout << "esperando jugadores... " << this->phase_time << std::endl;
             // agregar tiempo maximo de espera jugadores??
             // en ese caso, qué hacer si el juego termina forzadamente??
             if (this->should_start()) {
@@ -223,8 +218,7 @@ void CS2DGame::run() {
             }
             // it = clock.sleep_and_calc_next_it(FPS, it);
             // continue;
-        }
-        if (this->phase == BUY) {
+        } else if (this->phase == BUY) {
             std::unique_ptr<Command> cmd;
             while (command_queue.try_pop(cmd)) {
                 if (cmd->type() == BuyPhase)
@@ -236,7 +230,7 @@ void CS2DGame::run() {
                 start_phase(ATTACK);
                 it = 1;
             }
-        } else {
+        } else if (this->phase == ATTACK) {
             std::unique_ptr<Command> cmd;
             while (command_queue.try_pop(cmd)) {
                 if (cmd->type() == AttackPhase)
