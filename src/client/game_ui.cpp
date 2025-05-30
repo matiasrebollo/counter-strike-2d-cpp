@@ -4,6 +4,8 @@ GameUI::GameUI(Lobby& lobby):
         protocol(std::move(lobby.get_protocol())),
         sender(this->protocol),
         receiver(this->protocol),
+        ct_skin(lobby.get_ct_skin()),
+        tt_skin(lobby.get_tt_skin()),
         sdl(SDLManager()),
         my_player(MyPlayer(lobby.get_username())) {
     if (!this->validate_qt_results(lobby)) {

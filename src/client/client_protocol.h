@@ -61,7 +61,7 @@ public:
     void send_lobby_request(const LobbyRequestDTO& request);
     GameMap receive_map();
     void close();
-    ~ClientProtocol();
+    virtual ~ClientProtocol() {}
 };
 
 #endif
