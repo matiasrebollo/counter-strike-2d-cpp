@@ -6,9 +6,8 @@
 #include <string>
 
 #include "../common/communication_ended.h"
-#include "../common/game_map.h"
-#include "../common/game_snapshot.h"
 #include "../common/queue.h"
+#include "../common/server_message.h"
 
 #include "server_protocol.h"
 
@@ -16,15 +15,14 @@
 
 class ClientSender {
 private:
-    Queue<Snapshot> queue;
+    Queue<GameResponseDTO> queue;
     ServerProtocol& protocol;
     std::atomic_bool keep_running;
-    void send_snapshot();
+    void send_response();
 
 public:
     explicit ClientSender(ServerProtocol& protocol);
-    void push(const Snapshot& snapshot);
-    void send_map(const GameMap& map);
+    void send_game_dto(const GameResponseDTO& message);
     void run();
     ~ClientSender();
 };

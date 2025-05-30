@@ -162,6 +162,15 @@ void ClientProtocol::send_change_weapon_request(const InternalMessage& request) 
     this->send_byte(request.code_weapon_type);
 }
 
+GameResponseDTO ClientProtocol::receive_game_response() {
+    uint8_t code = this->receive_byte();
+    if (code == CODE_SEND_MAP) {
+        return this->receive_map();
+    } else {
+        return this->receive_snapshot();
+    }
+}
+
 Snapshot ClientProtocol::receive_snapshot() {
     // snasphot.phase = Phase(this->receive_byte());
     // snasphot.round_number = this->receive_byte();

@@ -112,7 +112,7 @@ void CS2DGame::broadcast_map() const {
     const GameMap map{objects};
 
     for (const auto& [_, sender]: players_senders) {
-        sender->send_map(map);
+        sender->send_game_dto(map);
     }
 }
 
@@ -128,7 +128,7 @@ void CS2DGame::broadcast_snapshot() const {
     const Snapshot snapshot{player_dtos};
 
     for (const auto& [_, sender]: players_senders) {
-        sender->push(snapshot);
+        sender->send_game_dto(snapshot);
     }
 }
 
@@ -217,12 +217,12 @@ void CS2DGame::run() {
             // en ese caso, qué hacer si el juego termina forzadamente??
             if (this->should_start()) {
                 broadcast_map();
-                broadcast_snapshot();
+                // broadcast_snapshot();
                 start_phase(BUY);
                 it = 1;
             }
-            it = clock.sleep_and_calc_next_it(FPS, it);
-            continue;
+            // it = clock.sleep_and_calc_next_it(FPS, it);
+            // continue;
         }
         if (this->phase == BUY) {
             std::unique_ptr<Command> cmd;

@@ -14,14 +14,11 @@ GameUI::GameUI(Lobby& lobby):
 
 void GameUI::run() {
 
-    GameMap map = this->receiver.receive_initial_map();
 
     this->sender.start();
     this->receiver.start();
 
     sdl.texto_prueba();
-
-    Snapshot last_snapshot = this->receiver.receive_initial_snapshot();
 
     for (const PlayerDTO& p: last_snapshot.players) {
         my_player.update_my_position(p);
