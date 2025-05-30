@@ -15,7 +15,7 @@
 
 CS2DGame::CS2DGame(const std::string& id):
         spawn_zone(Vector2D(0, 0), 640, 480),
-        phase(BUY),
+        phase(WAITING_PLAYERS),
         phase_time(0.0f),
         round(0),
         last_it(0),
@@ -42,10 +42,7 @@ CS2DGame::CS2DGame(const std::string& id):
 bool CS2DGame::can_add_player() const { return players.size() < MAX_PLAYERS; }
 
 bool CS2DGame::should_start() const {
-    if (players.size() < MIN_PLAYERS)
-        return false;
-
-    if (players.size() > players_senders.size())
+    if (players_senders.size() < MIN_PLAYERS)
         return false;
 
     return true;
@@ -61,26 +58,44 @@ Vector2D CS2DGame::random_position() const {
     return Vector2D(disX(gen), disY(gen));
 }
 
-void CS2DGame::add_player(const std::string& username) {
+void CS2DGame::add_player(const std::string& username, std::shared_ptr<ClientSender> sender) {
+    if (players.contains(username)) {
+        throw std::runtime_error("Username '" + username + "' is already in the game.");
+    }
+
     double orientation = 0.0;
     Vector2D position = random_position();
     auto player = std::make_shared<Player>(position, orientation);
-    while (is_player_not_in_valid_position(*player)) {
+    while (is_player_not_in_valid_position(
+            *player)) {  // mapa debe estar bien hecho como para que esto funcione
         position = random_position();
         player = std::make_shared<Player>(position, orientation);
     }
-
     collidables.push_back(player);
+
+    /*std::vector<MapObject> objects;
+    for (const auto& collidable: collidables) {
+        if (std::dynamic_pointer_cast<Player>(collidable)) {
+            continue;  // ignorar jugadores
+        }
+        Rect h = collidable->get_rect();
+        Vector2D pos = h.position;
+        int width = h.width;
+        int height = h.height;
+
+        MapObject obj{pos, width, height, MapObjectType::BOX};
+        objects.push_back(obj);
+    }
+    const GameMap map{objects};
+    sender->send_map(map);*/
+
     players[username] = player;
+    players_senders[username] = sender;
 }
 
-void CS2DGame::add_player_sender(const std::string& username,
-                                 std::shared_ptr<ClientSender> sender) {
-    if (players.find(username) == players.end()) {
-        throw std::runtime_error("Cannot add sender: player with username '" + username +
-                                 "' does not exist.");
-    }
+void CS2DGame::push(std::unique_ptr<Command> command) { command_queue.push(std::move(command)); }
 
+void CS2DGame::broadcast_map() const {
     std::vector<MapObject> objects;
     for (const auto& collidable: collidables) {
         if (std::dynamic_pointer_cast<Player>(collidable)) {
@@ -95,14 +110,11 @@ void CS2DGame::add_player_sender(const std::string& username,
         objects.push_back(obj);
     }
     const GameMap map{objects};
-    sender->send_map(map);
 
-    players_senders[username] = sender;
-    if (this->should_start())
-        this->start();
+    for (const auto& [_, sender]: players_senders) {
+        sender->send_map(map);
+    }
 }
-
-void CS2DGame::push(std::unique_ptr<Command> command) { command_queue.push(std::move(command)); }
 
 void CS2DGame::broadcast_snapshot() const {
     std::vector<PlayerDTO> player_dtos;
@@ -185,14 +197,9 @@ void CS2DGame::end_game() {
 }
 
 void CS2DGame::run() {
-    if (!should_start()) {
-        throw(std::runtime_error("Cannot start game: not all players are ready."));
-    }
-
     int FPS = 60;
     Clock clock;
     size_t it = 1;
-    broadcast_snapshot();
     while (should_keep_running()) {
         if (this->round > ROUNDS)
             end_game();
@@ -201,6 +208,22 @@ void CS2DGame::run() {
         size_t delta_it = it - last_it;
         float delta_seconds = static_cast<float>(delta_it) / FPS;
         this->phase_time += delta_seconds;
+        if (this->phase == WAITING_PLAYERS) {
+            std::unique_ptr<Command> cmd;
+            while (command_queue.try_pop(cmd)) {}
+            this->last_it = it;
+            std::cout << this->phase_time << std::endl;
+            // agregar tiempo maximo de espera jugadores??
+            // en ese caso, qué hacer si el juego termina forzadamente??
+            if (this->should_start()) {
+                broadcast_map();
+                broadcast_snapshot();
+                start_phase(BUY);
+                it = 1;
+            }
+            it = clock.sleep_and_calc_next_it(FPS, it);
+            continue;
+        }
         if (this->phase == BUY) {
             std::unique_ptr<Command> cmd;
             while (command_queue.try_pop(cmd)) {

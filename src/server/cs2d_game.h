@@ -71,8 +71,7 @@ public:
 
     explicit CS2DGame(const std::string& id);
     bool can_add_player() const;
-    void add_player(const std::string& username);
-    void add_player_sender(const std::string& username, std::shared_ptr<ClientSender> sender);
+    void add_player(const std::string& username, std::shared_ptr<ClientSender> sender);
     void push(const std::unique_ptr<Command> command);
     void rotate_player(const std::string& username, const double& angle);
     void move_player_up(const std::string& username);
