@@ -63,7 +63,7 @@ void Game_editor::on_save_button_clicked() {
     GameMap map = create_map(grid);
     YamlParser parser;
     YAML::Node yaml = parser.game_map_to_Yaml(map);
-    std::ofstream fout("mapa.yaml");
+    std::ofstream fout("../mapa.yaml");
     fout << yaml;
     close();
 }

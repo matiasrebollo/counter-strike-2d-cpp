@@ -18,12 +18,10 @@ CS2DGame::CS2DGame(const std::string& id):
         spawn_zone(Vector2D(0, 0), 640, 480), last_it(0), id(id) {
     // const int mapWidth = 640;
     // const int mapHeight = 480;
-    const int wallThickness = 40;
+    const int wallThickness = 32;
 
     YamlParser parser_yaml;
-    this->game_map = parser_yaml.yaml_to_game_map("mapa.yaml");
-    std::cout << this->game_map.width << "  ";
-    std::cout << this->game_map.height << "  ";
+    this->game_map = parser_yaml.yaml_to_game_map("../mapa.yaml");
 
     for (const auto& block: game_map.map_objects) {
         if (block.collidable) {
