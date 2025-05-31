@@ -21,7 +21,9 @@ CS2DGame::CS2DGame(const std::string& id):
     const int wallThickness = 40;
 
     YamlParser parser_yaml;
-    this->game_map = parser_yaml.yaml_to_game_map("../common/maps/mapa.yaml");
+    this->game_map = parser_yaml.yaml_to_game_map("mapa.yaml");
+    std::cout << this->game_map.width << "  ";
+    std::cout << this->game_map.height << "  ";
 
     for (const auto& block: game_map.map_objects) {
         if (block.collidable) {

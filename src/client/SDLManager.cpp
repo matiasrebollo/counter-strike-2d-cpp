@@ -24,14 +24,14 @@ void SDLManager::render_in_z_order(const GameMap& map, const Snapshot& snapshot,
     BlockTextureParser texture_parser;
     for (const MapObject& obj: map.map_objects) {
         BlockTextureInfo txt = texture_parser.get_texture_info(obj.type);
-        std::string path = "../assets/gfx/tiles" + txt.tileset_path;
+        std::string path = "../assets/gfx/tiles/" + txt.tileset_path;
 
         SDL2pp::Surface boxSheet2(path);
         SDL2pp::Texture box2(renderer, boxSheet2);
 
         SDL2pp::Rect rect_origen(txt.x, txt.y, txt.width, txt.height);
         for (const auto& vec: obj.positions) {
-            SDL2pp::Rect rect_destino(vec.x, vec.y, 32, 32);
+            SDL2pp::Rect rect_destino(vec.x * 32, vec.y * 32, 32, 32);
             renderer.Copy(box2, rect_origen, rect_destino);
         }
         /*if (obj.type == MapObjectType::BOX) {
