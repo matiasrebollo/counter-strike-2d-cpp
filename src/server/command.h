@@ -6,8 +6,7 @@
 #include <variant>
 
 #include "common/commands_dto.h"
-
-class CS2DGame;  // Forward declaration
+#include "server/game_world.h"
 
 enum GameCommandType { AttackPhase, BuyPhase };
 
@@ -21,7 +20,7 @@ public:
                                                 const CommandDTO& command_data);
 
     virtual GameCommandType type() const = 0;
-    virtual void execute(CS2DGame& game) const = 0;
+    virtual void execute(GameWorld& game) const = 0;
 
     Command(const Command&) = delete;
     Command& operator=(const Command&) = delete;

@@ -15,28 +15,28 @@ public:
 class MoveUpCommand: public AttackPhaseCommand {
 public:
     explicit MoveUpCommand(const std::string& username);
-    void execute(CS2DGame& game) const override;
+    void execute(GameWorld& game) const override;
     ~MoveUpCommand() override = default;
 };
 
 class MoveDownCommand: public AttackPhaseCommand {
 public:
     explicit MoveDownCommand(const std::string& username);
-    void execute(CS2DGame& game) const override;
+    void execute(GameWorld& game) const override;
     ~MoveDownCommand() override = default;
 };
 
 class MoveLeftCommand: public AttackPhaseCommand {
 public:
     explicit MoveLeftCommand(const std::string& username);
-    void execute(CS2DGame& game) const override;
+    void execute(GameWorld& game) const override;
     ~MoveLeftCommand() override = default;
 };
 
 class MoveRightCommand: public AttackPhaseCommand {
 public:
     explicit MoveRightCommand(const std::string& username);
-    void execute(CS2DGame& game) const override;
+    void execute(GameWorld& game) const override;
     ~MoveRightCommand() override = default;
 };
 
@@ -44,14 +44,14 @@ class RotateCommand: public AttackPhaseCommand {
 public:
     const double angle;
     RotateCommand(const std::string& username, const double& angle);
-    void execute(CS2DGame& game) const override;
+    void execute(GameWorld& game) const override;
     ~RotateCommand() override = default;
 };
 
 /*struct ShootCommand: public Command {
     explicit ShootCommand(std::string& username);
 
-    void execute(CS2DGame& game) const override;
+    void execute(GameWorld& game) const override;
 
     ShootCommand(const ShootCommand&) = delete;
     ShootCommand& operator=(const ShootCommand&) = delete;
