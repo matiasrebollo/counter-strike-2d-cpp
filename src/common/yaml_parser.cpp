@@ -19,6 +19,7 @@ YAML::Node YamlParser::game_map_to_Yaml(const GameMap& game_map) {
             blocks.push_back(map_object_to_yaml(obj));
         }
     }
+    map["blocks"] = blocks;
     return map;
 }
 
@@ -38,11 +39,10 @@ YAML::Node YamlParser::map_object_to_yaml(const MapObject& map_obj) {
     obj["name"] = map_obj_to_str(map_obj.type);
 
     YAML::Node positions(YAML::NodeType::Sequence);
-
-    std::transform(map_obj.positions.begin(), map_obj.positions.end(),
-                   std::back_inserter(positions),
-                   [](const auto& pos) { return vector2d_to_yaml(pos); });
-
+    // NOLINT
+    for (const auto& pos: map_obj.positions) {
+        positions.push_back(vector2d_to_yaml(pos));
+    }
     obj["positions"] = positions;
 
     obj["collidable"] = map_obj.collidable;
