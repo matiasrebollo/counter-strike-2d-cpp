@@ -9,6 +9,8 @@
 
 class CS2DGame;  // Forward declaration
 
+enum GameCommandType { AttackPhase, BuyPhase };
+
 class Command {
 public:
     const std::string username;
@@ -18,6 +20,7 @@ public:
     static std::unique_ptr<Command> new_command(const std::string& username,
                                                 const CommandDTO& command_data);
 
+    virtual GameCommandType type() const = 0;
     virtual void execute(CS2DGame& game) const = 0;
 
     Command(const Command&) = delete;

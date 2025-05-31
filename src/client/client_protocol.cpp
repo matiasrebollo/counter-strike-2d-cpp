@@ -162,6 +162,15 @@ void ClientProtocol::send_change_weapon_request(const InternalMessage& request) 
     this->send_byte(request.code_weapon_type);
 }
 
+GameDTO ClientProtocol::receive_game_dto() {
+    uint8_t code = this->receive_byte();
+    if (code == CODE_SEND_MAP) {
+        return this->receive_map();
+    } else {
+        return this->receive_snapshot();
+    }
+}
+
 Snapshot ClientProtocol::receive_snapshot() {
     // snasphot.phase = Phase(this->receive_byte());
     // snasphot.round_number = this->receive_byte();
@@ -208,7 +217,6 @@ std::vector<Bullet> ClientProtocol::receive_bullets(const int& size_bullets) {
 */
 
 GameMap ClientProtocol::receive_map() {
-    this->receive_byte();
     uint16_t size = this->receive_big_endian_number();
     return GameMap{this->receive_map_objects(size)};
 }

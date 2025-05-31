@@ -19,7 +19,7 @@ Lobby::Lobby(QWidget* parent):
         QMainWindow(parent),
         ui(new Ui::Lobby),
         selected_ct_skin(SEAL_FORCE),
-        selected_tt_skin(GUERRILLA) {
+        selected_tt_skin(PHEONIX) {
     ui->setupUi(this);
     ui->stack->setCurrentIndex(0);
     ui->skins_tt_stack->setCurrentIndex(0);
@@ -37,28 +37,26 @@ void Lobby::go_to_lobby() { ui->stack->setCurrentIndex(1); }
 
 
 void Lobby::on_CreateGame_clicked() {
-    this->username = ui->username->text().toStdString();
-    MessageFromClient request;
-    request.commandType = CommandType::CREATE_USERNAME;  // commandType
-    request.s = this->username;                          // s
-    protocol.value().send_command(request);
+    CreateUsernameDTO request;
+    request.username = ui->username->text().toStdString();
+    protocol.value().send_lobby_request(request);
 
     ServerResponseLobby response = protocol.value().receive_command();
     if (response.commandType == CREATE_USERNAME && response.success) {
         ui->stack->setCurrentIndex(3);
-        this->username = ui->lineEdit->text().toStdString();
+        this->username = ui->username->text().toStdString();
     }
 }
 
 void Lobby::on_JoinGame_clicked() {
     CreateUsernameDTO request;
-    request.username = ui->lineEdit->text().toStdString();
+    request.username = ui->username->text().toStdString();
     protocol.value().send_lobby_request(request);
 
     ServerResponseLobby response = protocol.value().receive_command();
     if (response.commandType == CREATE_USERNAME && response.success) {
         ui->stack->setCurrentIndex(2);
-        this->username = ui->lineEdit->text().toStdString();
+        this->username = ui->username->text().toStdString();
     }
 }
 
@@ -66,10 +64,9 @@ void Lobby::on_JoinGameButton_clicked() {
     std::string game_name = ui->game_code->text().toStdString();
 
     JoinGameDTO request;
-    request.commandType = CommandType::JOIN_GAME;  // commandType
-    request.s = game_name;                         // s
-    request.tt_skin = selected_tt_skin;            // tt_skin
-    request.ct_skin = selected_ct_skin;            // ct_skin
+    request.gamename = game_name;
+    request.tt_skin = selected_tt_skin;
+    request.ct_skin = selected_ct_skin;
 
     protocol.value().send_lobby_request(request);
     ServerResponseLobby response = protocol.value().receive_command();
@@ -87,10 +84,8 @@ void Lobby::on_createButton_clicked() {
         // error
     } else {
         CreateGameDTO request;
-
-        request.commandType = CommandType::CREATE_GAME;  // commandType
-        request.tt_skin = selected_tt_skin;              // tt_skin
-        request.ct_skin = selected_ct_skin;              // ct_skin
+        request.tt_skin = selected_tt_skin;
+        request.ct_skin = selected_ct_skin;
         request.size_players = n_min_players;
 
         protocol.value().send_lobby_request(request);

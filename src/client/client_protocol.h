@@ -18,8 +18,7 @@ inline constexpr bool always_false_v = false;
 #include "../common/commands.h"
 #include "../common/commands_dto.h"
 #include "../common/common_protocol.h"
-#include "../common/game_map.h"
-#include "../common/game_snapshot.h"
+#include "../common/game_dto.h"
 #include "../common/lobby_request.h"
 #include "../common/map_object.h"
 #include "../common/message.h"
@@ -52,14 +51,16 @@ private:
     std::vector<PlayerDTO> receive_players(const int& size_players);
     std::vector<MapObject> receive_map_objects(const uint8_t& size);
 
+    Snapshot receive_snapshot();
+    GameMap receive_map();
+
 public:
     ClientProtocol(const std::string& hostname, const std::string& port);
     ClientProtocol(ClientProtocol&&);
     void send_command(const CommandDTO& command);
+    GameDTO receive_game_dto();
     ServerResponseLobby receive_command();
-    Snapshot receive_snapshot();
     void send_lobby_request(const LobbyRequestDTO& request);
-    GameMap receive_map();
     void close();
     ~ClientProtocol();
 };

@@ -8,18 +8,18 @@
 #include "common/weapon_type.h"
 
 struct PlayerDTO {
-    const std::string username;
-    const Vector2D position;
-    const double orientation;
-    /*const GunType primary_gun;
-    const uint16_t primary_ammo;
-    const GunType secondary_gun;
-    const uint16_t secondary_ammo;
-    const WeaponType equipped;
-    const bool is_shooting; // coordenadas de impacto del tiro??
-    const bool is_getting_hit;*/
-    const uint16_t life;
-    // const bool has_bomb;
+    std::string username;
+    Vector2D position;
+    double orientation;
+    /*GunType primary_gun;
+    uint16_t primary_ammo;
+    GunType secondary_gun;
+    uint16_t secondary_ammo;
+    WeaponType equipped;
+    bool is_shooting; // coordenadas de impacto del tiro??
+    bool is_getting_hit;*/
+    uint16_t life;
+    // bool has_bomb;
 };
 
 

@@ -14,7 +14,12 @@
 #include "common/game_snapshot.h"
 
 CS2DGame::CS2DGame(const std::string& id):
-        spawn_zone(Vector2D(0, 0), 640, 480), last_it(0), id(id) {
+        spawn_zone(Vector2D(0, 0), 640, 480),
+        phase(WAITING_PLAYERS),
+        phase_time(0.0f),
+        round(0),
+        last_it(0),
+        id(id) {
     const int mapWidth = 640;
     const int mapHeight = 480;
     const int wallThickness = 40;
@@ -36,15 +41,7 @@ CS2DGame::CS2DGame(const std::string& id):
 
 bool CS2DGame::can_add_player() const { return players.size() < MAX_PLAYERS; }
 
-bool CS2DGame::should_start() const {
-    if (players.size() < MIN_PLAYERS)
-        return false;
-
-    if (players.size() > players_senders.size())
-        return false;
-
-    return true;
-}
+bool CS2DGame::should_start() const { return players_senders.size() >= MIN_PLAYERS; }
 
 Vector2D CS2DGame::random_position() const {
     static std::random_device rd;
@@ -56,26 +53,44 @@ Vector2D CS2DGame::random_position() const {
     return Vector2D(disX(gen), disY(gen));
 }
 
-void CS2DGame::add_player(const std::string& username) {
+void CS2DGame::add_player(const std::string& username, std::shared_ptr<ClientSender> sender) {
+    if (players.contains(username)) {
+        throw std::runtime_error("Username '" + username + "' is already in the game.");
+    }
+
     double orientation = 0.0;
     Vector2D position = random_position();
     auto player = std::make_shared<Player>(position, orientation);
-    while (is_player_not_in_valid_position(*player)) {
+    while (is_player_not_in_valid_position(
+            *player)) {  // mapa debe estar bien hecho como para que esto funcione
         position = random_position();
         player = std::make_shared<Player>(position, orientation);
     }
-
     collidables.push_back(player);
+
+    /*std::vector<MapObject> objects;
+    for (const auto& collidable: collidables) {
+        if (std::dynamic_pointer_cast<Player>(collidable)) {
+            continue;  // ignorar jugadores
+        }
+        Rect h = collidable->get_rect();
+        Vector2D pos = h.position;
+        int width = h.width;
+        int height = h.height;
+
+        MapObject obj{pos, width, height, MapObjectType::BOX};
+        objects.push_back(obj);
+    }
+    const GameMap map{objects};
+    sender->send_map(map);*/
+
     players[username] = player;
+    players_senders[username] = sender;
 }
 
-void CS2DGame::add_player_sender(const std::string& username,
-                                 std::shared_ptr<ClientSender> sender) {
-    if (players.find(username) == players.end()) {
-        throw std::runtime_error("Cannot add sender: player with username '" + username +
-                                 "' does not exist.");
-    }
+void CS2DGame::push(std::unique_ptr<Command> command) { command_queue.push(std::move(command)); }
 
+void CS2DGame::broadcast_map() const {
     std::vector<MapObject> objects;
     for (const auto& collidable: collidables) {
         if (std::dynamic_pointer_cast<Player>(collidable)) {
@@ -90,14 +105,11 @@ void CS2DGame::add_player_sender(const std::string& username,
         objects.push_back(obj);
     }
     const GameMap map{objects};
-    sender->send_map(map);
 
-    players_senders[username] = sender;
-    if (this->should_start())
-        this->start();
+    for (const auto& [_, sender]: players_senders) {
+        sender->send_game_dto(map);
+    }
 }
-
-void CS2DGame::push(std::unique_ptr<Command> command) { command_queue.push(std::move(command)); }
 
 void CS2DGame::broadcast_snapshot() const {
     std::vector<PlayerDTO> player_dtos;
@@ -111,7 +123,7 @@ void CS2DGame::broadcast_snapshot() const {
     const Snapshot snapshot{player_dtos};
 
     for (const auto& [_, sender]: players_senders) {
-        sender->push(snapshot);
+        sender->send_game_dto(snapshot);
     }
 }
 
@@ -155,21 +167,87 @@ void CS2DGame::update(const size_t& it) {
     this->last_it = it;
 }
 
-void CS2DGame::run() {
-    if (!should_start()) {
-        throw(std::runtime_error("Cannot start game: not all players are ready."));
-    }
+void CS2DGame::end_attack_phase() {
+    // limpiar items del mapa (dejar algunos)
+    // reiniciar posiciones de cada jugador al spawn
+    // ver que equipo ganó!
+}
 
+void CS2DGame::start_phase(const Phase new_phase) {
+    if (new_phase == BUY)
+        this->round += 1;
+    this->phase = new_phase;
+    this->last_it = 0;
+    this->phase_time = 0.0f;
+}
+
+void CS2DGame::swap_teams() {
+    // cambiar de equipos
+    // cambiar skins a cada jugador (segun las que seleccionó)
+}
+
+void CS2DGame::end_game() {
+    // finalizar partida (llamar a stop())
+    // determinar equipo ganador y enviar stadisticas finales
+    this->command_queue.close();
+    this->stop();
+    // los mapas deberian liberarse solos porque son RAII al igual que los shared_ptr
+}
+
+void CS2DGame::run() {
     int FPS = 60;
     Clock clock;
     size_t it = 1;
-    broadcast_snapshot();
     while (should_keep_running()) {
-        std::unique_ptr<Command> cmd;
-        while (command_queue.try_pop(cmd)) {
-            cmd->execute(*this);
+        if (this->round > ROUNDS) {
+            end_game();
+            continue;
         }
-        update(it);
+        if (this->round == ROUNDS / 2)
+            swap_teams();
+        size_t delta_it = it - last_it;
+        float delta_seconds = static_cast<float>(delta_it) / FPS;
+        this->phase_time += delta_seconds;
+        if (this->phase == WAITING_PLAYERS) {
+            std::unique_ptr<Command> cmd;
+            while (command_queue.try_pop(cmd)) {}
+            this->last_it = it;
+            // std::cout << "esperando jugadores... " << this->phase_time << std::endl;
+            // agregar tiempo maximo de espera jugadores??
+            // en ese caso, qué hacer si el juego termina forzadamente??
+            if (this->should_start()) {
+                broadcast_map();
+                // broadcast_snapshot();
+                start_phase(BUY);
+                it = 1;
+            }
+            // it = clock.sleep_and_calc_next_it(FPS, it);
+            // continue;
+        } else if (this->phase == BUY) {
+            std::unique_ptr<Command> cmd;
+            while (command_queue.try_pop(cmd)) {
+                if (cmd->type() == BuyPhase)
+                    cmd->execute(*this);
+            }
+            this->last_it = it;
+            std::cout << this->phase_time << std::endl;
+            if (this->phase_time >= BUY_PHASE_DURATION) {
+                start_phase(ATTACK);
+                it = 1;
+            }
+        } else if (this->phase == ATTACK) {
+            std::unique_ptr<Command> cmd;
+            while (command_queue.try_pop(cmd)) {
+                if (cmd->type() == AttackPhase)
+                    cmd->execute(*this);
+            }
+            update(it);
+            if (this->phase_time >= ATTACK_PHASE_DURATION) {
+                end_attack_phase();
+                start_phase(BUY);
+                it = 1;
+            }
+        }
         broadcast_snapshot();
         // std::cout << "last it: " << it << std::endl;
         it = clock.sleep_and_calc_next_it(FPS, it);

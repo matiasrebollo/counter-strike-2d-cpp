@@ -9,7 +9,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2pp/SDL2pp.hh>
 
-#include "../common/skins.h"
 #include "client/lobby/lobby.h"
 
 #include "game_ui.h"

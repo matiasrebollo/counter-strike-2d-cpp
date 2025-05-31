@@ -5,15 +5,18 @@
 #include <functional>
 #include <iostream>
 #include <string>
+#include <type_traits>
 #include <unordered_map>
+#include <variant>
 #include <vector>
+template <class>
+inline constexpr bool always_false_v = false;
 
 #include "../common/codes_parser.h"
 #include "../common/commands.h"
 #include "../common/commands_dto.h"
 #include "../common/common_protocol.h"
-#include "../common/game_map.h"
-#include "../common/game_snapshot.h"
+#include "../common/game_dto.h"
 #include "../common/lobby_request.h"
 #include "../common/message.h"
 #include "../common/socket.h"
@@ -45,14 +48,16 @@ private:
 
     MessageFromClient initialize_message(const CommandType& command);
 
+    void send_snapshot(const Snapshot& snapshot);
+    void send_map(const GameMap& map);
+
     void send_players(const std::vector<PlayerDTO>& players);
     // void send_bullets(const std::vector<Bullet>& bullets);
 public:
     explicit ServerProtocol(Socket&& socket);
     void send_lobby_message(const ServerResponseLobby& msg);
     void send_start_game(const ServerResponseLobby& msg);
-    void send_snapshot(const Snapshot& snapshot);
-    void send_map(const GameMap& map);
+    void send_game_dto(const GameDTO& message);
     CommandDTO receive_move_request();
     MessageFromClient receive_command(void);
     LobbyRequestDTO receive_lobby_request();
