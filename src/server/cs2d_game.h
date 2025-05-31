@@ -19,10 +19,10 @@
 // #include "server/shot.h"
 
 #define MAX_PLAYERS 10
-#define MIN_PLAYERS 1
-#define BUY_PHASE_DURATION 3
-#define ATTACK_PHASE_DURATION 10
-#define ROUNDS 1
+#define MIN_PLAYERS 2
+#define BUY_PHASE_DURATION 10
+#define ATTACK_PHASE_DURATION 60
+#define ROUNDS 10
 
 class CS2DGame: public Thread {
 private:
