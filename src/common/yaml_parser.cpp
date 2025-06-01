@@ -36,7 +36,7 @@ GameMap YamlParser::yaml_to_game_map(const std::string& path) {
 
 YAML::Node YamlParser::map_object_to_yaml(const MapObject& map_obj) {
     YAML::Node obj;
-    obj["name"] = map_obj_to_str(map_obj.type);
+    obj["block_id"] = int(map_obj.type);
 
     YAML::Node positions(YAML::NodeType::Sequence);
     // NOLINT
@@ -57,8 +57,7 @@ YAML::Node YamlParser::vector2d_to_yaml(const Vector2D& vector) {
 }
 
 MapObject YamlParser::yaml_to_map_object(const YAML::Node& node) {
-    MapObject obj{
-            {}, str_to_map_obj(node["name"].as<std::string>()), node["collidable"].as<bool>()};
+    MapObject obj{{}, node["block_id"].as<int>(), node["collidable"].as<bool>()};
     for (const auto& pos: node["positions"]) {
         obj.positions.push_back(yaml_to_vector2d(pos));
     }
