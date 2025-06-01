@@ -1,6 +1,7 @@
 #ifndef BLOCK_TEXTURE_PARSER_H
 #define BLOCK_TEXTURE_PARSER_H
 
+#include <set>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -13,16 +14,27 @@ struct BlockTextureInfo {
     int y;
     int width;
     int height;
+    bool collidable;
+};
+
+struct TilesetInfo {
+    std::string file;
+    int rows;
+    int columns;
+    int tileWidth;
+    int tileHeight;
+    std::set<int> collidables;
+    std::set<int> invalids;
 };
 
 class BlockTextureParser {
 protected:
-    std::unordered_map<MapObjectType, BlockTextureInfo> block_textures;
+    std::unordered_map<int, BlockTextureInfo> block_textures;
 
 public:
     BlockTextureParser();
-    BlockTextureInfo get_texture_info(MapObjectType block);
-    std::vector<MapObjectType> get_keys();
+    BlockTextureInfo get_texture_info(int block);
+    std::vector<int> get_keys();
 };
 
 #endif

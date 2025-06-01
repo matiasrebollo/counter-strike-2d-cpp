@@ -26,11 +26,11 @@ private slots:
 private:
     Ui::Game_editor* ui;
     void setupUi();
-    GameMap create_map(const std::vector<std::vector<MapObjectType>>& grid);
+    GameMap create_map(const std::vector<std::vector<int>>& grid);
 
 
     BlockTextureParser texture_parser;
-    MapObjectType selected_block;
-    std::vector<std::vector<MapObjectType>> grid;
+    int selected_block;
+    std::vector<std::vector<int>> grid;
 };
 #endif  // GAME_EDITOR_H

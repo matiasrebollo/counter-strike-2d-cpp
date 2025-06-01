@@ -6,22 +6,40 @@
 
 #include "map_object.h"
 
-BlockTextureParser::BlockTextureParser():
-        block_textures({{AZTEC_STONE_WALL_1, {"aztec.bmp", 32, 0, 32, 32}},
-                        {AZTEC_STONE_WALL_2, {"aztec.bmp", 64, 0, 32, 32}},
-                        {AZTEC_STONE_WALL_3, {"aztec.bmp", 96, 0, 32, 32}},
-                        {AZTEC_STONE_WALL_4, {"aztec.bmp", 128, 0, 32, 32}},
-                        {AZTEC_STONE_WALL_5, {"aztec.bmp", 160, 0, 32, 32}},
-                        {AZTEC_STONE_WALL_6, {"aztec.bmp", 192, 0, 32, 32}},
-                        {AZTEC_STONE_WALL_7, {"aztec.bmp", 224, 0, 32, 32}},
-                        {AZTEC_STONE_WALL_8, {"aztec.bmp", 256, 0, 32, 32}}}) {}
+BlockTextureParser::BlockTextureParser(): block_textures() {
+    std::vector<TilesetInfo> tilesets = {{"aztec.bmp",
+                                          6,
+                                          16,
+                                          32,
+                                          32,
+                                          {1, 2, 3, 4, 5, 6, 7, 8, 47, 46, 45, 93, 92, 88, 87},
+                                          {0, 9, 10, 11, 12, 13, 14, 15, 95, 94, 91, 90, 89, 73}}};
 
-BlockTextureInfo BlockTextureParser::get_texture_info(MapObjectType block) {
-    return block_textures[block];
+    int id_block = 0;
+
+    for (const auto& ts: tilesets) {
+        int offset_tileset = id_block;
+        for (int row = 0; row < ts.rows; row++) {
+            for (int col = 0; col < ts.columns; col++) {
+                if (not(ts.invalids.count(id_block - offset_tileset) > 0)) {
+                    block_textures[id_block] = {
+                            ts.file,
+                            col * ts.tileWidth,
+                            row * ts.tileHeight,
+                            ts.tileWidth,
+                            ts.tileHeight,
+                            ts.collidables.count(id_block - offset_tileset) > 0};
+                }
+                id_block++;
+            }
+        }
+    }
 }
 
-std::vector<MapObjectType> BlockTextureParser::get_keys() {
-    std::vector<MapObjectType> keys;
+BlockTextureInfo BlockTextureParser::get_texture_info(int block) { return block_textures[block]; }
+
+std::vector<int> BlockTextureParser::get_keys() {
+    std::vector<int> keys;
     keys.reserve(block_textures.size());
 
     std::transform(block_textures.begin(), block_textures.end(), std::back_inserter(keys),

@@ -224,7 +224,7 @@ std::vector<MapObject> ClientProtocol::receive_map_objects(const uint8_t& size) 
             uint16_t y = this->receive_big_endian_number();
             positions.push_back(Vector2D(x, y));
         }
-        objects.push_back({positions, MapObjectType(type), true});
+        objects.push_back({positions, type, true});
     }
     return objects;
 }
