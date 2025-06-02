@@ -9,11 +9,9 @@
 #include <utility>
 #include <vector>
 
-#include "common/clock.h"
-#include "common/game_map.h"
-#include "common/game_snapshot.h"
-
-CS2DGame::CS2DGame(const std::string& id): phase(WAITING_PLAYERS), phase_time(0.0f), id(id) {}
+CS2DGame::CS2DGame(const std::string& id): id(id) {
+    phase = std::make_unique<WaitingPlayersPhase>(*this);
+}
 
 bool CS2DGame::can_add_player() const { return players_senders.size() < MAX_PLAYERS; }
 
@@ -46,31 +44,35 @@ void CS2DGame::broadcast_snapshot() const {
     broadcast_game_dto(snapshot);
 }
 
-void CS2DGame::update(const size_t& it) {
-    for (size_t i = 0; i < it - this->last_it; ++i) {
+void CS2DGame::update(const size_t& it, size_t& prev_it) {
+    for (size_t i = 0; i < (it + 1) - prev_it; ++i) {
         game_world.update();
     }
-    this->last_it = it;
+    prev_it = it;
+}
+
+void CS2DGame::execute_in_attack_phase(std::unique_ptr<Command> cmd) {
+    cmd->execute_in_attack_phase(this->game_world);
+}
+
+void CS2DGame::execute_in_buy_phase(std::unique_ptr<Command> cmd) {
+    cmd->execute_in_buy_phase(this->game_world);
 }
 
 void CS2DGame::end_attack_phase() {
     // limpiar items del mapa (dejar algunos)
     // reiniciar posiciones de cada jugador al spawn
-    // ver que equipo ganó!
+    // ver que equipo ganó y contabilizar!
 }
 
-void CS2DGame::start_phase(const Phase new_phase) {
-    if (new_phase == BUY)
-        this->round += 1;
-    this->phase = new_phase;
-    this->last_it = 0;
-    this->phase_time = 0.0f;
+void CS2DGame::change_phase(std::unique_ptr<GamePhase> new_phase) {
+    this->phase = std::move(new_phase);
+    if (this->phase->type() == BUY)
+        this->round++;
+    // algo mas??
 }
 
-void CS2DGame::swap_teams() {
-    // cambiar de equipos
-    // cambiar skins a cada jugador (segun las que seleccionó)
-}
+void CS2DGame::swap_teams() {}
 
 void CS2DGame::end_game() {
     // finalizar partida (llamar a stop()?)
@@ -78,61 +80,12 @@ void CS2DGame::end_game() {
 }
 
 void CS2DGame::run() {
-    int FPS = 60;
-    Clock clock;
-    size_t it = 1;
     while (should_keep_running()) {
         if (this->round > ROUNDS)
             end_game();
         if (this->round == ROUNDS / 2)
             swap_teams();
-        size_t delta_it = it - last_it;
-        float delta_seconds = static_cast<float>(delta_it) / FPS;
-        this->phase_time += delta_seconds;
-        if (this->phase == WAITING_PLAYERS) {
-            std::unique_ptr<Command> cmd;
-            while (command_queue.try_pop(cmd)) {}
-            this->last_it = it;
-            // std::cout << "esperando jugadores... " << this->phase_time << std::endl;
-            // agregar tiempo maximo de espera jugadores??
-            // en ese caso, qué hacer si el juego termina forzadamente??
-            if (this->should_start()) {
-                broadcast_map();
-                // broadcast_snapshot();
-                start_phase(BUY);
-                it = 1;
-            }
-            // it = clock.sleep_and_calc_next_it(FPS, it);
-            // continue;
-        } else if (this->phase == BUY) {
-            std::unique_ptr<Command> cmd;
-            while (command_queue.try_pop(cmd)) {
-                if (cmd->type() == BuyPhase)
-                    cmd->execute(this->game_world);
-            }
-            this->last_it = it;
-            std::cout << this->phase_time << std::endl;
-            if (this->phase_time >= BUY_PHASE_DURATION) {
-                start_phase(ATTACK);
-                it = 1;
-            }
-        } else if (this->phase == ATTACK) {
-            std::unique_ptr<Command> cmd;
-            while (command_queue.try_pop(cmd)) {
-                if (cmd->type() == AttackPhase)
-                    cmd->execute(this->game_world);
-            }
-            update(it);
-            if (this->phase_time >= ATTACK_PHASE_DURATION) {
-                end_attack_phase();
-                start_phase(BUY);
-                it = 1;
-            }
-        }
-        broadcast_snapshot();
-        // std::cout << "last it: " << it << std::endl;
-        it = clock.sleep_and_calc_next_it(FPS, it);
-        // std::cout << "new it: " << it << std::endl;
+        phase->run();
     }
 }
 

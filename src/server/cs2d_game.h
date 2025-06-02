@@ -9,23 +9,26 @@
 #include "common/thread.h"
 #include "server/client_sender.h"
 #include "server/command.h"
+#include "server/game_phase.h"
 #include "server/game_world.h"
 
 #define MAX_PLAYERS 10
-#define MIN_PLAYERS 1
+#define FPS 60
+#define MIN_PLAYERS 2
 #define ROUNDS 10
-#define BUY_PHASE_DURATION 10
-#define ATTACK_PHASE_DURATION 120
 
 class CS2DGame: public Thread {
 private:
     std::map<std::string, std::shared_ptr<ClientSender>> players_senders;
     Queue<std::unique_ptr<Command>> command_queue;
     GameWorld game_world;
-    Phase phase;
-    float phase_time;
+    std::unique_ptr<GamePhase> phase;
     size_t round;
-    size_t last_it;
+
+    friend class GamePhase;
+    friend class WaitingPlayersPhase;
+    friend class BuyPhase;
+    friend class AttackPhase;
 
     bool should_start() const;
 
@@ -33,10 +36,12 @@ private:
     void broadcast_map() const;
     void broadcast_snapshot() const;
 
-    void update(const size_t& it);
     void end_attack_phase();
-    void start_phase(const Phase new_phase);
     void swap_teams();
+    void change_phase(std::unique_ptr<GamePhase> new_phase);
+    void update(const size_t& it, size_t& prev_it);
+    void execute_in_attack_phase(std::unique_ptr<Command> cmd);
+    void execute_in_buy_phase(std::unique_ptr<Command> cmd);
     void end_game();
 
 public:
@@ -46,7 +51,6 @@ public:
     bool can_add_player() const;
     void add_player(const std::string& username, std::shared_ptr<ClientSender> sender);
     void push(const std::unique_ptr<Command> command);
-
     void run() override;
 
     CS2DGame(const CS2DGame&) = delete;

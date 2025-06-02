@@ -8,8 +8,6 @@
 #include "common/commands_dto.h"
 #include "server/game_world.h"
 
-enum GameCommandType { AttackPhase, BuyPhase };
-
 class Command {
 public:
     const std::string username;
@@ -19,8 +17,8 @@ public:
     static std::unique_ptr<Command> new_command(const std::string& username,
                                                 const CommandDTO& command_data);
 
-    virtual GameCommandType type() const = 0;
-    virtual void execute(GameWorld& game) const = 0;
+    virtual void execute_in_buy_phase(GameWorld& game) const = 0;
+    virtual void execute_in_attack_phase(GameWorld& game) const = 0;
 
     Command(const Command&) = delete;
     Command& operator=(const Command&) = delete;
