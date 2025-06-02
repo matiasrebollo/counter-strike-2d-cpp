@@ -7,12 +7,9 @@
 #include <string>
 #include <type_traits>
 #include <unordered_map>
+#include <utility>
 #include <variant>
 #include <vector>
-template <class>
-inline constexpr bool always_false_v = false;
-
-#include <utility>
 
 #include "../common/codes_parser.h"
 #include "../common/commands.h"

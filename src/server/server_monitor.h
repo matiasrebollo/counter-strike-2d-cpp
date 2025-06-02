@@ -15,11 +15,7 @@
 #include "client_sender.h"
 #include "cs2d_game.h"
 
-struct CreateResponse {
-    bool success;
-    std::string gamename;
-    std::shared_ptr<Queue<Snapshot>> queue;
-};
+#define MSG_CLOSING_GAME(id) "The game of id " + id + " has ended!"
 
 class ServerMonitor {
 private:

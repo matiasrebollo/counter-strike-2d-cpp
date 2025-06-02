@@ -9,8 +9,6 @@
 #include <unordered_map>
 #include <variant>
 #include <vector>
-template <class>
-inline constexpr bool always_false_v = false;
 
 #include "../common/codes_parser.h"
 #include "../common/commands.h"
@@ -62,6 +60,7 @@ public:
     MessageFromClient receive_command(void);
     LobbyRequestDTO receive_lobby_request();
     void kill();
+    ServerProtocol(ServerProtocol&& other);
     ~ServerProtocol();
 };
 

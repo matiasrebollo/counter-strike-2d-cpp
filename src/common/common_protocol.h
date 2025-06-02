@@ -1,3 +1,5 @@
+#pragma once
+
 #include <numbers>
 #include <string>
 #include <vector>
@@ -7,6 +9,8 @@
 #include "error_codes.h"
 #include "socket.h"
 
+template <class>
+inline constexpr bool always_false_v = false;
 
 class CommonProtocol {
 protected:
