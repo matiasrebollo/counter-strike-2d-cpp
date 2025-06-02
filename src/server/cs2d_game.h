@@ -12,10 +12,8 @@
 #include "server/game_phase.h"
 #include "server/game_world.h"
 
-#define MAX_PLAYERS 10
 #define FPS 60
-#define MIN_PLAYERS 2
-#define ROUNDS 10
+#define ROUNDS 4
 
 class CS2DGame: public Thread {
 private:

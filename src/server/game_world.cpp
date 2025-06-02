@@ -43,7 +43,13 @@ void GameWorld::add_player(const std::string& username) {
     }
     collidables.push_back(player);
 
-    players[username] = player;
+    size_t ctt = counter_terrorists.size();
+    size_t tt = terrorists.size();
+    if (ctt > tt && tt < TERRORISTS) {
+        terrorists[username] = player;
+    } else if (ctt < COUNTER_TERRORISTS) {
+        counter_terrorists[username] = player;
+    }
 }
 
 const GameMap GameWorld::get_map() const {
@@ -67,7 +73,12 @@ const GameMap GameWorld::get_map() const {
 const Snapshot GameWorld::get_snapshot() const {
     std::vector<PlayerDTO> player_dtos;
 
-    for (const auto& player: players) {
+    for (const auto& player: counter_terrorists) {
+        const PlayerDTO dto{player.first, player.second->rect.position,
+                            player.second->get_orientation(), player.second->get_life()};
+        player_dtos.push_back(dto);
+    }
+    for (const auto& player: terrorists) {
         const PlayerDTO dto{player.first, player.second->rect.position,
                             player.second->get_orientation(), player.second->get_life()};
         player_dtos.push_back(dto);
@@ -133,8 +144,11 @@ void GameWorld::make_step_player(Player& player, const Vector2D& step_dir) {
 
 
 void GameWorld::update() {
-    for (const auto& [_, player]: players) {
-        player->update(*this);
+    for (const auto& [_, c_terrorist]: counter_terrorists) {
+        c_terrorist->update(*this);
+    }
+    for (const auto& [_, terrorist]: terrorists) {
+        terrorist->update(*this);
     }
 }
 GameWorld::~GameWorld() {}

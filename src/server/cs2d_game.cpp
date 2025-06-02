@@ -13,9 +13,13 @@ CS2DGame::CS2DGame(const std::string& id): id(id) {
     phase = std::make_unique<WaitingPlayersPhase>(*this);
 }
 
-bool CS2DGame::can_add_player() const { return players_senders.size() < MAX_PLAYERS; }
+bool CS2DGame::can_add_player() const {
+    return players_senders.size() < COUNTER_TERRORISTS + TERRORISTS;
+}
 
-bool CS2DGame::should_start() const { return players_senders.size() >= MIN_PLAYERS; }
+bool CS2DGame::should_start() const {
+    return players_senders.size() >= COUNTER_TERRORISTS + TERRORISTS;
+}
 
 void CS2DGame::add_player(const std::string& username, std::shared_ptr<ClientSender> sender) {
     if (players_senders.contains(username)) {

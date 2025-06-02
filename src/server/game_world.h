@@ -13,10 +13,13 @@
 // #include "server/shot.h"
 
 #define PLAYER_SPEED 4
+#define TERRORISTS 1
+#define COUNTER_TERRORISTS 1
 
 class GameWorld {
 private:
-    std::map<std::string, std::shared_ptr<Player>> players;
+    std::map<std::string, std::shared_ptr<Player>> terrorists;
+    std::map<std::string, std::shared_ptr<Player>> counter_terrorists;
     std::list<std::shared_ptr<Collidable>> collidables;
     const Rect spawn_zone;
 
@@ -25,9 +28,12 @@ private:
 
     template <typename PlayerAction>
     void with_player(const std::string& username, PlayerAction action) {
-        auto it = players.find(username);
-        if (it != players.end()) {
-            action(*it->second);
+        auto ct_it = counter_terrorists.find(username);
+        auto tt_it = terrorists.find(username);
+        if (ct_it != counter_terrorists.end()) {
+            action(*ct_it->second);
+        } else if (tt_it != terrorists.end()) {
+            action(*tt_it->second);
         } else {
             throw std::invalid_argument("Username does not correspond to a player in this game.");
         }
