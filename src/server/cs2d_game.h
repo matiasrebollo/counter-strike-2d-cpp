@@ -22,8 +22,8 @@ private:
     Queue<std::unique_ptr<Command>> command_queue;
     GameWorld game_world;
     std::unique_ptr<GamePhase> phase;
-    size_t round;
-    std::optional<Team> round_winner;
+    size_t current_round;
+    std::optional<Team> current_round_winner;
     size_t ct_wins;
     size_t tt_wins;
 
@@ -31,6 +31,7 @@ private:
     friend class WaitingPlayersPhase;
     friend class BuyPhase;
     friend class AttackPhase;
+    friend class BetweenRoundsPhase;
 
     bool should_start() const;
 
@@ -38,7 +39,7 @@ private:
     void broadcast_map() const;
     void broadcast_snapshot(const int time_left) const;
 
-    bool round_has_a_winner() const;
+    bool current_round_has_a_winner() const;
     void decide_winner();
     void begin_new_round();
     void swap_teams();

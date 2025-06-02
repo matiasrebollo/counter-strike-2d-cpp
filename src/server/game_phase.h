@@ -7,8 +7,9 @@
 #include "server/command.h"
 
 #define BUY_PHASE_DURATION 10
-#define ATTACK_PHASE_DURATION 120
+#define ATTACK_PHASE_DURATION 20
 #define WAITING_PLAYERS_PHASE_DURATION 300
+#define BETWEEN_ROUNDS_PHASE_DURATION 5
 
 class CS2DGame;  // Forward declaration
 
@@ -48,6 +49,15 @@ public:
 class AttackPhase: public GamePhase {
 public:
     explicit AttackPhase(CS2DGame& game);
+    Phase type() override;
+    bool should_continue() override;
+    void execute(std::unique_ptr<Command> cmd) override;
+    void end() override;
+};
+
+class BetweenRoundsPhase: public GamePhase {
+public:
+    explicit BetweenRoundsPhase(CS2DGame& game);
     Phase type() override;
     bool should_continue() override;
     void execute(std::unique_ptr<Command> cmd) override;
