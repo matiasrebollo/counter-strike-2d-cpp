@@ -5,13 +5,12 @@
 #include <memory>
 
 // #include "server/loadout_manager.h"
-class CS2DGame;  // forward declaration
+class GameWorld;  // forward declaration
 
 #include "server/collidable.h"
 
 #define PLAYER_WIDTH 32
 #define PLAYER_HEIGHT 32
-#define PLAYER_SPEED 4
 #define PLAYER_INITIAL_LIFE 1000
 
 class Player: public Collidable {
@@ -25,15 +24,15 @@ private:
 
     // LoadoutManager loadout;
 
-    void step(const Vector2D& step_dir, CS2DGame& game);
+    void step(const Vector2D& step_dir, GameWorld& game);
 
 public:
-    Player(Vector2D& position, double& orientation);
+    explicit Player(Vector2D& position);
 
     float get_orientation() const;
     uint16_t get_life() const;
 
-    void update(CS2DGame& game);
+    void update(GameWorld& game);
     void rotate(const double& new_orientation);
     void move_up();
     void move_down();

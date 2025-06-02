@@ -26,6 +26,13 @@ void SDLManager::show_screen() { renderer.Present(); }
 void SDLManager::render_in_z_order(const GameMap& map, const Snapshot& snapshot,
                                    const std::string& my_username) {
 
+    for (const PlayerDTO& p: snapshot.players) {
+        if (p.username == my_username) {
+            update_camera(p.position.x, p.position.y);
+            // tengo q comentarlo por precommit break;
+        }
+    }
+
     // ACA SI ITERO EL MAPA (POR AHORA SOLO TIPO BOX)
     for (const MapObject& obj: map.map_objects) {
         if (obj.type == MapObjectType::BOX) {
@@ -35,13 +42,6 @@ void SDLManager::render_in_z_order(const GameMap& map, const Snapshot& snapshot,
                 continue;
             SDL2pp::Rect destino_camera = camera.world_to_screen(destino_mundo);
             renderer.Copy(box, rect_origen, destino_camera);
-        }
-    }
-
-    for (const PlayerDTO& p: snapshot.players) {
-        if (p.username == my_username) {
-            update_camera(p.position.x, p.position.y);
-            // tengo q comentarlo por precommit break;
         }
     }
 

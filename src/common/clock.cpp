@@ -9,8 +9,8 @@ Clock::Clock():
 
 void Clock::restart() { start = std::chrono::high_resolution_clock::now(); }
 
-int Clock::sleep_and_calc_next_it(const int FPS, int it) {
-    std::chrono::duration<double> rate(1.0 / FPS);
+int Clock::sleep_and_calc_next_it(const int fps, int it) {
+    std::chrono::duration<double> rate(1.0 / fps);
     end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> x = end - start;
     auto rest = rate - x;

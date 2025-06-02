@@ -8,6 +8,4 @@ bool Collidable::collides_with(const Collidable& other_collidable) const {
     return this->rect.intersects_with(other_collidable.rect);
 }
 
-Rect Collidable::get_rect() const { return rect; }
-
 Collidable::~Collidable() {}

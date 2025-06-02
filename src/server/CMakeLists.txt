@@ -6,6 +6,8 @@ target_sources(taller_server
         client_sender.cpp
         collidable.cpp
         cs2d_game.cpp
+        game_phase.cpp
+        game_world.cpp
         rect.cpp
         main.cpp
         command.cpp
@@ -23,6 +25,8 @@ target_sources(taller_server
         collidable.h
         command.h
         cs2d_game.h
+        game_phase.cpp
+        game_world.h
         rect.h
         attack_phase_commands.h
         player.h
