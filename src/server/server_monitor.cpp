@@ -6,8 +6,12 @@ ServerMonitor::ServerMonitor() { this->game_id = 0; }
 
 bool ServerMonitor::create_username(const std::string& username) {
     std::unique_lock<std::mutex> lck(this->mutex);
-    auto result = this->players.insert(username);
-    return result.second;
+    if (username == "") {
+        return false;
+    } else {
+        auto result = this->players.insert(username);
+        return result.second;
+    }
 }
 
 
@@ -41,5 +45,17 @@ std::shared_ptr<CS2DGame> ServerMonitor::join_game(const std::string& gameName,
         return it->second;
     } else {
         return nullptr;  // devuelve nullptr si no se pudo unir al juego al jugador
+    }
+}
+
+void ServerMonitor::reap_games() {
+    for (auto it = games.begin(); it != games.end();) {
+        std::shared_ptr<CS2DGame> game = it->second;
+        if (!game->is_alive()) {
+            game->join();
+            it = games.erase(it);
+        } else {
+            ++it;
+        }
     }
 }

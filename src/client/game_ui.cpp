@@ -114,7 +114,7 @@ bool GameUI::validate_qt_results(Lobby& lobby) {
         return false;
     }
     if (lobby.get_username() == "") {
-        this->print_message(MSG_NO_USERNAME);
+        this->print_message(BASH_MSG_NO_USERNAME);
         return false;
     } else if (lobby.get_gamecode() == "") {
         this->print_message(MSG_NO_GAME);
@@ -126,11 +126,12 @@ bool GameUI::validate_qt_results(Lobby& lobby) {
 void GameUI::print_message(const std::string& s) { std::cout << s << std::endl; }
 
 GameUI::~GameUI() {
-    input_handler.stop_sender();
-    receiver.stop();
-    input_handler.close_sender_queue();
     receiver.close_queue();
-    protocol.close();
-    input_handler.join_sender();
+    receiver.stop();
     receiver.join();
+    // El receiver ya no me interesa, cerro su queue y ya está.
+    input_handler.close_sender_queue();
+    input_handler
+            .join_sender();  // aca me bloqueo hasta que sea joineable, por dentro el sender stopea
+    protocol.close();
 }

@@ -25,7 +25,6 @@ class ServerMonitor {
 private:
     std::mutex mutex;
     std::set<std::string> players;
-    std::unordered_map<std::string, std::string> players_in_game;
     std::unordered_map<std::string, std::shared_ptr<CS2DGame>> games;
     int game_id;
 
@@ -39,6 +38,7 @@ public:
     void delete_username(const std::string& username);
     CS2DGame& get_game(const std::string& gameName);
     void manage_end_game(const std::string& gameName);
+    void reap_games();
 };
 
 #endif

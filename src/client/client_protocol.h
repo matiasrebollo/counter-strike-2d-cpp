@@ -62,7 +62,7 @@ public:
     ServerResponseLobby receive_command();
     void send_lobby_request(const LobbyRequestDTO& request);
     void close();
-    ~ClientProtocol();
+    virtual ~ClientProtocol() {}
 };
 
 #endif

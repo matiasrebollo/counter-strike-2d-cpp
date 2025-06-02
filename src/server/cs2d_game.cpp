@@ -75,14 +75,19 @@ void CS2DGame::change_phase(std::unique_ptr<GamePhase> new_phase) {
 void CS2DGame::swap_teams() {}
 
 void CS2DGame::end_game() {
-    // finalizar partida (llamar a stop()?)
-    // determinar equipo ganador y enviar estadisticas finales
+    // finalizar partida (llamar a stop())
+    // determinar equipo ganador y enviar stadisticas finales
+    this->command_queue.close();
+    this->stop();
+    // los mapas deberian liberarse solos porque son RAII al igual que los shared_ptr
 }
 
 void CS2DGame::run() {
     while (should_keep_running()) {
-        if (this->round > ROUNDS)
+        if (this->round > ROUNDS) {
             end_game();
+            continue;
+        }
         if (this->round == ROUNDS / 2)
             swap_teams();
         phase->run();
