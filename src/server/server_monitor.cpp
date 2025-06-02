@@ -40,11 +40,11 @@ std::shared_ptr<CS2DGame> ServerMonitor::join_game(const std::string& gameName,
                                                    std::shared_ptr<ClientSender> sender) {
     std::unique_lock<std::mutex> lck(this->mutex);
     auto it = this->games.find(gameName);
-    if (it->second->can_add_player()) {
+    if (it == this->games.end() || !it->second->can_add_player()) {
+        return nullptr;
+    } else {
         it->second->add_player(username, sender);
         return it->second;
-    } else {
-        return nullptr;  // devuelve nullptr si no se pudo unir al juego al jugador
     }
 }
 
