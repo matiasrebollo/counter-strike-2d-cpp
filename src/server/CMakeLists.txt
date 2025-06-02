@@ -13,10 +13,12 @@ target_sources(taller_server
         command.cpp
         attack_phase_commands.cpp
         player.cpp
+        loadout_manager.cpp
+        gun.cpp
+        knife.cpp
         server.cpp
         server_monitor.cpp
         server_protocol.cpp
-        weapon.cpp
     PUBLIC
         client_acceptor.h
         client_handler.h
@@ -31,8 +33,11 @@ target_sources(taller_server
         rect.h
         attack_phase_commands.h
         player.h
+        loadout_manager.h
+        weapon.h
+        gun.h
+        knife.h
         server.h
         server_monitor.h
         server_protocol.h
-        weapon.h
 )

@@ -6,16 +6,16 @@
 #include "common/weapon_type.h"
 
 class Weapon {
-protected:
-    Weapon();
-
 public:
-    // virtual int damage() const = 0;
+    Weapon() = default;
 
-    virtual ~Weapon() = default;
+    virtual void make_player_action() = 0;
+    // update??
 
     Weapon(const Weapon&) = delete;
     Weapon& operator=(const Weapon&) = delete;
+
+    virtual ~Weapon() = default;
 };
 
 #endif
