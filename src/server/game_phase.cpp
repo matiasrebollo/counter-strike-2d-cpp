@@ -1,5 +1,6 @@
 #include "server/game_phase.h"
 
+#include <cmath>
 #include <utility>
 
 #include "common/clock.h"
@@ -22,7 +23,7 @@ void GamePhase::run() {
         while (game.command_queue.try_pop(cmd)) {
             execute(std::move(cmd));
         }
-        game.broadcast_snapshot();
+        game.broadcast_snapshot(std::trunc(time));
         game.update(it, last_it);
 
         last_it = it;

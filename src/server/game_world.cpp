@@ -70,21 +70,22 @@ const GameMap GameWorld::get_map() const {
     return GameMap{objects};
 }
 
-const Snapshot GameWorld::get_snapshot() const {
-    std::vector<PlayerDTO> player_dtos;
+const GameWorldSnapshot GameWorld::get_snapshot() const {
+    std::vector<PlayerDTO> ctt;
+    std::vector<PlayerDTO> tt;
 
     for (const auto& player: counter_terrorists) {
         const PlayerDTO dto{player.first, player.second->rect.position,
                             player.second->get_orientation(), player.second->get_life()};
-        player_dtos.push_back(dto);
+        ctt.push_back(dto);
     }
     for (const auto& player: terrorists) {
         const PlayerDTO dto{player.first, player.second->rect.position,
                             player.second->get_orientation(), player.second->get_life()};
-        player_dtos.push_back(dto);
+        tt.push_back(dto);
     }
 
-    return Snapshot{player_dtos};
+    return GameWorldSnapshot{ctt, tt};
 }
 
 void GameWorld::rotate_player(const std::string& username, const double& angle) {

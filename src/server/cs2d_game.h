@@ -32,7 +32,7 @@ private:
 
     void broadcast_game_dto(const GameDTO& game_dto) const;
     void broadcast_map() const;
-    void broadcast_snapshot() const;
+    void broadcast_snapshot(const int timer) const;
 
     void end_attack_phase();
     void swap_teams();

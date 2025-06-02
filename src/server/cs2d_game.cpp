@@ -43,8 +43,11 @@ void CS2DGame::broadcast_map() const {
     broadcast_game_dto(map);
 }
 
-void CS2DGame::broadcast_snapshot() const {
-    const Snapshot snapshot = game_world.get_snapshot();
+void CS2DGame::broadcast_snapshot(const int timer) const {
+    const GameWorldSnapshot game_world_snapshot = game_world.get_snapshot();
+
+    const Snapshot snapshot{this->phase->type(),     this->round,           ROUNDS, timer,
+                            game_world_snapshot.ctt, game_world_snapshot.tt};
     broadcast_game_dto(snapshot);
 }
 

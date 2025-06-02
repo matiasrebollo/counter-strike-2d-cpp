@@ -9,6 +9,7 @@
 #include "common/game_map.h"
 #include "common/game_snapshot.h"
 #include "server/collidable.h"
+#include "server/game_world_snapshot.h"
 #include "server/player.h"
 // #include "server/shot.h"
 
@@ -50,7 +51,7 @@ public:
     GameWorld();
     void add_player(const std::string& username);
     const GameMap get_map() const;
-    const Snapshot get_snapshot() const;
+    const GameWorldSnapshot get_snapshot() const;
     void update();
     void rotate_player(const std::string& username, const double& angle);
     void move_player_up(const std::string& username);
