@@ -1,6 +1,6 @@
 #include "server/command.h"
 
-#include "server/move_commands.h"
+#include "server/attack_phase_commands.h"
 
 template <typename>
 inline constexpr bool always_false_v = false;

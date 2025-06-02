@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include "common/phase.h"
 #include "common/player_dto.h"
 
 struct Snapshot {

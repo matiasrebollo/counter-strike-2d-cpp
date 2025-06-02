@@ -249,7 +249,6 @@ class Queue<T*>: private Queue<void*> {
 public:
     explicit Queue(const unsigned int max_size): Queue<void*>(max_size) {}
 
-
     bool try_push(T* const& val) override { return Queue<void*>::try_push(val); }
 
     bool try_pop(T*& val) override { return Queue<void*>::try_pop(reinterpret_cast<void*&>(val)); }
