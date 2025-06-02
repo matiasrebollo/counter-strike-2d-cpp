@@ -32,7 +32,21 @@ void RotateCommand::execute_in_attack_phase(GameWorld& game) const {
     game.rotate_player(username, angle);
 }
 
-/*
-ShootCommand::ShootCommand(std::string& username): Command(username) {}
-void ShootCommand::execute_in_attack_phase(GameWorld& game) const { game.shoot(username); }
-*/
+
+PlayerActionCommand::PlayerActionCommand(const std::string& username):
+        AttackPhaseCommand(username) {}
+void PlayerActionCommand::execute_in_attack_phase(GameWorld& /*game*/) const {}
+
+EquipPrimaryCommand::EquipPrimaryCommand(const std::string& username):
+        AttackPhaseCommand(username) {}
+void EquipPrimaryCommand::execute_in_attack_phase(GameWorld& /*game*/) const {}
+
+EquipSecondaryCommand::EquipSecondaryCommand(const std::string& username):
+        AttackPhaseCommand(username) {}
+void EquipSecondaryCommand::execute_in_attack_phase(GameWorld& /*game*/) const {}
+
+EquipKnifeCommand::EquipKnifeCommand(const std::string& username): AttackPhaseCommand(username) {}
+void EquipKnifeCommand::execute_in_attack_phase(GameWorld& /*game*/) const {}
+
+EquipBombCommand::EquipBombCommand(const std::string& username): AttackPhaseCommand(username) {}
+void EquipBombCommand::execute_in_attack_phase(GameWorld& /*game*/) const {}

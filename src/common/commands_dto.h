@@ -12,6 +12,14 @@ struct RotateDTO {
     const double angle;
 };
 
-using CommandDTO = std::variant<MoveUpDTO, MoveDownDTO, MoveLeftDTO, MoveRightDTO, RotateDTO>;
+struct PlayerActionDTO {};
+struct EquipPrimaryDTO {};
+struct EquipSecondaryDTO {};
+struct EquipKnifeDTO {};
+struct EquipBombDTO {};
+
+using CommandDTO =
+        std::variant<MoveUpDTO, MoveDownDTO, MoveLeftDTO, MoveRightDTO, RotateDTO, PlayerActionDTO,
+                     EquipPrimaryDTO, EquipSecondaryDTO, EquipKnifeDTO, EquipBombDTO>;
 
 #endif

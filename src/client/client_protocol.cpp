@@ -86,6 +86,11 @@ void ClientProtocol::send_command(const CommandDTO& command) {
                     handle_move_right();
                 } else if constexpr (std::is_same_v<T, RotateDTO>) {
                     handle_rotate(d);
+                } else if constexpr (std::is_same_v<T, PlayerActionDTO>) {
+                } else if constexpr (std::is_same_v<T, EquipPrimaryDTO>) {
+                } else if constexpr (std::is_same_v<T, EquipSecondaryDTO>) {
+                } else if constexpr (std::is_same_v<T, EquipKnifeDTO>) {
+                } else if constexpr (std::is_same_v<T, EquipBombDTO>) {
                 } else {
                     static_assert(always_false_v<T>, "Unhandled CommandDTO type");
                 }
