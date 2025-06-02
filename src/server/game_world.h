@@ -27,6 +27,8 @@ private:
     Vector2D random_position() const;
     Vector2D spawn_position() const;
 
+    bool team_is_dead(const std::map<std::string, std::shared_ptr<Player>>& team) const;
+
     template <typename PlayerAction>
     void with_player(const std::string& username, PlayerAction action) {
         auto ct_it = counter_terrorists.find(username);
@@ -53,6 +55,8 @@ public:
     const GameMap get_map() const;
     const GameWorldSnapshot get_snapshot() const;
     void update();
+    bool tt_are_all_dead() const;
+    bool ct_are_all_dead() const;
     void rotate_player(const std::string& username, const double& angle);
     void move_player_up(const std::string& username);
     void move_player_down(const std::string& username);

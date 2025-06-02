@@ -18,12 +18,20 @@ void GamePhase::run() {
         size_t delta_it = it - last_it;
         float delta_seconds = static_cast<float>(delta_it) / FPS;
         time += delta_seconds;
-
+        if (type() == BUY) {
+            std::cout << "comprando... " << time << std::endl;
+        }
+        if (type() == WAITING_PLAYERS) {
+            std::cout << "esperando... " << time << std::endl;
+        }
+        if (type() == ATTACK) {
+            std::cout << "peleando... " << time << std::endl;
+        }
+        game.broadcast_snapshot(duration - std::trunc(time));
         std::unique_ptr<Command> cmd;
         while (game.command_queue.try_pop(cmd)) {
             execute(std::move(cmd));
         }
-        game.broadcast_snapshot(std::trunc(time));
         game.update(it, last_it);
 
         last_it = it;
@@ -53,14 +61,12 @@ void BuyPhase::end() { game.change_phase(std::make_unique<AttackPhase>(game)); }
 
 AttackPhase::AttackPhase(CS2DGame& game): GamePhase(game, ATTACK_PHASE_DURATION) {}
 Phase AttackPhase::type() { return ATTACK; }
-bool AttackPhase::should_continue() {
-    return true;  // poner condiciones de fin de fase!!
-}
+bool AttackPhase::should_continue() { return !game.round_has_a_winner(); }
 void AttackPhase::execute(std::unique_ptr<Command> cmd) {
     game.execute_in_attack_phase(std::move(cmd));
 }
 void AttackPhase::end() {
-    game.end_attack_phase();
+    game.decide_winner();
     game.change_phase(std::make_unique<BuyPhase>(game));
     // fase entre rondas?? si termina la partida???
 }

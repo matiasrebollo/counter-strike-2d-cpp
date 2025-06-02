@@ -7,7 +7,7 @@
 
 struct GameWorldSnapshot {
     // BombStatus bomb_status;
-    const std::vector<PlayerDTO> ctt;
+    const std::vector<PlayerDTO> ct;
     const std::vector<PlayerDTO> tt;
     // std::vector<itemDTO> items;
 };

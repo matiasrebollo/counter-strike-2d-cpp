@@ -43,11 +43,13 @@ void CS2DGame::broadcast_map() const {
     broadcast_game_dto(map);
 }
 
-void CS2DGame::broadcast_snapshot(const int timer) const {
+void CS2DGame::broadcast_snapshot(const int /*time_left*/) const {
     const GameWorldSnapshot game_world_snapshot = game_world.get_snapshot();
-
-    const Snapshot snapshot{this->phase->type(),     this->round,           ROUNDS, timer,
-                            game_world_snapshot.ctt, game_world_snapshot.tt};
+    std::vector<PlayerDTO> players = game_world_snapshot.ct;
+    players.insert(players.end(), game_world_snapshot.tt.begin(), game_world_snapshot.tt.end());
+    const Snapshot snapshot{players};
+    // const Snapshot snapshot{this->phase->type(),    this->round,           ROUNDS, time_left,
+    // game_world_snapshot.ct, game_world_snapshot.tt};
     broadcast_game_dto(snapshot);
 }
 
@@ -66,27 +68,39 @@ void CS2DGame::execute_in_buy_phase(std::unique_ptr<Command> cmd) {
     cmd->execute_in_buy_phase(this->game_world);
 }
 
-void CS2DGame::end_attack_phase() {
-    // limpiar items del mapa (dejar algunos)
+bool CS2DGame::round_has_a_winner() const {
+    return game_world.tt_are_all_dead() ||
+           game_world.ct_are_all_dead();  // agregar detonacion de bomba
+}
+
+void CS2DGame::decide_winner() {
+    if (!round_has_a_winner() or game_world.tt_are_all_dead()) {  // agregar desactivacion de bomba
+        this->round_winner = CT;
+        this->ct_wins++;
+    } else if (game_world.ct_are_all_dead()) {  // agregar detonacion de bomba
+        this->round_winner = TT;
+        this->tt_wins++;
+    }
+}
+
+void CS2DGame::begin_new_round() {
+    this->round++;
+    if (this->round == (ROUNDS / 2) + 1)
+        swap_teams();
+    // limpiar items del mapa (dejar algunos, random)
     // reiniciar posiciones de cada jugador al spawn
-    // ver que equipo ganó y contabilizar!
 }
 
 void CS2DGame::change_phase(std::unique_ptr<GamePhase> new_phase) {
     this->phase = std::move(new_phase);
-    if (this->phase->type() == BUY)
-        this->round++;
-    // algo mas??
 }
 
 void CS2DGame::swap_teams() {}
 
 void CS2DGame::end_game() {
-    // finalizar partida (llamar a stop())
-    // determinar equipo ganador y enviar stadisticas finales
+    // determinar equipo ganador y enviar estadisticas finales
     this->command_queue.close();
     this->stop();
-    // los mapas deberian liberarse solos porque son RAII al igual que los shared_ptr
 }
 
 void CS2DGame::run() {
@@ -95,8 +109,6 @@ void CS2DGame::run() {
             end_game();
             continue;
         }
-        if (this->round == ROUNDS / 2)
-            swap_teams();
         phase->run();
     }
 }

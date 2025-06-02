@@ -3,6 +3,7 @@
 
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 
 #include "common/queue.h"
@@ -22,6 +23,9 @@ private:
     GameWorld game_world;
     std::unique_ptr<GamePhase> phase;
     size_t round;
+    std::optional<Team> round_winner;
+    size_t ct_wins;
+    size_t tt_wins;
 
     friend class GamePhase;
     friend class WaitingPlayersPhase;
@@ -32,9 +36,11 @@ private:
 
     void broadcast_game_dto(const GameDTO& game_dto) const;
     void broadcast_map() const;
-    void broadcast_snapshot(const int timer) const;
+    void broadcast_snapshot(const int time_left) const;
 
-    void end_attack_phase();
+    bool round_has_a_winner() const;
+    void decide_winner();
+    void begin_new_round();
     void swap_teams();
     void change_phase(std::unique_ptr<GamePhase> new_phase);
     void update(const size_t& it, size_t& prev_it);

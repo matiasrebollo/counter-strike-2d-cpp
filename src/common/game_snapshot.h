@@ -1,19 +1,24 @@
 #ifndef SNAPSHOT_H
 #define SNAPSHOT_H
 
+#include <optional>
 #include <vector>
 
 #include "common/phase.h"
 #include "common/player_dto.h"
 
+enum Team { TT, CT };
+
 struct Snapshot {
-    Phase phase;
-    int round_number;
-    int total_rounds;
+    // Phase phase;
+    // int round_number;
+    // int total_rounds;
     // BombStatus bomb_status;
-    int timer;
-    std::vector<PlayerDTO> ctt;
-    std::vector<PlayerDTO> tt;
+    // int time_left;
+    // std::vector<PlayerDTO> ct;
+    // std::vector<PlayerDTO> tt;
+    // std::optional<Team> round_winner;
+    std::vector<PlayerDTO> players;
     // std::vector<itemDTO> items;
     // eventos de la partida?? como disparos o activaciones de bomba (en el playerDTO o separado?)
 };
