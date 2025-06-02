@@ -6,8 +6,12 @@ ServerMonitor::ServerMonitor() { this->game_id = 0; }
 
 bool ServerMonitor::create_username(const std::string& username) {
     std::unique_lock<std::mutex> lck(this->mutex);
-    auto result = this->players.insert(username);
-    return result.second;
+    if (username == "") {
+        return false;
+    } else {
+        auto result = this->players.insert(username);
+        return result.second;
+    }
 }
 
 

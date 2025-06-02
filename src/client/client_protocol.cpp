@@ -98,18 +98,13 @@ void ClientProtocol::send_create_username_request(const CreateUsernameDTO& dto) 
     this->send_string(dto.username);
 }
 
-void ClientProtocol::send_create_game_request(const CreateGameDTO& dto) {
+void ClientProtocol::send_create_game_request(const CreateGameDTO&) {
     this->send_byte(commandsToCode.find(CommandType::CREATE_GAME)->second);
-    this->send_byte(dto.size_players);
-    this->send_byte(dto.tt_skin + 1);
-    this->send_byte(dto.ct_skin + 1);
 }
 
 void ClientProtocol::send_join_game_request(const JoinGameDTO& dto) {
     this->send_byte(commandsToCode.find(CommandType::JOIN_GAME)->second);
     this->send_string(dto.gamename);
-    this->send_byte(dto.tt_skin + 1);
-    this->send_byte(dto.ct_skin + 1);
 }
 
 /*
@@ -243,5 +238,3 @@ ClientProtocol::ClientProtocol(ClientProtocol&& other): CommonProtocol(std::move
     this->isAlive = other.isAlive;
     other.isAlive = false;
 }
-
-ClientProtocol::~ClientProtocol() {}

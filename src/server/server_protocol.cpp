@@ -176,26 +176,10 @@ CreateUsernameDTO ServerProtocol::receive_create_username_request() {
     return dto;
 }
 
-CreateGameDTO ServerProtocol::receive_create_game_request() {
-    CreateGameDTO dto;
-    uint8_t size_players = this->receive_byte();
-    uint8_t skin_id_tt = this->receive_byte();
-    uint8_t skin_id_ct = this->receive_byte();
-    dto.tt_skin = TerroristSkin(skin_id_tt - 1);
-    dto.ct_skin = CounterTerroristSkin(skin_id_ct - 1);
-    dto.size_players = size_players;
-    return dto;
-}
+CreateGameDTO ServerProtocol::receive_create_game_request() { return CreateGameDTO{}; }
 
 JoinGameDTO ServerProtocol::receive_join_game_request() {
-    JoinGameDTO dto;
-    std::string gamename = this->receive_string();
-    uint8_t skin_id_tt = this->receive_byte();
-    uint8_t skin_id_ct = this->receive_byte();
-    dto.tt_skin = TerroristSkin(skin_id_tt - 1);
-    dto.ct_skin = CounterTerroristSkin(skin_id_ct - 1);
-    dto.gamename = gamename;
-    return dto;
+    return JoinGameDTO{this->receive_string()};
 }
 
 MessageFromClient ServerProtocol::initialize_message(const CommandType& command) {

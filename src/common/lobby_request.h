@@ -10,16 +10,10 @@ struct CreateUsernameDTO {
     std::string username;
 };
 
-struct CreateGameDTO {
-    int size_players;
-    TerroristSkin tt_skin;
-    CounterTerroristSkin ct_skin;
-};
+struct CreateGameDTO {};
 
 struct JoinGameDTO {
     std::string gamename;
-    TerroristSkin tt_skin;
-    CounterTerroristSkin ct_skin;
 };
 
 using LobbyRequestDTO = std::variant<CreateUsernameDTO, CreateGameDTO, JoinGameDTO>;
