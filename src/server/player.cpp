@@ -15,6 +15,8 @@ Player::Player(Vector2D& position):
 float Player::get_orientation() const { return orientation; }
 uint16_t Player::get_life() const { return life; }
 
+bool Player::is_alive() const { return this->life > 0; }
+
 void Player::update(GameWorld& game) {
     if (moving_up) {
         step(Vector2D(0, -1), game);

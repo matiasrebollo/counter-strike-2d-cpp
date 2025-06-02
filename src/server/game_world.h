@@ -9,25 +9,34 @@
 #include "common/game_map.h"
 #include "common/game_snapshot.h"
 #include "server/collidable.h"
+#include "server/game_world_snapshot.h"
 #include "server/player.h"
 // #include "server/shot.h"
 
 #define PLAYER_SPEED 4
+#define TERRORISTS 1
+#define COUNTER_TERRORISTS 1
 
 class GameWorld {
 private:
-    std::map<std::string, std::shared_ptr<Player>> players;
+    std::map<std::string, std::shared_ptr<Player>> terrorists;
+    std::map<std::string, std::shared_ptr<Player>> counter_terrorists;
     std::list<std::shared_ptr<Collidable>> collidables;
     const Rect spawn_zone;
 
     Vector2D random_position() const;
     Vector2D spawn_position() const;
 
+    bool team_is_dead(const std::map<std::string, std::shared_ptr<Player>>& team) const;
+
     template <typename PlayerAction>
     void with_player(const std::string& username, PlayerAction action) {
-        auto it = players.find(username);
-        if (it != players.end()) {
-            action(*it->second);
+        auto ct_it = counter_terrorists.find(username);
+        auto tt_it = terrorists.find(username);
+        if (ct_it != counter_terrorists.end()) {
+            action(*ct_it->second);
+        } else if (tt_it != terrorists.end()) {
+            action(*tt_it->second);
         } else {
             throw std::invalid_argument("Username does not correspond to a player in this game.");
         }
@@ -44,8 +53,10 @@ public:
     GameWorld();
     void add_player(const std::string& username);
     const GameMap get_map() const;
-    const Snapshot get_snapshot() const;
+    const GameWorldSnapshot get_snapshot() const;
     void update();
+    bool tt_are_all_dead() const;
+    bool ct_are_all_dead() const;
     void rotate_player(const std::string& username, const double& angle);
     void move_player_up(const std::string& username);
     void move_player_down(const std::string& username);
