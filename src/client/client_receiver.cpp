@@ -17,17 +17,13 @@ void ClientReceiver::run() {
     }
 }
 
-bool ClientReceiver::try_pop_snapshot_from_queue(Snapshot& snapshot) {
-    return this->queue.try_pop(snapshot);
-}
+bool ClientReceiver::try_pop_game_dto(GameDTO& response) { return this->queue.try_pop(response); }
 
-Snapshot ClientReceiver::receive_initial_snapshot() { return this->queue.pop(); }
-
-GameMap ClientReceiver::receive_initial_map() { return this->protocol.receive_map(); }
+GameDTO ClientReceiver::pop_game_dto() { return this->queue.pop(); }
 
 void ClientReceiver::close_queue() { this->queue.close(); }
 
 void ClientReceiver::receive_snapshot_from_server() {
-    Snapshot snapshot = this->protocol.receive_snapshot();
-    this->queue.push(snapshot);
+    GameDTO response = this->protocol.receive_game_dto();
+    this->queue.push(response);
 }

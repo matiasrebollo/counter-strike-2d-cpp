@@ -25,18 +25,20 @@ class ServerMonitor {
 private:
     std::mutex mutex;
     std::set<std::string> players;
-    std::unordered_map<std::string, std::string> players_in_game;
     std::unordered_map<std::string, std::shared_ptr<CS2DGame>> games;
     int game_id;
 
 public:
     ServerMonitor();
     bool create_username(const std::string& username);
-    std::shared_ptr<CS2DGame> CreateNewGame(const std::string& username);
-    std::shared_ptr<CS2DGame> JoinGame(const std::string& gameName, const std::string& username);
+    std::shared_ptr<CS2DGame> create_new_game(const std::string& username,
+                                              std::shared_ptr<ClientSender> sender);
+    std::shared_ptr<CS2DGame> join_game(const std::string& gameName, const std::string& username,
+                                        std::shared_ptr<ClientSender> sender);
     void delete_username(const std::string& username);
     CS2DGame& get_game(const std::string& gameName);
     void manage_end_game(const std::string& gameName);
+    void reap_games();
 };
 
 #endif

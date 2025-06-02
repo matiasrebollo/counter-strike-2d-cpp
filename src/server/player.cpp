@@ -2,21 +2,20 @@
 
 #include <iostream>
 
-#include "server/cs2d_game.h"
+#include "server/game_world.h"
 
-Player::Player(Vector2D& position, double& orientation):
+Player::Player(Vector2D& position):
         Collidable(position, PLAYER_WIDTH, PLAYER_HEIGHT),
         moving_up(false),
         moving_down(false),
         moving_left(false),
         moving_right(false),
-        orientation(orientation),
         life(PLAYER_INITIAL_LIFE) {}
 
 float Player::get_orientation() const { return orientation; }
 uint16_t Player::get_life() const { return life; }
 
-void Player::update(CS2DGame& game) {
+void Player::update(GameWorld& game) {
     if (moving_up) {
         step(Vector2D(0, -1), game);
     }
@@ -32,7 +31,7 @@ void Player::update(CS2DGame& game) {
     // si esta disparando, ...
 }
 
-void Player::step(const Vector2D& step_dir, CS2DGame& game) {
+/*void Player::step(const Vector2D& step_dir, GameWorld& game) {
     Rect old_rect = Rect(this->rect);
     std::cout << "posicion anterior: x: " << old_rect.position.x << ", y: " << old_rect.position.y
               << std::endl;
@@ -47,6 +46,16 @@ void Player::step(const Vector2D& step_dir, CS2DGame& game) {
         this->rect = old_rect;
         return;
     }
+    std::cout << "posicion final: x: " << this->rect.position.x << ", y: " << this->rect.position.y
+              << std::endl;
+    std::cout << "\n";
+}*/
+
+void Player::step(const Vector2D& step_dir, GameWorld& game) {
+    std::cout << "posicion anterior: x: " << this->rect.position.x
+              << ", y: " << this->rect.position.y << std::endl;
+
+    game.make_step_player(*this, step_dir);
     std::cout << "posicion final: x: " << this->rect.position.x << ", y: " << this->rect.position.y
               << std::endl;
     std::cout << "\n";

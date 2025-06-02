@@ -6,8 +6,7 @@
 #include <variant>
 
 #include "common/commands_dto.h"
-
-class CS2DGame;  // Forward declaration
+#include "server/game_world.h"
 
 class Command {
 public:
@@ -18,7 +17,8 @@ public:
     static std::unique_ptr<Command> new_command(const std::string& username,
                                                 const CommandDTO& command_data);
 
-    virtual void execute(CS2DGame& game) const = 0;
+    virtual void execute_in_buy_phase(GameWorld& game) const = 0;
+    virtual void execute_in_attack_phase(GameWorld& game) const = 0;
 
     Command(const Command&) = delete;
     Command& operator=(const Command&) = delete;

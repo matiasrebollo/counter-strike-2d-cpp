@@ -11,10 +11,9 @@ void MyPlayer::update_my_position(const PlayerDTO& p) {
     }
 }
 
-double MyPlayer::calculate_angle(int mouse_x, int mouse_y) const {
-    float dx = mouse_x - static_cast<float>(x_pos + 16);
-    float dy = mouse_y - static_cast<float>(y_pos + 16);
-    float ang_radianes = atan2(dy, dx);
-    double angulo = (ang_radianes * 180.0f / M_PI) + 90;
-    return angulo;
-}
+
+int MyPlayer::get_x_pos() const { return this->x_pos; }
+
+int MyPlayer::get_y_pos() const { return this->y_pos; }
+
+std::string MyPlayer::get_username() const { return this->username; }

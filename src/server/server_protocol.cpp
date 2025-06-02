@@ -63,11 +63,40 @@ void ServerProtocol::send_start_game(const ServerResponseLobby& msg) {
     this->send_byte(this->commandsToCode.find(msg.commandType)->second);
 }
 
+void ServerProtocol::send_game_dto(const GameDTO& response) {
+    std::visit(
+            [this](const auto& response) {
+                using T = std::decay_t<decltype(response)>;
+                if constexpr (std::is_same_v<T, GameMap>) {
+                    this->send_map(response);
+                } else if constexpr (std::is_same_v<T, Snapshot>) {
+                    this->send_snapshot(response);
+                } else {
+                    static_assert(always_false_v<T>, "Unhandled ServerResponseDTO type");
+                }
+            },
+            response);
+}
+
+void ServerProtocol::send_map(const GameMap& map) {
+    this->send_byte(CODE_SEND_MAP);
+    this->send_big_endian_number(map.map_objects.size());
+    for (auto object: map.map_objects) {
+        this->send_byte(object.type);
+        this->send_big_endian_number(object.position.x);
+        this->send_big_endian_number(object.position.y);
+        this->send_big_endian_number(object.height);
+        this->send_big_endian_number(object.width);
+    }
+}
+
+
 void ServerProtocol::send_snapshot(const Snapshot& snapshot) {
     // this->send_byte(snapshot.phase);
     // this->send_byte(snapshot.round_number);
     // this->send_byte(snapshot.bomb_status);
     // this->send_byte(snapshot.timer);
+    this->send_byte(CODE_SNAPSHOT);
     this->send_byte(snapshot.players.size());
     this->send_players(snapshot.players);
     //  this->send_byte(snapshot.bullets.size());
@@ -231,17 +260,6 @@ MessageFromClient ServerProtocol::receive_defuse_bomb_request(const CommandType&
     return msg;
 }
 
-void ServerProtocol::send_map(const GameMap& map) {
-    this->send_byte(CODE_SEND_MAP);
-    this->send_big_endian_number(map.map_objects.size());
-    for (auto object: map.map_objects) {
-        this->send_byte(object.type);
-        this->send_big_endian_number(object.position.x);
-        this->send_big_endian_number(object.position.y);
-        this->send_big_endian_number(object.height);
-        this->send_big_endian_number(object.width);
-    }
-}
 
 void ServerProtocol::kill() {
     if (!this->socket.is_stream_recv_closed()) {
