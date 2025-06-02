@@ -103,8 +103,6 @@ bool InputHandler::handle_waiting_events() {
 
 void InputHandler::start_sender() { sender.start(); }
 
-void InputHandler::stop_sender() { sender.stop(); }
-
 void InputHandler::close_sender_queue() { sender.close_queue(); }
 
 void InputHandler::join_sender() { sender.join(); }

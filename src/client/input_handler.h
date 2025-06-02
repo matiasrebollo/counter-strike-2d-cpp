@@ -33,7 +33,6 @@ public:
     bool handle_waiting_events();
 
     void start_sender();
-    void stop_sender();
     void close_sender_queue();
     void join_sender();
 };
