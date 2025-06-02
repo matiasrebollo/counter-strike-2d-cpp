@@ -1,5 +1,7 @@
 #include "SDLManager.h"
 
+#include <vector>
+
 SDLManager::SDLManager():
         sdl(SDL_INIT_VIDEO),
         window("GAME", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_HEIGHT,
@@ -26,10 +28,14 @@ void SDLManager::show_screen() { renderer.Present(); }
 void SDLManager::render_in_z_order(const GameMap& map, const Snapshot& snapshot,
                                    const std::string& my_username) {
 
-    for (const PlayerDTO& p: snapshot.players) {
-        if (p.username == my_username) {
-            update_camera(p.position.x, p.position.y);
-            // tengo q comentarlo por precommit break;
+    std::vector<std::vector<PlayerDTO>> teams = {snapshot.ct, snapshot.tt};
+
+    for (const std::vector<PlayerDTO>& team: teams) {
+        for (const PlayerDTO& p: team) {
+            if (p.username == my_username) {
+                update_camera(p.position.x, p.position.y);
+                // tengo q comentarlo por precommit break;
+            }
         }
     }
 
@@ -44,21 +50,22 @@ void SDLManager::render_in_z_order(const GameMap& map, const Snapshot& snapshot,
             renderer.Copy(box, rect_origen, destino_camera);
         }
     }
+    for (const std::vector<PlayerDTO>& team: teams) {
+        for (const PlayerDTO& p: team) {
+            double angulo = p.orientation;
+            int x_pos = p.position.x;
+            int y_pos = p.position.y;
 
-    for (const PlayerDTO& p: snapshot.players) {
-        double angulo = p.orientation;
-        int x_pos = p.position.x;
-        int y_pos = p.position.y;
+            SDL2pp::Rect rect_origen(PLAYER_X_POS_SPRITE, PLAYER_Y_POS_SPRITE, SIZE_PLAYER,
+                                     SIZE_PLAYER);
+            SDL2pp::Rect destino_mundo(x_pos, y_pos, SIZE_PLAYER, SIZE_PLAYER);
+            if (!camera.is_visible(destino_mundo))
+                continue;
+            SDL2pp::Rect destino_camera = camera.world_to_screen(destino_mundo);
+            SDL2pp::Point centro(SIZE_PLAYER / 2, SIZE_PLAYER / 2);
 
-        SDL2pp::Rect rect_origen(PLAYER_X_POS_SPRITE, PLAYER_Y_POS_SPRITE, SIZE_PLAYER,
-                                 SIZE_PLAYER);
-        SDL2pp::Rect destino_mundo(x_pos, y_pos, SIZE_PLAYER, SIZE_PLAYER);
-        if (!camera.is_visible(destino_mundo))
-            continue;
-        SDL2pp::Rect destino_camera = camera.world_to_screen(destino_mundo);
-        SDL2pp::Point centro(SIZE_PLAYER / 2, SIZE_PLAYER / 2);
-
-        renderer.Copy(this->player, rect_origen, destino_camera, angulo, centro);
+            renderer.Copy(this->player, rect_origen, destino_camera, angulo, centro);
+        }
     }
 }
 

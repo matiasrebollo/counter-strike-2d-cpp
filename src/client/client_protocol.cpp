@@ -171,8 +171,16 @@ Snapshot ClientProtocol::receive_snapshot() {
     // snasphot.round_number = this->receive_byte();
     // snasphot.bomb_status = BombStatus(this->receive_byte());
     // snasphot.timer = this->receive_byte();
-    int size_players = this->receive_byte();
-    Snapshot snapshot = Snapshot{this->receive_players(size_players)};
+    int phase = this->receive_byte();
+    size_t current_round_number = this->receive_byte();
+    size_t total_rounds = this->receive_byte();
+    int time_left = this->receive_byte();
+    int size_ct = this->receive_byte();
+    std::vector<PlayerDTO> cts = this->receive_players(size_ct);
+    int size_tt = this->receive_byte();
+    std::vector<PlayerDTO> tts = this->receive_players(size_tt);
+    Snapshot snapshot =
+            Snapshot{Phase(phase), current_round_number, total_rounds, time_left, cts, tts};
     // int size_bullets = this->receive_byte();
     // snapshot.bullets = this->receive_bullets(size_bullets);
     return snapshot;

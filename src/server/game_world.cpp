@@ -1,5 +1,7 @@
 #include "server/game_world.h"
 
+#include <algorithm>
+#include <iostream>
 #include <random>
 #include <vector>
 
