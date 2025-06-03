@@ -112,6 +112,16 @@ void GameWorld::move_player_right(const std::string& username) {
     with_player(username, [](Player& p) { p.move_right(); });
 }
 
+void GameWorld::equip_primary_for(const std::string& username) {
+    with_player(username, [](Player& p) { p.equip_primary(); });
+}
+void GameWorld::equip_secondary_for(const std::string& username) {
+    with_player(username, [](Player& p) { p.equip_secondary(); });
+}
+void GameWorld::equip_knife_for(const std::string& username) {
+    with_player(username, [](Player& p) { p.equip_knife(); });
+}
+
 const Collidable* GameWorld::colliding_object_with(const Collidable& coll) const {
     for (const auto& collidable: collidables) {
         if (collidable.get() == &coll)

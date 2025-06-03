@@ -107,6 +107,10 @@ public:
      * */
     bool buy_ammo(const uint16_t& ammo_count, bool for_primary);
 
+    void equip_primary();
+    void equip_secondary();
+    void equip_knife();
+
     LoadoutManager(const LoadoutManager&) = delete;
     LoadoutManager& operator=(const LoadoutManager&) = delete;
 

@@ -38,6 +38,9 @@ public:
     void move_down();
     void move_left();
     void move_right();
+    void equip_primary();
+    void equip_secondary();
+    void equip_knife();
     // void shoot(const CS2DGame& game) const;
 
     Player(const Player&) = delete;

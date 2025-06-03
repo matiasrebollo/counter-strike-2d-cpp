@@ -39,14 +39,20 @@ void PlayerActionCommand::execute_in_attack_phase(GameWorld& /*game*/) const {}
 
 EquipPrimaryCommand::EquipPrimaryCommand(const std::string& username):
         AttackPhaseCommand(username) {}
-void EquipPrimaryCommand::execute_in_attack_phase(GameWorld& /*game*/) const {}
+void EquipPrimaryCommand::execute_in_attack_phase(GameWorld& game) const {
+    game.equip_primary_for(username);
+}
 
 EquipSecondaryCommand::EquipSecondaryCommand(const std::string& username):
         AttackPhaseCommand(username) {}
-void EquipSecondaryCommand::execute_in_attack_phase(GameWorld& /*game*/) const {}
+void EquipSecondaryCommand::execute_in_attack_phase(GameWorld& game) const {
+    game.equip_secondary_for(username);
+}
 
 EquipKnifeCommand::EquipKnifeCommand(const std::string& username): AttackPhaseCommand(username) {}
-void EquipKnifeCommand::execute_in_attack_phase(GameWorld& /*game*/) const {}
+void EquipKnifeCommand::execute_in_attack_phase(GameWorld& game) const {
+    game.equip_knife_for(username);
+}
 
 EquipBombCommand::EquipBombCommand(const std::string& username): AttackPhaseCommand(username) {}
 void EquipBombCommand::execute_in_attack_phase(GameWorld& /*game*/) const {}

@@ -88,4 +88,8 @@ bool LoadoutManager::buy_ammo(const uint16_t& ammo_count, bool for_primary) {
     return true;
 }
 
+void LoadoutManager::equip_primary() { this->equipped = PRIMARY; }
+void LoadoutManager::equip_secondary() { this->equipped = SECONDARY; }
+void LoadoutManager::equip_knife() { this->equipped = KNIFE; }
+
 LoadoutManager::~LoadoutManager() {}
