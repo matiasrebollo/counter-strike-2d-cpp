@@ -16,7 +16,7 @@ SDLManager::SDLManager():
         player(renderer, playerSheet),
         boxSheet("../assets/gfx/tiles/aztec.bmp"),
         box(renderer, boxSheet),
-        hudNumbersSheet("../assets/gfx/hud_nums.png"),
+        hudNumbersSheet("../assets/gfx/hud_nums.bmp"),
         hudNumbers(renderer, hudNumbersSheet),
         camera(CAMERA_WIDTH, CAMERA_HEIGHT) {}
 
@@ -138,9 +138,9 @@ void SDLManager::render_hud_time(int time_left, float scale) {
     ss << minutes << ":" << std::setw(2) << std::setfill('0') << seconds;
     std::string time_str = ss.str();
 
-    int char_sprite_width = 48, char_width = 24;
-    int char_sprite_height = 66, char_height = 33;
-    int dp_sprite_width = 10, dp_width = 5;
+    int char_width = 48;
+    int char_height = 66;
+    int dp_width = 10;
     int spacing = 2;
 
     // porque me lo pide los linters
@@ -156,28 +156,24 @@ void SDLManager::render_hud_time(int time_left, float scale) {
     hudNumbers.SetColorMod(255, 255, 0);
     hudNumbers.SetAlphaMod(160);
 
-    int x = start_x;
-    for (char c: time_str) {
+    for (size_t i = 0; i < time_str.size(); ++i) {
+        char c = time_str[i];
         int index = 0;
         int width = char_width;
-        int sprite_width = char_sprite_width;
-
         if (std::isdigit(c)) {
             index = c - '0';
         } else if (c == ':') {
             index = 10;
             width = dp_width;
-            sprite_width = dp_sprite_width;
         } else {
             continue;
         }
 
-        SDL2pp::Rect src(index * char_sprite_width, 0, sprite_width, char_sprite_height);
-        SDL2pp::Rect dst(x * scale, y * scale, width * scale, char_height * scale);
+        SDL2pp::Rect src(index * char_width, 0, width, char_height);
+        SDL2pp::Rect dst((start_x + i * (width + spacing)) * scale, y * scale, width * scale,
+                         char_height * scale);
 
         renderer.Copy(hudNumbers, src, dst);
-
-        x += width + spacing;
     }
 }
 
