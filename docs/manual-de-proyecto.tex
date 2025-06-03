@@ -1,0 +1,120 @@
+\documentclass{article}
+%\usepackage{blindtext} % Paquete lorem ipsum
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{indentfirst}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{listings}
+\usepackage{amssymb}
+\usepackage{mdframed}
+
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{enumitem}
+\usepackage{minted} % Requiere compilar con --shell-escape
+\usepackage{lscape} % Para páginas apaisadas
+\usepackage{pdflscape}  % Para rotar solo una página
+\usepackage{makecell} % Para hacer saltos de línea en celdas si es necesario
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.8,0,0.2}
+\definecolor{backcolour}{rgb}{.95,.95,1}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{backcolour},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{black},
+    stringstyle=\color{orange},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{
+    language=C,                 % Lenguaje de programación
+    basicstyle=\ttfamily,       % Fuente monoespaciada
+    keywordstyle=\color{blue},  % Color para palabras clave
+    commentstyle=\color{gray},  % Color para comentarios
+    stringstyle=\color{red},    % Color para cadenas de texto
+    numbers=left,               % Numeración de líneas a la izquierda
+    numberstyle=\tiny\color{gray}, % Estilo de los números de línea
+    stepnumber=1,               % Muestra cada línea numerada
+    tabsize=4,                  % Tamaño de los tabuladores
+    breaklines=true,            % Divide líneas largas
+    frame=single,               % Marco alrededor del código
+    label=lst:codigoC           % Etiqueta para referencias
+}
+
+\lstset{style=mystyle}
+
+\usepackage{qrcode,hyperref}
+
+
+%\usepackage[margin=1cm]{geometry} % Centra el texto
+
+\begin{document}
+
+\begin{titlepage}
+  \vspace*{1cm}
+
+  \begin{center}
+    {\Huge{CS2D: Manual de Proyecto}}
+  \end{center}
+
+  \vspace{0.3cm}
+
+  \begin{center}
+    {\LARGE{Facultad de Ingeniería de la Universidad de Buenos Aires}}\\
+    \vspace{0.6cm}
+    {\Large{Taller de Programación}}\\
+    \vspace{0.6cm}
+    {\large{Cátedra Veiga}}\\
+  \end{center}
+
+  \vspace{0.8cm}
+  \begin{center}
+    \includegraphics[scale=0.8]{imagenes/logoFiuba.png}
+  \end{center}
+  
+   \vspace{1cm}
+  \begin{center}
+    {\Large{\textbf{Integrantes:}}}
+  \end{center}
+  \vspace{0.2cm}
+  \begin{center}
+    \begin{tabular}{| c | c |}
+    \hline
+    Alumno & Padrón \\ \hline
+    Fernandez, Facundo & 109097 \\
+    Molina , Taiel ALexis & 109458 \\
+    Rebollo, Matías Gabriel & 109671 \\
+    Rocha Diaz, Tomás & 111085 \\  \hline
+    \end{tabular}
+  \end{center}
+  \vspace{0.2cm}
+    \begin{center}
+        \textbf{{\Large{Corrector: Capón, Mateo}}}
+    \end{center}
+\end{titlepage}
+
+\pagebreak
+
+\renewcommand*\contentsname{Contenido}
+
+\tableofcontents
+
+\pagebreak
+
+\section*{Introducción}
+\addcontentsline{toc}{section}{\protect\numberline{}Introducción}% 
+\end{document}
