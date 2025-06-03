@@ -30,7 +30,9 @@ void Player::update(GameWorld& game) {
     if (moving_right) {
         step(Vector2D(1, 0), game);
     }
-    // si esta disparando, ...
+    // si esta disparando, ... update de weapons necesario
+    // enviar eventos si disparo, si mato
+    // si mato, reconocerlo y aumentar dinero
 }
 
 void Player::step(const Vector2D& step_dir, GameWorld& game) {
@@ -42,13 +44,23 @@ void Player::move_down() { moving_down = !moving_down; }
 void Player::move_left() { moving_left = !moving_left; }
 void Player::move_right() { moving_right = !moving_right; }
 void Player::rotate(const double& new_orientation) { this->orientation = new_orientation; }
-void Player::equip_primary() { loadout.equip_primary(); }
-void Player::equip_secondary() { loadout.equip_secondary(); }
-void Player::equip_knife() { loadout.equip_knife(); }
 void Player::make_action() {
     Weapon* weapon = loadout.equipped_weapon();
     if (weapon)
         weapon->action();
+    // necesario saber cuándo se da la acción para manejar el "mantener el click apretado"
+}
+void Player::equip_primary() { loadout.equip_primary(); }
+void Player::equip_secondary() { loadout.equip_secondary(); }
+void Player::equip_knife() { loadout.equip_knife(); }
+
+void Player::buy_gun(const GunType& gun) {
+    loadout.buy_primary_gun(gun);
+    // compra exitosa o no: enviar evento al juego para notificar al cliente??
+}
+void Player::buy_ammo(const uint16_t& ammo, const bool& for_primary) {
+    loadout.buy_ammo(ammo, for_primary);
+    // compra exitosa o no: enviar evento al juego para notificar al cliente??
 }
 
 /*

@@ -54,7 +54,7 @@ bool LoadoutManager::can_buy_gun(const GunType& gun_type) const {
     return this->money >= price_for(gun_type);
 }
 
-bool LoadoutManager::can_buy_ammo(const uint16_t& ammo_count, bool for_primary) const {
+bool LoadoutManager::can_buy_ammo(const uint16_t& ammo_count, const bool& for_primary) const {
     uint16_t price = 0;
     if (for_primary) {
         if (not primary_gun)
@@ -75,7 +75,7 @@ const std::unique_ptr<Gun> LoadoutManager::buy_primary_gun(const GunType& gun_ty
     return new_primary_gun(Gun::new_gun(gun_type));
 }
 
-bool LoadoutManager::buy_ammo(const uint16_t& ammo_count, bool for_primary) {
+bool LoadoutManager::buy_ammo(const uint16_t& ammo_count, const bool& for_primary) {
     if (not can_buy_ammo(ammo_count, for_primary))
         return false;
 
