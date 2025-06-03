@@ -12,6 +12,7 @@ target_sources(taller_server
         main.cpp
         command.cpp
         attack_phase_commands.cpp
+        buy_phase_commands.cpp
         player.cpp
         loadout_manager.cpp
         gun.cpp
@@ -32,6 +33,7 @@ target_sources(taller_server
         game_world_snapshot.h
         rect.h
         attack_phase_commands.h
+        buy_phase_commands.h
         player.h
         loadout_manager.h
         weapon.h

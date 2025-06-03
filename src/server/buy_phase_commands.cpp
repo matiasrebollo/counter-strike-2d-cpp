@@ -1,0 +1,15 @@
+#include "server/buy_phase_commands.h"
+
+// #include "server/game_world.h"
+
+BuyPhaseCommand::BuyPhaseCommand(const std::string& username): Command(username) {}
+void BuyPhaseCommand::execute_in_attack_phase(GameWorld&) const {}
+
+BuyGunCommand::BuyGunCommand(const std::string& username, const GunType gun):
+        BuyPhaseCommand(username), gun(gun) {}
+void BuyGunCommand::execute_in_buy_phase(GameWorld& /*game*/) const {}
+
+BuyAmmoCommand::BuyAmmoCommand(const std::string& username, const uint16_t ammo,
+                               const bool for_primary):
+        BuyPhaseCommand(username), ammo(ammo), for_primary(for_primary) {}
+void BuyAmmoCommand::execute_in_buy_phase(GameWorld& /*game*/) const {}

@@ -1,6 +1,7 @@
 #include "server/command.h"
 
 #include "server/attack_phase_commands.h"
+#include "server/buy_phase_commands.h"
 
 template <typename>
 inline constexpr bool always_false_v = false;
@@ -33,6 +34,10 @@ std::unique_ptr<Command> Command::new_command(const std::string& username,
                     return std::make_unique<EquipKnifeCommand>(username);
                 } else if constexpr (std::is_same_v<T, EquipBombDTO>) {
                     return std::make_unique<EquipBombCommand>(username);
+                } else if constexpr (std::is_same_v<T, BuyGunDTO>) {
+                    return std::make_unique<BuyGunCommand>(username, d.gun);
+                } else if constexpr (std::is_same_v<T, BuyAmmoDTO>) {
+                    return std::make_unique<BuyAmmoCommand>(username, d.ammo, d.for_primary);
                 } else {
                     static_assert(always_false_v<T>, "Unhandled command data type");
                 }

@@ -91,6 +91,8 @@ void ClientProtocol::send_command(const CommandDTO& command) {
                 } else if constexpr (std::is_same_v<T, EquipSecondaryDTO>) {
                 } else if constexpr (std::is_same_v<T, EquipKnifeDTO>) {
                 } else if constexpr (std::is_same_v<T, EquipBombDTO>) {
+                } else if constexpr (std::is_same_v<T, BuyGunDTO>) {
+                } else if constexpr (std::is_same_v<T, BuyAmmoDTO>) {
                 } else {
                     static_assert(always_false_v<T>, "Unhandled CommandDTO type");
                 }

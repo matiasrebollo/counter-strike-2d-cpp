@@ -1,6 +1,6 @@
 #include "server/attack_phase_commands.h"
 
-#include "server/cs2d_game.h"
+// #include "server/game_world.h"
 
 
 AttackPhaseCommand::AttackPhaseCommand(const std::string& username): Command(username) {}
