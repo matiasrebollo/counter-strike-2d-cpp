@@ -9,7 +9,7 @@
 #define NONE_BLOCK -1
 
 struct MapObject {
-    std::vector<Vector2D> positions;
+    const std::vector<Vector2D> positions;
     const int type;
     const bool collidable;
 };

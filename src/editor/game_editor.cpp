@@ -69,26 +69,32 @@ void Game_editor::on_save_button_clicked() {
 }
 
 GameMap Game_editor::create_map(const std::vector<std::vector<int>>& grid) {
-    GameMap game_map{static_cast<int>(grid[0].size()), static_cast<int>(grid.size()), {}};
-    std::map<int, std::vector<Vector2D>> positions;
-    for (int i = 0; i < game_map.height; i++) {
-        for (int j = 0; j < game_map.width; j++) {
+    int height = static_cast<int>(grid.size());
+    int width = static_cast<int>(grid[0].size());
+    std::map<int, std::vector<Vector2D>> positions_map;
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
             int block = grid[i][j];
-            positions[block].push_back(Vector2D(j, i));
+            positions_map[block].push_back(Vector2D(j, i));
         }
     }
 
-    std::vector<int> keys;
+    std::vector<MapObject> blocks;
 
-    std::transform(positions.begin(), positions.end(), std::back_inserter(keys),
-                   [](const auto& par) { return par.first; });
-
-
-    std::transform(keys.begin(), keys.end(), std::back_inserter(game_map.map_objects),
-                   [&positions, this](const int& block) {
-                       return MapObject{positions[block], block,
-                                        texture_parser.get_texture_info(block).collidable};
+    std::transform(positions_map.begin(), positions_map.end(), std::back_inserter(blocks),
+                   [this](const auto& pair) {
+                       return MapObject{pair.second, pair.first,
+                                        texture_parser.get_texture_info(pair.first).collidable};
                    });
 
+
+    std::vector<Vector2D> ct_spawns = {Vector2D(1, 1), Vector2D(1, 2), Vector2D(2, 1),
+                                       Vector2D(2, 2)};
+    std::vector<Vector2D> tt_spawns = {Vector2D(13, 6), Vector2D(14, 6), Vector2D(11, 7),
+                                       Vector2D(12, 7)};
+    std::vector<Vector2D> sites = {Vector2D(12, 1), Vector2D(12, 2), Vector2D(13, 1),
+                                   Vector2D(14, 1)};
+
+    GameMap game_map = {width, height, blocks, ct_spawns, tt_spawns, sites};
     return game_map;
 }
