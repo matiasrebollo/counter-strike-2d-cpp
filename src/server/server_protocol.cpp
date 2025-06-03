@@ -22,33 +22,6 @@ ServerProtocol::ServerProtocol(Socket&& socket):
     lobbyCommandManagers[CommandType::JOIN_GAME] = [this]() -> LobbyRequestDTO {
         return receive_join_game_request();
     };
-    commandsManagers[CommandType::SELECT_MAP] = [this](const CommandType& command) {
-        return receive_select_map_request(command);
-    };
-    commandsManagers[CommandType::BUY_WEAPON] = [this](const CommandType& command) {
-        return receive_buy_weapon_request(command);
-    };
-    commandsManagers[CommandType::BUY_AMMO] = [this](const CommandType& command) {
-        return receive_buy_weapon_ammo_request(command);
-    };
-    commandsManagers[CommandType::ROTATE] = [this](const CommandType& command) {
-        return receive_aim_request(command);
-    };
-    commandsManagers[CommandType::MOVE] = [this](const CommandType& command) {
-        return receive_move_request(command);
-    };
-    commandsManagers[CommandType::SHOOT] = [this](const CommandType& command) {
-        return receive_shoot_request(command);
-    };
-    commandsManagers[CommandType::CHANGE_WEAPON] = [this](const CommandType& command) {
-        return receive_change_weapon_request(command);
-    };
-    commandsManagers[CommandType::PLANT_BOMB] = [this](const CommandType& command) {
-        return receive_plant_bomb_request(command);
-    };
-    commandsManagers[CommandType::DEFUSE_BOMB] = [this](const CommandType& command) {
-        return receive_defuse_bomb_request(command);
-    };
 }
 
 void ServerProtocol::send_lobby_message(const ServerResponseLobby& msg) {
@@ -139,38 +112,80 @@ void ServerProtocol::send_bullets(const std::vector<Bullet>& bullets) {
 }
 */
 
-MessageFromClient ServerProtocol::receive_command(void) {
-    uint8_t commandCode = this->receive_byte();
-    CommandType command = this->codeToCommands.find(commandCode)->second;
-    return this->commandsManagers.find(command)->second(command);
-}
-
 LobbyRequestDTO ServerProtocol::receive_lobby_request() {
     uint8_t commandCode = this->receive_byte();
     CommandType command = this->codeToCommands.find(commandCode)->second;
     return this->lobbyCommandManagers.find(command)->second();
 }
 
-CommandDTO ServerProtocol::receive_move_request() {
+CommandDTO ServerProtocol::receive_client_request() {
     uint8_t code = this->receive_byte();
-    if (code == CODE_ROTATE) {
-        return this->receive_rotate();
-    } else {
-        uint8_t code_movement = this->receive_byte();
-        switch (static_cast<Movement>(code_movement - 1)) {
-            case Movement::UP:
-                return MoveUpDTO{};
-            case Movement::DOWN:
-                return MoveDownDTO{};
-            case Movement::LEFT:
-                return MoveLeftDTO{};
-            case Movement::RIGHT:
-                return MoveRightDTO{};
-            default:
-                throw std::runtime_error("Unknown move code");
-        }
+    switch (code) {
+        case CODE_ROTATE:
+            return this->receive_rotate();
+        case CODE_MOVE:
+            return this->receive_movement_request();
+        case CODE_ACTION:
+            return PlayerActionDTO{};
+        case CODE_CHANGE_WEAPON:
+            return this->receive_change_weapon_request();
+        case CODE_BUY_WEAPON:
+            return this->receive_buy_weapon_request();
+        case CODE_BUY_BULLETS:
+            return this->receive_buy_ammo_request();
+        default:
+            throw std::runtime_error("Command not recognised");
     }
 }
+
+CommandDTO ServerProtocol::receive_movement_request() {
+    uint8_t code_movement = this->receive_byte();
+    switch (static_cast<Movement>(code_movement - 1)) {
+        case Movement::UP:
+            return MoveUpDTO{};
+        case Movement::DOWN:
+            return MoveDownDTO{};
+        case Movement::LEFT:
+            return MoveLeftDTO{};
+        case Movement::RIGHT:
+            return MoveRightDTO{};
+        default:
+            throw std::runtime_error("Unknown move code");
+    }
+}
+
+CommandDTO ServerProtocol::receive_change_weapon_request() {
+    uint8_t code_to_equip = this->receive_byte();
+    switch (code_to_equip) {
+        case CODE_CHOOSE_KNIFE:
+            return EquipKnifeDTO{};
+        case CODE_CHOOSE_PRIMARY:
+            return EquipPrimaryDTO{};
+        case CODE_CHOOSE_SECONDARY:
+            return EquipSecondaryDTO{};
+        case CODE_CHOOSE_BOMB:
+            return EquipBombDTO{};
+        default:
+            throw std::runtime_error("Unkown equipment code");
+    }
+}
+
+CommandDTO ServerProtocol::receive_buy_weapon_request() {
+    uint8_t gun_code = this->receive_byte();
+    GunType gun = this->weaponParser.getWeaponFromByte(gun_code);
+    return BuyGunDTO{gun};
+}
+
+CommandDTO ServerProtocol::receive_buy_ammo_request() {
+    uint8_t primary_code = this->receive_byte();
+    uint8_t ammo = this->receive_big_endian_number();
+    bool primary = false;
+    if (primary_code == CODE_CHOOSE_PRIMARY) {
+        primary = true;
+    }
+    return BuyAmmoDTO{ammo, primary};
+}
+
 
 CreateUsernameDTO ServerProtocol::receive_create_username_request() {
     CreateUsernameDTO dto;
@@ -185,84 +200,8 @@ JoinGameDTO ServerProtocol::receive_join_game_request() {
     return JoinGameDTO{this->receive_string()};
 }
 
-MessageFromClient ServerProtocol::initialize_message(const CommandType& command) {
-    return MessageFromClient{command,
-                             "",
-                             GunType::NONE,
-                             WeaponType::BOMB,
-                             TerroristSkin::ARTIC_AVENGER,
-                             CounterTerroristSkin::GIGN,
-                             Movement::DOWN,
-                             0,
-                             0,
-                             0,
-                             0,
-                             false};
-}
-
 
 RotateDTO ServerProtocol::receive_rotate() { return RotateDTO{this->receive_angle()}; }
-
-MessageFromClient ServerProtocol::receive_select_map_request(const CommandType& command) {
-    MessageFromClient msg = this->initialize_message(command);
-    // msg.map_id = GameMap(this->receive_byte());
-    // falta lo del enum o lo que fuere
-    return msg;
-}
-
-MessageFromClient ServerProtocol::receive_buy_weapon_request(const CommandType& command) {
-    GunType weapon = GunType(this->receive_byte());
-    MessageFromClient msg = this->initialize_message(command);
-    msg.weapon = weapon;
-    return msg;
-}
-
-MessageFromClient ServerProtocol::receive_buy_weapon_ammo_request(const CommandType& command) {
-    WeaponType weapon_type = WeaponType(this->receive_byte());
-    uint16_t bullets = this->receive_big_endian_number();
-    MessageFromClient msg = this->initialize_message(command);
-    msg.weaponType = weapon_type;
-    msg.bullets = bullets;
-    return msg;
-}
-
-MessageFromClient ServerProtocol::receive_aim_request(const CommandType& command) {
-    uint8_t pos_x = this->receive_byte();
-    uint8_t pos_y = this->receive_byte();
-    MessageFromClient msg = this->initialize_message(command);
-    msg.pos_x = pos_x;
-    msg.pos_y = pos_y;
-    return msg;
-}
-
-MessageFromClient ServerProtocol::receive_move_request(const CommandType& command) {
-    uint8_t direction = this->receive_byte();
-    MessageFromClient msg = this->initialize_message(command);
-    msg.movement = Movement(direction - 1);
-    return msg;
-}
-
-MessageFromClient ServerProtocol::receive_shoot_request(const CommandType& command) {
-    MessageFromClient msg = this->initialize_message(command);
-    return msg;
-}
-
-MessageFromClient ServerProtocol::receive_change_weapon_request(const CommandType& command) {
-    MessageFromClient msg = this->initialize_message(command);
-    msg.weaponType = WeaponType(this->receive_byte());
-    return msg;
-}
-
-MessageFromClient ServerProtocol::receive_plant_bomb_request(const CommandType& command) {
-    MessageFromClient msg = this->initialize_message(command);
-    return msg;
-}
-
-MessageFromClient ServerProtocol::receive_defuse_bomb_request(const CommandType& command) {
-    MessageFromClient msg = this->initialize_message(command);
-    return msg;
-}
-
 
 void ServerProtocol::kill() {
     if (!this->socket.is_stream_recv_closed()) {
