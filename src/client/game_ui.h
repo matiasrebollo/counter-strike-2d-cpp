@@ -30,6 +30,7 @@ private:
     InputHandler input_handler;
     ClientReceiver receiver;
     const std::string username;
+    const std::string gamename;
     std::unique_ptr<GameUIState> state;
     bool keep_running;
 

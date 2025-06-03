@@ -10,6 +10,7 @@ GameUI::GameUI(Lobby& lobby):
         input_handler(sdl, this->protocol),
         receiver(this->protocol),
         username(lobby.get_username()),
+        gamename(lobby.get_gamecode()),
         state(std::make_unique<WaitingForGameState>()),
         keep_running(true) {
     if (!this->validate_qt_results(lobby)) {
