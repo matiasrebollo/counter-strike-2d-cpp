@@ -12,10 +12,10 @@
 
 #include "camera.h"
 
-#define WINDOW_INITIAL_WIDTH 320
-#define WINDOW_INITIAL_HEIGHT 200
-#define CAMERA_WIDTH 320
-#define CAMERA_HEIGHT 200
+#define WINDOW_INITIAL_WIDTH 640
+#define WINDOW_INITIAL_HEIGHT 400
+#define CAMERA_WIDTH 640
+#define CAMERA_HEIGHT 400
 
 #define BOX_X_POS_SPRITE 416
 #define BOX_Y_POS_SPRITE 64
@@ -38,6 +38,9 @@ private:
     SDL2pp::Surface boxSheet;
     SDL2pp::Texture box;
 
+    SDL2pp::Surface hudNumbersSheet;
+    SDL2pp::Texture hudNumbers;
+
     Camera camera;
 
     void update_camera(int player_x, int player_y);
@@ -45,6 +48,7 @@ private:
     float get_uniform_scale() const;
     SDL2pp::Point get_render_offset() const;
     void render_player(const PlayerDTO& p, float scale);
+    void render_hud_time(int time_left, float scale);
 
 public:
     SDLManager();

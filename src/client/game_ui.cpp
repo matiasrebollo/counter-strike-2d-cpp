@@ -51,9 +51,10 @@ void GameUI::handle_waiting_phase() {
             process_waiting(game_dto, last_snapshot, loop_waiting, pop);
         }
 
+        sdl.clear_display();
         sdl.render_waiting_screen(last_snapshot.ct.size() + last_snapshot.tt.size(), 2, gamename,
                                   it, FPS);
-
+        sdl.show_screen();
         it = clock.sleep_and_calc_next_it(FPS, it);
     }
 }
