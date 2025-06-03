@@ -1,25 +1,31 @@
 #include "server/gun.h"
 
-#include "server/ak47.h"
-#include "server/awp.h"
-#include "server/glock.h"
-#include "server/m3.h"
+Gun::Gun(int initial_ammo): ammo(initial_ammo), is_trigger_pressed(false) {}
 
-std::unique_ptr<Gun> Gun::new_gun(const WeaponType& type) {
+std::unique_ptr<Gun> Gun::new_gun(const GunType& type) {
     switch (type) {
-        case WeaponType::AK47:
+        case GunType::GLOCK:
             return std::make_unique<Glock>();
-        case WeaponType::AK47:
+        /*case GunType::AK47:
             return std::make_unique<AK47>();
-        case WeaponType::AWP:
+        case GunType::AWP:
             return std::make_unique<AWP>();
-        case WeaponType::M3:
-            return std::make_unique<M3>();
+        case GunType::M3:
+            return std::make_unique<M3>();*/
         default:
             throw std::invalid_argument("Weapon type is not a gun type");
     }
 }
 
-Gun::Gun(const GunType& type, uint16_t initial_ammo): type(type), ammo(initial_ammo) {}
-
 void Gun::add_ammo(uint16_t ammo_count) { ammo += ammo_count; }
+
+void Gun::make_player_action() {
+    is_trigger_pressed = !is_trigger_pressed;
+    // shoot() si no estaba presionado??
+}
+
+Glock::Glock(): Gun(GLOCK_INITIAL_AMMO) {}
+
+void Glock::shoot() {}
+
+GunType Glock::type() const { return GunType::GLOCK; }

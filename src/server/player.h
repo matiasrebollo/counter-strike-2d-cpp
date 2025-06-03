@@ -4,14 +4,14 @@
 #include <list>
 #include <memory>
 
-// #include "server/loadout_manager.h"
+#include "server/loadout_manager.h"
 class GameWorld;  // forward declaration
 
 #include "server/collidable.h"
 
 #define PLAYER_WIDTH 32
 #define PLAYER_HEIGHT 32
-#define PLAYER_INITIAL_LIFE 1000
+#define PLAYER_INITIAL_LIFE 100
 
 class Player: public Collidable {
 private:
@@ -21,8 +21,7 @@ private:
     bool moving_right;
     double orientation;
     uint16_t life;
-
-    // LoadoutManager loadout;
+    LoadoutManager loadout;
 
     void step(const Vector2D& step_dir, GameWorld& game);
 
@@ -31,6 +30,7 @@ public:
 
     float get_orientation() const;
     uint16_t get_life() const;
+    bool is_alive() const;
 
     void update(GameWorld& game);
     void rotate(const double& new_orientation);

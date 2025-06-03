@@ -15,6 +15,7 @@ inline constexpr bool always_false_v = false;
 class CommonProtocol {
 protected:
     Socket socket;
+    WeaponParser weaponParser;
 
 public:
     CommonProtocol(const std::string& hostname, const std::string& port);

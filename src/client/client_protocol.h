@@ -22,13 +22,9 @@
 #include "../common/player_dto.h"
 #include "../common/socket.h"
 
-#include "client_protocol_parser.h"
-
 class ClientProtocol: public CommonProtocol, public CodesParser {
 private:
-    ClientProtocolParser parser;
     bool isAlive;
-    std::unordered_map<CommandType, std::function<void(const InternalMessage& request)>> sendersMap;
 
     virtual void send_create_username_request(const CreateUsernameDTO& dto);
     virtual void send_create_game_request(const CreateGameDTO& dto);
@@ -37,14 +33,22 @@ private:
     void send_buy_weapon_request(const InternalMessage& request);
     void send_buy_weapon_ammo_request(const InternalMessage& request);
     void send_aim_request(const InternalMessage& request);
+
     void handle_move_up();
     void handle_move_down();
     void handle_move_left();
     void handle_move_right();
     void handle_rotate(const RotateDTO& dto);
+    void handle_player_action();
+    void handle_equip_primary();
+    void handle_equip_secondary();
+    void handle_equip_knife();
+    void handle_equip_bomb();
+    void handle_buy_gun(const BuyGunDTO& dto);
+    void handle_buy_ammo(const BuyAmmoDTO& dto);
+
     void send_change_weapon_request(const InternalMessage& request);
 
-    // std::vector<Bullet> receive_bullets(const int& size_bullets);
     std::vector<PlayerDTO> receive_players(const int& size_players);
     std::vector<MapObject> receive_map_objects(const uint8_t& size);
 

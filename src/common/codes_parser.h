@@ -5,6 +5,7 @@
 #include <unordered_map>
 
 #include "commands.h"
+#include "commands_dto.h"
 
 #define CODE_CREATE_USERNAME 0x01
 #define CODE_CREATE_GAME 0x02
@@ -14,15 +15,19 @@
 #define CODE_BUY_BULLETS 0x07
 #define CODE_ROTATE 0x08
 #define CODE_MOVE 0x09
-#define CODE_SHOOT 0x10
+#define CODE_ACTION 0x10
 #define CODE_CHANGE_WEAPON 0x11
 #define CODE_PLANT_BOMB 0x12
-#define CODE_DEFUSE_BOMB 0x13
 #define CODE_SEND_MAP 0x25
 #define CODE_GAME_STARTED 0x30
 #define CODE_SNAPSHOT 0x35
 #define CODE_PLAYERS 0x40
 #define CODE_BULLETS 0x50
+
+#define CODE_CHOOSE_KNIFE 0x00
+#define CODE_CHOOSE_PRIMARY 0x01
+#define CODE_CHOOSE_SECONDARY 0x02
+#define CODE_CHOOSE_BOMB 0x03
 
 class CodesParser {
 protected:

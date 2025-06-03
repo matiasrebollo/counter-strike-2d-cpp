@@ -1,5 +1,7 @@
 #include "server/game_world.h"
 
+#include <algorithm>
+#include <iostream>
 #include <random>
 #include <vector>
 
@@ -43,7 +45,13 @@ void GameWorld::add_player(const std::string& username) {
     }
     collidables.push_back(player);
 
-    players[username] = player;
+    size_t cts = counter_terrorists.size();
+    size_t tts = terrorists.size();
+    if (cts > tts && tts < TERRORISTS) {
+        terrorists[username] = player;
+    } else if (cts < COUNTER_TERRORISTS) {
+        counter_terrorists[username] = player;
+    }
 }
 
 const GameMap GameWorld::get_map() const {
@@ -61,19 +69,27 @@ const GameMap GameWorld::get_map() const {
         objects.push_back(obj);
     }
 
+    // agregar posiciones iniciales de cada jugador! (usar snapshot??)
+
     return GameMap{objects};
 }
 
-const Snapshot GameWorld::get_snapshot() const {
-    std::vector<PlayerDTO> player_dtos;
+const GameWorldSnapshot GameWorld::get_snapshot() const {
+    std::vector<PlayerDTO> ct;
+    std::vector<PlayerDTO> tt;
 
-    for (const auto& player: players) {
+    for (const auto& player: counter_terrorists) {
         const PlayerDTO dto{player.first, player.second->rect.position,
                             player.second->get_orientation(), player.second->get_life()};
-        player_dtos.push_back(dto);
+        ct.push_back(dto);
+    }
+    for (const auto& player: terrorists) {
+        const PlayerDTO dto{player.first, player.second->rect.position,
+                            player.second->get_orientation(), player.second->get_life()};
+        tt.push_back(dto);
     }
 
-    return Snapshot{player_dtos};
+    return GameWorldSnapshot{ct, tt};
 }
 
 void GameWorld::rotate_player(const std::string& username, const double& angle) {
@@ -131,12 +147,24 @@ void GameWorld::make_step_player(Player& player, const Vector2D& step_dir) {
     }
 }
 
-
 void GameWorld::update() {
-    for (const auto& [_, player]: players) {
-        player->update(*this);
+    for (const auto& [_, c_terrorist]: counter_terrorists) {
+        c_terrorist->update(*this);
+    }
+    for (const auto& [_, terrorist]: terrorists) {
+        terrorist->update(*this);
     }
 }
+
+bool GameWorld::team_is_dead(const std::map<std::string, std::shared_ptr<Player>>& team) const {
+    return std::all_of(team.begin(), team.end(),
+                       [](const auto& player) { return !player.second->is_alive(); });
+}
+
+bool GameWorld::tt_are_all_dead() const { return team_is_dead(terrorists); }
+
+bool GameWorld::ct_are_all_dead() const { return team_is_dead(counter_terrorists); }
+
 GameWorld::~GameWorld() {}
 
 /*double GameWorld::impacts(const Shot& shot, const Collidable& collidable) const {

@@ -92,8 +92,12 @@ void GameUI::handle_attack_phase(const GameMap& map) {
             last_snapshot = std::move(std::get<Snapshot>(snapshot_tmp));
         }
 
-        for (const PlayerDTO& p: last_snapshot.players) {
-            my_player.update_my_position(p);
+        std::vector<std::vector<PlayerDTO>> teams = {last_snapshot.ct, last_snapshot.tt};
+
+        for (const std::vector<PlayerDTO>& team: teams) {
+            for (const PlayerDTO& p: team) {
+                my_player.update_my_position(p);
+            }
         }
 
         sdl.clear_display();

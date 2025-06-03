@@ -5,8 +5,8 @@
 #include <memory>
 #include <optional>
 
-#include "server/glock.h"
 #include "server/gun.h"
+#include "server/knife.h"
 
 #define INITIAL_MONEY 500
 
@@ -22,20 +22,21 @@ class LoadoutManager {
 private:
     uint16_t money;
     Knife knife;
-    std::unique_ptr<Gun> primary_weapon;
-    Glock secondary_weapon;
+    std::unique_ptr<Gun> primary_gun;
+    Glock secondary_gun;
+    WeaponType equipped;
 
     /*
      * Devuelve el precio de una bala de un tipo de arma.
      *
      * */
-    static uint16_t ammo_price_for(const WeaponType& weapon_type);
+    static uint16_t ammo_price_for(const GunType& gun_type);
 
     /*
      * Devuelve el precio de un tipo de arma.
      *
      * */
-    static uint16_t price_for(const WeaponType& weapon_type);
+    static uint16_t price_for(const GunType& gun_type);
 
     /*
      * Disminuye el dinero en amount_of_money.
@@ -43,19 +44,19 @@ private:
      * */
     void decrease_money_by(const uint16_t& amount_of_money);
     /*
-     * Cambia el arma primaria a weapon, y la cantidad de balas del arma primaria a 30.
+     * Cambia el arma primaria a gun, y la cantidad de balas del arma primaria a 30.
      *
      * Devuelve el arma primaria que poseía anteriormente.
      *
      * */
-    const std::unique_ptr<Gun> new_primary_weapon(std::unique_ptr<Gun> weapon);
+    const std::unique_ptr<Gun> new_primary_gun(std::unique_ptr<Gun> gun);
 
     /*
      * Devuelve true si el jugador tiene el suficiente dinero para comprar un arma,
      * false en caso contrario.
      *
      * */
-    bool can_buy_weapon(const WeaponType& weapon_type) const;
+    bool can_buy_gun(const GunType& gun_type) const;
 
     /*
      * Devuelve true si el jugador tiene el suficiente dinero para comprar las balas pedidas
@@ -88,7 +89,7 @@ public:
      * Devuelve std::nullopt si no se tenía arma equipada o no se pudo efectuar la compra.
      *
      * */
-    const std::unique_ptr<Gun> LoadoutManager::buy_primary_weapon(const WeaponType& weapon_type);
+    const std::unique_ptr<Gun> buy_primary_gun(const GunType& gun_type);
 
     /*
      * Compra munición para algún arma del equipamiento.
