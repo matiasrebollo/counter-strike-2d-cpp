@@ -13,6 +13,7 @@ YAML::Node YamlParser::game_map_to_Yaml(const GameMap& game_map) {
     YAML::Node map;
     map["width"] = game_map.width;
     map["height"] = game_map.height;
+
     YAML::Node blocks(YAML::NodeType::Sequence);
     for (const auto& obj: game_map.map_objects) {
         if (obj.type != NONE_BLOCK) {
@@ -20,17 +21,53 @@ YAML::Node YamlParser::game_map_to_Yaml(const GameMap& game_map) {
         }
     }
     map["blocks"] = blocks;
+
+    YAML::Node ct_spawns(YAML::NodeType::Sequence);
+    for (const auto& pos: game_map.ct_spawns) {
+        ct_spawns.push_back(vector2d_to_yaml(pos));
+    }
+    map["ct_spawns"] = ct_spawns;
+
+    YAML::Node tt_spawns(YAML::NodeType::Sequence);
+    for (const auto& pos: game_map.tt_spawns) {
+        tt_spawns.push_back(vector2d_to_yaml(pos));
+    }
+    map["tt_spawns"] = tt_spawns;
+
+    YAML::Node sites(YAML::NodeType::Sequence);
+    for (const auto& pos: game_map.sites) {
+        sites.push_back(vector2d_to_yaml(pos));
+    }
+    map["sites"] = sites;
+
     return map;
 }
 
 GameMap YamlParser::yaml_to_game_map(const std::string& path) {
     YAML::Node file = YAML::LoadFile(path);
 
-    GameMap map{file["width"].as<int>(), file["height"].as<int>(), {}};
+    std::vector<MapObject> blocks;
     for (const auto& block: file["blocks"]) {
-        map.map_objects.push_back(yaml_to_map_object(block));
+        blocks.push_back(yaml_to_map_object(block));
     }
 
+    std::vector<Vector2D> ct_spawns;
+    for (const auto& block: file["ct_spawns"]) {
+        ct_spawns.push_back(yaml_to_vector2d(block));
+    }
+
+    std::vector<Vector2D> tt_spawns;
+    for (const auto& block: file["tt_spawns"]) {
+        tt_spawns.push_back(yaml_to_vector2d(block));
+    }
+
+    std::vector<Vector2D> sites;
+    for (const auto& block: file["sites"]) {
+        sites.push_back(yaml_to_vector2d(block));
+    }
+
+    GameMap map{
+            file["width"].as<int>(), file["height"].as<int>(), blocks, ct_spawns, tt_spawns, sites};
     return map;
 }
 
@@ -39,7 +76,6 @@ YAML::Node YamlParser::map_object_to_yaml(const MapObject& map_obj) {
     obj["block_id"] = int(map_obj.type);
 
     YAML::Node positions(YAML::NodeType::Sequence);
-    // NOLINT
     for (const auto& pos: map_obj.positions) {
         positions.push_back(vector2d_to_yaml(pos));
     }
@@ -57,10 +93,12 @@ YAML::Node YamlParser::vector2d_to_yaml(const Vector2D& vector) {
 }
 
 MapObject YamlParser::yaml_to_map_object(const YAML::Node& node) {
-    MapObject obj{{}, node["block_id"].as<int>(), node["collidable"].as<bool>()};
+    std::vector<Vector2D> positions;
     for (const auto& pos: node["positions"]) {
-        obj.positions.push_back(yaml_to_vector2d(pos));
+        positions.push_back(yaml_to_vector2d(pos));
     }
+
+    MapObject obj{positions, node["block_id"].as<int>(), node["collidable"].as<bool>()};
     return obj;
 }
 
