@@ -12,10 +12,10 @@
 
 #include "camera.h"
 
-#define WINDOW_HEIGHT 320
-#define WINDOW_WIDTH 200
-#define CAMERA_HEIGHT 320
-#define CAMERA_WIDTH 200
+#define WINDOW_INITIAL_WIDTH 320
+#define WINDOW_INITIAL_HEIGHT 200
+#define CAMERA_WIDTH 320
+#define CAMERA_HEIGHT 200
 
 #define BOX_X_POS_SPRITE 416
 #define BOX_Y_POS_SPRITE 64
@@ -41,18 +41,21 @@ private:
     Camera camera;
 
     void update_camera(int player_x, int player_y);
+    std::pair<float, float> get_scales() const;
     float get_uniform_scale() const;
     SDL2pp::Point get_render_offset() const;
+    void render_player(const PlayerDTO& p, float scale);
 
 public:
     SDLManager();
 
+    void render_waiting_screen(int players_connected, int players_required,
+                               const std::string& gamename, int iteration, int FPS);
     std::pair<int, int> get_window_size() const;
     void clear_display();
     void render_in_z_order(const GameMap& map, const Snapshot& snapshot,
                            const std::string& my_username);
     void show_screen();
-    void texto_prueba();
 };
 
 #endif

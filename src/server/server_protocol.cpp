@@ -92,13 +92,16 @@ void ServerProtocol::send_map(const GameMap& map) {
 
 
 void ServerProtocol::send_snapshot(const Snapshot& snapshot) {
-    // this->send_byte(snapshot.phase);
-    // this->send_byte(snapshot.round_number);
-    // this->send_byte(snapshot.bomb_status);
-    // this->send_byte(snapshot.timer);
     this->send_byte(CODE_SNAPSHOT);
-    this->send_byte(snapshot.players.size());
-    this->send_players(snapshot.players);
+    this->send_byte(snapshot.phase);
+    this->send_byte(snapshot.current_round_number);
+    this->send_byte(snapshot.total_rounds);
+    // this->send_byte(snapshot.bomb_status);
+    this->send_byte(snapshot.time_left);
+    this->send_byte(snapshot.ct.size());
+    this->send_players(snapshot.ct);
+    this->send_byte(snapshot.tt.size());
+    this->send_players(snapshot.tt);
     //  this->send_byte(snapshot.bullets.size());
     //  this->send_bullets(snapshot.bullets);
 }

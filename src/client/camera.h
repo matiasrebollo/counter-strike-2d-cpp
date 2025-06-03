@@ -15,8 +15,6 @@ private:
 
 public:
     Camera(int screen_w, int screen_h);
-    int get_base_width() const;
-    int get_base_height() const;
     double calculate_angle_from_center(int mouse_x, int mouse_y) const;
     void follow(int x, int y);
     SDL2pp::Rect world_to_screen(const SDL2pp::Rect& rect_mundo) const;

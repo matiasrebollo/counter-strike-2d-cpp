@@ -31,6 +31,7 @@ public:
 
     float get_orientation() const;
     uint16_t get_life() const;
+    bool is_alive() const;
 
     void update(GameWorld& game);
     void rotate(const double& new_orientation);

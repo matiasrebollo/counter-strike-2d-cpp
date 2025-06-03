@@ -27,6 +27,7 @@ target_sources(taller_server
         cs2d_game.h
         game_phase.cpp
         game_world.h
+        game_world_snapshot.h
         rect.h
         attack_phase_commands.h
         player.h

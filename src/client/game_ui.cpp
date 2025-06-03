@@ -48,13 +48,11 @@ void GameUI::handle_waiting_phase() {
                 pop = false;  // break
                 continue;
             }
-
             process_waiting(game_dto, last_snapshot, loop_waiting, pop);
         }
 
-        sdl.texto_prueba();
-        // hacer algo con la snapshot??
-        // actualizar el cartel de esperando players!!!
+        sdl.render_waiting_screen(last_snapshot.ct.size() + last_snapshot.tt.size(), 2, gamename,
+                                  it, FPS);
 
         it = clock.sleep_and_calc_next_it(FPS, it);
     }
@@ -79,6 +77,7 @@ void GameUI::handle_attack_phase(const GameMap& map) {
         while (this->receiver.try_pop_game_dto(snapshot_tmp)) {
             last_snapshot = std::move(std::get<Snapshot>(snapshot_tmp));
         }
+
 
         sdl.clear_display();
 
