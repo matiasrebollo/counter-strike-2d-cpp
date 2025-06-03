@@ -38,8 +38,14 @@ private:
     SDL2pp::Surface boxSheet;
     SDL2pp::Texture box;
 
+    SDL2pp::Surface waitingBackgroundSheet;
+    SDL2pp::Texture waitingBackground;
+
     SDL2pp::Surface hudNumbersSheet;
     SDL2pp::Texture hudNumbers;
+
+    SDL2pp::Surface hudSymbolsSheet;
+    SDL2pp::Texture hudSymbols;
 
     Camera camera;
 
@@ -49,6 +55,7 @@ private:
     SDL2pp::Point get_render_offset() const;
     void render_player(const PlayerDTO& p, float scale);
     void render_hud_time(int time_left, float scale);
+    void render_hud_life(uint16_t life, float scale);
 
 public:
     SDLManager();

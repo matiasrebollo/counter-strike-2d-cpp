@@ -16,8 +16,12 @@ SDLManager::SDLManager():
         player(renderer, playerSheet),
         boxSheet("../assets/gfx/tiles/aztec.bmp"),
         box(renderer, boxSheet),
+        waitingBackgroundSheet("../assets/gfx/splash.bmp"),
+        waitingBackground(renderer, waitingBackgroundSheet),
         hudNumbersSheet("../assets/gfx/hud_nums.png"),
         hudNumbers(renderer, hudNumbersSheet),
+        hudSymbolsSheet("../assets/gfx/hud_symbols.png"),
+        hudSymbols(renderer, hudSymbolsSheet),
         camera(CAMERA_WIDTH, CAMERA_HEIGHT) {}
 
 void SDLManager::render_waiting_screen(int players_connected, int players_required,
@@ -28,6 +32,10 @@ void SDLManager::render_waiting_screen(int players_connected, int players_requir
 
     int large_font_size = 40;
     int small_font_size = 20;
+
+    // Fondo
+    SDL2pp::Rect backgroundRect(0, 0, static_cast<int>(WINDOW_INITIAL_WIDTH * scale_x),
+                                static_cast<int>(WINDOW_INITIAL_HEIGHT * scale_y));
 
     SDL2pp::SDLTTF ttf;
     SDL2pp::Font largeFont("../assets/cs_regular.ttf", large_font_size);
@@ -73,6 +81,7 @@ void SDLManager::render_waiting_screen(int players_connected, int players_requir
                                   static_cast<int>(10 * scale_y),
                           nameW, nameH);
 
+    renderer.Copy(waitingBackground, SDL2pp::NullOpt, backgroundRect);
     renderer.Copy(waitingTexture, SDL2pp::NullOpt, waitingRect);
     renderer.Copy(playersTexture, SDL2pp::NullOpt, playersRect);
     renderer.Copy(nameTexture, SDL2pp::NullOpt, nameRect);
@@ -138,25 +147,36 @@ void SDLManager::render_hud_time(int time_left, float scale) {
     ss << minutes << ":" << std::setw(2) << std::setfill('0') << seconds;
     std::string time_str = ss.str();
 
+
     int char_sprite_width = 48, char_width = 24;
     int char_sprite_height = 66, char_height = 33;
     int dp_sprite_width = 10, dp_width = 5;
     int spacing = 2;
 
+    int clock_sprite_size = 64;
+    int clock_width = 30, clock_height = 33;
+
     // porque me lo pide los linters
-    int total_width = std::accumulate(time_str.begin(), time_str.end(), 0,
-                                      [char_width, dp_width, spacing](int sum, char c) {
-                                          return sum + (c == ':' ? dp_width : char_width) + spacing;
-                                      });
-    total_width -= spacing;
+    int text_width = std::accumulate(time_str.begin(), time_str.end(), 0,
+                                     [char_width, dp_width, spacing](int sum, char c) {
+                                         return sum + (c == ':' ? dp_width : char_width) + spacing;
+                                     }) -
+                     spacing;
+    int total_width = clock_width + spacing + text_width;
 
     int start_x = (WINDOW_INITIAL_WIDTH - total_width) / 2;
     int y = WINDOW_INITIAL_HEIGHT - char_height;
 
     hudNumbers.SetColorMod(255, 255, 0);
     hudNumbers.SetAlphaMod(160);
+    hudSymbols.SetColorMod(255, 255, 0);
+    hudSymbols.SetAlphaMod(160);
 
-    int x = start_x;
+    SDL2pp::Rect clock_src(2 * clock_sprite_size, 0, clock_sprite_size, clock_sprite_size);
+    SDL2pp::Rect clock_dst(start_x * scale, y * scale, clock_width * scale, clock_height * scale);
+    renderer.Copy(hudSymbols, clock_src, clock_dst);
+
+    int x = start_x + clock_width + spacing;
     for (char c: time_str) {
         int index = 0;
         int width = char_width;
@@ -181,6 +201,38 @@ void SDLManager::render_hud_time(int time_left, float scale) {
     }
 }
 
+void SDLManager::render_hud_life(uint16_t life, float scale) {
+
+    int plus_sprite_size = 64;
+    int plus_width = 30, plus_height = 33;
+
+    int char_sprite_width = 48, char_width = 24;
+    int char_sprite_height = 66, char_height = 33;
+    int spacing = 2;
+
+    std::string life_str = std::to_string(life);
+
+    int start_x = 0;
+    int y = WINDOW_INITIAL_HEIGHT - char_height;
+
+    hudSymbols.SetColorMod(255, 255, 0);
+    hudSymbols.SetAlphaMod(160);
+    hudNumbers.SetColorMod(255, 255, 0);
+    hudNumbers.SetAlphaMod(160);
+
+    SDL2pp::Rect src_icon(0, 0, plus_sprite_size, plus_sprite_size);
+    SDL2pp::Rect dst_icon(start_x * scale, y * scale, plus_width * scale, plus_height * scale);
+    renderer.Copy(hudSymbols, src_icon, dst_icon);
+
+    int x = start_x + plus_width + spacing;
+    for (char c: life_str) {
+        int index = c - '0';
+        SDL2pp::Rect src(index * char_sprite_width, 0, char_sprite_width, char_sprite_height);
+        SDL2pp::Rect dst(x * scale, y * scale, char_width * scale, char_height * scale);
+        renderer.Copy(hudNumbers, src, dst);
+        x += char_width + spacing;
+    }
+}
 
 void SDLManager::render_in_z_order(const GameMap& map, const Snapshot& snapshot,
                                    const std::string& my_username) {
@@ -227,6 +279,16 @@ void SDLManager::render_in_z_order(const GameMap& map, const Snapshot& snapshot,
     }
 
     render_hud_time(snapshot.time_left, scale);
+    for (const PlayerDTO& p: snapshot.ct) {
+        if (p.username == my_username) {
+            render_hud_life(p.life, scale);
+        }
+    }
+    for (const PlayerDTO& p: snapshot.tt) {
+        if (p.username == my_username) {
+            render_hud_life(p.life, scale);
+        }
+    }
 }
 
 void SDLManager::show_screen() { renderer.Present(); }
