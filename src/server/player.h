@@ -41,7 +41,7 @@ public:
     void equip_primary();
     void equip_secondary();
     void equip_knife();
-    // void shoot(const CS2DGame& game) const;
+    void make_action();
 
     Player(const Player&) = delete;
     Player& operator=(const Player&) = delete;

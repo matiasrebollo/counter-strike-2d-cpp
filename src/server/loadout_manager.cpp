@@ -91,5 +91,17 @@ bool LoadoutManager::buy_ammo(const uint16_t& ammo_count, bool for_primary) {
 void LoadoutManager::equip_primary() { this->equipped = PRIMARY; }
 void LoadoutManager::equip_secondary() { this->equipped = SECONDARY; }
 void LoadoutManager::equip_knife() { this->equipped = KNIFE; }
+Weapon* LoadoutManager::equipped_weapon() {
+    switch (equipped) {
+        case PRIMARY:
+            return primary_gun ? primary_gun.get() : nullptr;
+        case SECONDARY:
+            return &secondary_gun;
+        case KNIFE:
+            return &knife;
+        default:
+            return nullptr;
+    }
+}
 
 LoadoutManager::~LoadoutManager() {}

@@ -35,7 +35,9 @@ void RotateCommand::execute_in_attack_phase(GameWorld& game) const {
 
 PlayerActionCommand::PlayerActionCommand(const std::string& username):
         AttackPhaseCommand(username) {}
-void PlayerActionCommand::execute_in_attack_phase(GameWorld& /*game*/) const {}
+void PlayerActionCommand::execute_in_attack_phase(GameWorld& game) const {
+    game.make_player_action(username);
+}
 
 EquipPrimaryCommand::EquipPrimaryCommand(const std::string& username):
         AttackPhaseCommand(username) {}

@@ -19,7 +19,7 @@ std::unique_ptr<Gun> Gun::new_gun(const GunType& type) {
 
 void Gun::add_ammo(uint16_t ammo_count) { ammo += ammo_count; }
 
-void Gun::make_player_action() {
+void Gun::action() {
     is_trigger_pressed = !is_trigger_pressed;
     // shoot() si no estaba presionado??
 }

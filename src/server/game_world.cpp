@@ -121,6 +121,9 @@ void GameWorld::equip_secondary_for(const std::string& username) {
 void GameWorld::equip_knife_for(const std::string& username) {
     with_player(username, [](Player& p) { p.equip_knife(); });
 }
+void GameWorld::make_player_action(const std::string& username) {
+    with_player(username, [](Player& p) { p.make_action(); });
+}
 
 const Collidable* GameWorld::colliding_object_with(const Collidable& coll) const {
     for (const auto& collidable: collidables) {

@@ -110,6 +110,7 @@ public:
     void equip_primary();
     void equip_secondary();
     void equip_knife();
+    Weapon* equipped_weapon();
 
     LoadoutManager(const LoadoutManager&) = delete;
     LoadoutManager& operator=(const LoadoutManager&) = delete;

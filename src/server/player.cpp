@@ -45,6 +45,11 @@ void Player::rotate(const double& new_orientation) { this->orientation = new_ori
 void Player::equip_primary() { loadout.equip_primary(); }
 void Player::equip_secondary() { loadout.equip_secondary(); }
 void Player::equip_knife() { loadout.equip_knife(); }
+void Player::make_action() {
+    Weapon* weapon = loadout.equipped_weapon();
+    if (weapon)
+        weapon->action();
+}
 
 /*
 void Player::shoot(const CS2DGame& game) const {
