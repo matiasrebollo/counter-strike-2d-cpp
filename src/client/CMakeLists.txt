@@ -9,7 +9,6 @@ target_sources(taller_client
         game_ui.h
         game_ui_state.h
         SDLManager.h
-        my_player.h
         camera.h
         input_handler.h
     PRIVATE
@@ -25,7 +24,6 @@ target_sources(taller_client
         game_ui.cpp
         game_ui_state.cpp
         SDLManager.cpp
-        my_player.cpp
         camera.cpp
         input_handler.cpp
 )

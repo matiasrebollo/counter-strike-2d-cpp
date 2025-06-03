@@ -2,6 +2,7 @@
 #define SDLMANAGER_H
 
 #include <string>
+#include <utility>
 
 #include <SDL2/SDL.h>
 #include <SDL2pp/SDL2pp.hh>
@@ -12,9 +13,9 @@
 #include "camera.h"
 
 #define WINDOW_HEIGHT 320
-#define WINDOW_WIDTH 240
+#define WINDOW_WIDTH 200
 #define CAMERA_HEIGHT 320
-#define CAMERA_WIDTH 240
+#define CAMERA_WIDTH 200
 
 #define BOX_X_POS_SPRITE 416
 #define BOX_Y_POS_SPRITE 64
@@ -40,15 +41,17 @@ private:
     Camera camera;
 
     void update_camera(int player_x, int player_y);
+    float get_uniform_scale() const;
+    SDL2pp::Point get_render_offset() const;
 
 public:
     SDLManager();
 
-    double calculate_angle_to_mouse(int mouse_x, int mouse_y) const;
+    std::pair<int, int> get_window_size() const;
     void clear_display();
-    void show_screen();
     void render_in_z_order(const GameMap& map, const Snapshot& snapshot,
                            const std::string& my_username);
+    void show_screen();
     void texto_prueba();
 };
 
