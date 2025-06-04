@@ -11,8 +11,6 @@
 
 #include "server_protocol.h"
 
-#define MSG_CLOSE_SENDER "Player " + this->username + " has disconnected! Closing sender thread ..."
-
 class ClientSender {
 private:
     Queue<GameDTO> queue;
@@ -25,6 +23,7 @@ public:
     void send_game_dto(const GameDTO& message);
     void run();
     void notify_game_ended();
+    bool is_alive();
     ~ClientSender();
 };
 

@@ -28,6 +28,7 @@ void ClientAcceptor::reap() {
             client->join();
             delete client;
             this->clients.erase(this->clients.begin() + i);
+            std::cout << MSG_CLIENT_JOINED(client->get_username()) << std::endl;
         } else {
             i++;
         }

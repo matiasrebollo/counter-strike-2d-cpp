@@ -34,7 +34,9 @@ void CS2DGame::push(std::unique_ptr<Command> command) { command_queue.push(std::
 
 void CS2DGame::broadcast_game_dto(const GameDTO& game_dto) const {
     for (const auto& [_, sender]: players_senders) {
-        sender->send_game_dto(game_dto);
+        if (sender->is_alive()) {
+            sender->send_game_dto(game_dto);
+        }
     }
 }
 
@@ -115,7 +117,7 @@ void CS2DGame::run() {
     while (should_keep_running()) {
         if (this->current_round > ROUNDS) {
             end_game();
-            continue;
+            break;
         }
         phase->run();
     }

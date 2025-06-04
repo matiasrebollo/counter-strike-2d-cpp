@@ -10,8 +10,7 @@
 #include "common/thread.h"
 #include "server/cs2d_game.h"
 
-#define MSG_CLOSE_RECEIVER \
-    "Player " + this->username + " has disconnected! Closing receiver thread ..."
+#define MSG_CLOSE_RECEIVER "Closing receiver thread ..."
 
 #include "server_protocol.h"
 

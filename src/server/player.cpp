@@ -54,13 +54,14 @@ void Player::update(GameWorld& game) {
 }*/
 
 void Player::step(const Vector2D& step_dir, GameWorld& game) {
-    std::cout << "posicion anterior: x: " << this->rect.position.x
-              << ", y: " << this->rect.position.y << std::endl;
+    // std::cout << "posicion anterior: x: " << this->rect.position.x
+    //           << ", y: " << this->rect.position.y << std::endl;
 
     game.make_step_player(*this, step_dir);
-    std::cout << "posicion final: x: " << this->rect.position.x << ", y: " << this->rect.position.y
-              << std::endl;
-    std::cout << "\n";
+    // std::cout << "posicion final: x: " << this->rect.position.x << ", y: " <<
+    // this->rect.position.y
+    //           << std::endl;
+    // std::cout << "\n";
 }
 
 void Player::move_up() { moving_up = !moving_up; }

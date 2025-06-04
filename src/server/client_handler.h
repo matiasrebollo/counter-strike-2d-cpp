@@ -13,7 +13,7 @@
 #include "server_monitor.h"
 #include "server_protocol.h"
 
-#define MSG_CLIENT_DISCONNECTED "Client " + this->username + " has disconnected!"
+#define MSG_CLOSE_SENDER "Closing sender thread ..."
 
 class ClientHandler: public Thread {
 private:

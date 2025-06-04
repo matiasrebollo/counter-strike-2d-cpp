@@ -3,11 +3,7 @@
 ClientSender::ClientSender(ServerProtocol& protocol):
         queue(), protocol(protocol), keep_running(true) {}
 
-void ClientSender::send_game_dto(const GameDTO& message) {
-    try {
-        this->queue.try_push(message);
-    } catch (const ClosedQueue& e) {}
-}
+void ClientSender::send_game_dto(const GameDTO& message) { this->queue.try_push(message); }
 
 void ClientSender::send_response() {
     GameDTO msg = this->queue.pop();
@@ -20,6 +16,11 @@ void ClientSender::run() {
     }
 }
 
-void ClientSender::notify_game_ended() { this->queue.close(); }
+void ClientSender::notify_game_ended() {
+    this->queue.close();
+    this->keep_running = false;
+}
+
+bool ClientSender::is_alive() { return this->keep_running; }
 
 ClientSender::~ClientSender() {}

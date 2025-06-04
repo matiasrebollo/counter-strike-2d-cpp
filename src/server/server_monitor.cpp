@@ -54,6 +54,7 @@ void ServerMonitor::reap_games() {
         if (!game->is_alive()) {
             game->join();
             it = games.erase(it);
+            std::cout << MSG_GAME_JOINED(game->id) << std::endl;
         } else {
             ++it;
         }

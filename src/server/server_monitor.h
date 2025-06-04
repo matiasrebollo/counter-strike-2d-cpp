@@ -15,6 +15,8 @@
 #include "client_sender.h"
 #include "cs2d_game.h"
 
+#define MSG_GAME_JOINED(id) "Game of id " + (id) + " has been joined!"
+
 struct CreateResponse {
     bool success;
     std::string gamename;

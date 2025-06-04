@@ -12,6 +12,8 @@
 #include "client_handler.h"
 #include "server_monitor.h"
 
+#define MSG_CLIENT_JOINED(id) "Client " + id + " has been joined!"
+
 class ClientAcceptor: public Thread {
 private:
     Socket acceptor;
