@@ -24,6 +24,7 @@ public:
     explicit ClientSender(ServerProtocol& protocol);
     void send_game_dto(const GameDTO& message);
     void run();
+    void notify_game_ended();
     ~ClientSender();
 };
 

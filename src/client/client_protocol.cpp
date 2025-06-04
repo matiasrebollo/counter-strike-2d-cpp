@@ -231,7 +231,12 @@ std::vector<MapObject> ClientProtocol::receive_map_objects(const uint8_t& size) 
 }
 
 void ClientProtocol::close() {
-    this->socket.shutdown(SHUT_RDWR);
+    if (!this->socket.is_stream_recv_closed()) {
+        this->socket.shutdown(SHUT_RD);
+    }
+    if (!this->socket.is_stream_send_closed()) {
+        this->socket.shutdown(SHUT_WR);
+    }
     this->socket.close();
 }
 

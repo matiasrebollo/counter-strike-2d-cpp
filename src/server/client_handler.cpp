@@ -23,9 +23,13 @@ void ClientHandler::run() {
             this->launch_lobby();
         } catch (const CommunicationEnded& e) {
             std::cout << MSG_CLIENT_DISCONNECTED << std::endl;
-            this->stop();
+            break;
+        } catch (const ClosedQueue& e) {
+            std::cout << MSG_CLIENT_DISCONNECTED << std::endl;
+            break;
         }
     }
+    this->stop();
     this->server_monitor.delete_username(this->get_username());
     this->protocol.kill();
 }

@@ -6,9 +6,7 @@ ClientSender::ClientSender(ServerProtocol& protocol):
 void ClientSender::send_game_dto(const GameDTO& message) {
     try {
         this->queue.try_push(message);
-    } catch (const std::exception& e) {
-        std::cout << "Intente pushear a queue cerrada " << e.what() << std::endl;
-    }
+    } catch (const ClosedQueue& e) {}
 }
 
 void ClientSender::send_response() {
@@ -18,14 +16,10 @@ void ClientSender::send_response() {
 
 void ClientSender::run() {
     while (this->keep_running) {
-        try {
-            this->send_response();
-        } catch (const ClosedQueue& e) {
-            std::cout << "Intente popear de queue cerrada" << std::endl;
-            break;
-        }
+        this->send_response();
     }
-    this->queue.close();
 }
+
+void ClientSender::notify_game_ended() { this->queue.close(); }
 
 ClientSender::~ClientSender() {}
