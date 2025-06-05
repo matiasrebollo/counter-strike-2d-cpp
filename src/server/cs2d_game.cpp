@@ -14,28 +14,9 @@
 #include "common/game_snapshot.h"
 #include "common/yaml_parser.h"
 
-CS2DGame::CS2DGame(const std::string& id):
-        spawn_zone(Vector2D(0, 0), 640, 480), last_it(0), id(id) {
-    // const int mapWidth = 640;
-    // const int mapHeight = 480;
-    const int wallThickness = 32;
-
-    YamlParser parser_yaml;
-    this->game_map = parser_yaml.yaml_to_game_map("../mapa.yaml");
-
-    for (const auto& block: game_map.map_objects) {
-        if (block.collidable) {
-            for (const auto& vec: block.positions) {
-                collidables.emplace_back(std::make_shared<Collidable>(
-                        Vector2D(vec.x * wallThickness, vec.y * wallThickness), wallThickness,
-                        wallThickness));
-            }
-        }
-    }
 
 CS2DGame::CS2DGame(const std::string& id): id(id) {
     phase = std::make_unique<WaitingPlayersPhase>(*this);
-
 }
 
 bool CS2DGame::can_add_player() const {
