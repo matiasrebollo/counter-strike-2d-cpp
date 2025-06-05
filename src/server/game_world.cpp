@@ -44,7 +44,7 @@ Vector2D GameWorld::random_spawn_position() const {
 
 void GameWorld::add_player(const std::string& username) {
     Vector2D default_position(-100, -100);
-    auto player = std::make_shared<Player>(default_position);
+    auto player = std::make_shared<Player>(username, default_position);
     collidables.push_back(player);
 
     size_t cts = counter_terrorists.size();
