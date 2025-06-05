@@ -156,9 +156,10 @@ Los mensajes que envia el server son
 
 _phase_: 
 
-- 0x00 buy_phase
-- 0x01 round_phase
-- 0x02 ended
+- 0x00 waiting_players
+- 0x01 buy_phase
+- 0x02 attack_phase
+- 0x03 ended
 
 _round_: 
 

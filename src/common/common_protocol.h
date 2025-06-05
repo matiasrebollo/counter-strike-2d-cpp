@@ -6,11 +6,12 @@
 
 #include "error_codes.h"
 #include "socket.h"
-
+#include "weapon_parser.h"
 
 class CommonProtocol {
 protected:
     Socket socket;
+    WeaponParser weaponParser;
 
 public:
     CommonProtocol(const std::string& hostname, const std::string& port);

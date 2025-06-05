@@ -23,6 +23,7 @@ target_sources(taller_common
     weapon_type.h
     player_dto.h
     game_snapshot.h
+    game_dto.h
     vector_2d.h
     codes_parser.h
     commands.h

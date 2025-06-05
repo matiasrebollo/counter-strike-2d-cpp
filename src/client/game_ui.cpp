@@ -1,117 +1,108 @@
 #include "game_ui.h"
 
+#include <variant>
+
+#include "common/game_dto.h"
+
 GameUI::GameUI(Lobby& lobby):
         protocol(std::move(lobby.get_protocol())),
-        sender(this->protocol),
-        receiver(this->protocol),
         sdl(SDLManager()),
-        my_player(MyPlayer(lobby.get_username())) {
+        input_handler(sdl, this->protocol),
+        receiver(this->protocol),
+        my_player(MyPlayer(lobby.get_username())),
+        state(std::make_unique<WaitingForGameState>()),
+        keep_running(true) {
     if (!this->validate_qt_results(lobby)) {
-        throw std::runtime_error("Error creating SDL interface");
+        throw std::runtime_error(
+                "Error creating SDL interface");  // quizas ponerlo en los get de lobby.
     }
 }
 
 void GameUI::run() {
-
-    GameMap map = this->receiver.receive_initial_map();
-
-    this->sender.start();
+    input_handler.start_sender();
     this->receiver.start();
 
-    sdl.texto_prueba();
-
-    Snapshot last_snapshot = this->receiver.receive_initial_snapshot();
-
-    for (const PlayerDTO& p: last_snapshot.players) {
-        my_player.update_my_position(p);
+    while (this->keep_running) {
+        state->handle(*this);
     }
+}
 
-    bool w = false, a = false, s = false, d = false;
+void GameUI::handle_waiting_for_game() {
+    Snapshot last_snapshot;
 
     int it = 0;
-    int FPS = 30;
     Clock clock;
-    while (true) {
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT)
-                return;
-            if (event.type == SDL_KEYDOWN) {
-                switch (event.key.keysym.sym) {
-                    case SDLK_ESCAPE:
-                        return;
-                    case SDLK_w:
-                        if (!w) {
-                            sender.add_command_to_queue(MoveUpDTO{});
-                            w = true;
-                        }
-                        break;
-                    case SDLK_a:
-                        if (!a) {
-                            sender.add_command_to_queue(MoveLeftDTO{});
-                            a = true;
-                        }
-                        break;
-                    case SDLK_s:
-                        if (!s) {
-                            sender.add_command_to_queue(MoveDownDTO{});
-                            s = true;
-                        }
-                        break;
-                    case SDLK_d:
-                        if (!d) {
-                            sender.add_command_to_queue(MoveRightDTO{});
-                            d = true;
-                        }
-                        break;
-                }
-            }
-            if (event.type == SDL_KEYUP) {
-                switch (event.key.keysym.sym) {
-                    case SDLK_w:
-                        if (w) {
-                            sender.add_command_to_queue(MoveUpDTO{});
-                            w = false;
-                        }
-                        break;
-                    case SDLK_a:
-                        if (a) {
-                            sender.add_command_to_queue(MoveLeftDTO{});
-                            a = false;
-                        }
-                        break;
-                    case SDLK_s:
-                        if (s) {
-                            sender.add_command_to_queue(MoveDownDTO{});
-                            s = false;
-                        }
-                        break;
-                    case SDLK_d:
-                        if (d) {
-                            sender.add_command_to_queue(MoveRightDTO{});
-                            d = false;
-                        }
-                        break;
-                }
-            }
-            if (event.type == SDL_MOUSEMOTION) {
-                int mouse_x = event.motion.x;
-                int mouse_y = event.motion.y;
-                const double angulo = my_player.calculate_angle(mouse_x, mouse_y);
-
-                sender.add_command_to_queue(RotateDTO{angulo});
-            }
+    bool loop_game = true;
+    while (loop_game) {
+        loop_game = input_handler.handle_waiting_events();
+        if (!loop_game) {
+            keep_running = false;
+            break;
         }
 
+        GameDTO game_dto;
+        bool pop = true;
+        while (pop) {
+            if (!this->receiver.try_pop_game_dto(game_dto)) {
+                pop = false;
+                continue;
+            }
+
+            std::visit(
+                    [this, &last_snapshot, &loop_game, &pop](const auto& game_dto) {
+                        using T = std::decay_t<decltype(game_dto)>;
+                        if constexpr (std::is_same_v<T, Snapshot>) {
+                            last_snapshot = std::move(game_dto);
+                        } else if constexpr (std::is_same_v<T, GameMap>) {
+                            state = std::make_unique<AttackPhaseState>(
+                                    game_dto);  // deberia usarse buy phase
+                            pop = false;
+                            loop_game = false;
+                        } else {
+                            static_assert(always_false_v<T>, "Unhandled GameDTO type");
+                        }
+                    },
+                    game_dto);
+        }
+
+        sdl.texto_prueba();
+        // hacer algo con la snapshot??
+        // actualizar el cartel de esperando players!!!
+
+        it = clock.sleep_and_calc_next_it(FPS, it);
+    }
+}
+void GameUI::handle_buy_phase(const GameMap& /*map*/) {}
+void GameUI::handle_attack_phase(const GameMap& map) {
+    Snapshot last_snapshot = std::get<Snapshot>(this->receiver.pop_game_dto());
+
+    int it = 0;
+    Clock clock;
+    bool loop_game = true;
+    while (loop_game) {
+        loop_game = input_handler.handle_events();
+        if (!loop_game) {
+            keep_running = false;
+            break;
+        }
+
+
+        GameDTO snapshot_tmp;
+        while (this->receiver.try_pop_game_dto(snapshot_tmp)) {
+            last_snapshot = std::move(std::get<Snapshot>(snapshot_tmp));
+        }
+
+        std::vector<std::vector<PlayerDTO>> teams = {last_snapshot.ct, last_snapshot.tt};
+
+        for (const std::vector<PlayerDTO>& team: teams) {
+            for (const PlayerDTO& p: team) {
+                my_player.update_my_position(p);
+            }
+        }
 
         sdl.clear_display();
 
-        Snapshot snapshot_tmp;
-        while (this->receiver.try_pop_snapshot_from_queue(snapshot_tmp)) {
-            last_snapshot = std::move(snapshot_tmp);
-        }
-
-        sdl.render_in_z_order(map, last_snapshot, my_player);
+        sdl.render_in_z_order(map, last_snapshot, my_player.get_username());
 
         sdl.show_screen();
 
@@ -127,7 +118,7 @@ bool GameUI::validate_qt_results(Lobby& lobby) {
         return false;
     }
     if (lobby.get_username() == "") {
-        this->print_message(MSG_NO_USERNAME);
+        this->print_message(BASH_MSG_NO_USERNAME);
         return false;
     } else if (lobby.get_gamecode() == "") {
         this->print_message(MSG_NO_GAME);
@@ -139,11 +130,12 @@ bool GameUI::validate_qt_results(Lobby& lobby) {
 void GameUI::print_message(const std::string& s) { std::cout << s << std::endl; }
 
 GameUI::~GameUI() {
-    this->sender.stop();
-    this->receiver.stop();
-    this->sender.close_queue();
-    this->receiver.close_queue();
-    this->protocol.close();
-    this->sender.join();
-    this->receiver.join();
+    receiver.close_queue();
+    receiver.stop();
+    receiver.join();
+    // El receiver ya no me interesa, cerro su queue y ya está.
+    input_handler.close_sender_queue();
+    input_handler
+            .join_sender();  // aca me bloqueo hasta que sea joineable, por dentro el sender stopea
+    protocol.close();
 }

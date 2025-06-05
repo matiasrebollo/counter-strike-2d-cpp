@@ -15,7 +15,10 @@ public:
     explicit MyPlayer(const std::string& username);
 
     void update_my_position(const PlayerDTO& p);
-    double calculate_angle(int mouse_x, int mouse_y) const;
+
+    int get_x_pos() const;
+    int get_y_pos() const;
+    std::string get_username() const;
 };
 
 #endif

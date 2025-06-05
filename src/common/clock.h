@@ -12,7 +12,7 @@ public:
     Clock();
 
     void restart();
-    int sleep_and_calc_next_it(const int FPS, int it);
+    int sleep_and_calc_next_it(const int fps, int it);
 
     Clock(const Clock&) = delete;
     Clock& operator=(const Clock&) = delete;
