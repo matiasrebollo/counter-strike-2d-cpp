@@ -1,13 +1,13 @@
 #include "SDLManager.h"
-#include <string>
 
 #include <algorithm>
 #include <iomanip>
 #include <numeric>
 #include <sstream>
+#include <string>
+#include <vector>
 
 #include "../common/block_texture_parser.h"
-#include <vector>
 
 
 SDLManager::SDLManager():
@@ -83,7 +83,6 @@ void SDLManager::render_waiting_screen(int players_connected, int players_requir
                           static_cast<int>(WINDOW_INITIAL_HEIGHT * scale_y) - nameH -
                                   static_cast<int>(10 * scale_y),
                           nameW, nameH);
-
     renderer.Copy(waitingBackground, SDL2pp::NullOpt, backgroundRect);
     renderer.Copy(waitingTexture, SDL2pp::NullOpt, waitingRect);
     renderer.Copy(playersTexture, SDL2pp::NullOpt, playersRect);
@@ -258,39 +257,27 @@ void SDLManager::render_in_z_order(const GameMap& map, const Snapshot& snapshot,
     SDL2pp::Rect viewport_rect(offset.GetX(), offset.GetY(), screen_width, screen_height);
     renderer.SetViewport(viewport_rect);
 
-
-    // ACA SI ITERO EL MAPA (POR AHORA SOLO TIPO BOX)
     BlockTextureParser texture_parser;
     for (const MapObject& obj: map.map_objects) {
-
-        if (obj.type == MapObjectType::BOX) {
-            SDL2pp::Rect rect_origen(BOX_X_POS_SPRITE, BOX_Y_POS_SPRITE, SIZE_BOX, SIZE_BOX);
-            SDL2pp::Rect destino_mundo(obj.position.x, obj.position.y, obj.width, obj.height);
-            if (!camera.is_visible(destino_mundo))
-                continue;
-            SDL2pp::Rect destino_camera = camera.world_to_screen(destino_mundo);
-            SDL2pp::Rect destino_scaled(
-                    destino_camera.GetX() * scale, destino_camera.GetY() * scale,
-                    destino_camera.GetW() * scale, destino_camera.GetH() * scale);
-            renderer.Copy(box, rect_origen, destino_scaled);
-
         BlockTextureInfo txt = texture_parser.get_texture_info(obj.type);
         std::string path = "../assets/gfx/tiles/" + txt.tileset_path;
-
-
 
         SDL2pp::Surface boxSheet2(path);
         SDL2pp::Texture box2(renderer, boxSheet2);
 
         SDL2pp::Rect rect_origen(txt.x, txt.y, txt.width, txt.height);
         for (const auto& vec: obj.positions) {
-            SDL2pp::Rect rect_destino(vec.x * 32, vec.y * 32, 32, 32);
-            renderer.Copy(box2, rect_origen, rect_destino);
-
+            SDL2pp::Rect destino_mundo(vec.x * 40, vec.y * 40, 40, 40);
+            if (!camera.is_visible(destino_mundo))
+                continue;
+            SDL2pp::Rect destino_camera = camera.world_to_screen(destino_mundo);
+            SDL2pp::Rect destino_scaled(
+                    destino_camera.GetX() * scale, destino_camera.GetY() * scale,
+                    destino_camera.GetW() * scale, destino_camera.GetH() * scale);
+            renderer.Copy(box2, rect_origen, destino_scaled);
         }
-       
-
     }
+
     for (const PlayerDTO& p: snapshot.ct) {
         render_player(p, scale);
     }
