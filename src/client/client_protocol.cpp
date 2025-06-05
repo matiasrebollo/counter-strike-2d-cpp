@@ -13,28 +13,7 @@
 #include "../common/vector_2d.h"
 
 ClientProtocol::ClientProtocol(const std::string& hostname, const std::string& port):
-        CommonProtocol(hostname, port), parser(), isAlive(true) {
-    /*
-sendersMap[CommandType::SELECT_MAP] = [this](const InternalMessage& request) {
-return this->send_select_map_request(request);
-};
-sendersMap[CommandType::BUY_WEAPON] = [this](const InternalMessage& request) {
-return this->send_buy_weapon_request(request);
-};
-sendersMap[CommandType::BUY_AMMO] = [this](const InternalMessage& request) {
-return this->send_buy_weapon_ammo_request(request);
-};
-sendersMap[CommandType::AIM] = [this](const InternalMessage& request) {
-return this->send_aim_request(request);
-};
-sendersMap[CommandType::MOVE] = [this](const InternalMessage& request) {
-return this->send_move_request(request);
-};
-sendersMap[CommandType::CHANGE_WEAPON] = [this](const InternalMessage& request) {
-return this->send_change_weapon_request(request);
-};
-*/
-}
+        CommonProtocol(hostname, port), isAlive(true) {}
 
 ServerResponseLobby ClientProtocol::receive_command() {
     // aca para la etapa de lobby recibo:
@@ -86,6 +65,20 @@ void ClientProtocol::send_command(const CommandDTO& command) {
                     handle_move_right();
                 } else if constexpr (std::is_same_v<T, RotateDTO>) {
                     handle_rotate(d);
+                } else if constexpr (std::is_same_v<T, PlayerActionDTO>) {
+                    handle_player_action();
+                } else if constexpr (std::is_same_v<T, EquipPrimaryDTO>) {
+                    handle_equip_primary();
+                } else if constexpr (std::is_same_v<T, EquipSecondaryDTO>) {
+                    handle_equip_secondary();
+                } else if constexpr (std::is_same_v<T, EquipKnifeDTO>) {
+                    handle_equip_knife();
+                } else if constexpr (std::is_same_v<T, EquipBombDTO>) {
+                    handle_equip_bomb();
+                } else if constexpr (std::is_same_v<T, BuyGunDTO>) {
+                    handle_buy_gun(d);
+                } else if constexpr (std::is_same_v<T, BuyAmmoDTO>) {
+                    handle_buy_ammo(d);
                 } else {
                     static_assert(always_false_v<T>, "Unhandled CommandDTO type");
                 }
@@ -112,19 +105,6 @@ void ClientProtocol::send_select_map_request(const InternalMessage& request) {
     this->send_byte(request.map_id);
 }
 
-void ClientProtocol::send_buy_weapon_request(const InternalMessage& request) {
-    this->send_byte(request.code_weapon);
-}
-
-void ClientProtocol::send_buy_weapon_ammo_request(const InternalMessage& request) {
-    this->send_byte(request.code_weapon_type);
-    this->send_big_endian_number(request.bullets);
-}
-
-void ClientProtocol::send_aim_request(const InternalMessage& request) {
-    this->send_byte(request.pos_x);
-    this->send_byte(request.pos_y);
-}
 */
 
 void ClientProtocol::handle_move_up() {
@@ -152,6 +132,43 @@ void ClientProtocol::handle_rotate(const RotateDTO& dto) {
     this->send_angle(dto.angle);
 }
 
+void ClientProtocol::handle_player_action() { this->send_byte(CODE_ACTION); }
+
+void ClientProtocol::handle_equip_primary() {
+    this->send_byte(CODE_CHANGE_WEAPON);
+    this->send_byte(CODE_CHOOSE_PRIMARY);
+}
+
+void ClientProtocol::handle_equip_secondary() {
+    this->send_byte(CODE_CHANGE_WEAPON);
+    this->send_byte(CODE_CHOOSE_SECONDARY);
+}
+
+void ClientProtocol::handle_equip_knife() {
+    this->send_byte(CODE_CHANGE_WEAPON);
+    this->send_byte(CODE_CHOOSE_KNIFE);
+}
+
+void ClientProtocol::handle_equip_bomb() {
+    this->send_byte(CODE_CHANGE_WEAPON);
+    this->send_byte(CODE_CHOOSE_BOMB);
+}
+
+void ClientProtocol::handle_buy_gun(const BuyGunDTO& dto) {
+    this->send_byte(CODE_BUY_WEAPON);
+    this->send_byte(this->weaponParser.getWeaponToByte(dto.gun));
+}
+
+void ClientProtocol::handle_buy_ammo(const BuyAmmoDTO& dto) {
+    this->send_byte(CODE_BUY_BULLETS);
+    if (dto.for_primary) {
+        this->send_byte(CODE_CHOOSE_PRIMARY);
+    } else {
+        this->send_byte(CODE_CHOOSE_SECONDARY);
+    }
+    this->send_big_endian_number(dto.ammo);
+}
+
 
 void ClientProtocol::send_change_weapon_request(const InternalMessage& request) {
     this->send_byte(request.code_weapon_type);
@@ -167,10 +184,7 @@ GameDTO ClientProtocol::receive_game_dto() {
 }
 
 Snapshot ClientProtocol::receive_snapshot() {
-    // snasphot.phase = Phase(this->receive_byte());
-    // snasphot.round_number = this->receive_byte();
     // snasphot.bomb_status = BombStatus(this->receive_byte());
-    // snasphot.timer = this->receive_byte();
     int phase = this->receive_byte();
     size_t current_round_number = this->receive_byte();
     size_t total_rounds = this->receive_byte();
@@ -181,8 +195,6 @@ Snapshot ClientProtocol::receive_snapshot() {
     std::vector<PlayerDTO> tts = this->receive_players(size_tt);
     Snapshot snapshot =
             Snapshot{Phase(phase), current_round_number, total_rounds, time_left, cts, tts};
-    // int size_bullets = this->receive_byte();
-    // snapshot.bullets = this->receive_bullets(size_bullets);
     return snapshot;
 }
 
@@ -193,31 +205,12 @@ std::vector<PlayerDTO> ClientProtocol::receive_players(const int& size_players) 
         int position_x = this->receive_big_endian_number();
         int position_y = this->receive_big_endian_number();
         double angle = this->receive_angle();
-        /*
-        int direction_x = this->receive_byte();
-        int direction_y = this->receive_byte();
-        */
         int life = this->receive_byte();
         uint16_t life16 = static_cast<uint16_t>(life);
         players.push_back(PlayerDTO{username, Vector2D(position_x, position_y), angle, life16});
     }
     return players;
 }
-
-/*
-std::vector<Bullet> ClientProtocol::receive_bullets(const int& size_bullets) {
-    std::vector<Bullet> bullets = {};
-    for (int i = 0; i < size_bullets; i++) {
-        uint8_t id = this->ReceiveByte();
-        uint8_t pos_x = this->ReceiveByte();
-        uint8_t pos_y = this->ReceiveByte();
-        uint8_t dir_x = this->ReceiveByte();
-        uint8_t dir_y = this->ReceiveByte();
-        bullets.push_back(Bullet(id, pos_x, pos_y, dir_x, dir_y));
-    }
-    return bullets;
-}
-*/
 
 GameMap ClientProtocol::receive_map() {
     uint16_t size = this->receive_big_endian_number();

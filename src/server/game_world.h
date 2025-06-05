@@ -62,6 +62,13 @@ public:
     void move_player_down(const std::string& username);
     void move_player_left(const std::string& username);
     void move_player_right(const std::string& username);
+    void make_player_action(const std::string& username);
+    void equip_primary_for(const std::string& username);
+    void equip_secondary_for(const std::string& username);
+    void equip_knife_for(const std::string& username);
+    void buy_gun_for(const std::string& username, const GunType& gun);
+    void buy_ammo_for(const std::string& username, const uint16_t& ammo, const bool& for_primary);
+
     void make_step_player(Player& player, const Vector2D& step_dir);
     const Collidable* colliding_object_with(const Collidable& coll) const;
     // void shoot(const std::string& username);
