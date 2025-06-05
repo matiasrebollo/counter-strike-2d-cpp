@@ -1,5 +1,5 @@
-#ifndef LOADOUT_MANAGER_H
-#define LOADOUT_MANAGER_H
+#ifndef LOADOUT_H
+#define LOADOUT_H
 
 #include <cstdint>
 #include <memory>

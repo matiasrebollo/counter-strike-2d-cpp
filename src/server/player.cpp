@@ -4,16 +4,14 @@
 
 #include "server/game_world.h"
 
-Player::Player(Vector2D& position):
+Player::Player(const std::string& name, Vector2D& position):
         Collidable(position, PLAYER_WIDTH, PLAYER_HEIGHT),
+        name(name),
         moving_up(false),
         moving_down(false),
         moving_left(false),
         moving_right(false),
         life(PLAYER_INITIAL_LIFE) {}
-
-float Player::get_orientation() const { return orientation; }
-uint16_t Player::get_life() const { return life; }
 
 bool Player::is_alive() const { return this->life > 0; }
 
@@ -65,6 +63,11 @@ void Player::buy_gun(const GunType& gun) {
 void Player::buy_ammo(const uint16_t& ammo, const bool& for_primary) {
     loadout.buy_ammo(ammo, for_primary);
     // compra exitosa o no: enviar evento al juego para notificar al cliente??
+}
+
+const PlayerDTO Player::get_dto() const {
+    const PlayerDTO dto{name, rect.position, orientation, life, /*loadout.get_dto()*/};
+    return dto;
 }
 
 /*

@@ -44,11 +44,11 @@ Vector2D GameWorld::random_position() const {
 
 void GameWorld::add_player(const std::string& username) {
     Vector2D position = random_position();
-    auto player = std::make_shared<Player>(position);
+    auto player = std::make_shared<Player>(username, position);
     while (colliding_object_with(
             *player)) {  // mapa debe estar bien hecho como para que esto funcione
         position = random_position();
-        player = std::make_shared<Player>(position);
+        player = std::make_shared<Player>(username, position);
     }
     collidables.push_back(player);
 
@@ -68,14 +68,16 @@ const GameWorldSnapshot GameWorld::get_snapshot() const {
     std::vector<PlayerDTO> tt;
 
     for (const auto& player: counter_terrorists) {
-        const PlayerDTO dto{player.first, player.second->rect.position,
+        /*const PlayerDTO dto{player.first, player.second->rect.position,
                             player.second->get_orientation(), player.second->get_life()};
-        ct.push_back(dto);
+        ct.push_back(dto);*/
+        ct.push_back(player.second->get_dto());
     }
     for (const auto& player: terrorists) {
-        const PlayerDTO dto{player.first, player.second->rect.position,
+        /*const PlayerDTO dto{player.first, player.second->rect.position,
                             player.second->get_orientation(), player.second->get_life()};
-        tt.push_back(dto);
+        tt.push_back(dto);*/
+        tt.push_back(player.second->get_dto());
     }
 
     return GameWorldSnapshot{ct, tt};

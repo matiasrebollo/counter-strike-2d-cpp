@@ -7,6 +7,7 @@
 #include "../common/block_texture_parser.h"
 #include "../common/game_map.h"
 
+// cppcheck-suppress unknownMacro
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class Game_editor;

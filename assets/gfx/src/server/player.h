@@ -4,10 +4,11 @@
 #include <list>
 #include <memory>
 
-// #include "server/loadout_manager.h"
+
 class GameWorld;  // forward declaration
 
 #include "server/collidable.h"
+#include "server/loadout.h"
 
 #define PLAYER_WIDTH 32
 #define PLAYER_HEIGHT 32
@@ -21,8 +22,7 @@ private:
     bool moving_right;
     double orientation;
     uint16_t life;
-
-    // LoadoutManager loadout;
+    Loadout loadout;
 
     void step(const Vector2D& step_dir, GameWorld& game);
 
