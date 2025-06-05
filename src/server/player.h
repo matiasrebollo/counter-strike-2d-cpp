@@ -42,6 +42,7 @@ public:
     void move_down();
     void move_left();
     void move_right();
+    void stop();
     void equip_primary();
     void equip_secondary();
     void equip_knife();

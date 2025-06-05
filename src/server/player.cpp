@@ -46,6 +46,13 @@ void Player::move_down() { moving_down = !moving_down; }
 void Player::move_left() { moving_left = !moving_left; }
 void Player::move_right() { moving_right = !moving_right; }
 void Player::rotate(const double& new_orientation) { this->orientation = new_orientation; }
+void Player::stop() {
+    moving_up = false;
+    moving_down = false;
+    moving_left = false;
+    moving_right = false;
+    orientation = 0.0;
+}
 void Player::make_action() {
     Weapon* weapon = loadout.equipped_weapon();
     if (weapon)

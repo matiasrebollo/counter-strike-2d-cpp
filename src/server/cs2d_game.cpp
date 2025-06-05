@@ -98,8 +98,9 @@ void CS2DGame::begin_new_round() {
     this->current_round++;
     if (this->current_round == (ROUNDS / 2) + 1)
         swap_teams();
+    game_world.stop_players();
+    game_world.spawn_players();
     // limpiar items del mapa (dejar algunos, random)
-    // reiniciar posiciones de cada jugador al spawn
 }
 
 void CS2DGame::change_phase(std::unique_ptr<GamePhase> new_phase) {

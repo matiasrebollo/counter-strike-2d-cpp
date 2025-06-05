@@ -39,6 +39,7 @@ bool WaitingPlayersPhase::should_continue() { return !game.should_start(); }
 void WaitingPlayersPhase::execute(std::unique_ptr<Command>) {}
 void WaitingPlayersPhase::end() {
     game.broadcast_map();
+    game.begin_new_round();
     game.change_phase(std::make_unique<BuyPhase>(game));
     // y si salió porque terminó la partida???
 }

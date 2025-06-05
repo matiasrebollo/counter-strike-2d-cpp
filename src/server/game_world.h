@@ -25,8 +25,7 @@ private:
     const Rect spawn_zone;
     const GameMap game_map;
 
-    Vector2D random_position() const;
-    Vector2D spawn_position() const;
+    Vector2D random_spawn_position() const;
 
     bool team_is_dead(const std::map<std::string, std::shared_ptr<Player>>& team) const;
 
@@ -53,6 +52,8 @@ public:
 
     GameWorld();
     void add_player(const std::string& username);
+    void stop_players();
+    void spawn_players();
     const GameMap get_map() const;
     const GameWorldSnapshot get_snapshot() const;
     void update();

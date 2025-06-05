@@ -26,17 +26,22 @@ private:
     std::unique_ptr<Gun> primary_gun;
     Glock secondary_gun;
     WeaponType equipped;
+    std::unique_ptr<Gun> primary_gun;
+    Glock secondary_gun;
+    WeaponType equipped;
 
     /*
      * Devuelve el precio de una bala de un tipo de arma.
      *
      * */
     static uint16_t ammo_price_for(const GunType& gun_type);
+    static uint16_t ammo_price_for(const GunType& gun_type);
 
     /*
      * Devuelve el precio de un tipo de arma.
      *
      * */
+    static uint16_t price_for(const GunType& gun_type);
     static uint16_t price_for(const GunType& gun_type);
 
     /*
@@ -46,10 +51,12 @@ private:
     void decrease_money_by(const uint16_t& amount_of_money);
     /*
      * Cambia el arma primaria a gun, y la cantidad de balas del arma primaria a 30.
+     * Cambia el arma primaria a gun, y la cantidad de balas del arma primaria a 30.
      *
      * Devuelve el arma primaria que poseía anteriormente.
      *
      * */
+    const std::unique_ptr<Gun> new_primary_gun(std::unique_ptr<Gun> gun);
     const std::unique_ptr<Gun> new_primary_gun(std::unique_ptr<Gun> gun);
 
     /*
@@ -58,12 +65,14 @@ private:
      *
      * */
     bool can_buy_gun(const GunType& gun_type) const;
+    bool can_buy_gun(const GunType& gun_type) const;
 
     /*
      * Devuelve true si el jugador tiene el suficiente dinero para comprar las balas pedidas
      * para el arma que corresponda, false en caso contrario.
      *
      * */
+    bool can_buy_ammo(const uint16_t& ammo_count, const bool& for_primary) const;
     bool can_buy_ammo(const uint16_t& ammo_count, const bool& for_primary) const;
 
 public:
@@ -90,6 +99,7 @@ public:
      * Devuelve std::nullopt si no se tenía arma equipada o no se pudo efectuar la compra.
      *
      * */
+    const std::unique_ptr<Gun> buy_primary_gun(const GunType& gun_type);
     const std::unique_ptr<Gun> buy_primary_gun(const GunType& gun_type);
 
     /*

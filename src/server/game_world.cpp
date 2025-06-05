@@ -32,7 +32,7 @@ GameWorld::GameWorld():
     }
 }
 
-Vector2D GameWorld::random_position() const {
+Vector2D GameWorld::random_spawn_position() const {
     static std::random_device rd;
     static std::mt19937 gen(rd());
     std::uniform_int_distribution<> disX(spawn_zone.position.x,
@@ -43,13 +43,8 @@ Vector2D GameWorld::random_position() const {
 }
 
 void GameWorld::add_player(const std::string& username) {
-    Vector2D position = random_position();
-    auto player = std::make_shared<Player>(username, position);
-    while (colliding_object_with(
-            *player)) {  // mapa debe estar bien hecho como para que esto funcione
-        position = random_position();
-        player = std::make_shared<Player>(username, position);
-    }
+    Vector2D default_position(-100, -100);
+    auto player = std::make_shared<Player>(default_position);
     collidables.push_back(player);
 
     size_t cts = counter_terrorists.size();
@@ -58,6 +53,37 @@ void GameWorld::add_player(const std::string& username) {
         terrorists[username] = player;
     } else if (cts < COUNTER_TERRORISTS) {
         counter_terrorists[username] = player;
+    }
+}
+
+void GameWorld::stop_players() {
+    for (auto& [_, player]: terrorists) {
+        player->stop();
+    }
+    for (auto& [_, player]: counter_terrorists) {
+        player->stop();
+    }
+}
+
+void GameWorld::spawn_players() {
+    for (auto& [_, player]: terrorists) {
+        Vector2D position = random_spawn_position();
+        player->rect.position = position;
+
+        while (colliding_object_with(*player)) {
+            position = random_spawn_position();
+            player->rect.position = position;
+        }
+    }
+
+    for (auto& [_, player]: counter_terrorists) {
+        Vector2D position = random_spawn_position();
+        player->rect.position = position;
+
+        while (colliding_object_with(*player)) {
+            position = random_spawn_position();
+            player->rect.position = position;
+        }
     }
 }
 
