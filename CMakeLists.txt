@@ -151,6 +151,9 @@ if(TALLER_SERVER)
     # Make them depend on taller_common lib
     add_dependencies(taller_server taller_common)
 
+    # Agrego yaml-cpp
+    find_package(yaml-cpp REQUIRED)
+
     # Add source files and enable warnings
     # HEY!! TODO XXX: add more subfolders here
     add_subdirectory(src/server)
@@ -158,15 +161,27 @@ if(TALLER_SERVER)
     set_project_warnings(taller_server ${TALLER_MAKE_WARNINGS_AS_ERRORS} FALSE)
 
     # Link the taller_common lib target
-    target_link_libraries(taller_server taller_common)
+    target_link_libraries(taller_server taller_common yaml-cpp)
 endif()
 
 if(TALLER_EDITOR)
+    # Reglas de Qt
+    set(CMAKE_AUTOUIC ON)
+    set(CMAKE_AUTOMOC ON)
+    set(CMAKE_AUTORCC ON)
+    
+    # Buscar Qt
+    find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
+    find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+
+    # Agrego yaml-cpp
+    find_package(yaml-cpp REQUIRED)
+
     # HEY!! TODO XXX: Change the name of the executable to the one you like!
     add_executable(taller_editor)
 
     # Make them depend on taller_common lib
-    add_dependencies(taller_editor taller_common SDL2pp::SDL2pp)
+    add_dependencies(taller_editor taller_common)
 
     # Add source files and enable warnings
     # HEY!! TODO XXX: add more subfolders here
@@ -174,11 +189,20 @@ if(TALLER_EDITOR)
 
     set_project_warnings(taller_editor ${TALLER_MAKE_WARNINGS_AS_ERRORS} FALSE)
 
-    # add libSDL2pp's headers
-    target_include_directories(taller_editor PRIVATE ${libSDL2pp_SOURCE_DIR})
+        target_include_directories(taller_editor
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/client
+    PRIVATE
+        ${CMAKE_CURRENT_BINARY_DIR}
+)
 
     # Link the taller_common lib target
-    target_link_libraries(taller_editor taller_common SDL2pp::SDL2pp)
+    target_link_libraries(taller_editor
+    PRIVATE
+        Qt${QT_VERSION_MAJOR}::Widgets
+        taller_common
+        yaml-cpp
+)
 endif()
 
 

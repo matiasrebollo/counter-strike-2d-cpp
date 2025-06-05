@@ -1,9 +1,12 @@
 #include "SDLManager.h"
+#include <string>
 
 #include <algorithm>
 #include <iomanip>
 #include <numeric>
 #include <sstream>
+
+#include "../common/block_texture_parser.h"
 #include <vector>
 
 
@@ -257,7 +260,9 @@ void SDLManager::render_in_z_order(const GameMap& map, const Snapshot& snapshot,
 
 
     // ACA SI ITERO EL MAPA (POR AHORA SOLO TIPO BOX)
+    BlockTextureParser texture_parser;
     for (const MapObject& obj: map.map_objects) {
+
         if (obj.type == MapObjectType::BOX) {
             SDL2pp::Rect rect_origen(BOX_X_POS_SPRITE, BOX_Y_POS_SPRITE, SIZE_BOX, SIZE_BOX);
             SDL2pp::Rect destino_mundo(obj.position.x, obj.position.y, obj.width, obj.height);
@@ -268,7 +273,23 @@ void SDLManager::render_in_z_order(const GameMap& map, const Snapshot& snapshot,
                     destino_camera.GetX() * scale, destino_camera.GetY() * scale,
                     destino_camera.GetW() * scale, destino_camera.GetH() * scale);
             renderer.Copy(box, rect_origen, destino_scaled);
+
+        BlockTextureInfo txt = texture_parser.get_texture_info(obj.type);
+        std::string path = "../assets/gfx/tiles/" + txt.tileset_path;
+
+
+
+        SDL2pp::Surface boxSheet2(path);
+        SDL2pp::Texture box2(renderer, boxSheet2);
+
+        SDL2pp::Rect rect_origen(txt.x, txt.y, txt.width, txt.height);
+        for (const auto& vec: obj.positions) {
+            SDL2pp::Rect rect_destino(vec.x * 32, vec.y * 32, 32, 32);
+            renderer.Copy(box2, rect_origen, rect_destino);
+
         }
+       
+
     }
     for (const PlayerDTO& p: snapshot.ct) {
         render_player(p, scale);

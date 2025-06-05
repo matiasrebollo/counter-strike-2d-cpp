@@ -48,15 +48,39 @@ public:
     ~RotateCommand() override = default;
 };
 
-/*struct ShootCommand: public Command {
-    explicit ShootCommand(std::string& username);
-
+class PlayerActionCommand: public AttackPhaseCommand {
+public:
+    explicit PlayerActionCommand(const std::string& username);
     void execute_in_attack_phase(GameWorld& game) const override;
+    ~PlayerActionCommand() override = default;
+};
 
-    ShootCommand(const ShootCommand&) = delete;
-    ShootCommand& operator=(const ShootCommand&) = delete;
+class EquipPrimaryCommand: public AttackPhaseCommand {
+public:
+    explicit EquipPrimaryCommand(const std::string& username);
+    void execute_in_attack_phase(GameWorld& game) const override;
+    ~EquipPrimaryCommand() override = default;
+};
 
-    ~ShootCommand() = default;
-};*/
+class EquipSecondaryCommand: public AttackPhaseCommand {
+public:
+    explicit EquipSecondaryCommand(const std::string& username);
+    void execute_in_attack_phase(GameWorld& game) const override;
+    ~EquipSecondaryCommand() override = default;
+};
+
+class EquipKnifeCommand: public AttackPhaseCommand {
+public:
+    explicit EquipKnifeCommand(const std::string& username);
+    void execute_in_attack_phase(GameWorld& game) const override;
+    ~EquipKnifeCommand() override = default;
+};
+
+class EquipBombCommand: public AttackPhaseCommand {
+public:
+    explicit EquipBombCommand(const std::string& username);
+    void execute_in_attack_phase(GameWorld& game) const override;
+    ~EquipBombCommand() override = default;
+};
 
 #endif

@@ -20,6 +20,7 @@ class CS2DGame: public Thread {
 private:
     std::map<std::string, std::shared_ptr<ClientSender>> players_senders;
     Queue<std::unique_ptr<Command>> command_queue;
+
     GameWorld game_world;
     std::unique_ptr<GamePhase> phase;
     size_t current_round;
@@ -32,6 +33,7 @@ private:
     friend class BuyPhase;
     friend class AttackPhase;
     friend class BetweenRoundsPhase;
+
 
     bool should_start() const;
 

@@ -9,6 +9,12 @@
 #include <utility>
 #include <vector>
 
+#include "common/clock.h"
+#include "common/game_map.h"
+#include "common/game_snapshot.h"
+#include "common/yaml_parser.h"
+
+
 CS2DGame::CS2DGame(const std::string& id): id(id) {
     phase = std::make_unique<WaitingPlayersPhase>(*this);
 }
