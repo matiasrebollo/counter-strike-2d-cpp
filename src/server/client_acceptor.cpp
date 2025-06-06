@@ -14,11 +14,12 @@ void ClientAcceptor::run() {
             this->clients.push_back(client);
             client->start();
         } catch (const LibError& e) {
-            break;
+            this->stop();
         } catch (std::exception&) {
-            break;
+            this->stop();
         }
     }
+    this->clear();
 }
 
 void ClientAcceptor::reap() {
@@ -38,11 +39,15 @@ void ClientAcceptor::reap() {
 
 void ClientAcceptor::clear() {
     for (auto* client: this->clients) {
+        client->kill();
         client->join();
         delete client;
     }
     this->clients.clear();
-    this->stop();
+    this->server_monitor.kill_games();
+}
+
+void ClientAcceptor::close_acceptor() {
     this->acceptor.shutdown(SHUT_RDWR);
     this->acceptor.close();
 }

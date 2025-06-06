@@ -7,16 +7,20 @@ void ClientSender::send_game_dto(const GameDTO& message) { this->queue.try_push(
 
 void ClientSender::send_response() {
     GameDTO msg = this->queue.pop();
+    if (std::holds_alternative<GameEnded>(msg)) {
+        this->game_ended();
+    }
     this->protocol.send_game_dto(msg);
 }
 
-void ClientSender::run() {
+bool ClientSender::run() {
     while (this->keep_running) {
         this->send_response();
     }
+    return true;
 }
 
-void ClientSender::notify_game_ended() {
+void ClientSender::game_ended() {
     this->queue.close();
     this->keep_running = false;
 }

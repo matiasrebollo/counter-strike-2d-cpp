@@ -2,6 +2,8 @@
 
 #include <variant>
 
+#include <unistd.h>
+
 #include "common/game_dto.h"
 
 GameUI::GameUI(Lobby& lobby):
@@ -22,9 +24,16 @@ void GameUI::run() {
     input_handler.start_sender();
     this->receiver.start();
 
-    while (this->keep_running) {
-        state->handle(*this);
+    try {
+        while (this->keep_running) {
+            state->handle(*this);
+        }
+    } catch (const ClosedQueue& e) {
+        std::cout << "SERVER CLOSED!" << std::endl;
+        this->keep_running = false;
     }
+
+    this->close_client();
 }
 
 void GameUI::handle_waiting_for_game() {
@@ -58,6 +67,10 @@ void GameUI::handle_waiting_for_game() {
                                     game_dto);  // deberia usarse buy phase
                             pop = false;
                             loop_game = false;
+                        } else if constexpr (std::is_same_v<T, GameEnded>) {
+                            state = std::make_unique<GameEndedState>();
+                            pop = false;
+                            loop_game = false;
                         } else {
                             static_assert(always_false_v<T>, "Unhandled GameDTO type");
                         }
@@ -89,6 +102,10 @@ void GameUI::handle_attack_phase(const GameMap& map) {
 
         GameDTO snapshot_tmp;
         while (this->receiver.try_pop_game_dto(snapshot_tmp)) {
+            if (std::holds_alternative<GameEnded>(snapshot_tmp)) {
+                this->state = std::make_unique<GameEndedState>();
+                return;
+            }
             last_snapshot = std::move(std::get<Snapshot>(snapshot_tmp));
         }
 
@@ -110,6 +127,11 @@ void GameUI::handle_attack_phase(const GameMap& map) {
     }
 }
 
+void GameUI::handle_game_ended_phase() {
+    std::cout << "Game ended!" << std::endl;
+    this->keep_running = false;
+}
+
 bool GameUI::validate_qt_results(Lobby& lobby) {
     try {
         lobby.get_protocol();
@@ -129,13 +151,19 @@ bool GameUI::validate_qt_results(Lobby& lobby) {
 
 void GameUI::print_message(const std::string& s) { std::cout << s << std::endl; }
 
-GameUI::~GameUI() {
-    receiver.close_queue();
-    receiver.stop();
-    receiver.join();
+void GameUI::close_client() {
+    this->protocol.close();
+    // this->receiver.close_queue();
+    this->receiver.join();
     // El receiver ya no me interesa, cerro su queue y ya está.
-    input_handler.close_sender_queue();
-    input_handler
+    // this->input_handler.close_sender_queue();
+    this->input_handler.close_sender_queue();
+    this->input_handler
             .join_sender();  // aca me bloqueo hasta que sea joineable, por dentro el sender stopea
-    protocol.close();
+}
+
+GameUI::~GameUI() {
+    if (this->keep_running) {
+        this->close_client();
+    }
 }

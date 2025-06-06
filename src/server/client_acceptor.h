@@ -19,12 +19,13 @@ private:
     Socket acceptor;
     std::vector<ClientHandler*> clients;
     ServerMonitor server_monitor;
+    void clear();
 
 public:
     explicit ClientAcceptor(const std::string& port);
     void run() override;
     void reap();
-    void clear();
+    void close_acceptor();
 };
 
 #endif

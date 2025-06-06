@@ -22,6 +22,7 @@ private:
     std::string username;
     bool is_in_game;
     std::string my_game;
+    bool ended;
 
     void send_lobby_response(const CommandType& command, const bool& success,
                              const std::string& game_name);
@@ -36,6 +37,7 @@ public:
     ClientHandler(Socket&& socket, ServerMonitor& server_monitor);
     std::string get_username();
     void run() override;
+    void kill();
 };
 
 #endif

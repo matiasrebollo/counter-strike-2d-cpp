@@ -17,12 +17,13 @@ private:
     ServerProtocol& protocol;
     std::atomic_bool keep_running;
     void send_response();
+    void game_ended();
+
 
 public:
     explicit ClientSender(ServerProtocol& protocol);
     void send_game_dto(const GameDTO& message);
-    void run();
-    void notify_game_ended();
+    bool run();
     bool is_alive();
     ~ClientSender();
 };

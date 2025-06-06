@@ -37,7 +37,7 @@ Vector2D GameWorld::random_position() const {
 
 void GameWorld::add_player(const std::string& username) {
     Vector2D position = random_position();
-    auto player = std::make_shared<Player>(position);
+    auto player = std::make_shared<Player>(Vector2D{position.x, position.y});
     while (colliding_object_with(
             *player)) {  // mapa debe estar bien hecho como para que esto funcione
         position = random_position();

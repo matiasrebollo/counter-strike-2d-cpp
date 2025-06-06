@@ -4,13 +4,14 @@
 
 #include "server/game_world.h"
 
-Player::Player(Vector2D& position):
+Player::Player(const Vector2D& position):
         Collidable(position, PLAYER_WIDTH, PLAYER_HEIGHT),
         moving_up(false),
         moving_down(false),
         moving_left(false),
         moving_right(false),
-        life(PLAYER_INITIAL_LIFE) {}
+        life(PLAYER_INITIAL_LIFE),
+        loadout() {}
 
 float Player::get_orientation() const { return orientation; }
 uint16_t Player::get_life() const { return life; }

@@ -5,7 +5,7 @@
 #include <utility>
 
 LoadoutManager::LoadoutManager():
-        money(INITIAL_MONEY), primary_gun(nullptr), secondary_gun(), equipped(KNIFE) {}
+        money(INITIAL_MONEY), knife(), primary_gun(nullptr), secondary_gun(), equipped(KNIFE) {}
 
 uint16_t LoadoutManager::ammo_price_for(const GunType& type) {
     // está hardcodeado. inicializar un map a partir del archivo de configuracion al inicializar el

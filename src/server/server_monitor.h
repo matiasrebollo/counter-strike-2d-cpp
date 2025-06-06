@@ -41,6 +41,7 @@ public:
     CS2DGame& get_game(const std::string& gameName);
     void manage_end_game(const std::string& gameName);
     void reap_games();
+    void kill_games();
 };
 
 #endif

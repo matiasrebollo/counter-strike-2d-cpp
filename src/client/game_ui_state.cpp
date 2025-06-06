@@ -13,3 +13,7 @@ void BuyPhaseState::handle(GameUI& game_ui) { game_ui.handle_buy_phase(this->map
 AttackPhaseState::AttackPhaseState(const GameMap map): map(map) {}
 
 void AttackPhaseState::handle(GameUI& game_ui) { game_ui.handle_attack_phase(this->map); }
+
+GameEndedState::GameEndedState() {}
+
+void GameEndedState::handle(GameUI& game_ui) { game_ui.handle_game_ended_phase(); }

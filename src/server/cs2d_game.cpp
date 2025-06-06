@@ -9,7 +9,15 @@
 #include <utility>
 #include <vector>
 
-CS2DGame::CS2DGame(const std::string& id): id(id) {
+CS2DGame::CS2DGame(const std::string& id):
+        players_senders(),
+        command_queue(),
+        game_world(),
+        current_round(0),
+        current_round_winner(std::nullopt),
+        ct_wins(0),
+        tt_wins(0),
+        id(id) {
     phase = std::make_unique<WaitingPlayersPhase>(*this);
 }
 
@@ -107,9 +115,7 @@ void CS2DGame::swap_teams() {}
 void CS2DGame::end_game() {
     // determinar equipo ganador y enviar estadisticas finales
     this->command_queue.close();
-    for (const auto& [_, sender]: players_senders) {
-        sender->notify_game_ended();
-    }
+    this->broadcast_game_dto(GameEnded{});
     this->stop();
 }
 

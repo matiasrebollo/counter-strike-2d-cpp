@@ -42,6 +42,7 @@ private:
     void send_snapshot(const Snapshot& snapshot);
     void send_map(const GameMap& map);
     void send_players(const std::vector<PlayerDTO>& players);
+    void send_end_game(const GameEnded& message);
 
 public:
     explicit ServerProtocol(Socket&& socket);
