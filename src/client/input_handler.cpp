@@ -64,9 +64,11 @@ bool InputHandler::handle_keyup_event(const SDL_Event& event) {
 }
 
 double InputHandler::calculate_angle_to_mouse(int mouse_x, int mouse_y) const {
-    auto [width, height] = sdl.get_window_size();
-    float dx = mouse_x - static_cast<float>(width / 2.0f);
-    float dy = mouse_y - static_cast<float>(height / 2.0f);
+    auto [width, height] = sdl.get_logical_size();
+    float center_x = width / 2.0f;
+    float center_y = height / 2.0f;
+    float dx = mouse_x - center_x;
+    float dy = mouse_y - center_y;
     float ang_radianes = atan2(dy, dx);
     return (ang_radianes * 180.0f / M_PI) + 90;
 }
@@ -79,6 +81,7 @@ bool InputHandler::handle_mouse_motion_event(const SDL_Event& event) {
     int mouse_y = event.motion.y;
 
     double angulo = calculate_angle_to_mouse(mouse_x, mouse_y);
+
     sender.add_command_to_queue(RotateDTO{angulo});
     return true;
 }

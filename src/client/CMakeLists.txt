@@ -10,6 +10,8 @@ target_sources(taller_client
         SDLManager.h
         camera.h
         input_handler.h
+        local_player_info.h
+        texture_manager.h
     PRIVATE
         main.cpp
         lobby/lobby.cpp
@@ -24,6 +26,7 @@ target_sources(taller_client
         SDLManager.cpp
         camera.cpp
         input_handler.cpp
+        texture_manager.cpp
 )
 
 

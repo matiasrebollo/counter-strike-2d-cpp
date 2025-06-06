@@ -9,8 +9,9 @@ GameUI::GameUI(Lobby& lobby):
         sdl(SDLManager()),
         input_handler(sdl, this->protocol),
         receiver(this->protocol),
-        username(lobby.get_username()),
-        gamename(lobby.get_gamecode()),
+        // podria englobar las skin, username, etc, en una clase. e incluso usar move.
+        local_player_info{lobby.get_username(), lobby.get_gamecode(), lobby.get_ct_skin(),
+                          lobby.get_tt_skin()},
         state(std::make_unique<WaitingForGameState>()),
         keep_running(true) {
     if (!this->validate_qt_results(lobby)) {
@@ -52,8 +53,8 @@ void GameUI::handle_waiting_phase() {
         }
 
         sdl.clear_display();
-        sdl.render_waiting_screen(last_snapshot.ct.size() + last_snapshot.tt.size(), 2, gamename,
-                                  it, FPS);
+        sdl.render_waiting_screen(last_snapshot.ct.size() + last_snapshot.tt.size(), 2,
+                                  local_player_info.gamename, it, FPS);
         sdl.show_screen();
         it = clock.sleep_and_calc_next_it(FPS, it);
     }
@@ -82,7 +83,7 @@ void GameUI::handle_attack_phase(const GameMap& map) {
 
         sdl.clear_display();
 
-        sdl.render_in_z_order(map, last_snapshot, this->username);
+        sdl.render_in_z_order(map, last_snapshot, local_player_info);
 
         sdl.show_screen();
 
