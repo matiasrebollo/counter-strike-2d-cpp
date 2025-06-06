@@ -7,17 +7,18 @@
 #include <vector>
 
 #include "map_object.h"
-#include "sdl_sprites.h"
+#include "sdl_helpers.h"
 #include "skins.h"
 
 struct BlockTextureInfo {
-    std::string tileset_path;  // estaria bueno que sea desde assets/
+    std::string tileset_path;
     int x;
     int y;
     int width;
     int height;
     bool collidable;
 };
+
 
 struct TilesetInfo {
     std::string file;
@@ -35,14 +36,18 @@ protected:
     std::unordered_map<CounterTerroristSkin, std::vector<BlockTextureInfo>> ct_skins;
     std::unordered_map<TerroristSkin, std::vector<BlockTextureInfo>> tt_skins;
     std::unordered_map<HudNumbers, BlockTextureInfo> number_textures;
+    std::unordered_map<int, BlockTextureInfo> symbol_textures;
+    std::unordered_map<WaitingRender, std::string> waiting_textures;
 
 public:
     BlockTextureParser();
     // deberia ser const&
-    BlockTextureInfo get_texture_info(int block);
+    const BlockTextureInfo& get_texture_info(int block);
     const BlockTextureInfo& get_ct_texture(CounterTerroristSkin skin, Position sprite_index) const;
     const BlockTextureInfo& get_tt_texture(TerroristSkin skin, Position sprite_index) const;
     const BlockTextureInfo& get_number_texture(HudNumbers sprite) const;
+    const BlockTextureInfo& get_symbol_texture(HudSymbols symbol) const;
+    const std::string& get_waiting_texture(WaitingRender render) const;
     std::vector<int> get_keys();
 };
 

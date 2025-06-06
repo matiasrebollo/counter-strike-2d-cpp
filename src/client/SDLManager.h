@@ -32,24 +32,15 @@
 class SDLManager {
 private:
     SDL2pp::SDL sdl;
+    SDL2pp::SDLTTF ttf;
     SDL2pp::Window window;
     SDL2pp::Renderer renderer;
     TextureManager texture_manager;
     BlockTextureParser texture_parser;
-
-    SDL2pp::Surface waitingBackgroundSheet;
-    SDL2pp::Texture waitingBackground;
-
-    SDL2pp::Surface hudSymbolsSheet;
-    SDL2pp::Texture hudSymbols;
-
     Camera camera;
 
     void update_camera(int player_x, int player_y);
-    // std::pair<float, float> get_scales() const;
-    // float get_uniform_scale() const;
     float get_scale_for(int width, int height) const;
-    // SDL2pp::Point get_render_offset() const;
     void render_player(const PlayerDTO& p, const BlockTextureInfo& sprite_info);
     void render_hud_time(int time_left);
     void render_hud_life(uint16_t life);

@@ -16,10 +16,6 @@ SDLManager::SDLManager():
                WINDOW_INITIAL_HEIGHT, SDL_WINDOW_RESIZABLE),
         renderer(window, -1, SDL_RENDERER_ACCELERATED),
         texture_manager(renderer),
-        waitingBackgroundSheet("../assets/gfx/splash.bmp"),
-        waitingBackground(renderer, waitingBackgroundSheet),
-        hudSymbolsSheet("../assets/gfx/hud_symbols.png"),
-        hudSymbols(renderer, hudSymbolsSheet),
         camera(CAMERA_WIDTH, CAMERA_HEIGHT) {
     renderer.SetLogicalSize(CAMERA_WIDTH, CAMERA_HEIGHT);
 }  // para no hacerlo cada frame
@@ -33,11 +29,13 @@ void SDLManager::render_waiting_screen(int players_connected, int players_requir
     int large_font_size = 40 * font_scale;
     int small_font_size = 20 * font_scale;
     // Fondo
-    SDL2pp::Rect backgroundRect(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 
-    SDL2pp::SDLTTF ttf;
-    SDL2pp::Font largeFont("../assets/cs_regular.ttf", large_font_size);
-    SDL2pp::Font smallFont("../assets/cs_regular.ttf", small_font_size);
+    const std::string& font_path = texture_parser.get_waiting_texture(FONT);
+    const std::string& background_path = texture_parser.get_waiting_texture(BACKGROUND);
+
+    SDL2pp::Texture& background = texture_manager.get_texture(background_path);
+    SDL2pp::Rect backgroundRect(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
+    renderer.Copy(background, SDL2pp::NullOpt, backgroundRect);
 
     // ver forma de no recibir FPS
     int frames_per_dot = static_cast<int>(1.5f * FPS);
@@ -46,34 +44,31 @@ void SDLManager::render_waiting_screen(int players_connected, int players_requir
     waiting_text.append(dots, '.');
 
     // Texto waiting
-    SDL2pp::Surface waitingSurface =
-            largeFont.RenderText_Solid(waiting_text, SDL2pp::Color(255, 255, 255));
-    SDL2pp::Texture waitingTexture(renderer, waitingSurface);
-    int mainW = waitingSurface.GetWidth();
-    int mainH = waitingSurface.GetHeight();
+    SDL2pp::Texture& waitingTexture = texture_manager.get_text_texture(
+            waiting_text, font_path, large_font_size, SDL2pp::Color(255, 255, 255));
+    int mainW = waitingTexture.GetWidth();
+    int mainH = waitingTexture.GetHeight();
     SDL2pp::Rect waitingRect((CAMERA_WIDTH / 2) - mainW / 2, (CAMERA_HEIGHT / 2) - mainH / 2, mainW,
                              mainH);
 
     // Texto current players
     std::string players_text = std::to_string(players_connected) + "/" +
                                std::to_string(players_required) + " players connected";
-    SDL2pp::Surface playersSurface =
-            smallFont.RenderText_Solid(players_text, SDL2pp::Color(255, 255, 255));
-    SDL2pp::Texture playersTexture(renderer, playersSurface);
-    int playersW = playersSurface.GetWidth();
-    int playersH = playersSurface.GetHeight();
+    SDL2pp::Texture& playersTexture = texture_manager.get_text_texture(
+            players_text, font_path, small_font_size, SDL2pp::Color(255, 255, 255));
+    int playersW = playersTexture.GetWidth();
+    int playersH = playersTexture.GetHeight();
     SDL2pp::Rect playersRect((CAMERA_WIDTH / 2) - playersW / 2, waitingRect.y + mainH + 10,
                              playersW, playersH);
 
     // Texto gamename
     std::string gamename_text = "gamename: " + gamename;
-    SDL2pp::Surface nameSurface =
-            smallFont.RenderText_Solid(gamename_text, SDL2pp::Color(200, 200, 200));
-    SDL2pp::Texture nameTexture(renderer, nameSurface);
-    int nameW = nameSurface.GetWidth();
-    int nameH = nameSurface.GetHeight();
+    SDL2pp::Texture& nameTexture = texture_manager.get_text_texture(
+            gamename_text, font_path, small_font_size, SDL2pp::Color(200, 200, 200));
+    int nameW = nameTexture.GetWidth();
+    int nameH = nameTexture.GetHeight();
     SDL2pp::Rect nameRect(CAMERA_WIDTH - nameW - 10, CAMERA_HEIGHT - nameH - 10, nameW, nameH);
-    renderer.Copy(waitingBackground, SDL2pp::NullOpt, backgroundRect);
+
     renderer.Copy(waitingTexture, SDL2pp::NullOpt, waitingRect);
     renderer.Copy(playersTexture, SDL2pp::NullOpt, playersRect);
     renderer.Copy(nameTexture, SDL2pp::NullOpt, nameRect);
@@ -108,7 +103,7 @@ void SDLManager::render_player(const PlayerDTO& p, const BlockTextureInfo& sprit
     SDL2pp::Rect destino_camera = camera.world_to_screen(destino_mundo);
     SDL2pp::Point centro(SIZE_PLAYER / 2, SIZE_PLAYER / 2);
 
-    std::string path = "../assets/" + sprite_info.tileset_path;
+    std::string path = sprite_info.tileset_path;
 
     SDL2pp::Texture& skin_texture = texture_manager.get_texture(path);
 
@@ -126,7 +121,6 @@ void SDLManager::render_hud_time(int time_left) {
 
     float hud_scale = get_scale_for(HUD_IDEAL_WIDTH, HUD_IDEAL_HEIGHT);
 
-    int clock_sprite_size = 64;
     int clock_width = 30 * hud_scale, clock_height = 33 * hud_scale;
     int char_width = 24 * hud_scale;
     int char_height = 33 * hud_scale;
@@ -145,20 +139,20 @@ void SDLManager::render_hud_time(int time_left) {
     int start_x = (CAMERA_WIDTH - total_width) / 2;
     int y = CAMERA_HEIGHT - char_height;
 
+    const BlockTextureInfo& clock_info = texture_parser.get_symbol_texture(CLOCK);
+    SDL2pp::Texture& clock_texture = texture_manager.get_texture(clock_info.tileset_path);
+    clock_texture.SetColorMod(255, 255, 0);
+    clock_texture.SetAlphaMod(190);
 
-    hudSymbols.SetColorMod(255, 255, 0);
-    hudSymbols.SetAlphaMod(190);
-
-    SDL2pp::Rect clock_src(2 * clock_sprite_size, 0, clock_sprite_size, clock_sprite_size);
+    SDL2pp::Rect clock_src(clock_info.x, clock_info.y, clock_info.width, clock_info.height);
     SDL2pp::Rect clock_dst(start_x, y, clock_width, clock_height);
-    renderer.Copy(hudSymbols, clock_src, clock_dst);
+    renderer.Copy(clock_texture, clock_src, clock_dst);
 
     int x = start_x + clock_width + spacing;
     for (char c: time_str) {
         HudNumbers num_enum = (c == ':') ? DP : static_cast<HudNumbers>(c - '0');
         const BlockTextureInfo& sprite_info = texture_parser.get_number_texture(num_enum);
-        SDL2pp::Texture& texture =
-                texture_manager.get_texture("../assets/" + sprite_info.tileset_path);
+        SDL2pp::Texture& texture = texture_manager.get_texture(sprite_info.tileset_path);
         texture.SetColorMod(255, 255, 0);
         texture.SetAlphaMod(190);
 
@@ -180,7 +174,6 @@ void SDLManager::render_hud_life(uint16_t life) {
 
     float hud_scale = get_scale_for(HUD_IDEAL_WIDTH, HUD_IDEAL_HEIGHT);
 
-    int plus_sprite_size = 64;
     int plus_width = 30 * hud_scale, plus_height = 33 * hud_scale;
 
     int char_width = 24 * hud_scale;
@@ -192,19 +185,20 @@ void SDLManager::render_hud_life(uint16_t life) {
     int start_x = 0;
     int y = CAMERA_HEIGHT - char_height;
 
-    hudSymbols.SetColorMod(255, 255, 0);
-    hudSymbols.SetAlphaMod(190);
+    const BlockTextureInfo& life_info = texture_parser.get_symbol_texture(HEALTH);
+    SDL2pp::Texture& life_texture = texture_manager.get_texture(life_info.tileset_path);
+    life_texture.SetColorMod(255, 255, 0);
+    life_texture.SetAlphaMod(190);
 
-    SDL2pp::Rect src_icon(0, 0, plus_sprite_size, plus_sprite_size);
+    SDL2pp::Rect src_icon(life_info.x, life_info.y, life_info.width, life_info.height);
     SDL2pp::Rect dst_icon(start_x, y, plus_width, plus_height);
-    renderer.Copy(hudSymbols, src_icon, dst_icon);
+    renderer.Copy(life_texture, src_icon, dst_icon);
 
     int x = start_x + plus_width + spacing;
     for (char c: life_str) {
         HudNumbers num_enum = static_cast<HudNumbers>(c - '0');
         const BlockTextureInfo& sprite_info = texture_parser.get_number_texture(num_enum);
-        SDL2pp::Texture& texture =
-                texture_manager.get_texture("../assets/" + sprite_info.tileset_path);
+        SDL2pp::Texture& texture = texture_manager.get_texture(sprite_info.tileset_path);
 
         texture.SetColorMod(255, 255, 0);
         texture.SetAlphaMod(190);
@@ -233,28 +227,30 @@ void SDLManager::render_in_z_order(const GameMap& map, const Snapshot& snapshot,
     }
 
     for (const MapObject& obj: map.map_objects) {
-        BlockTextureInfo txt = texture_parser.get_texture_info(obj.type);
-        std::string path = "../assets/" + txt.tileset_path;
+        const BlockTextureInfo& obj_info = texture_parser.get_texture_info(obj.type);
+        std::string path = obj_info.tileset_path;
 
-        SDL2pp::Texture& box = texture_manager.get_texture(path);
+        SDL2pp::Texture& obj_texture = texture_manager.get_texture(path);
 
-        SDL2pp::Rect rect_origen(txt.x, txt.y, txt.width, txt.height);
+        SDL2pp::Rect rect_origen(obj_info.x, obj_info.y, obj_info.width, obj_info.height);
         for (const auto& vec: obj.positions) {
             SDL2pp::Rect destino_mundo(vec.x * 40, vec.y * 40, 40, 40);
             if (!camera.is_visible(destino_mundo))
                 continue;
             SDL2pp::Rect destino_camera = camera.world_to_screen(destino_mundo);
-            renderer.Copy(box, rect_origen, destino_camera);
+            renderer.Copy(obj_texture, rect_origen, destino_camera);
         }
     }
 
     for (const PlayerDTO& p: snapshot.ct) {
-        BlockTextureInfo skin_info = texture_parser.get_ct_texture(local_info.ct_skin, CARRY_KNIFE);
+        const BlockTextureInfo& skin_info =
+                texture_parser.get_ct_texture(local_info.ct_skin, CARRY_KNIFE);
         render_player(p, skin_info);
     }
 
     for (const PlayerDTO& p: snapshot.tt) {
-        BlockTextureInfo skin_info = texture_parser.get_tt_texture(local_info.tt_skin, CARRY_KNIFE);
+        const BlockTextureInfo& skin_info =
+                texture_parser.get_tt_texture(local_info.tt_skin, CARRY_KNIFE);
         render_player(p, skin_info);
     }
 

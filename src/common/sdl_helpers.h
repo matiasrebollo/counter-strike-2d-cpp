@@ -1,5 +1,5 @@
-#ifndef SDL_SPRITES_H
-#define SDL_SPRITES_H
+#ifndef SDL_HELPERS_H
+#define SDL_HELPERS_H
 
 enum HudNumbers {
     ZERO = 0,
@@ -14,5 +14,9 @@ enum HudNumbers {
     NINE = 9,
     DP = 10
 };
+
+enum HudSymbols { HEALTH = 0, CLOCK = 2, SHOP = 4, BOMB_ACTIVE = 6, MONEY = 7 };
+
+enum WaitingRender { BACKGROUND = 0, FONT = 1 };
 
 #endif
