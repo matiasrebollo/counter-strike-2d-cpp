@@ -3,9 +3,10 @@
 
 #include <variant>
 
+#include "game_ended.h"
 #include "game_map.h"
 #include "game_snapshot.h"
 
-using GameDTO = std::variant<GameMap, Snapshot>;
+using GameDTO = std::variant<GameMap, Snapshot, GameEnded>;
 
 #endif

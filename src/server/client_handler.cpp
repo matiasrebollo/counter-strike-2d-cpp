@@ -14,20 +14,22 @@ ClientHandler::ClientHandler(Socket&& socket, ServerMonitor& server_monitor):
         server_monitor(server_monitor),
         username(""),
         is_in_game(false),
-        my_game("") {}
+        my_game(""),
+        ended(false) {}
 
 void ClientHandler::run() {
     this->is_in_game = false;
-    while (this->should_keep_running()) {
+    while (this->should_keep_running() && !this->ended) {
         try {
             this->launch_lobby();
         } catch (const CommunicationEnded& e) {
-            std::cout << MSG_CLIENT_DISCONNECTED << std::endl;
-            this->stop();
+            break;
+        } catch (const ClosedQueue& e) {
+            break;
         }
     }
-    this->server_monitor.delete_username(this->get_username());
-    this->protocol.kill();
+    std::cout << MSG_CLOSE_SENDER << std::endl;
+    this->kill();
 }
 
 void ClientHandler::launch_lobby() {
@@ -79,7 +81,7 @@ void ClientHandler::manage_create_game(const CreateGameDTO&) {
         this->is_in_game = true;
         ClientReceiver receiver(this->protocol, this->username, game);
         receiver.start();
-        sender->run();
+        this->ended = sender->run();
     }
 }
 
@@ -98,7 +100,7 @@ void ClientHandler::manage_join_game(const JoinGameDTO& dto) {
             this->send_lobby_response(CommandType::JOIN_GAME, true, "");
             ClientReceiver receiver(this->protocol, this->username, game);
             receiver.start();
-            sender->run();
+            this->ended = sender->run();
         }
     }
 }
@@ -106,3 +108,9 @@ void ClientHandler::manage_join_game(const JoinGameDTO& dto) {
 std::string ClientHandler::get_username() { return this->username; }
 
 bool ClientHandler::in_game() { return this->is_in_game && this->my_game != ""; }
+
+void ClientHandler::kill() {
+    this->protocol.kill();
+    this->stop();
+    this->server_monitor.delete_username(this->get_username());
+}

@@ -35,7 +35,9 @@ void GamePhase::run() {
 WaitingPlayersPhase::WaitingPlayersPhase(CS2DGame& game):
         GamePhase(game, WAITING_PLAYERS_PHASE_DURATION) {}
 Phase WaitingPlayersPhase::type() { return WAITING_PLAYERS; }
-bool WaitingPlayersPhase::should_continue() { return !game.should_start(); }
+bool WaitingPlayersPhase::should_continue() {
+    return !game.should_start() && game.should_keep_running();
+}
 void WaitingPlayersPhase::execute(std::unique_ptr<Command>) {}
 void WaitingPlayersPhase::end() {
     game.broadcast_map();
@@ -47,13 +49,15 @@ void WaitingPlayersPhase::end() {
 
 BuyPhase::BuyPhase(CS2DGame& game): GamePhase(game, BUY_PHASE_DURATION) {}
 Phase BuyPhase::type() { return BUY; }
-bool BuyPhase::should_continue() { return true; }
+bool BuyPhase::should_continue() { return game.should_keep_running(); }
 void BuyPhase::execute(std::unique_ptr<Command> cmd) { game.execute_in_buy_phase(std::move(cmd)); }
 void BuyPhase::end() { game.change_phase(std::make_unique<AttackPhase>(game)); }
 
 AttackPhase::AttackPhase(CS2DGame& game): GamePhase(game, ATTACK_PHASE_DURATION) {}
 Phase AttackPhase::type() { return ATTACK; }
-bool AttackPhase::should_continue() { return !game.current_round_has_a_winner(); }
+bool AttackPhase::should_continue() {
+    return !game.current_round_has_a_winner() && game.should_keep_running();
+}
 void AttackPhase::execute(std::unique_ptr<Command> cmd) {
     game.execute_in_attack_phase(std::move(cmd));
 }
@@ -66,7 +70,7 @@ void AttackPhase::end() {
 BetweenRoundsPhase::BetweenRoundsPhase(CS2DGame& game):
         GamePhase(game, BETWEEN_ROUNDS_PHASE_DURATION) {}
 Phase BetweenRoundsPhase::type() { return ATTACK; }
-bool BetweenRoundsPhase::should_continue() { return true; }
+bool BetweenRoundsPhase::should_continue() { return game.should_keep_running(); }
 void BetweenRoundsPhase::execute(std::unique_ptr<Command> cmd) {
     game.execute_in_attack_phase(std::move(cmd));
 }

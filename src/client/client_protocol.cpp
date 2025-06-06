@@ -178,8 +178,10 @@ GameDTO ClientProtocol::receive_game_dto() {
     uint8_t code = this->receive_byte();
     if (code == CODE_SEND_MAP) {
         return this->receive_map();
-    } else {
+    } else if (code == CODE_SNAPSHOT) {
         return this->receive_snapshot();
+    } else {
+        return GameEnded{};
     }
 }
 
@@ -234,7 +236,12 @@ std::vector<MapObject> ClientProtocol::receive_map_objects(const uint8_t& size) 
 }
 
 void ClientProtocol::close() {
-    this->socket.shutdown(SHUT_RDWR);
+    if (!this->socket.is_stream_recv_closed()) {
+        this->socket.shutdown(SHUT_RD);
+    }
+    if (!this->socket.is_stream_send_closed()) {
+        this->socket.shutdown(SHUT_WR);
+    }
     this->socket.close();
 }
 

@@ -36,6 +36,7 @@ public:
 
     void start_sender();
     void close_sender_queue();
+    void stop_sender();
     void join_sender();
 };
 
