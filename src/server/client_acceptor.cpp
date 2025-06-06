@@ -26,6 +26,7 @@ void ClientAcceptor::reap() {
     for (size_t i = 0; i < this->clients.size();) {
         ClientHandler* client = this->clients[i];
         if (!client->is_alive()) {
+            // client->kill();
             client->join();
             delete client;
             this->clients.erase(this->clients.begin() + i);
@@ -42,6 +43,7 @@ void ClientAcceptor::clear() {
         client->kill();
         client->join();
         delete client;
+        std::cout << MSG_CLIENT_JOINED(client->get_username()) << std::endl;
     }
     this->clients.clear();
     this->server_monitor.kill_games();

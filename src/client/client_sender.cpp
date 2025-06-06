@@ -26,5 +26,4 @@ void ClientSender::close_queue() { this->queue.close(); }
 void ClientSender::send_command_to_server() {
     CommandDTO dto = this->queue.pop();
     this->protocol.send_command(dto);
-    return true;
 }

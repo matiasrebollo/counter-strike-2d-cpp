@@ -28,6 +28,7 @@ void ClientHandler::run() {
             break;
         }
     }
+    std::cout << MSG_CLOSE_SENDER << std::endl;
     this->kill();
 }
 
@@ -109,7 +110,6 @@ std::string ClientHandler::get_username() { return this->username; }
 bool ClientHandler::in_game() { return this->is_in_game && this->my_game != ""; }
 
 void ClientHandler::kill() {
-    std::cout << MSG_CLOSE_SENDER << std::endl;
     this->protocol.kill();
     this->stop();
     this->server_monitor.delete_username(this->get_username());

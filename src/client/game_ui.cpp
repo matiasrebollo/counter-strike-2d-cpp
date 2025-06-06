@@ -123,7 +123,7 @@ void GameUI::process_waiting(GameDTO& dto, Snapshot& snapshot, bool& loop, bool&
                     loop = false;
                     pop = false;
                 } else if constexpr (std::is_same_v<T, GameEnded>) {
-                    this->change_state(std::make_unique<GameEnded>(std::move(game_dto)));
+                    this->change_state(std::make_unique<GameEndedState>());
                     loop = false;
                     pop = false;
                 }
