@@ -30,7 +30,7 @@ void GameUI::run() {
             state->handle(*this);
         }
     } catch (const ClosedQueue& e) {
-        std::cout << "SERVER CLOSED!" << std::endl;
+        std::cout << "The server has been closed!" << std::endl;
         this->keep_running = false;
     }
 
