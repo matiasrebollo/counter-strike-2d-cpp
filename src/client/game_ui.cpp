@@ -11,7 +11,8 @@ GameUI::GameUI(Lobby& lobby):
         sdl(SDLManager()),
         input_handler(sdl, this->protocol),
         receiver(this->protocol),
-        my_player(MyPlayer(lobby.get_username())),
+        username(lobby.get_username()),
+        gamename(lobby.get_gamecode()),
         state(std::make_unique<WaitingForGameState>()),
         keep_running(true) {
     if (!this->validate_qt_results(lobby)) {
@@ -36,15 +37,15 @@ void GameUI::run() {
     this->close_client();
 }
 
-void GameUI::handle_waiting_for_game() {
+void GameUI::handle_waiting_phase() {
     Snapshot last_snapshot;
 
     int it = 0;
     Clock clock;
-    bool loop_game = true;
-    while (loop_game) {
-        loop_game = input_handler.handle_waiting_events();
-        if (!loop_game) {
+    bool loop_waiting = true;
+    while (loop_waiting) {
+        loop_waiting = input_handler.handle_waiting_events();
+        if (!loop_waiting) {
             keep_running = false;
             break;
         }
@@ -53,41 +54,23 @@ void GameUI::handle_waiting_for_game() {
         bool pop = true;
         while (pop) {
             if (!this->receiver.try_pop_game_dto(game_dto)) {
-                pop = false;
+                pop = false;  // break
                 continue;
             }
-
-            std::visit(
-                    [this, &last_snapshot, &loop_game, &pop](const auto& game_dto) {
-                        using T = std::decay_t<decltype(game_dto)>;
-                        if constexpr (std::is_same_v<T, Snapshot>) {
-                            last_snapshot = std::move(game_dto);
-                        } else if constexpr (std::is_same_v<T, GameMap>) {
-                            state = std::make_unique<AttackPhaseState>(
-                                    game_dto);  // deberia usarse buy phase
-                            pop = false;
-                            loop_game = false;
-                        } else if constexpr (std::is_same_v<T, GameEnded>) {
-                            state = std::make_unique<GameEndedState>();
-                            pop = false;
-                            loop_game = false;
-                        } else {
-                            static_assert(always_false_v<T>, "Unhandled GameDTO type");
-                        }
-                    },
-                    game_dto);
+            process_waiting(game_dto, last_snapshot, loop_waiting, pop);
         }
 
-        sdl.texto_prueba();
-        // hacer algo con la snapshot??
-        // actualizar el cartel de esperando players!!!
-
+        sdl.clear_display();
+        sdl.render_waiting_screen(last_snapshot.ct.size() + last_snapshot.tt.size(), 2, gamename,
+                                  it, FPS);
+        sdl.show_screen();
         it = clock.sleep_and_calc_next_it(FPS, it);
     }
 }
 void GameUI::handle_buy_phase(const GameMap& /*map*/) {}
 void GameUI::handle_attack_phase(const GameMap& map) {
-    Snapshot last_snapshot = std::get<Snapshot>(this->receiver.pop_game_dto());
+    Snapshot last_snapshot =
+            std::get<Snapshot>(this->receiver.pop_game_dto());  // esto despues lo recibe el mapa
 
     int it = 0;
     Clock clock;
@@ -109,17 +92,10 @@ void GameUI::handle_attack_phase(const GameMap& map) {
             last_snapshot = std::move(std::get<Snapshot>(snapshot_tmp));
         }
 
-        std::vector<std::vector<PlayerDTO>> teams = {last_snapshot.ct, last_snapshot.tt};
-
-        for (const std::vector<PlayerDTO>& team: teams) {
-            for (const PlayerDTO& p: team) {
-                my_player.update_my_position(p);
-            }
-        }
 
         sdl.clear_display();
 
-        sdl.render_in_z_order(map, last_snapshot, my_player.get_username());
+        sdl.render_in_z_order(map, last_snapshot, this->username);
 
         sdl.show_screen();
 
@@ -130,6 +106,29 @@ void GameUI::handle_attack_phase(const GameMap& map) {
 void GameUI::handle_game_ended_phase() {
     std::cout << "Game ended!" << std::endl;
     this->keep_running = false;
+}
+
+void GameUI::change_state(std::unique_ptr<GameUIState> new_state) {
+    this->state = std::move(new_state);
+}
+
+void GameUI::process_waiting(GameDTO& dto, Snapshot& snapshot, bool& loop, bool& pop) {
+    std::visit(
+            [this, &snapshot, &loop, &pop](const auto& game_dto) {
+                using T = std::decay_t<decltype(game_dto)>;
+                if constexpr (std::is_same_v<T, Snapshot>) {
+                    snapshot = std::move(game_dto);
+                } else if constexpr (std::is_same_v<T, GameMap>) {
+                    this->change_state(std::make_unique<AttackPhaseState>(std::move(game_dto)));
+                    loop = false;
+                    pop = false;
+                } else if constexpr (std::is_same_v<T, GameEnded>) {
+                    this->change_state(std::make_unique<GameEnded>(std::move(game_dto)));
+                    loop = false;
+                    pop = false;
+                }
+            },
+            dto);
 }
 
 bool GameUI::validate_qt_results(Lobby& lobby) {

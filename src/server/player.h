@@ -38,7 +38,13 @@ public:
     void move_down();
     void move_left();
     void move_right();
-    // void shoot(const CS2DGame& game) const;
+    void stop();
+    void equip_primary();
+    void equip_secondary();
+    void equip_knife();
+    void make_action();
+    void buy_gun(const GunType& gun);
+    void buy_ammo(const uint16_t& ammo, const bool& for_primary);
 
     Player(const Player&) = delete;
     Player& operator=(const Player&) = delete;

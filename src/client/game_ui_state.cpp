@@ -4,7 +4,7 @@
 
 WaitingForGameState::WaitingForGameState() {}
 
-void WaitingForGameState::handle(GameUI& game_ui) { game_ui.handle_waiting_for_game(); }
+void WaitingForGameState::handle(GameUI& game_ui) { game_ui.handle_waiting_phase(); }
 
 BuyPhaseState::BuyPhaseState(const GameMap map): map(map) {}
 

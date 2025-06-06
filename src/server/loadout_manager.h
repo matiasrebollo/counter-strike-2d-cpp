@@ -63,7 +63,7 @@ private:
      * para el arma que corresponda, false en caso contrario.
      *
      * */
-    bool can_buy_ammo(const uint16_t& ammo_count, bool for_primary) const;
+    bool can_buy_ammo(const uint16_t& ammo_count, const bool& for_primary) const;
 
 public:
     /*
@@ -105,7 +105,12 @@ public:
      * o si se intenta comprar para el arma primaria y no se tiene una equipada.
      *
      * */
-    bool buy_ammo(const uint16_t& ammo_count, bool for_primary);
+    bool buy_ammo(const uint16_t& ammo_count, const bool& for_primary);
+
+    void equip_primary();
+    void equip_secondary();
+    void equip_knife();
+    Weapon* equipped_weapon();
 
     LoadoutManager(const LoadoutManager&) = delete;
     LoadoutManager& operator=(const LoadoutManager&) = delete;

@@ -8,6 +8,10 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include "common/clock.h"
+#include "common/game_map.h"
+#include "common/game_snapshot.h"
+#include "common/yaml_parser.h"
 
 CS2DGame::CS2DGame(const std::string& id):
         players_senders(),
@@ -102,8 +106,9 @@ void CS2DGame::begin_new_round() {
     this->current_round++;
     if (this->current_round == (ROUNDS / 2) + 1)
         swap_teams();
+    game_world.stop_players();
+    game_world.spawn_players();
     // limpiar items del mapa (dejar algunos, random)
-    // reiniciar posiciones de cada jugador al spawn
 }
 
 void CS2DGame::change_phase(std::unique_ptr<GamePhase> new_phase) {

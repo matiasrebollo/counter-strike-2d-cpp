@@ -17,7 +17,7 @@ public:
     static std::unique_ptr<Gun> new_gun(const GunType& type);
     virtual GunType type() const = 0;
     void add_ammo(uint16_t ammo_count);
-    void make_player_action() override;
+    void action() override;
 
     virtual void shoot() = 0;
 

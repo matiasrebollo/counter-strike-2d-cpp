@@ -2,6 +2,7 @@
 #define SDLMANAGER_H
 
 #include <string>
+#include <utility>
 
 #include <SDL2/SDL.h>
 #include <SDL2pp/SDL2pp.hh>
@@ -11,10 +12,10 @@
 
 #include "camera.h"
 
-#define WINDOW_HEIGHT 320
-#define WINDOW_WIDTH 240
-#define CAMERA_HEIGHT 320
-#define CAMERA_WIDTH 240
+#define WINDOW_INITIAL_WIDTH 640
+#define WINDOW_INITIAL_HEIGHT 400
+#define CAMERA_WIDTH 640
+#define CAMERA_HEIGHT 400
 
 #define BOX_X_POS_SPRITE 416
 #define BOX_Y_POS_SPRITE 64
@@ -37,19 +38,35 @@ private:
     SDL2pp::Surface boxSheet;
     SDL2pp::Texture box;
 
+    SDL2pp::Surface waitingBackgroundSheet;
+    SDL2pp::Texture waitingBackground;
+
+    SDL2pp::Surface hudNumbersSheet;
+    SDL2pp::Texture hudNumbers;
+
+    SDL2pp::Surface hudSymbolsSheet;
+    SDL2pp::Texture hudSymbols;
+
     Camera camera;
 
     void update_camera(int player_x, int player_y);
+    std::pair<float, float> get_scales() const;
+    float get_uniform_scale() const;
+    SDL2pp::Point get_render_offset() const;
+    void render_player(const PlayerDTO& p, float scale);
+    void render_hud_time(int time_left, float scale);
+    void render_hud_life(uint16_t life, float scale);
 
 public:
     SDLManager();
 
-    double calculate_angle_to_mouse(int mouse_x, int mouse_y) const;
+    void render_waiting_screen(int players_connected, int players_required,
+                               const std::string& gamename, int iteration, int FPS);
+    std::pair<int, int> get_window_size() const;
     void clear_display();
-    void show_screen();
     void render_in_z_order(const GameMap& map, const Snapshot& snapshot,
                            const std::string& my_username);
-    void texto_prueba();
+    void show_screen();
 };
 
 #endif
