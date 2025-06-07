@@ -16,7 +16,9 @@ SDLManager::SDLManager():
                WINDOW_INITIAL_HEIGHT, SDL_WINDOW_RESIZABLE),
         renderer(window, -1, SDL_RENDERER_ACCELERATED),
         texture_manager(renderer),
-        camera(CAMERA_WIDTH, CAMERA_HEIGHT) {
+        camera(CAMERA_WIDTH, CAMERA_HEIGHT),
+        shop(renderer, texture_manager, texture_parser,
+             get_scale_for(HUD_IDEAL_WIDTH, HUD_IDEAL_HEIGHT)) {
     renderer.SetLogicalSize(CAMERA_WIDTH, CAMERA_HEIGHT);
 }  // para no hacerlo cada frame
 
@@ -30,8 +32,8 @@ void SDLManager::render_waiting_screen(int players_connected, int players_requir
     int small_font_size = 20 * font_scale;
     // Fondo
 
-    const std::string& font_path = texture_parser.get_waiting_texture(FONT);
-    const std::string& background_path = texture_parser.get_waiting_texture(BACKGROUND);
+    const std::string& font_path = texture_parser.get_fw_texture(FONT_WAITING);
+    const std::string& background_path = texture_parser.get_fw_texture(BACKGROUND);
 
     SDL2pp::Texture& background = texture_manager.get_texture(background_path);
     SDL2pp::Rect backgroundRect(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
@@ -82,6 +84,8 @@ void SDLManager::update_camera(int player_x, int player_y) {
     camera.follow(player_x + SIZE_PLAYER / 2, player_y + SIZE_PLAYER / 2);
 }
 
+// cuando se defina el valor de la camara final, esta funcion probablemente ya no haga falta
+// ni tampoco haga falta multiplicar variables por una escala.
 float SDLManager::get_scale_for(int width, int height) const {
     float scale_x = static_cast<float>(CAMERA_WIDTH) / static_cast<float>(width);
     float scale_y = static_cast<float>(CAMERA_HEIGHT) / static_cast<float>(height);
@@ -266,5 +270,12 @@ void SDLManager::render_in_z_order(const GameMap& map, const Snapshot& snapshot,
         }
     }
 }
+
+std::optional<ShopButtonType> SDLManager::get_clicked_button(int x, int y) {
+    return shop.clicked_button(x, y);
+}
+
+
+void SDLManager::render_shop() { shop.render(); }
 
 void SDLManager::show_screen() { renderer.Present(); }

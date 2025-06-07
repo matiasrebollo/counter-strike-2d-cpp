@@ -37,7 +37,7 @@ protected:
     std::unordered_map<TerroristSkin, std::vector<BlockTextureInfo>> tt_skins;
     std::unordered_map<HudNumbers, BlockTextureInfo> number_textures;
     std::unordered_map<int, BlockTextureInfo> symbol_textures;
-    std::unordered_map<WaitingRender, std::string> waiting_textures;
+    std::unordered_map<FontsAndBackground, std::string> font_and_waiting_textures;
 
 public:
     BlockTextureParser();
@@ -47,7 +47,7 @@ public:
     const BlockTextureInfo& get_tt_texture(TerroristSkin skin, Position sprite_index) const;
     const BlockTextureInfo& get_number_texture(HudNumbers sprite) const;
     const BlockTextureInfo& get_symbol_texture(HudSymbols symbol) const;
-    const std::string& get_waiting_texture(WaitingRender render) const;
+    const std::string& get_fw_texture(FontsAndBackground fw) const;
     std::vector<int> get_keys();
 };
 

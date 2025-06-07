@@ -17,6 +17,6 @@ enum HudNumbers {
 
 enum HudSymbols { HEALTH = 0, CLOCK = 2, SHOP = 4, BOMB_ACTIVE = 6, MONEY = 7 };
 
-enum WaitingRender { BACKGROUND = 0, FONT = 1 };
+enum FontsAndBackground { BACKGROUND = 0, FONT_WAITING = 1, FONT_SHOP = 2 };
 
 #endif

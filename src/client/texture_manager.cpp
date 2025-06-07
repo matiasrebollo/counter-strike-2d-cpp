@@ -39,7 +39,7 @@ SDL2pp::Texture& TextureManager::get_text_texture(const std::string& text,
     }
 
     SDL2pp::Font& font = get_font(font_path, size);
-    SDL2pp::Surface surface = font.RenderText_Solid(text, color);
+    SDL2pp::Surface surface = font.RenderText_Blended(text, color);
     auto result = texture_cache.emplace(key, SDL2pp::Texture(renderer, surface));
     return result.first->second;
 }

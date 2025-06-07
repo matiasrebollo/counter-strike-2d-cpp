@@ -111,6 +111,70 @@ bool InputHandler::handle_waiting_events() {
     return true;
 }
 
+bool InputHandler::handle_mouse_button_down(const SDL_Event& event) {
+    if (event.type != SDL_MOUSEBUTTONDOWN || event.button.button != SDL_BUTTON_LEFT || click) {
+        return false;
+    }
+    click = true;
+
+    int mouse_x = event.button.x;
+    int mouse_y = event.button.y;
+
+    auto opt_button = sdl.get_clicked_button(mouse_x, mouse_y);
+    if (opt_button.has_value()) {
+        ShopButtonType button = opt_button.value();
+        switch (button) {
+            case ShopButtonType::Open:
+                std::cout << "Shop abierto\n";
+                break;
+            case ShopButtonType::Close:
+                std::cout << "Shop cerrado\n";
+                break;
+            case ShopButtonType::WeaponAK47:
+                std::cout << "AK47 seleccionada\n";
+                break;
+            case ShopButtonType::WeaponAWP:
+                std::cout << "AWP seleccionada\n";
+                break;
+            case ShopButtonType::WeaponM3:
+                std::cout << "M3 seleccionada\n";
+                break;
+            case ShopButtonType::AmmoPrimary:
+                std::cout << "Munición primaria seleccionada\n";
+                break;
+            case ShopButtonType::AmmoSecondary:
+                std::cout << "Munición secundaria seleccionada\n";
+                break;
+            default:
+                std::cout << "Botón desconocido\n";
+                break;
+        }
+    }
+    return true;
+}
+
+bool InputHandler::handle_mouse_button_up(const SDL_Event& event) {
+    if (event.type != SDL_MOUSEBUTTONUP || event.button.button != SDL_BUTTON_LEFT || !click) {
+        return false;
+    }
+    click = false;
+    return true;
+}
+
+
+bool InputHandler::handle_buy_events() {
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        if (handle_quit_event(event))
+            return false;
+        if (handle_mouse_button_down(event))
+            continue;
+        if (handle_mouse_button_up(event))
+            continue;
+    }
+    return true;
+}
+
 
 void InputHandler::start_sender() { sender.start(); }
 

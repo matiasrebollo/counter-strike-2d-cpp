@@ -94,8 +94,9 @@ BlockTextureParser::BlockTextureParser(): block_textures() {
                               tileset_symbols.tileWidth, tileset_symbols.tileHeight,    false};
     }
 
-    waiting_textures[BACKGROUND] = "../assets/gfx/splash.bmp";
-    waiting_textures[FONT] = "../assets/cs_regular.ttf";
+    font_and_waiting_textures[BACKGROUND] = "../assets/gfx/splash.bmp";
+    font_and_waiting_textures[FONT_WAITING] = "../assets/cs_regular.ttf";
+    font_and_waiting_textures[FONT_SHOP] = "../assets/gfx/fonts/korean.ttf";
 }
 
 const BlockTextureInfo& BlockTextureParser::get_texture_info(int block) {
@@ -120,8 +121,8 @@ const BlockTextureInfo& BlockTextureParser::get_symbol_texture(HudSymbols symbol
     return symbol_textures.at(symbol);
 }
 
-const std::string& BlockTextureParser::get_waiting_texture(WaitingRender render) const {
-    return waiting_textures.at(render);
+const std::string& BlockTextureParser::get_fw_texture(FontsAndBackground fw) const {
+    return font_and_waiting_textures.at(fw);
 }
 
 std::vector<int> BlockTextureParser::get_keys() {
