@@ -27,7 +27,7 @@ ServerProtocol::ServerProtocol(Socket&& socket):
 void ServerProtocol::send_lobby_message(const ServerResponseLobby& msg) {
     this->send_byte(this->commandsToCode.find(msg.commandType)->second);
     this->send_byte(this->codeSuccessResponse.find(msg.success)->second);
-    if (msg.game_name != "") {
+    if (msg.commandType == CommandType::CREATE_GAME) {
         this->send_string(msg.game_name);
     }
 }
@@ -202,5 +202,7 @@ void ServerProtocol::kill() {
     }
     this->socket.close();
 }
+
+ServerProtocol::ServerProtocol(ServerProtocol&& other): CommonProtocol(std::move(other.socket)) {}
 
 ServerProtocol::~ServerProtocol() {}
