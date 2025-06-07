@@ -40,4 +40,5 @@ target_sources(taller_common
     clock.h
     block_texture_parser.h
     yaml_parser.h
+    sdl_helpers.h
     )

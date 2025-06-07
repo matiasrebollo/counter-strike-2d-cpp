@@ -11,8 +11,9 @@ GameUI::GameUI(Lobby& lobby):
         sdl(SDLManager()),
         input_handler(sdl, this->protocol),
         receiver(this->protocol),
-        username(lobby.get_username()),
-        gamename(lobby.get_gamecode()),
+        // podria usar move.
+        local_player_info{lobby.get_username(), lobby.get_gamecode(), lobby.get_ct_skin(),
+                          lobby.get_tt_skin()},
         state(std::make_unique<WaitingForGameState>()),
         keep_running(true) {
     if (!this->validate_qt_results(lobby)) {
@@ -24,7 +25,6 @@ GameUI::GameUI(Lobby& lobby):
 void GameUI::run() {
     input_handler.start_sender();
     this->receiver.start();
-
     try {
         while (this->keep_running) {
             state->handle(*this);
@@ -54,23 +54,65 @@ void GameUI::handle_waiting_phase() {
         bool pop = true;
         while (pop) {
             if (!this->receiver.try_pop_game_dto(game_dto)) {
-                pop = false;  // break
-                continue;
+                pop = false; 
+                continue; // es como  break
             }
             process_waiting(game_dto, last_snapshot, loop_waiting, pop);
         }
 
         sdl.clear_display();
-        sdl.render_waiting_screen(last_snapshot.ct.size() + last_snapshot.tt.size(), 2, gamename,
-                                  it, FPS);
+        // el 2 luego tiene que ser la cantidad de personas que va a unirse maxima
+        sdl.render_waiting_screen(last_snapshot.ct.size() + last_snapshot.tt.size(), 2,
+                                  local_player_info.gamename, it, FPS);
         sdl.show_screen();
         it = clock.sleep_and_calc_next_it(FPS, it);
     }
 }
-void GameUI::handle_buy_phase(const GameMap& /*map*/) {}
+void GameUI::handle_buy_phase(const GameMap& map) {
+    Snapshot last_snapshot = std::get<Snapshot>(this->receiver.pop_game_dto());
+
+    int it = 0;
+    Clock clock;
+    bool loop_buy = true;
+    while (loop_buy) {
+        loop_buy = input_handler.handle_buy_events();
+        if (!loop_buy) {
+            keep_running = false;
+            break;
+        }
+
+        GameDTO snapshot_tmp;
+        bool pop = true;
+        while (pop) {
+            if (!this->receiver.try_pop_game_dto(snapshot_tmp)) {
+                pop = false;
+                continue;
+            }
+            Snapshot snapshot = std::get<Snapshot>(snapshot_tmp);
+            if (snapshot.phase == Phase::ATTACK) {
+                loop_buy = false;
+                pop = false;
+                continue;
+            }
+            last_snapshot = std::move(snapshot);
+        }
+
+        sdl.clear_display();
+
+        sdl.render_in_z_order(map, last_snapshot, local_player_info);
+        sdl.render_shop();
+
+        sdl.show_screen();
+
+        it = clock.sleep_and_calc_next_it(FPS, it);
+    }
+    this->change_state(std::make_unique<AttackPhaseState>(std::move(map)));
+}
+
 void GameUI::handle_attack_phase(const GameMap& map) {
-    Snapshot last_snapshot =
-            std::get<Snapshot>(this->receiver.pop_game_dto());  // esto despues lo recibe el mapa
+    // esto no deberia ser bloqueante, si no hay ninguna, deberia dibujar el ultimo snapshot de la
+    // fase buy.
+    Snapshot last_snapshot = std::get<Snapshot>(this->receiver.pop_game_dto());
 
     int it = 0;
     Clock clock;
@@ -82,25 +124,40 @@ void GameUI::handle_attack_phase(const GameMap& map) {
             break;
         }
 
-
         GameDTO snapshot_tmp;
-        while (this->receiver.try_pop_game_dto(snapshot_tmp)) {
+        /*while (this->receiver.try_pop_game_dto(snapshot_tmp)) {
             if (std::holds_alternative<GameEnded>(snapshot_tmp)) {
                 this->state = std::make_unique<GameEndedState>();
                 return;
             }
             last_snapshot = std::move(std::get<Snapshot>(snapshot_tmp));
+        }*/
+        bool pop = true;
+        while (pop) {
+            if (!this->receiver.try_pop_game_dto(snapshot_tmp)) {
+                pop = false;
+                continue;
+            }
+
+
+            Snapshot snapshot = std::get<Snapshot>(snapshot_tmp);
+            if (snapshot.phase == Phase::BUY) {
+                loop_game = false;
+                pop = false;
+                continue;
+            }
+
+            last_snapshot = std::move(snapshot);
         }
 
-
         sdl.clear_display();
-
-        sdl.render_in_z_order(map, last_snapshot, this->username);
-
+        sdl.render_in_z_order(map, last_snapshot, local_player_info);
         sdl.show_screen();
 
         it = clock.sleep_and_calc_next_it(FPS, it);
     }
+
+    this->change_state(std::make_unique<BuyPhaseState>(std::move(map)));
 }
 
 void GameUI::handle_game_ended_phase() {

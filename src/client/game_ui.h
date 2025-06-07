@@ -17,6 +17,7 @@
 #include "client_receiver.h"
 #include "game_ui_state.h"
 #include "input_handler.h"
+#include "local_player_info.h"
 
 #define MSG_NO_PROTOCOL "You have to connect yourself to a server to play :)"
 #define BASH_MSG_NO_USERNAME "You have to enter your username to login in our server"
@@ -29,8 +30,7 @@ private:
     SDLManager sdl;
     InputHandler input_handler;
     ClientReceiver receiver;
-    const std::string username;
-    const std::string gamename;
+    LocalPlayerInfo local_player_info;
     std::unique_ptr<GameUIState> state;
     bool keep_running;
 

@@ -64,9 +64,11 @@ bool InputHandler::handle_keyup_event(const SDL_Event& event) {
 }
 
 double InputHandler::calculate_angle_to_mouse(int mouse_x, int mouse_y) const {
-    auto [width, height] = sdl.get_window_size();
-    float dx = mouse_x - static_cast<float>(width / 2.0f);
-    float dy = mouse_y - static_cast<float>(height / 2.0f);
+    auto [width, height] = sdl.get_logical_size();
+    float center_x = width / 2.0f;
+    float center_y = height / 2.0f;
+    float dx = mouse_x - center_x;
+    float dy = mouse_y - center_y;
     float ang_radianes = atan2(dy, dx);
     return (ang_radianes * 180.0f / M_PI) + 90;
 }
@@ -79,6 +81,7 @@ bool InputHandler::handle_mouse_motion_event(const SDL_Event& event) {
     int mouse_y = event.motion.y;
 
     double angulo = calculate_angle_to_mouse(mouse_x, mouse_y);
+
     sender.add_command_to_queue(RotateDTO{angulo});
     return true;
 }
@@ -104,6 +107,70 @@ bool InputHandler::handle_waiting_events() {
     while (SDL_PollEvent(&event)) {
         if (handle_quit_event(event))
             return false;
+    }
+    return true;
+}
+
+bool InputHandler::handle_mouse_button_down(const SDL_Event& event) {
+    if (event.type != SDL_MOUSEBUTTONDOWN || event.button.button != SDL_BUTTON_LEFT || click) {
+        return false;
+    }
+    click = true;
+
+    int mouse_x = event.button.x;
+    int mouse_y = event.button.y;
+
+    auto opt_button = sdl.get_clicked_button(mouse_x, mouse_y);
+    if (opt_button.has_value()) {
+        ShopButtonType button = opt_button.value();
+        switch (button) {
+            case ShopButtonType::Open:
+                std::cout << "Shop abierto\n";
+                break;
+            case ShopButtonType::Close:
+                std::cout << "Shop cerrado\n";
+                break;
+            case ShopButtonType::WeaponAK47:
+                std::cout << "AK47 seleccionada\n";
+                break;
+            case ShopButtonType::WeaponAWP:
+                std::cout << "AWP seleccionada\n";
+                break;
+            case ShopButtonType::WeaponM3:
+                std::cout << "M3 seleccionada\n";
+                break;
+            case ShopButtonType::AmmoPrimary:
+                std::cout << "Munición primaria seleccionada\n";
+                break;
+            case ShopButtonType::AmmoSecondary:
+                std::cout << "Munición secundaria seleccionada\n";
+                break;
+            default:
+                std::cout << "Botón desconocido\n";
+                break;
+        }
+    }
+    return true;
+}
+
+bool InputHandler::handle_mouse_button_up(const SDL_Event& event) {
+    if (event.type != SDL_MOUSEBUTTONUP || event.button.button != SDL_BUTTON_LEFT || !click) {
+        return false;
+    }
+    click = false;
+    return true;
+}
+
+
+bool InputHandler::handle_buy_events() {
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        if (handle_quit_event(event))
+            return false;
+        if (handle_mouse_button_down(event))
+            continue;
+        if (handle_mouse_button_up(event))
+            continue;
     }
     return true;
 }

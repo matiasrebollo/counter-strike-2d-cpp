@@ -7,7 +7,7 @@
 #include "map_object.h"
 
 BlockTextureParser::BlockTextureParser(): block_textures() {
-    std::vector<TilesetInfo> tilesets = {{"aztec.bmp",
+    std::vector<TilesetInfo> tilesets = {{"../assets/gfx/tiles/aztec.bmp",
                                           6,
                                           16,
                                           32,
@@ -34,9 +34,96 @@ BlockTextureParser::BlockTextureParser(): block_textures() {
             }
         }
     }
+
+    TilesetInfo tileset_skins = {"", 3, 2, 32, 32, {}, {}};
+    std::unordered_map<CounterTerroristSkin, std::string> ct = {
+            {SEAL_FORCE, "../assets/gfx/player/ct1.bmp"},
+            {GSG_9, "../assets/gfx/player/ct2.bmp"},
+            {UK_SAS, "../assets/gfx/player/ct3.bmp"},
+            {GIGN, "../assets/gfx/player/ct4.bmp"}};
+
+    std::unordered_map<TerroristSkin, std::string> tt = {
+            {PHEONIX, "../assets/gfx/player/t1.bmp"},
+            {L3337_KREW, "../assets/gfx/player/t2.bmp"},
+            {ARTIC_AVENGER, "../assets/gfx/player/t3.bmp"},
+            {GUERRILLA, "../assets/gfx/player/t4.bmp"}};
+
+    for (const auto& pair: ct) {
+        std::vector<BlockTextureInfo> sprites;
+        for (int row = 0; row < tileset_skins.rows; ++row) {
+            for (int col = 0; col < tileset_skins.columns; ++col) {
+                sprites.push_back({pair.second, col * tileset_skins.tileWidth,
+                                   row * tileset_skins.tileHeight, tileset_skins.tileWidth,
+                                   tileset_skins.tileHeight, true});
+            }
+        }
+        ct_skins[pair.first] = sprites;
+    }
+    for (const auto& pair: tt) {
+        std::vector<BlockTextureInfo> sprites;
+        for (int row = 0; row < tileset_skins.rows; ++row) {
+            for (int col = 0; col < tileset_skins.columns; ++col) {
+                sprites.push_back({pair.second, col * tileset_skins.tileWidth,
+                                   row * tileset_skins.tileHeight, tileset_skins.tileWidth,
+                                   tileset_skins.tileHeight, true});
+            }
+        }
+        tt_skins[pair.first] = sprites;
+    }
+
+    TilesetInfo tileset_numbers = {"../assets/gfx/hud_nums.png", 1, 11, 48, 66, {}, {}};
+    std::vector<HudNumbers> numbers = {ZERO, ONE,   TWO,   THREE, FOUR, FIVE,
+                                       SIX,  SEVEN, EIGHT, NINE,  DP};
+    // DP (:) tiene ancho 10px en el spritesheet en vez de 48
+    for (size_t i = 0; i < numbers.size(); ++i) {
+        auto n = numbers[i];
+        bool is_dp = (n == HudNumbers::DP);
+
+        number_textures[n] = {tileset_numbers.file,
+                              static_cast<int>(i * tileset_numbers.tileWidth),
+                              0,
+                              is_dp ? 10 : tileset_numbers.tileWidth,
+                              tileset_numbers.tileHeight,
+                              false};
+    }
+
+    // por ahora cargo todas las texturas de este archivo, luego podria solo cargar las necesarias.
+    TilesetInfo tileset_symbols = {"../assets/gfx/hud_symbols.png", 1, 13, 64, 64, {}, {}};
+    for (int i = 0; i < tileset_symbols.columns; ++i) {
+        symbol_textures[i] = {tileset_symbols.file,      i * tileset_symbols.tileWidth, 0,
+                              tileset_symbols.tileWidth, tileset_symbols.tileHeight,    false};
+    }
+
+    font_and_waiting_textures[BACKGROUND] = "../assets/gfx/splash.bmp";
+    font_and_waiting_textures[FONT_WAITING] = "../assets/cs_regular.ttf";
+    font_and_waiting_textures[FONT_SHOP] = "../assets/gfx/fonts/korean.ttf";
 }
 
-BlockTextureInfo BlockTextureParser::get_texture_info(int block) { return block_textures[block]; }
+const BlockTextureInfo& BlockTextureParser::get_texture_info(int block) {
+    return block_textures[block];
+}
+
+const BlockTextureInfo& BlockTextureParser::get_ct_texture(CounterTerroristSkin skin,
+                                                           Position sprite_index) const {
+    return ct_skins.at(skin).at(sprite_index);
+}
+
+const BlockTextureInfo& BlockTextureParser::get_tt_texture(TerroristSkin skin,
+                                                           Position sprite_index) const {
+    return tt_skins.at(skin).at(sprite_index);
+}
+
+const BlockTextureInfo& BlockTextureParser::get_number_texture(HudNumbers sprite) const {
+    return number_textures.at(sprite);
+}
+
+const BlockTextureInfo& BlockTextureParser::get_symbol_texture(HudSymbols symbol) const {
+    return symbol_textures.at(symbol);
+}
+
+const std::string& BlockTextureParser::get_fw_texture(FontsAndBackground fw) const {
+    return font_and_waiting_textures.at(fw);
+}
 
 std::vector<int> BlockTextureParser::get_keys() {
     std::vector<int> keys;
