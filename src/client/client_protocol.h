@@ -19,6 +19,7 @@ inline constexpr bool always_false_v = false;
 #include "../common/commands_dto.h"
 #include "../common/common_protocol.h"
 #include "../common/game_dto.h"
+#include "../common/loadout_dto.h"
 #include "../common/lobby_request.h"
 #include "../common/map_object.h"
 #include "../common/message.h"
@@ -53,6 +54,7 @@ private:
     void send_change_weapon_request(const InternalMessage& request);
 
     std::vector<PlayerDTO> receive_players(const int& size_players);
+    LoadoutDTO receive_loadout();
     std::vector<MapObject> receive_map_objects(const uint8_t& size);
 
     Snapshot receive_snapshot();

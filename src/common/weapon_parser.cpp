@@ -34,8 +34,10 @@ GunType WeaponParser::getWeaponFromByte(const uint8_t& weaponCode) {
 
 WeaponType WeaponParser::getWeaponTypeFromByte(const uint8_t& weaponCode) {
     const std::unordered_map<uint8_t, WeaponType> map = {
+            {KNIFE_WEAPON_BINARY_CODE, WeaponType::KNIFE},
             {PRIMARY_WEAPON_BINARY_CODE, WeaponType::PRIMARY},
-            {SECONDARY_WEAPON_BINARY_CODE, WeaponType::SECONDARY}};
+            {SECONDARY_WEAPON_BINARY_CODE, WeaponType::SECONDARY},
+            {BOMB_WEAPON_BINARY_CODE, WeaponType::BOMB}};
 
     auto it = map.find(weaponCode);
     return it->second;
@@ -43,8 +45,10 @@ WeaponType WeaponParser::getWeaponTypeFromByte(const uint8_t& weaponCode) {
 
 uint8_t WeaponParser::getWeaponTypeToByte(const WeaponType& weaponType) {
     const std::unordered_map<WeaponType, uint8_t> map = {
+            {WeaponType::KNIFE, KNIFE_WEAPON_BINARY_CODE},
             {WeaponType::PRIMARY, PRIMARY_WEAPON_BINARY_CODE},
-            {WeaponType::SECONDARY, SECONDARY_WEAPON_BINARY_CODE}};
+            {WeaponType::SECONDARY, SECONDARY_WEAPON_BINARY_CODE},
+            {WeaponType::BOMB, BOMB_WEAPON_BINARY_CODE}};
 
     auto it = map.find(weaponType);
     return it->second;
