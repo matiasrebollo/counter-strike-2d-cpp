@@ -17,19 +17,16 @@ SDLManager::SDLManager():
         renderer(window, -1, SDL_RENDERER_ACCELERATED),
         texture_manager(renderer),
         camera(CAMERA_WIDTH, CAMERA_HEIGHT),
-        shop(renderer, texture_manager, texture_parser,
-             get_scale_for(HUD_IDEAL_WIDTH, HUD_IDEAL_HEIGHT)) {
+        shop(renderer, texture_manager, texture_parser) {
     renderer.SetLogicalSize(CAMERA_WIDTH, CAMERA_HEIGHT);
 }  // para no hacerlo cada frame
 
 void SDLManager::render_waiting_screen(int players_connected, int players_required,
                                        const std::string& gamename, int iteration, int FPS) {
 
-    float font_scale = get_scale_for(FONT_IDEAL_WIDTH, FONT_IDEAL_HEIGHT);
-
     // si font_scale es menor a 1 queda medio mal
-    int large_font_size = 40 * font_scale;
-    int small_font_size = 20 * font_scale;
+    int large_font_size = 53;
+    int small_font_size = 27;
     // Fondo
 
     const std::string& font_path = texture_parser.get_fw_texture(FONT_WAITING);
@@ -84,15 +81,6 @@ void SDLManager::update_camera(int player_x, int player_y) {
     camera.follow(player_x + SIZE_PLAYER / 2, player_y + SIZE_PLAYER / 2);
 }
 
-// cuando se defina el valor de la camara final, esta funcion probablemente ya no haga falta
-// ni tampoco haga falta multiplicar variables por una escala.
-float SDLManager::get_scale_for(int width, int height) const {
-    float scale_x = static_cast<float>(CAMERA_WIDTH) / static_cast<float>(width);
-    float scale_y = static_cast<float>(CAMERA_HEIGHT) / static_cast<float>(height);
-    return std::min(scale_x, scale_y);
-}
-
-
 void SDLManager::render_player(const PlayerDTO& p, const BlockTextureInfo& sprite_info) {
     double angulo = p.orientation;
     int x_pos = p.position.x;
@@ -123,12 +111,10 @@ void SDLManager::render_hud_time(int time_left) {
     ss << minutes << ":" << std::setw(2) << std::setfill('0') << seconds;
     std::string time_str = ss.str();
 
-    float hud_scale = get_scale_for(HUD_IDEAL_WIDTH, HUD_IDEAL_HEIGHT);
-
-    int clock_width = 30 * hud_scale, clock_height = 33 * hud_scale;
-    int char_width = 24 * hud_scale;
-    int char_height = 33 * hud_scale;
-    int dp_width = 5 * hud_scale;
+    int clock_width = 30, clock_height = 33;
+    int char_width = 24;
+    int char_height = 33;
+    int dp_width = 5;
     int spacing = 2;
 
 
@@ -176,12 +162,10 @@ void SDLManager::render_hud_time(int time_left) {
 
 void SDLManager::render_hud_life(uint16_t life) {
 
-    float hud_scale = get_scale_for(HUD_IDEAL_WIDTH, HUD_IDEAL_HEIGHT);
+    int plus_width = 30, plus_height = 33;
 
-    int plus_width = 30 * hud_scale, plus_height = 33 * hud_scale;
-
-    int char_width = 24 * hud_scale;
-    int char_height = 33 * hud_scale;
+    int char_width = 24;
+    int char_height = 33;
     int spacing = 2;
 
     std::string life_str = std::to_string(life);

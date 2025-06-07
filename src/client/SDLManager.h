@@ -18,8 +18,6 @@
 
 #define WINDOW_INITIAL_WIDTH 640
 #define WINDOW_INITIAL_HEIGHT 400
-#define CAMERA_WIDTH 480
-#define CAMERA_HEIGHT 300
 #define HUD_IDEAL_WIDTH 640
 #define HUD_IDEAL_HEIGHT 400
 #define FONT_IDEAL_WIDTH 480
@@ -38,7 +36,6 @@ private:
     Shop shop;
 
     void update_camera(int player_x, int player_y);
-    float get_scale_for(int width, int height) const;
     void render_player(const PlayerDTO& p, const BlockTextureInfo& sprite_info);
     void render_hud_time(int time_left);
     void render_hud_life(uint16_t life);

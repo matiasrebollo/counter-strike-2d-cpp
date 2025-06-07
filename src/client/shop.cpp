@@ -1,18 +1,18 @@
 #include "shop.h"
 
 Shop::Shop(SDL2pp::Renderer& renderer, TextureManager& texture_manager,
-           BlockTextureParser& texture_parser, float hud_scale):
+           BlockTextureParser& texture_parser):
         renderer(renderer),
         texture_manager(texture_manager),
         texture_parser(texture_parser),
-        shop_rect(SDL2pp::Rect(40, 25, 400, 250)),
+        shop_rect(SDL2pp::Rect(53, 33, 533, 333)),
         open(false)
 
 {
 
     // Rectangulo close
-    int close_button_size = 20;
-    int close_button_margin = 5;
+    int close_button_size = 27;
+    int close_button_margin = 7;
     SDL2pp::Rect close_button_rect(
             shop_rect.x + shop_rect.w - close_button_size - close_button_margin,
             shop_rect.y + close_button_margin, close_button_size, close_button_size);
@@ -20,13 +20,13 @@ Shop::Shop(SDL2pp::Renderer& renderer, TextureManager& texture_manager,
     buttons.push_back(close_button);
 
     // Botones de la tienda
-    int button_w = 160;
-    int button_h = 20;
-    int spacing_y = 10;
-    int base_x = shop_rect.x + 20;
-    int base_y = shop_rect.y + 20;
+    int button_w = 213;
+    int button_h = 27;
+    int spacing_y = 13;
+    int base_x = shop_rect.x + 27;
+    int base_y = shop_rect.y + 27;
 
-    std::string button_texts[5] = {"AK-47", "AWP", "M3", "Balas primaria", "Balas secundaria"};
+    std::string button_texts[5] = {"AK 47", "AWP", "M3", "Primary ammo", "Secondary ammo"};
 
     ShopButtonType button_types[5] = {ShopButtonType::WeaponAK47, ShopButtonType::WeaponAWP,
                                       ShopButtonType::WeaponM3, ShopButtonType::AmmoPrimary,
@@ -43,10 +43,10 @@ Shop::Shop(SDL2pp::Renderer& renderer, TextureManager& texture_manager,
 
 
     // Definir el botón Open (icono tienda) que aparece fuera del shop_rect
-    int shop_icon_w = 36 * hud_scale;  // según render_shop: 36 * hud_scale
-    int shop_icon_h = 40 * hud_scale;
-    int shop_icon_x = 480 - shop_icon_w - 5;          // CAMERA WIDTH
-    int shop_icon_y = (300 / 2) - (shop_icon_h / 2);  // CAMERA HEIGHT
+    int shop_icon_w = 36;
+    int shop_icon_h = 40;
+    int shop_icon_x = CAMERA_WIDTH - shop_icon_w - 5;
+    int shop_icon_y = (CAMERA_HEIGHT / 2) - (shop_icon_h / 2);
 
     open_button = {SDL2pp::Rect(shop_icon_x, shop_icon_y, shop_icon_w, shop_icon_h), "",
                    ShopButtonType::Open};
@@ -60,8 +60,8 @@ void Shop::render() {
     SDL2pp::Color button_color(0, 0, 0, 200);
     SDL2pp::Color text_color(255, 255, 255);
 
-    const std::string& font_path = texture_parser.get_fw_texture(FONT_SHOP);
-    int font_size = 12;
+    const std::string& font_path = texture_parser.get_fw_texture(FONT_WAITING);
+    int font_size = 16;
 
     if (!open) {
         const BlockTextureInfo& shop_info = texture_parser.get_symbol_texture(SHOP);
