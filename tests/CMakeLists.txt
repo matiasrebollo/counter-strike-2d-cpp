@@ -6,6 +6,7 @@ target_sources(taller_tests
     ../src/client/client_protocol.cpp
     ../src/server/server_protocol.cpp
     lobby_tests.cpp
+    game_tests.cpp
     PUBLIC
     common_tests.h
     ../src/common/socket.h

@@ -1,26 +1,21 @@
 #include <gtest/gtest.h>
 
-#include "../src/client/client_protocol.h"
-#include "../src/common/socket.h"
-#include "../src/server/server_protocol.h"
+#include "common_tests.h"
 
 /* LOBBY TESTS */
 
 /* CLIENT REQUESTS TESTS */
 
 TEST(ClientProtocolTest, SendCreateUsername) {
-    Socket listener("10000");
-    ClientProtocol client("localhost", "10000");
-    Socket accepted_skt = listener.accept();
-    ServerProtocol server(std::move(accepted_skt));
+    auto [client, server] = create_connected_protocols("10000");
 
     std::string username = "Taiel";
 
     CreateUsernameDTO dto{username};
 
-    client.send_lobby_request(dto);
+    client->send_lobby_request(dto);
 
-    LobbyRequestDTO request = server.receive_lobby_request();
+    LobbyRequestDTO request = server->receive_lobby_request();
 
     auto createUsernamePtr = std::get_if<CreateUsernameDTO>(&request);
     ASSERT_NE(createUsernamePtr, nullptr) << "Expected CreateUsernameDTO but got another";
@@ -28,35 +23,27 @@ TEST(ClientProtocolTest, SendCreateUsername) {
 }
 
 TEST(ClientProtocolTest, SendCreateGame) {
-    Socket listener("10000");
-    ClientProtocol client("localhost", "10000");
-    Socket accepted_skt = listener.accept();
-
-    ServerProtocol server(std::move(accepted_skt));
+    auto [client, server] = create_connected_protocols("10000");
 
     CreateGameDTO dto{};
 
-    client.send_lobby_request(dto);
+    client->send_lobby_request(dto);
 
-    LobbyRequestDTO request = server.receive_lobby_request();
+    LobbyRequestDTO request = server->receive_lobby_request();
     auto createGamePtr = std::get_if<CreateGameDTO>(&request);
     ASSERT_NE(createGamePtr, nullptr) << "Expected CreateGameDTO but got another";
 }
 
 TEST(ClientProtocolTest, SendJoinGame) {
-    Socket listener("10000");
-    ClientProtocol client("localhost", "10000");
-    Socket accepted_skt = listener.accept();
-
-    ServerProtocol server(std::move(accepted_skt));
+    auto [client, server] = create_connected_protocols("10000");
 
     std::string gamename = "mygame";
 
     JoinGameDTO dto{gamename};
 
-    client.send_lobby_request(dto);
+    client->send_lobby_request(dto);
 
-    LobbyRequestDTO request = server.receive_lobby_request();
+    LobbyRequestDTO request = server->receive_lobby_request();
 
     auto joinGamePtr = std::get_if<JoinGameDTO>(&request);
     ASSERT_NE(joinGamePtr, nullptr) << "Expected JoinGameDTO but got another";
@@ -64,170 +51,126 @@ TEST(ClientProtocolTest, SendJoinGame) {
 }
 
 TEST(ClientProtocolTest, SendMoveUp) {
-    Socket listener("10000");
-    ClientProtocol client("localhost", "10000");
-    Socket accepted_skt = listener.accept();
-
-    ServerProtocol server(std::move(accepted_skt));
+    auto [client, server] = create_connected_protocols("10000");
 
     MoveUpDTO dto{};
 
-    client.send_command(dto);
+    client->send_command(dto);
 
-    CommandDTO request = server.receive_client_request();
+    CommandDTO request = server->receive_client_request();
     auto createGamePtr = std::get_if<MoveUpDTO>(&request);
     ASSERT_NE(createGamePtr, nullptr) << "Expected MoveUpDTO but got another";
 }
 
 TEST(ClientProtocolTest, SendMoveDown) {
-    Socket listener("10000");
-    ClientProtocol client("localhost", "10000");
-    Socket accepted_skt = listener.accept();
-
-    ServerProtocol server(std::move(accepted_skt));
+    auto [client, server] = create_connected_protocols("10000");
 
     MoveDownDTO dto{};
 
-    client.send_command(dto);
+    client->send_command(dto);
 
-    CommandDTO request = server.receive_client_request();
+    CommandDTO request = server->receive_client_request();
     auto createGamePtr = std::get_if<MoveDownDTO>(&request);
     ASSERT_NE(createGamePtr, nullptr) << "Expected MoveDownDTO but got another";
 }
 
 TEST(ClientProtocolTest, SendMoveLeft) {
-    Socket listener("10000");
-    ClientProtocol client("localhost", "10000");
-    Socket accepted_skt = listener.accept();
-
-    ServerProtocol server(std::move(accepted_skt));
+    auto [client, server] = create_connected_protocols("10000");
 
     MoveLeftDTO dto{};
 
-    client.send_command(dto);
+    client->send_command(dto);
 
-    CommandDTO request = server.receive_client_request();
+    CommandDTO request = server->receive_client_request();
     auto createGamePtr = std::get_if<MoveLeftDTO>(&request);
     ASSERT_NE(createGamePtr, nullptr) << "Expected MoveLeftDTO but got another";
 }
 
 TEST(ClientProtocolTest, SendMoveRight) {
-    Socket listener("10000");
-    ClientProtocol client("localhost", "10000");
-    Socket accepted_skt = listener.accept();
-
-    ServerProtocol server(std::move(accepted_skt));
+    auto [client, server] = create_connected_protocols("10000");
 
     MoveRightDTO dto{};
 
-    client.send_command(dto);
+    client->send_command(dto);
 
-    CommandDTO request = server.receive_client_request();
+    CommandDTO request = server->receive_client_request();
     auto createGamePtr = std::get_if<MoveRightDTO>(&request);
     ASSERT_NE(createGamePtr, nullptr) << "Expected MoveRightDTO but got another";
 }
 
 TEST(ClientProtocolTest, SendRotate) {  // va haber error, pensar como hacer esto.
-    Socket listener("10000");
-    ClientProtocol client("localhost", "10000");
-    Socket accepted_skt = listener.accept();
-
-    ServerProtocol server(std::move(accepted_skt));
+    auto [client, server] = create_connected_protocols("10000");
 }
 
 TEST(ClientProtocolTest, SendPlayerAction) {
-    Socket listener("10000");
-    ClientProtocol client("localhost", "10000");
-    Socket accepted_skt = listener.accept();
-
-    ServerProtocol server(std::move(accepted_skt));
+    auto [client, server] = create_connected_protocols("10000");
 
     PlayerActionDTO dto{};
 
-    client.send_command(dto);
+    client->send_command(dto);
 
-    CommandDTO request = server.receive_client_request();
+    CommandDTO request = server->receive_client_request();
     auto createGamePtr = std::get_if<PlayerActionDTO>(&request);
     ASSERT_NE(createGamePtr, nullptr) << "Expected PlayerActionDTO but got another";
 }
 
 TEST(ClientProtocolTest, SendEquipPrimary) {
-    Socket listener("10000");
-    ClientProtocol client("localhost", "10000");
-    Socket accepted_skt = listener.accept();
-
-    ServerProtocol server(std::move(accepted_skt));
+    auto [client, server] = create_connected_protocols("10000");
 
     EquipPrimaryDTO dto{};
 
-    client.send_command(dto);
+    client->send_command(dto);
 
-    CommandDTO request = server.receive_client_request();
+    CommandDTO request = server->receive_client_request();
     auto createGamePtr = std::get_if<EquipPrimaryDTO>(&request);
     ASSERT_NE(createGamePtr, nullptr) << "Expected EquipPrimaryDTO but got another";
 }
 
 TEST(ClientProtocolTest, SendEquipSecondary) {
-    Socket listener("10000");
-    ClientProtocol client("localhost", "10000");
-    Socket accepted_skt = listener.accept();
-
-    ServerProtocol server(std::move(accepted_skt));
+    auto [client, server] = create_connected_protocols("10000");
 
     EquipSecondaryDTO dto{};
 
-    client.send_command(dto);
+    client->send_command(dto);
 
-    CommandDTO request = server.receive_client_request();
+    CommandDTO request = server->receive_client_request();
     auto createGamePtr = std::get_if<EquipSecondaryDTO>(&request);
     ASSERT_NE(createGamePtr, nullptr) << "Expected EquipSecondaryDTO but got another";
 }
 
 TEST(ClientProtocolTest, SendEquipKnife) {
-    Socket listener("10000");
-    ClientProtocol client("localhost", "10000");
-    Socket accepted_skt = listener.accept();
-
-    ServerProtocol server(std::move(accepted_skt));
+    auto [client, server] = create_connected_protocols("10000");
 
     EquipKnifeDTO dto{};
 
-    client.send_command(dto);
+    client->send_command(dto);
 
-    CommandDTO request = server.receive_client_request();
+    CommandDTO request = server->receive_client_request();
     auto createGamePtr = std::get_if<EquipKnifeDTO>(&request);
     ASSERT_NE(createGamePtr, nullptr) << "Expected EquipKnifeDTO but got another";
 }
 
 TEST(ClientProtocolTest, SendEquipBomb) {
-    Socket listener("10000");
-    ClientProtocol client("localhost", "10000");
-    Socket accepted_skt = listener.accept();
-
-    ServerProtocol server(std::move(accepted_skt));
+    auto [client, server] = create_connected_protocols("10000");
 
     EquipBombDTO dto{};
 
-    client.send_command(dto);
+    client->send_command(dto);
 
-    CommandDTO request = server.receive_client_request();
+    CommandDTO request = server->receive_client_request();
     auto createGamePtr = std::get_if<EquipBombDTO>(&request);
     ASSERT_NE(createGamePtr, nullptr) << "Expected EquipBombDTO but got another";
 }
 
 TEST(ClientProtocolTest, SendBuyGun) {
-    Socket listener("10000");
-    ClientProtocol client("localhost", "10000");
-    Socket accepted_skt = listener.accept();
-
-    ServerProtocol server(std::move(accepted_skt));
+    auto [client, server] = create_connected_protocols("10000");
 
     for (int i = GLOCK; i <= AWP; ++i) {
         GunType gun = static_cast<GunType>(i);
         BuyGunDTO dto{gun};
-        client.send_command(dto);
+        client->send_command(dto);
 
-        CommandDTO request = server.receive_client_request();
+        CommandDTO request = server->receive_client_request();
         auto buyGunPtr = std::get_if<BuyGunDTO>(&request);
         ASSERT_NE(buyGunPtr, nullptr) << "Expected BuyGunDTO but got another";
         ASSERT_EQ(buyGunPtr->gun, gun);
@@ -235,20 +178,16 @@ TEST(ClientProtocolTest, SendBuyGun) {
 }
 
 TEST(ClientProtocolTest, SendBuyAmmo) {
-    Socket listener("10000");
-    ClientProtocol client("localhost", "10000");
-    Socket accepted_skt = listener.accept();
-
-    ServerProtocol server(std::move(accepted_skt));
+    auto [client, server] = create_connected_protocols("10000");
 
     std::vector<bool> for_primary_values = {false, true};
 
     for (int i = 0; i < 65536; ++i) {
         for (bool value: for_primary_values) {
             BuyAmmoDTO dto{static_cast<uint16_t>(i), value};
-            client.send_command(dto);
+            client->send_command(dto);
 
-            CommandDTO request = server.receive_client_request();
+            CommandDTO request = server->receive_client_request();
             auto buyAmmoPtr = std::get_if<BuyAmmoDTO>(&request);
             ASSERT_NE(buyAmmoPtr, nullptr) << "Expected BuyAmmoDTO but got another";
             ASSERT_EQ(buyAmmoPtr->ammo, static_cast<uint16_t>(i));
@@ -260,11 +199,7 @@ TEST(ClientProtocolTest, SendBuyAmmo) {
 /* SERVER PROTOCOL RESPONSES */
 
 TEST(ServerProtocolTest, SendLobbyResponse) {
-    Socket listener("10000");
-    ClientProtocol client("localhost", "10000");
-    Socket accepted_skt = listener.accept();
-
-    ServerProtocol server(std::move(accepted_skt));
+    auto [client, server] = create_connected_protocols("10000");
 
     std::vector<CommandType> commands = {CommandType::CREATE_USERNAME, CommandType::CREATE_GAME,
                                          CommandType::JOIN_GAME};
@@ -278,9 +213,9 @@ TEST(ServerProtocolTest, SendLobbyResponse) {
             for (auto name: gamenames) {
                 ServerResponseLobby dto{command, value, name};
 
-                server.send_lobby_message(dto);
+                server->send_lobby_message(dto);
 
-                ServerResponseLobby response = client.receive_command();
+                ServerResponseLobby response = client->receive_command();
 
                 ASSERT_EQ(response.commandType, command);
                 ASSERT_EQ(response.success, value);

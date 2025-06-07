@@ -15,6 +15,20 @@
 ClientProtocol::ClientProtocol(const std::string& hostname, const std::string& port):
         CommonProtocol(hostname, port), isAlive(true) {}
 
+ClientProtocol::ClientProtocol(ClientProtocol&& other) noexcept:
+        CommonProtocol(std::move(other)), isAlive(other.isAlive) {
+    other.isAlive = false;
+}
+
+ClientProtocol& ClientProtocol::operator=(ClientProtocol&& other) noexcept {
+    if (this != &other) {
+        CommonProtocol::operator=(std::move(other));
+        isAlive = other.isAlive;
+        other.isAlive = false;
+    }
+    return *this;
+}
+
 ServerResponseLobby ClientProtocol::receive_command() {
     uint8_t code = this->receive_byte();
     ServerResponseLobby response =
@@ -253,9 +267,4 @@ void ClientProtocol::close() {
         this->socket.shutdown(SHUT_WR);
     }
     this->socket.close();
-}
-
-ClientProtocol::ClientProtocol(ClientProtocol&& other): CommonProtocol(std::move(other.socket)) {
-    this->isAlive = other.isAlive;
-    other.isAlive = false;
 }

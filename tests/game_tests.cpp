@@ -1,8 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../src/client/client_protocol.h"
-#include "../src/common/socket.h"
-#include "../src/server/server_protocol.h"
+#include "common_tests.h"
 
 std::vector<LoadoutDTO> get_loadouts() {
     std::vector<LoadoutDTO> loadouts = {};
@@ -26,12 +24,7 @@ std::vector<LoadoutDTO> get_loadouts() {
 }
 
 TEST(ServerProtocolTest, SendSnapshot) {
-    Socket listener("10000");
-    ClientProtocol client("localhost", "10000");
-    Socket accepted_skt = listener.accept();
-
-    ServerProtocol server(std::move(accepted_skt));
-
+    auto [client, server] = create_connected_protocols("10000");
 
     std::vector<Phase> phases = {Phase::ATTACK, Phase::BUY};
     std::vector<size_t> current_rounds = {};
@@ -51,8 +44,8 @@ TEST(ServerProtocolTest, SendSnapshot) {
                         PlayerDTO{"Facu", Vector2D(10, 10), 100, 100, loadout}};
                 Snapshot snapshot{phase, current_round, total_rounds, 20, ct, tt};
 
-                server.send_game_dto(snapshot);
-                GameDTO response = client.receive_game_dto();
+                server->send_game_dto(snapshot);
+                GameDTO response = client->receive_game_dto();
                 auto snapshotPTr = std::get_if<Snapshot>(&response);
                 ASSERT_NE(snapshotPTr, nullptr) << "Expected SnapshotDTO but got another";
                 ASSERT_EQ(snapshotPTr->phase, phase);

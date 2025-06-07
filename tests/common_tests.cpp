@@ -5,10 +5,11 @@
 
 #include "../src/common/socket.h"
 
-std::pair<ClientProtocol, ServerProtocol> create_connected_protocols(const std::string& port) {
+std::pair<std::unique_ptr<ClientProtocol>, std::unique_ptr<ServerProtocol>>
+        create_connected_protocols(const std::string& port) {
     Socket listener(port.c_str());
-    ClientProtocol client("localhost", port);
+    auto client = std::make_unique<ClientProtocol>("localhost", port);
     Socket accepted_skt = listener.accept();
-    ServerProtocol server(std::move(accepted_skt));
+    auto server = std::make_unique<ServerProtocol>(std::move(accepted_skt));
     return {std::move(client), std::move(server)};
 }

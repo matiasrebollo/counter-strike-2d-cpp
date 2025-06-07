@@ -58,7 +58,9 @@ private:
 
 public:
     ClientProtocol(const std::string& hostname, const std::string& port);
-    ClientProtocol(ClientProtocol&&);
+    ClientProtocol(ClientProtocol&& other) noexcept;
+    ClientProtocol& operator=(ClientProtocol&& other) noexcept;
+
     void send_command(const CommandDTO& command);
     GameDTO receive_game_dto();
     ServerResponseLobby receive_command();

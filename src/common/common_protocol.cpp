@@ -1,5 +1,6 @@
 #include "common_protocol.h"
 
+#include <iostream>
 #include <utility>
 
 #include <string.h>
@@ -62,6 +63,23 @@ CommonProtocol::CommonProtocol(Socket&& socket):
                         {CommandType::PLANT_BOMB, CODE_PLANT_BOMB},
                         {CommandType::GAME_STARTED, CODE_GAME_STARTED},
                         {CommandType::GAME_ENDED, CODE_ENDGAME}}) {}
+
+CommonProtocol::CommonProtocol(CommonProtocol&& other) noexcept:
+        socket(std::move(other.socket)),
+        weaponParser(std::move(other.weaponParser)),
+        codeToCommands(std::move(other.codeToCommands)),
+        commandsToCode(std::move(other.commandsToCode)) {}
+
+// cppcheck-suppress operatorEqVarError
+CommonProtocol& CommonProtocol::operator=(CommonProtocol&& other) noexcept {
+    if (this != &other) {
+        socket = std::move(other.socket);
+        weaponParser = std::move(other.weaponParser);
+        codeToCommands = std::move(other.codeToCommands);
+        commandsToCode = std::move(other.commandsToCode);
+    }
+    return *this;
+}
 
 uint8_t CommonProtocol::receive_byte() {
     uint8_t number;

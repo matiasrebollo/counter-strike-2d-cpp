@@ -44,13 +44,16 @@ private:
 
 public:
     explicit ServerProtocol(Socket&& socket);
+    ServerProtocol(ServerProtocol&& other) noexcept;
+    ServerProtocol& operator=(ServerProtocol&& other) noexcept;
+
     void send_lobby_message(const ServerResponseLobby& msg);
     void send_start_game(const ServerResponseLobby& msg);
     void send_game_dto(const GameDTO& message);
     CommandDTO receive_client_request();
     LobbyRequestDTO receive_lobby_request();
     void kill();
-    ServerProtocol(ServerProtocol&& other);
+
     ~ServerProtocol();
 };
 

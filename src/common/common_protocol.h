@@ -51,6 +51,8 @@ public:
     CommonProtocol(const std::string& hostname, const std::string& port);
     explicit CommonProtocol(Socket&& socket);
 
+    CommonProtocol(CommonProtocol&& other) noexcept;
+    CommonProtocol& operator=(CommonProtocol&& other) noexcept;
 
     double receive_angle();
     void send_angle(const double& angle);
