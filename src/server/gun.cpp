@@ -28,4 +28,4 @@ Glock::Glock(): Gun(GLOCK_INITIAL_AMMO) {}
 
 void Glock::shoot() {}
 
-GunType Glock::type() const { return GunType::GLOCK; }
+GunType Glock::type() const { return GLOCK; }

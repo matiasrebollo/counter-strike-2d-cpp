@@ -8,6 +8,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+
 #include "common/clock.h"
 #include "common/game_map.h"
 #include "common/game_snapshot.h"

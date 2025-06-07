@@ -44,7 +44,7 @@ Vector2D GameWorld::random_spawn_position() const {
 
 void GameWorld::add_player(const std::string& username) {
     Vector2D default_position(-100, -100);
-    auto player = std::make_shared<Player>(default_position);
+    auto player = std::make_shared<Player>(username, default_position);
     collidables.push_back(player);
 
     size_t cts = counter_terrorists.size();
@@ -94,14 +94,16 @@ const GameWorldSnapshot GameWorld::get_snapshot() const {
     std::vector<PlayerDTO> tt;
 
     for (const auto& player: counter_terrorists) {
-        const PlayerDTO dto{player.first, player.second->rect.position,
+        /*const PlayerDTO dto{player.first, player.second->rect.position,
                             player.second->get_orientation(), player.second->get_life()};
-        ct.push_back(dto);
+        ct.push_back(dto);*/
+        ct.push_back(player.second->get_dto());
     }
     for (const auto& player: terrorists) {
-        const PlayerDTO dto{player.first, player.second->rect.position,
+        /*const PlayerDTO dto{player.first, player.second->rect.position,
                             player.second->get_orientation(), player.second->get_life()};
-        tt.push_back(dto);
+        tt.push_back(dto);*/
+        tt.push_back(player.second->get_dto());
     }
 
     return GameWorldSnapshot{ct, tt};

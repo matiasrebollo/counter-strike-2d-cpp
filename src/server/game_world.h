@@ -13,7 +13,7 @@
 #include "server/player.h"
 // #include "server/shot.h"
 
-#define PLAYER_SPEED 4
+#define PLAYER_SPEED 2
 #define TERRORISTS 1
 #define COUNTER_TERRORISTS 1
 

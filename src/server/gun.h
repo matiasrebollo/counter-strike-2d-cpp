@@ -16,6 +16,7 @@ public:
     explicit Gun(int initial_ammo);
     static std::unique_ptr<Gun> new_gun(const GunType& type);
     virtual GunType type() const = 0;
+    uint16_t get_ammo() const { return ammo; }
     void add_ammo(uint16_t ammo_count);
     void action() override;
 

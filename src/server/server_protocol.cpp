@@ -27,7 +27,7 @@ ServerProtocol::ServerProtocol(Socket&& socket):
 void ServerProtocol::send_lobby_message(const ServerResponseLobby& msg) {
     this->send_byte(this->commandsToCode.find(msg.commandType)->second);
     this->send_byte(this->codeSuccessResponse.find(msg.success)->second);
-    if (msg.game_name != "") {
+    if (msg.commandType == CommandType::CREATE_GAME) {
         this->send_string(msg.game_name);
     }
 }
@@ -78,8 +78,6 @@ void ServerProtocol::send_snapshot(const Snapshot& snapshot) {
     this->send_players(snapshot.ct);
     this->send_byte(snapshot.tt.size());
     this->send_players(snapshot.tt);
-    //  this->send_byte(snapshot.bullets.size());
-    //  this->send_bullets(snapshot.bullets);
 }
 
 void ServerProtocol::send_players(const std::vector<PlayerDTO>& players) {
@@ -88,24 +86,21 @@ void ServerProtocol::send_players(const std::vector<PlayerDTO>& players) {
         this->send_big_endian_number(player.position.x);
         this->send_big_endian_number(player.position.y);
         this->send_angle(player.orientation);
-        // this->send_byte(player.direction.x);
-        // this->send_byte(player.direction.y);
         this->send_byte(player.life);
-        // this->send_big_endian_number(player.money);
-        // this->send_byte(player.health);
-        // this->send_byte(player.equipment.have_knife ? 0x01 : 0x00);
-        // this->send_byte(this->weaponParser.getWeaponCode(player.equipment.primary_weapon));
-        // this->send_big_endian_number(player.equipment.primary_weapon.bullets);
-        // this->send_byte(this->weaponParser.getWeaponCode(player.equipment.secondary_weapon));
-        // this->send_big_endian_number(player.equipment.secondary_weapon.bullets);
-        // this->send_byte(player.equipment.have_bomb ? 0x01 : 0x00);
-        // this->send_byte(player.is_shooting ? 0x01 : 0x00);
-        // this->send_byte(player.weapon_equipped);
+        this->send_loadout(player.loadout);
     }
 }
 
-void ServerProtocol::send_end_game(const GameEnded&) { this->send_byte(CODE_ENDGAME); }
+void ServerProtocol::send_loadout(const LoadoutDTO& loadout) {
+    this->send_big_endian_number(loadout.money);
+    this->send_byte(this->weaponParser.getWeaponToByte(loadout.primary_gun));
+    this->send_big_endian_number(loadout.primary_ammo);
+    this->send_byte(this->weaponParser.getWeaponToByte(loadout.secondary_gun));
+    this->send_big_endian_number(loadout.secondary_ammo);
+    this->send_byte(this->weaponParser.getWeaponTypeToByte(loadout.equipped));
+}
 
+void ServerProtocol::send_end_game(const GameEnded&) { this->send_byte(CODE_ENDGAME); }
 
 LobbyRequestDTO ServerProtocol::receive_lobby_request() {
     uint8_t commandCode = this->receive_byte();
@@ -207,5 +202,7 @@ void ServerProtocol::kill() {
     }
     this->socket.close();
 }
+
+ServerProtocol::ServerProtocol(ServerProtocol&& other): CommonProtocol(std::move(other.socket)) {}
 
 ServerProtocol::~ServerProtocol() {}
