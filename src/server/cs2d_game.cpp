@@ -8,8 +8,20 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include "common/clock.h"
+#include "common/game_map.h"
+#include "common/game_snapshot.h"
+#include "common/yaml_parser.h"
 
-CS2DGame::CS2DGame(const std::string& id): id(id) {
+CS2DGame::CS2DGame(const std::string& id):
+        players_senders(),
+        command_queue(),
+        game_world(),
+        current_round(0),
+        current_round_winner(std::nullopt),
+        ct_wins(0),
+        tt_wins(0),
+        id(id) {
     phase = std::make_unique<WaitingPlayersPhase>(*this);
 }
 
@@ -34,7 +46,9 @@ void CS2DGame::push(std::unique_ptr<Command> command) { command_queue.push(std::
 
 void CS2DGame::broadcast_game_dto(const GameDTO& game_dto) const {
     for (const auto& [_, sender]: players_senders) {
-        sender->send_game_dto(game_dto);
+        if (sender->is_alive()) {
+            sender->send_game_dto(game_dto);
+        }
     }
 }
 
@@ -92,8 +106,9 @@ void CS2DGame::begin_new_round() {
     this->current_round++;
     if (this->current_round == (ROUNDS / 2) + 1)
         swap_teams();
+    game_world.stop_players();
+    game_world.spawn_players();
     // limpiar items del mapa (dejar algunos, random)
-    // reiniciar posiciones de cada jugador al spawn
 }
 
 void CS2DGame::change_phase(std::unique_ptr<GamePhase> new_phase) {
@@ -105,6 +120,7 @@ void CS2DGame::swap_teams() {}
 void CS2DGame::end_game() {
     // determinar equipo ganador y enviar estadisticas finales
     this->command_queue.close();
+    this->broadcast_game_dto(GameEnded{});
     this->stop();
 }
 
@@ -112,7 +128,7 @@ void CS2DGame::run() {
     while (should_keep_running()) {
         if (this->current_round > ROUNDS) {
             end_game();
-            continue;
+            break;
         }
         phase->run();
     }

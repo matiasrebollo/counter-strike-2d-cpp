@@ -178,8 +178,10 @@ GameDTO ClientProtocol::receive_game_dto() {
     uint8_t code = this->receive_byte();
     if (code == CODE_SEND_MAP) {
         return this->receive_map();
-    } else {
+    } else if (code == CODE_SNAPSHOT) {
         return this->receive_snapshot();
+    } else {
+        return GameEnded{};
     }
 }
 
@@ -207,31 +209,54 @@ std::vector<PlayerDTO> ClientProtocol::receive_players(const int& size_players) 
         double angle = this->receive_angle();
         int life = this->receive_byte();
         uint16_t life16 = static_cast<uint16_t>(life);
-        players.push_back(PlayerDTO{username, Vector2D(position_x, position_y), angle, life16});
+        LoadoutDTO loadout = this->receive_loadout();
+        players.push_back(
+                PlayerDTO{username, Vector2D(position_x, position_y), angle, life16, loadout});
     }
     return players;
 }
 
+LoadoutDTO ClientProtocol::receive_loadout() {
+    uint16_t money = this->receive_big_endian_number();
+    uint8_t primary_code = this->receive_byte();
+    GunType primary_gun = this->weaponParser.getWeaponFromByte(primary_code);
+    uint16_t primary_ammo = this->receive_big_endian_number();
+    uint8_t secondary_code = this->receive_byte();
+    GunType secondary_gun = this->weaponParser.getWeaponFromByte(secondary_code);
+    uint16_t secondary_ammo = this->receive_big_endian_number();
+    uint8_t equipped_code = this->receive_byte();
+    WeaponType equipped = this->weaponParser.getWeaponTypeFromByte(equipped_code);
+    return LoadoutDTO{money, primary_gun, primary_ammo, secondary_gun, secondary_ammo, equipped};
+}
+
 GameMap ClientProtocol::receive_map() {
     uint16_t size = this->receive_big_endian_number();
-    return GameMap{this->receive_map_objects(size)};
+    return GameMap{0, 0, this->receive_map_objects(size), {}, {}, {}};
 }
 
 std::vector<MapObject> ClientProtocol::receive_map_objects(const uint8_t& size) {
     std::vector<MapObject> objects = {};
     for (int i = 0; i < size; i++) {
         uint8_t type = this->receive_byte();
-        uint16_t x = this->receive_big_endian_number();
-        uint16_t y = this->receive_big_endian_number();
-        uint16_t height = this->receive_big_endian_number();
-        uint16_t width = this->receive_big_endian_number();
-        objects.push_back(MapObject{Vector2D(x, y), width, height, MapObjectType(type)});
+        uint8_t vec_size = this->receive_byte();
+        std::vector<Vector2D> positions;
+        for (int j = 0; j < vec_size; j++) {
+            uint16_t x = this->receive_big_endian_number();
+            uint16_t y = this->receive_big_endian_number();
+            positions.push_back(Vector2D(x, y));
+        }
+        objects.push_back({positions, type, true});
     }
     return objects;
 }
 
 void ClientProtocol::close() {
-    this->socket.shutdown(SHUT_RDWR);
+    if (!this->socket.is_stream_recv_closed()) {
+        this->socket.shutdown(SHUT_RD);
+    }
+    if (!this->socket.is_stream_send_closed()) {
+        this->socket.shutdown(SHUT_WR);
+    }
     this->socket.close();
 }
 

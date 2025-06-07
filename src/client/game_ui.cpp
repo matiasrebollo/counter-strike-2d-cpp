@@ -2,6 +2,8 @@
 
 #include <variant>
 
+#include <unistd.h>
+
 #include "common/game_dto.h"
 
 GameUI::GameUI(Lobby& lobby):
@@ -9,7 +11,8 @@ GameUI::GameUI(Lobby& lobby):
         sdl(SDLManager()),
         input_handler(sdl, this->protocol),
         receiver(this->protocol),
-        my_player(MyPlayer(lobby.get_username())),
+        username(lobby.get_username()),
+        gamename(lobby.get_gamecode()),
         state(std::make_unique<WaitingForGameState>()),
         keep_running(true) {
     if (!this->validate_qt_results(lobby)) {
@@ -22,20 +25,27 @@ void GameUI::run() {
     input_handler.start_sender();
     this->receiver.start();
 
-    while (this->keep_running) {
-        state->handle(*this);
+    try {
+        while (this->keep_running) {
+            state->handle(*this);
+        }
+    } catch (const ClosedQueue& e) {
+        std::cout << "The server has been closed!" << std::endl;
+        this->keep_running = false;
     }
+
+    this->close_client();
 }
 
-void GameUI::handle_waiting_for_game() {
+void GameUI::handle_waiting_phase() {
     Snapshot last_snapshot;
 
     int it = 0;
     Clock clock;
-    bool loop_game = true;
-    while (loop_game) {
-        loop_game = input_handler.handle_waiting_events();
-        if (!loop_game) {
+    bool loop_waiting = true;
+    while (loop_waiting) {
+        loop_waiting = input_handler.handle_waiting_events();
+        if (!loop_waiting) {
             keep_running = false;
             break;
         }
@@ -44,37 +54,23 @@ void GameUI::handle_waiting_for_game() {
         bool pop = true;
         while (pop) {
             if (!this->receiver.try_pop_game_dto(game_dto)) {
-                pop = false;
+                pop = false;  // break
                 continue;
             }
-
-            std::visit(
-                    [this, &last_snapshot, &loop_game, &pop](const auto& game_dto) {
-                        using T = std::decay_t<decltype(game_dto)>;
-                        if constexpr (std::is_same_v<T, Snapshot>) {
-                            last_snapshot = std::move(game_dto);
-                        } else if constexpr (std::is_same_v<T, GameMap>) {
-                            state = std::make_unique<AttackPhaseState>(
-                                    game_dto);  // deberia usarse buy phase
-                            pop = false;
-                            loop_game = false;
-                        } else {
-                            static_assert(always_false_v<T>, "Unhandled GameDTO type");
-                        }
-                    },
-                    game_dto);
+            process_waiting(game_dto, last_snapshot, loop_waiting, pop);
         }
 
-        sdl.texto_prueba();
-        // hacer algo con la snapshot??
-        // actualizar el cartel de esperando players!!!
-
+        sdl.clear_display();
+        sdl.render_waiting_screen(last_snapshot.ct.size() + last_snapshot.tt.size(), 2, gamename,
+                                  it, FPS);
+        sdl.show_screen();
         it = clock.sleep_and_calc_next_it(FPS, it);
     }
 }
 void GameUI::handle_buy_phase(const GameMap& /*map*/) {}
 void GameUI::handle_attack_phase(const GameMap& map) {
-    Snapshot last_snapshot = std::get<Snapshot>(this->receiver.pop_game_dto());
+    Snapshot last_snapshot =
+            std::get<Snapshot>(this->receiver.pop_game_dto());  // esto despues lo recibe el mapa
 
     int it = 0;
     Clock clock;
@@ -89,25 +85,50 @@ void GameUI::handle_attack_phase(const GameMap& map) {
 
         GameDTO snapshot_tmp;
         while (this->receiver.try_pop_game_dto(snapshot_tmp)) {
+            if (std::holds_alternative<GameEnded>(snapshot_tmp)) {
+                this->state = std::make_unique<GameEndedState>();
+                return;
+            }
             last_snapshot = std::move(std::get<Snapshot>(snapshot_tmp));
         }
 
-        std::vector<std::vector<PlayerDTO>> teams = {last_snapshot.ct, last_snapshot.tt};
-
-        for (const std::vector<PlayerDTO>& team: teams) {
-            for (const PlayerDTO& p: team) {
-                my_player.update_my_position(p);
-            }
-        }
 
         sdl.clear_display();
 
-        sdl.render_in_z_order(map, last_snapshot, my_player.get_username());
+        sdl.render_in_z_order(map, last_snapshot, this->username);
 
         sdl.show_screen();
 
         it = clock.sleep_and_calc_next_it(FPS, it);
     }
+}
+
+void GameUI::handle_game_ended_phase() {
+    std::cout << "Game ended!" << std::endl;
+    this->keep_running = false;
+}
+
+void GameUI::change_state(std::unique_ptr<GameUIState> new_state) {
+    this->state = std::move(new_state);
+}
+
+void GameUI::process_waiting(GameDTO& dto, Snapshot& snapshot, bool& loop, bool& pop) {
+    std::visit(
+            [this, &snapshot, &loop, &pop](const auto& game_dto) {
+                using T = std::decay_t<decltype(game_dto)>;
+                if constexpr (std::is_same_v<T, Snapshot>) {
+                    snapshot = std::move(game_dto);
+                } else if constexpr (std::is_same_v<T, GameMap>) {
+                    this->change_state(std::make_unique<AttackPhaseState>(std::move(game_dto)));
+                    loop = false;
+                    pop = false;
+                } else if constexpr (std::is_same_v<T, GameEnded>) {
+                    this->change_state(std::make_unique<GameEndedState>());
+                    loop = false;
+                    pop = false;
+                }
+            },
+            dto);
 }
 
 bool GameUI::validate_qt_results(Lobby& lobby) {
@@ -129,13 +150,19 @@ bool GameUI::validate_qt_results(Lobby& lobby) {
 
 void GameUI::print_message(const std::string& s) { std::cout << s << std::endl; }
 
-GameUI::~GameUI() {
-    receiver.close_queue();
-    receiver.stop();
-    receiver.join();
+void GameUI::close_client() {
+    this->protocol.close();
+    // this->receiver.close_queue();
+    this->receiver.join();
     // El receiver ya no me interesa, cerro su queue y ya está.
-    input_handler.close_sender_queue();
-    input_handler
+    // this->input_handler.close_sender_queue();
+    this->input_handler.close_sender_queue();
+    this->input_handler
             .join_sender();  // aca me bloqueo hasta que sea joineable, por dentro el sender stopea
-    protocol.close();
+}
+
+GameUI::~GameUI() {
+    if (this->keep_running) {
+        this->close_client();
+    }
 }

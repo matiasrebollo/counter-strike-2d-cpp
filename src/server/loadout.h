@@ -1,24 +1,25 @@
-#ifndef LOADOUT_MANAGER_H
-#define LOADOUT_MANAGER_H
+#ifndef LOADOUT_H
+#define LOADOUT_H
 
 #include <cstdint>
 #include <memory>
 #include <optional>
 
+#include "common/loadout_dto.h"
 #include "server/gun.h"
 #include "server/knife.h"
 
 #define INITIAL_MONEY 500
 
 /*
- * LoadoutManager
+ * Loadout
  * Objeto encargado del manejo del equipamiento y compras para un jugador
  *
  * Se encarga de manejar el equipamiento del jugador,
  * efectuando las compras de armas y munición en caso de ser estas posibles.
  *
  * */
-class LoadoutManager {
+class Loadout {
 private:
     uint16_t money;
     Knife knife;
@@ -63,11 +64,11 @@ private:
      * para el arma que corresponda, false en caso contrario.
      *
      * */
-    bool can_buy_ammo(const uint16_t& ammo_count, bool for_primary) const;
+    bool can_buy_ammo(const uint16_t& ammo_count, const bool& for_primary) const;
 
 public:
     /*
-     * Constructor de LoadoutManager
+     * Constructor de Loadout
      *
      * El equipamiento de un jugador inicialmente es:
      *
@@ -77,7 +78,7 @@ public:
      * Arma secundaria: Glock.
      *
      * */
-    LoadoutManager();
+    Loadout();
 
     /*
      * Compra un arma primaria para un jugador.
@@ -105,12 +106,18 @@ public:
      * o si se intenta comprar para el arma primaria y no se tiene una equipada.
      *
      * */
-    bool buy_ammo(const uint16_t& ammo_count, bool for_primary);
+    bool buy_ammo(const uint16_t& ammo_count, const bool& for_primary);
 
-    LoadoutManager(const LoadoutManager&) = delete;
-    LoadoutManager& operator=(const LoadoutManager&) = delete;
+    void equip_primary();
+    void equip_secondary();
+    void equip_knife();
+    Weapon* equipped_weapon();
+    const LoadoutDTO get_dto() const;
 
-    ~LoadoutManager();
+    Loadout(const Loadout&) = delete;
+    Loadout& operator=(const Loadout&) = delete;
+
+    ~Loadout();
 };
 
 #endif

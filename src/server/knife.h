@@ -11,7 +11,7 @@ class Knife: public Weapon {
 public:
     Knife();
 
-    void make_player_action() override;
+    void action() override;
 
     Knife(const Knife&) = delete;
     Knife& operator=(const Knife&) = delete;

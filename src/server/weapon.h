@@ -9,7 +9,7 @@ class Weapon {
 public:
     Weapon() = default;
 
-    virtual void make_player_action() = 0;
+    virtual void action() = 0;
     // update??
 
     Weapon(const Weapon&) = delete;

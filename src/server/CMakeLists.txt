@@ -14,7 +14,7 @@ target_sources(taller_server
         attack_phase_commands.cpp
         buy_phase_commands.cpp
         player.cpp
-        loadout_manager.cpp
+        loadout.cpp
         gun.cpp
         knife.cpp
         server.cpp
@@ -35,7 +35,7 @@ target_sources(taller_server
         attack_phase_commands.h
         buy_phase_commands.h
         player.h
-        loadout_manager.h
+        loadout.h
         weapon.h
         gun.h
         knife.h

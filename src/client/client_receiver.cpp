@@ -9,9 +9,11 @@ void ClientReceiver::run() {
             // Im sleeping inside the queue so im not burning CPU (i think)
         } catch (const CommunicationEnded& e) {
             std::cout << MSG_CLOSE_RECEIVER << std::endl;
-            return;
+            this->close_queue();
+            this->stop();
         } catch (const ClosedQueue& e) {
             std::cout << MSG_CLOSE_RECEIVER << std::endl;
+            this->stop();
             return;
         }
     }

@@ -63,6 +63,14 @@ bool InputHandler::handle_keyup_event(const SDL_Event& event) {
     }
 }
 
+double InputHandler::calculate_angle_to_mouse(int mouse_x, int mouse_y) const {
+    auto [width, height] = sdl.get_window_size();
+    float dx = mouse_x - static_cast<float>(width / 2.0f);
+    float dy = mouse_y - static_cast<float>(height / 2.0f);
+    float ang_radianes = atan2(dy, dx);
+    return (ang_radianes * 180.0f / M_PI) + 90;
+}
+
 bool InputHandler::handle_mouse_motion_event(const SDL_Event& event) {
     if (event.type != SDL_MOUSEMOTION)
         return false;
@@ -70,7 +78,7 @@ bool InputHandler::handle_mouse_motion_event(const SDL_Event& event) {
     int mouse_x = event.motion.x;
     int mouse_y = event.motion.y;
 
-    double angulo = sdl.calculate_angle_to_mouse(mouse_x, mouse_y);
+    double angulo = calculate_angle_to_mouse(mouse_x, mouse_y);
     sender.add_command_to_queue(RotateDTO{angulo});
     return true;
 }
@@ -104,5 +112,7 @@ bool InputHandler::handle_waiting_events() {
 void InputHandler::start_sender() { sender.start(); }
 
 void InputHandler::close_sender_queue() { sender.close_queue(); }
+
+void InputHandler::stop_sender() { sender.stop(); }
 
 void InputHandler::join_sender() { sender.join(); }

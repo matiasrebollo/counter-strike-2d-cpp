@@ -19,7 +19,9 @@ private:
     bool handle_quit_event(const SDL_Event& event);
     bool handle_keydown_event(const SDL_Event& event);
     bool handle_keyup_event(const SDL_Event& event);
+    double calculate_angle_to_mouse(int mouse_x, int mouse_y) const;
     bool handle_mouse_motion_event(const SDL_Event& event);
+
 
     template <typename T>
     bool try_move(bool& flag, T dto);
@@ -34,6 +36,7 @@ public:
 
     void start_sender();
     void close_sender_queue();
+    void stop_sender();
     void join_sender();
 };
 

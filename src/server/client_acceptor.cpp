@@ -14,20 +14,23 @@ void ClientAcceptor::run() {
             this->clients.push_back(client);
             client->start();
         } catch (const LibError& e) {
-            break;
+            this->stop();
         } catch (std::exception&) {
-            break;
+            this->stop();
         }
     }
+    this->clear();
 }
 
 void ClientAcceptor::reap() {
     for (size_t i = 0; i < this->clients.size();) {
         ClientHandler* client = this->clients[i];
         if (!client->is_alive()) {
+            // client->kill();
             client->join();
             delete client;
             this->clients.erase(this->clients.begin() + i);
+            std::cout << MSG_CLIENT_JOINED(client->get_username()) << std::endl;
         } else {
             i++;
         }
@@ -37,11 +40,16 @@ void ClientAcceptor::reap() {
 
 void ClientAcceptor::clear() {
     for (auto* client: this->clients) {
+        client->kill();
         client->join();
         delete client;
+        std::cout << MSG_CLIENT_JOINED(client->get_username()) << std::endl;
     }
     this->clients.clear();
-    this->stop();
+    this->server_monitor.kill_games();
+}
+
+void ClientAcceptor::close_acceptor() {
     this->acceptor.shutdown(SHUT_RDWR);
     this->acceptor.close();
 }

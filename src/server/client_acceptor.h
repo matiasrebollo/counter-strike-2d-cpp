@@ -12,17 +12,20 @@
 #include "client_handler.h"
 #include "server_monitor.h"
 
+#define MSG_CLIENT_JOINED(id) "Client " + id + " has been joined!"
+
 class ClientAcceptor: public Thread {
 private:
     Socket acceptor;
     std::vector<ClientHandler*> clients;
     ServerMonitor server_monitor;
+    void clear();
 
 public:
     explicit ClientAcceptor(const std::string& port);
     void run() override;
     void reap();
-    void clear();
+    void close_acceptor();
 };
 
 #endif

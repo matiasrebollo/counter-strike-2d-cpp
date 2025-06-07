@@ -1,15 +1,14 @@
-#include "server/loadout_manager.h"
+#include "server/loadout.h"
 
 #include <memory>
 #include <stdexcept>
 #include <utility>
 
-LoadoutManager::LoadoutManager():
-        money(INITIAL_MONEY), primary_gun(nullptr), secondary_gun(), equipped(KNIFE) {}
+Loadout::Loadout(): money(INITIAL_MONEY), primary_gun(nullptr), secondary_gun(), equipped(KNIFE) {}
 
-uint16_t LoadoutManager::ammo_price_for(const GunType& type) {
+uint16_t Loadout::ammo_price_for(const GunType& type) {
     // está hardcodeado. inicializar un map a partir del archivo de configuracion al inicializar el
-    // LoadoutManager
+    // Loadout
     switch (type) {
         case GunType::GLOCK:
             return 10;
@@ -25,9 +24,9 @@ uint16_t LoadoutManager::ammo_price_for(const GunType& type) {
     }
 }
 
-uint16_t LoadoutManager::price_for(const GunType& type) {
+uint16_t Loadout::price_for(const GunType& type) {
     // está hardcodeado. inicializar un map a partir del archivo de configuracion al inicializar el
-    // LoadoutManager
+    // Loadout
     switch (type) {
         case GunType::AK47:
             return 1500;
@@ -40,21 +39,21 @@ uint16_t LoadoutManager::price_for(const GunType& type) {
     }
 }
 
-void LoadoutManager::decrease_money_by(const uint16_t& ammount_of_money) {
+void Loadout::decrease_money_by(const uint16_t& ammount_of_money) {
     this->money -= ammount_of_money;
 }
 
-const std::unique_ptr<Gun> LoadoutManager::new_primary_gun(std::unique_ptr<Gun> gun) {
+const std::unique_ptr<Gun> Loadout::new_primary_gun(std::unique_ptr<Gun> gun) {
     std::unique_ptr<Gun> prev = std::move(this->primary_gun);
     this->primary_gun = std::move(gun);
     return prev;
 }
 
-bool LoadoutManager::can_buy_gun(const GunType& gun_type) const {
+bool Loadout::can_buy_gun(const GunType& gun_type) const {
     return this->money >= price_for(gun_type);
 }
 
-bool LoadoutManager::can_buy_ammo(const uint16_t& ammo_count, bool for_primary) const {
+bool Loadout::can_buy_ammo(const uint16_t& ammo_count, const bool& for_primary) const {
     uint16_t price = 0;
     if (for_primary) {
         if (not primary_gun)
@@ -67,7 +66,7 @@ bool LoadoutManager::can_buy_ammo(const uint16_t& ammo_count, bool for_primary) 
     return this->money >= price * ammo_count;
 }
 
-const std::unique_ptr<Gun> LoadoutManager::buy_primary_gun(const GunType& gun_type) {
+const std::unique_ptr<Gun> Loadout::buy_primary_gun(const GunType& gun_type) {
     if (!can_buy_gun(gun_type)) {
         return nullptr;
     }
@@ -75,7 +74,7 @@ const std::unique_ptr<Gun> LoadoutManager::buy_primary_gun(const GunType& gun_ty
     return new_primary_gun(Gun::new_gun(gun_type));
 }
 
-bool LoadoutManager::buy_ammo(const uint16_t& ammo_count, bool for_primary) {
+bool Loadout::buy_ammo(const uint16_t& ammo_count, const bool& for_primary) {
     if (not can_buy_ammo(ammo_count, for_primary))
         return false;
 
@@ -88,4 +87,31 @@ bool LoadoutManager::buy_ammo(const uint16_t& ammo_count, bool for_primary) {
     return true;
 }
 
-LoadoutManager::~LoadoutManager() {}
+void Loadout::equip_primary() { this->equipped = PRIMARY; }
+void Loadout::equip_secondary() { this->equipped = SECONDARY; }
+void Loadout::equip_knife() { this->equipped = KNIFE; }
+Weapon* Loadout::equipped_weapon() {
+    switch (equipped) {
+        case PRIMARY:
+            return primary_gun ? primary_gun.get() : nullptr;
+        case SECONDARY:
+            return &secondary_gun;
+        case KNIFE:
+            return &knife;
+        default:
+            return nullptr;
+    }
+}
+
+const LoadoutDTO Loadout::get_dto() const {
+    return LoadoutDTO{money,
+                      (primary_gun != nullptr) ? primary_gun->type() : GunType::NONE,
+                      (primary_gun != nullptr) ? primary_gun->get_ammo() : static_cast<uint16_t>(0),
+                      GLOCK,
+                      secondary_gun.get_ammo(),
+                      equipped};
+    // agregar bomba
+    // agregar disparos ??
+}
+
+Loadout::~Loadout() {}

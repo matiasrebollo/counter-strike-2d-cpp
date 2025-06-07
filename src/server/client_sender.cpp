@@ -3,29 +3,28 @@
 ClientSender::ClientSender(ServerProtocol& protocol):
         queue(), protocol(protocol), keep_running(true) {}
 
-void ClientSender::send_game_dto(const GameDTO& message) {
-    try {
-        this->queue.try_push(message);
-    } catch (const std::exception& e) {
-        std::cout << "Intente pushear a queue cerrada " << e.what() << std::endl;
-    }
-}
+void ClientSender::send_game_dto(const GameDTO& message) { this->queue.try_push(message); }
 
 void ClientSender::send_response() {
     GameDTO msg = this->queue.pop();
+    if (std::holds_alternative<GameEnded>(msg)) {
+        this->game_ended();
+    }
     this->protocol.send_game_dto(msg);
 }
 
-void ClientSender::run() {
+bool ClientSender::run() {
     while (this->keep_running) {
-        try {
-            this->send_response();
-        } catch (const ClosedQueue& e) {
-            std::cout << "Intente popear de queue cerrada" << std::endl;
-            break;
-        }
+        this->send_response();
     }
-    this->queue.close();
+    return true;
 }
+
+void ClientSender::game_ended() {
+    this->queue.close();
+    this->keep_running = false;
+}
+
+bool ClientSender::is_alive() { return this->keep_running; }
 
 ClientSender::~ClientSender() {}
