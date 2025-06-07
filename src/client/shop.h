@@ -10,6 +10,7 @@
 
 #include "../common/block_texture_parser.h"
 
+#include "camera.h"
 #include "texture_manager.h"
 
 enum ShopButtonType { WeaponAK47, WeaponAWP, WeaponM3, AmmoPrimary, AmmoSecondary, Close, Open };
@@ -34,7 +35,7 @@ private:
 public:
     // luego hud scale no va mas
     Shop(SDL2pp::Renderer& renderer, TextureManager& texture_manager,
-         BlockTextureParser& texture_parser, float hud_scale);
+         BlockTextureParser& texture_parser);
 
     void render();
     std::optional<ShopButtonType> clicked_button(int x, int y);

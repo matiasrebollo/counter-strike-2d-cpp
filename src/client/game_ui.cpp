@@ -54,8 +54,8 @@ void GameUI::handle_waiting_phase() {
         bool pop = true;
         while (pop) {
             if (!this->receiver.try_pop_game_dto(game_dto)) {
-                pop = false; 
-                continue; // es como  break
+                pop = false;
+                continue;  // es como  break
             }
             process_waiting(game_dto, last_snapshot, loop_waiting, pop);
         }
@@ -139,6 +139,10 @@ void GameUI::handle_attack_phase(const GameMap& map) {
                 continue;
             }
 
+            if (std::holds_alternative<GameEnded>(snapshot_tmp)) {
+                this->state = std::make_unique<GameEndedState>();
+                return;
+            }
 
             Snapshot snapshot = std::get<Snapshot>(snapshot_tmp);
             if (snapshot.phase == Phase::BUY) {
