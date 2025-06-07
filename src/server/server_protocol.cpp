@@ -44,6 +44,8 @@ void ServerProtocol::send_game_dto(const GameDTO& response) {
                     this->send_map(response);
                 } else if constexpr (std::is_same_v<T, Snapshot>) {
                     this->send_snapshot(response);
+                } else if constexpr (std::is_same_v<T, GameEnded>) {
+                    this->send_end_game(response);
                 } else {
                     static_assert(always_false_v<T>, "Unhandled ServerResponseDTO type");
                 }
@@ -101,17 +103,9 @@ void ServerProtocol::send_players(const std::vector<PlayerDTO>& players) {
         // this->send_byte(player.weapon_equipped);
     }
 }
-/*
-void ServerProtocol::send_bullets(const std::vector<Bullet>& bullets) {
-    for (auto bullet : bullets) {
-        this->send_byte(bullet.id);
-        this->send_byte(bullet.pos_x);
-        this->send_byte(bullet.pos_y);
-        this->send_byte(bullet.dir_x);
-        this->send_byte(bullet.dir_y);
-    }
-}
-*/
+
+void ServerProtocol::send_end_game(const GameEnded&) { this->send_byte(CODE_ENDGAME); }
+
 
 LobbyRequestDTO ServerProtocol::receive_lobby_request() {
     uint8_t commandCode = this->receive_byte();

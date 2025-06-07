@@ -13,7 +13,7 @@
 #include "server_monitor.h"
 #include "server_protocol.h"
 
-#define MSG_CLIENT_DISCONNECTED "Client " + this->username + " has disconnected!"
+#define MSG_CLOSE_SENDER "Closing sender thread ..."
 
 class ClientHandler: public Thread {
 private:
@@ -22,6 +22,8 @@ private:
     std::string username;
     bool is_in_game;
     std::string my_game;
+    bool game_ended;
+    bool is_dead;
 
     void send_lobby_response(const CommandType& command, const bool& success,
                              const std::string& game_name);
@@ -36,6 +38,7 @@ public:
     ClientHandler(Socket&& socket, ServerMonitor& server_monitor);
     std::string get_username();
     void run() override;
+    void kill();
 };
 
 #endif

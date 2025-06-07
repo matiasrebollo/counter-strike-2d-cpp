@@ -36,9 +36,9 @@ private:
 
     bool validate_qt_results(Lobby& lobby);
     void print_message(const std::string& s);
+    void close_client();
     void process_waiting(GameDTO& dto, Snapshot& snapshot, bool& loop, bool& pop);
     void change_state(std::unique_ptr<GameUIState> new_state);
-
 
 public:
     explicit GameUI(Lobby& lobby);
@@ -46,6 +46,7 @@ public:
     void handle_waiting_phase();
     void handle_buy_phase(const GameMap& map);
     void handle_attack_phase(const GameMap& map);
+    void handle_game_ended_phase();
     ~GameUI();
 };
 

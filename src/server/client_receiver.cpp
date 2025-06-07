@@ -15,6 +15,10 @@ void ClientReceiver::run() {
             std::cout << MSG_CLOSE_RECEIVER << std::endl;
             this->stop();
             return;
+        } catch (const ClosedQueue& e) {
+            std::cout << MSG_CLOSE_RECEIVER << std::endl;
+            this->stop();
+            return;
         }
     }
 }

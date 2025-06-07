@@ -11,19 +11,20 @@
 
 #include "server_protocol.h"
 
-#define MSG_CLOSE_SENDER "Player " + this->username + " has disconnected! Closing sender thread ..."
-
 class ClientSender {
 private:
     Queue<GameDTO> queue;
     ServerProtocol& protocol;
     std::atomic_bool keep_running;
     void send_response();
+    void game_ended();
+
 
 public:
     explicit ClientSender(ServerProtocol& protocol);
     void send_game_dto(const GameDTO& message);
-    void run();
+    bool run();
+    bool is_alive();
     ~ClientSender();
 };
 

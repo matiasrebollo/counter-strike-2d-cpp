@@ -16,7 +16,8 @@ enum CommandType {
     CHANGE_WEAPON,
     PLANT_BOMB,
     DEFUSE_BOMB,
-    GAME_STARTED
+    GAME_STARTED,
+    GAME_ENDED
 };
 
 #endif

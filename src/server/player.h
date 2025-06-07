@@ -26,7 +26,7 @@ private:
     void step(const Vector2D& step_dir, GameWorld& game);
 
 public:
-    explicit Player(Vector2D& position);
+    explicit Player(const Vector2D& position);
 
     float get_orientation() const;
     uint16_t get_life() const;
@@ -38,6 +38,7 @@ public:
     void move_down();
     void move_left();
     void move_right();
+    void stop();
     void equip_primary();
     void equip_secondary();
     void equip_knife();

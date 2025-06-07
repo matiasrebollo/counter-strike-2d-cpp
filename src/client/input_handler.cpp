@@ -180,4 +180,6 @@ void InputHandler::start_sender() { sender.start(); }
 
 void InputHandler::close_sender_queue() { sender.close_queue(); }
 
+void InputHandler::stop_sender() { sender.stop(); }
+
 void InputHandler::join_sender() { sender.join(); }

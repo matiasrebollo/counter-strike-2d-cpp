@@ -37,4 +37,10 @@ public:
     void handle(GameUI& game_ui) override;
 };
 
+class GameEndedState: public GameUIState {
+public:
+    GameEndedState();
+    void handle(GameUI& game_ui) override;
+};
+
 #endif

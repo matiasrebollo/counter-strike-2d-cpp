@@ -18,7 +18,7 @@ private:
 public:
     explicit ClientSender(ClientProtocol& protocol);
     void add_command_to_queue(const CommandDTO& dto);
-    bool send_command_to_server();
+    void send_command_to_server();
     void close_queue();
     void run() override;
 };

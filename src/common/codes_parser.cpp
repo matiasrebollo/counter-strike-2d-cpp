@@ -11,7 +11,8 @@ CodesParser::CodesParser():
                         {CODE_MOVE, CommandType::MOVE},
                         {CODE_CHANGE_WEAPON, CommandType::CHANGE_WEAPON},
                         {CODE_PLANT_BOMB, CommandType::PLANT_BOMB},
-                        {CODE_GAME_STARTED, CommandType::GAME_STARTED}}),
+                        {CODE_GAME_STARTED, CommandType::GAME_STARTED},
+                        {CODE_ENDGAME, CommandType::GAME_ENDED}}),
         commandsToCode({{CommandType::CREATE_USERNAME, CODE_CREATE_USERNAME},
                         {CommandType::CREATE_GAME, CODE_CREATE_GAME},
                         {CommandType::JOIN_GAME, CODE_JOIN_GAME},
@@ -22,4 +23,5 @@ CodesParser::CodesParser():
                         {CommandType::MOVE, CODE_MOVE},
                         {CommandType::CHANGE_WEAPON, CODE_CHANGE_WEAPON},
                         {CommandType::PLANT_BOMB, CODE_PLANT_BOMB},
-                        {CommandType::GAME_STARTED, CODE_GAME_STARTED}}) {}
+                        {CommandType::GAME_STARTED, CODE_GAME_STARTED},
+                        {CommandType::GAME_ENDED, CODE_ENDGAME}}) {}
