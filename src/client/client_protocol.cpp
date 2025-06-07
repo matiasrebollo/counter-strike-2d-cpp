@@ -219,10 +219,10 @@ std::vector<PlayerDTO> ClientProtocol::receive_players(const int& size_players) 
 LoadoutDTO ClientProtocol::receive_loadout() {
     uint16_t money = this->receive_big_endian_number();
     uint8_t primary_code = this->receive_byte();
-    Gun primary_gun = this->weaponParser.getWeaponFromByte(primary_code);
+    GunType primary_gun = this->weaponParser.getWeaponFromByte(primary_code);
     uint16_t primary_ammo = this->receive_big_endian_number();
     uint8_t secondary_code = this->receive_byte();
-    Gun secondary_gun = this->weaponParser.getWeaponFromByte(secondary_code);
+    GunType secondary_gun = this->weaponParser.getWeaponFromByte(secondary_code);
     uint16_t secondary_ammo = this->receive_big_endian_number();
     uint8_t equipped_code = this->receive_byte();
     WeaponType equipped = this->weaponParser.getWeaponTypeFromByte(equipped_code);
