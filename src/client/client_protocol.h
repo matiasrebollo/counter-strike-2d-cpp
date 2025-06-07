@@ -7,18 +7,16 @@
 #include <string>
 #include <type_traits>
 #include <unordered_map>
+#include <utility>
 #include <variant>
 #include <vector>
-template <class>
-inline constexpr bool always_false_v = false;
-
-#include <utility>
 
 #include "../common/codes_parser.h"
 #include "../common/commands.h"
 #include "../common/commands_dto.h"
 #include "../common/common_protocol.h"
 #include "../common/game_dto.h"
+#include "../common/loadout_dto.h"
 #include "../common/lobby_request.h"
 #include "../common/map_object.h"
 #include "../common/message.h"
@@ -29,9 +27,9 @@ class ClientProtocol: public CommonProtocol, public CodesParser {
 private:
     bool isAlive;
 
-    void send_create_username_request(const CreateUsernameDTO& dto);
-    void send_create_game_request(const CreateGameDTO& dto);
-    void send_join_game_request(const JoinGameDTO& dto);
+    virtual void send_create_username_request(const CreateUsernameDTO& dto);
+    virtual void send_create_game_request(const CreateGameDTO& dto);
+    virtual void send_join_game_request(const JoinGameDTO& dto);
     void send_select_map_request(const InternalMessage& request);
     void send_buy_weapon_request(const InternalMessage& request);
     void send_buy_weapon_ammo_request(const InternalMessage& request);
@@ -53,6 +51,7 @@ private:
     void send_change_weapon_request(const InternalMessage& request);
 
     std::vector<PlayerDTO> receive_players(const int& size_players);
+    LoadoutDTO receive_loadout();
     std::vector<MapObject> receive_map_objects(const uint8_t& size);
 
     Snapshot receive_snapshot();

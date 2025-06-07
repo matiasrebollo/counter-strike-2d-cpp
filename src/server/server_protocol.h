@@ -9,8 +9,6 @@
 #include <unordered_map>
 #include <variant>
 #include <vector>
-template <class>
-inline constexpr bool always_false_v = false;
 
 #include "../common/codes_parser.h"
 #include "../common/commands.h"
@@ -42,6 +40,7 @@ private:
     void send_snapshot(const Snapshot& snapshot);
     void send_map(const GameMap& map);
     void send_players(const std::vector<PlayerDTO>& players);
+    void send_loadout(const LoadoutDTO& loadout);
     void send_end_game(const GameEnded& message);
 
 public:
@@ -52,6 +51,7 @@ public:
     CommandDTO receive_client_request();
     LobbyRequestDTO receive_lobby_request();
     void kill();
+    ServerProtocol(ServerProtocol&& other);
     ~ServerProtocol();
 };
 
