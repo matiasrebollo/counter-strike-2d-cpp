@@ -10,7 +10,6 @@
 #include <variant>
 #include <vector>
 
-#include "../common/codes_parser.h"
 #include "../common/commands.h"
 #include "../common/commands_dto.h"
 #include "../common/common_protocol.h"
@@ -22,7 +21,7 @@
 #define CODE_SUCCESS 0x01
 #define CODE_FAIL 0x00
 
-class ServerProtocol: public CommonProtocol, public CodesParser {
+class ServerProtocol: public CommonProtocol {
 private:
     std::unordered_map<bool, uint8_t> codeSuccessResponse;
     std::unordered_map<CommandType, std::function<LobbyRequestDTO()>> lobbyCommandManagers;

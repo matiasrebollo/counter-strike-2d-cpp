@@ -16,11 +16,6 @@ ClientProtocol::ClientProtocol(const std::string& hostname, const std::string& p
         CommonProtocol(hostname, port), isAlive(true) {}
 
 ServerResponseLobby ClientProtocol::receive_command() {
-    // aca para la etapa de lobby recibo:
-    // rta de pedido de crear nombre de usuario
-    // rta de pedido de crear partida
-    // rta de pedio de joinear partida
-    // notificacion de empezó partida -> aca lanzó los hilos y queues
     uint8_t code = this->receive_byte();
     ServerResponseLobby response =
             ServerResponseLobby{this->codeToCommands.find(code)->second, false, ""};
@@ -87,16 +82,16 @@ void ClientProtocol::send_command(const CommandDTO& command) {
 }
 
 void ClientProtocol::send_create_username_request(const CreateUsernameDTO& dto) {
-    this->send_byte(commandsToCode.find(CommandType::CREATE_USERNAME)->second);
+    this->send_byte(this->commandsToCode.find(CommandType::CREATE_USERNAME)->second);
     this->send_string(dto.username);
 }
 
 void ClientProtocol::send_create_game_request(const CreateGameDTO&) {
-    this->send_byte(commandsToCode.find(CommandType::CREATE_GAME)->second);
+    this->send_byte(this->commandsToCode.find(CommandType::CREATE_GAME)->second);
 }
 
 void ClientProtocol::send_join_game_request(const JoinGameDTO& dto) {
-    this->send_byte(commandsToCode.find(CommandType::JOIN_GAME)->second);
+    this->send_byte(this->commandsToCode.find(CommandType::JOIN_GAME)->second);
     this->send_string(dto.gamename);
 }
 

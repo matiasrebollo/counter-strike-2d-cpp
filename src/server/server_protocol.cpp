@@ -104,6 +104,7 @@ void ServerProtocol::send_end_game(const GameEnded&) { this->send_byte(CODE_ENDG
 
 LobbyRequestDTO ServerProtocol::receive_lobby_request() {
     uint8_t commandCode = this->receive_byte();
+    std::cout << static_cast<int>(commandCode) << std::endl;
     CommandType command = this->codeToCommands.find(commandCode)->second;
     return this->lobbyCommandManagers.find(command)->second();
 }
@@ -203,6 +204,9 @@ void ServerProtocol::kill() {
     this->socket.close();
 }
 
-ServerProtocol::ServerProtocol(ServerProtocol&& other): CommonProtocol(std::move(other.socket)) {}
+ServerProtocol::ServerProtocol(ServerProtocol&& other):
+        CommonProtocol(std::move(other.socket)),
+        codeSuccessResponse(std::move(other.codeSuccessResponse)),
+        lobbyCommandManagers(std::move(other.lobbyCommandManagers)) {}
 
 ServerProtocol::~ServerProtocol() {}

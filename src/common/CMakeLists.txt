@@ -2,7 +2,6 @@ target_sources(taller_common
     PRIVATE
     # .cpp files
     vector_2d.cpp
-    codes_parser.cpp
     common_protocol.cpp
     liberror.cpp
     resolver.cpp
@@ -26,7 +25,6 @@ target_sources(taller_common
     game_snapshot.h
     game_dto.h
     vector_2d.h
-    codes_parser.h
     commands.h
     commands_dto.h
     common_protocol.h

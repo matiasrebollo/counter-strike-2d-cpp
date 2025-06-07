@@ -11,7 +11,6 @@
 #include <variant>
 #include <vector>
 
-#include "../common/codes_parser.h"
 #include "../common/commands.h"
 #include "../common/commands_dto.h"
 #include "../common/common_protocol.h"
@@ -23,7 +22,7 @@
 #include "../common/player_dto.h"
 #include "../common/socket.h"
 
-class ClientProtocol: public CommonProtocol, public CodesParser {
+class ClientProtocol: public CommonProtocol {
 private:
     bool isAlive;
 

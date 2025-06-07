@@ -8,9 +8,60 @@
 #include "liberror.h"
 
 CommonProtocol::CommonProtocol(const std::string& hostname, const std::string& port):
-        socket(hostname.c_str(), port.c_str()) {}
+        socket(hostname.c_str(), port.c_str()),
+        weaponParser(),
+        codeToCommands({{CODE_CREATE_USERNAME, CommandType::CREATE_USERNAME},
+                        {CODE_CREATE_GAME, CommandType::CREATE_GAME},
+                        {CODE_JOIN_GAME, CommandType::JOIN_GAME},
+                        {CODE_SELECT_MAP, CommandType::SELECT_MAP},
+                        {CODE_BUY_WEAPON, CommandType::BUY_WEAPON},
+                        {CODE_BUY_BULLETS, CommandType::BUY_AMMO},
+                        {CODE_ROTATE, CommandType::ROTATE},
+                        {CODE_MOVE, CommandType::MOVE},
+                        {CODE_CHANGE_WEAPON, CommandType::CHANGE_WEAPON},
+                        {CODE_PLANT_BOMB, CommandType::PLANT_BOMB},
+                        {CODE_GAME_STARTED, CommandType::GAME_STARTED},
+                        {CODE_ENDGAME, CommandType::GAME_ENDED}}),
+        commandsToCode({{CommandType::CREATE_USERNAME, CODE_CREATE_USERNAME},
+                        {CommandType::CREATE_GAME, CODE_CREATE_GAME},
+                        {CommandType::JOIN_GAME, CODE_JOIN_GAME},
+                        {CommandType::SELECT_MAP, CODE_SELECT_MAP},
+                        {CommandType::BUY_WEAPON, CODE_BUY_WEAPON},
+                        {CommandType::BUY_AMMO, CODE_BUY_BULLETS},
+                        {CommandType::ROTATE, CODE_ROTATE},
+                        {CommandType::MOVE, CODE_MOVE},
+                        {CommandType::CHANGE_WEAPON, CODE_CHANGE_WEAPON},
+                        {CommandType::PLANT_BOMB, CODE_PLANT_BOMB},
+                        {CommandType::GAME_STARTED, CODE_GAME_STARTED},
+                        {CommandType::GAME_ENDED, CODE_ENDGAME}}) {}
 
-CommonProtocol::CommonProtocol(Socket&& socket): socket(std::move(socket)) {}
+CommonProtocol::CommonProtocol(Socket&& socket):
+        socket(std::move(socket)),
+        weaponParser(),
+        codeToCommands({{CODE_CREATE_USERNAME, CommandType::CREATE_USERNAME},
+                        {CODE_CREATE_GAME, CommandType::CREATE_GAME},
+                        {CODE_JOIN_GAME, CommandType::JOIN_GAME},
+                        {CODE_SELECT_MAP, CommandType::SELECT_MAP},
+                        {CODE_BUY_WEAPON, CommandType::BUY_WEAPON},
+                        {CODE_BUY_BULLETS, CommandType::BUY_AMMO},
+                        {CODE_ROTATE, CommandType::ROTATE},
+                        {CODE_MOVE, CommandType::MOVE},
+                        {CODE_CHANGE_WEAPON, CommandType::CHANGE_WEAPON},
+                        {CODE_PLANT_BOMB, CommandType::PLANT_BOMB},
+                        {CODE_GAME_STARTED, CommandType::GAME_STARTED},
+                        {CODE_ENDGAME, CommandType::GAME_ENDED}}),
+        commandsToCode({{CommandType::CREATE_USERNAME, CODE_CREATE_USERNAME},
+                        {CommandType::CREATE_GAME, CODE_CREATE_GAME},
+                        {CommandType::JOIN_GAME, CODE_JOIN_GAME},
+                        {CommandType::SELECT_MAP, CODE_SELECT_MAP},
+                        {CommandType::BUY_WEAPON, CODE_BUY_WEAPON},
+                        {CommandType::BUY_AMMO, CODE_BUY_BULLETS},
+                        {CommandType::ROTATE, CODE_ROTATE},
+                        {CommandType::MOVE, CODE_MOVE},
+                        {CommandType::CHANGE_WEAPON, CODE_CHANGE_WEAPON},
+                        {CommandType::PLANT_BOMB, CODE_PLANT_BOMB},
+                        {CommandType::GAME_STARTED, CODE_GAME_STARTED},
+                        {CommandType::GAME_ENDED, CODE_ENDGAME}}) {}
 
 uint8_t CommonProtocol::receive_byte() {
     uint8_t number;
