@@ -39,7 +39,7 @@ void GameUI::run() {
 }
 
 void GameUI::handle_waiting_events() { this->keep_running = input_handler.handle_waiting_events(); }
-void GameUI::update_waiting() {
+bool GameUI::update_waiting() {
     GameDTO game_dto;
     bool pop = true;
     while (pop) {
@@ -58,13 +58,13 @@ void GameUI::update_waiting() {
                         // guardar estadisticas
                         // estado ended?
                         this->keep_running = false;
-                        pop = false;
                     }
                 },
                 game_dto);
         if (this->game_snapshot.phase != WAITING_PLAYERS)
-            pop = false;
+            return false;
     }
+    return true;
 }
 void GameUI::show_waiting(const int& it) {
     sdl.clear_display();
@@ -75,7 +75,7 @@ void GameUI::show_waiting(const int& it) {
 }
 
 void GameUI::handle_buy_events() { this->keep_running = input_handler.handle_buy_events(); }
-void GameUI::update_buy() {
+bool GameUI::update_buy() {
     GameDTO game_dto;
     bool pop = true;
     while (pop) {
@@ -88,10 +88,10 @@ void GameUI::update_buy() {
         // tienda
         this->game_snapshot = std::move(snapshot_tmp);
         if (this->game_snapshot.phase != BUY) {
-            pop = false;
-            continue;
+            return false;
         }
     }
+    return true;
 }
 void GameUI::show_buy(const int& /*it*/) {
     sdl.clear_display();
@@ -101,7 +101,7 @@ void GameUI::show_buy(const int& /*it*/) {
 }
 
 void GameUI::handle_attack_events() { this->keep_running = input_handler.handle_events(); }
-void GameUI::update_attack() {
+bool GameUI::update_attack() {
     GameDTO game_dto;
     bool pop = true;
     while (pop) {
@@ -119,10 +119,10 @@ void GameUI::update_attack() {
         // Identificar en snapshot_tmp cambios/eventos para activar animaciones
         this->game_snapshot = std::move(snapshot_tmp);
         if (snapshot_tmp.phase != ATTACK) {
-            pop = false;
-            continue;
+            return false;
         }
     }
+    return true;
 }
 void GameUI::show_attack(const int& /*it*/) {
     sdl.clear_display();

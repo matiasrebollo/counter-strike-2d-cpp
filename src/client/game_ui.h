@@ -47,13 +47,13 @@ private:
     void print_message(const std::string& s);
 
     void handle_waiting_events();
-    void update_waiting();
+    bool update_waiting();
     void show_waiting(const int& it);
     void handle_buy_events();
-    void update_buy();
+    bool update_buy();
     void show_buy(const int& it);
     void handle_attack_events();
-    void update_attack();
+    bool update_attack();
     void show_attack(const int& it);
     void change_phase(std::unique_ptr<GameUIPhase> new_phase);
 

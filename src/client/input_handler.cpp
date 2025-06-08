@@ -86,6 +86,23 @@ bool InputHandler::handle_mouse_motion_event(const SDL_Event& event) {
     return true;
 }
 
+bool InputHandler::handle_shoot_event(const SDL_Event& event) {
+    if (event.button.button == SDL_BUTTON_LEFT && !click_attack) {
+        click_attack = true;
+        std::cout << "Disparo realizado" << std::endl;
+        return true;
+    }
+    return false;
+}
+
+bool InputHandler::handle_release_shoot_event(const SDL_Event& event) {
+    if (event.button.button == SDL_BUTTON_LEFT && click_attack) {
+        click_attack = false;
+        return true;
+    }
+    return false;
+}
+
 
 bool InputHandler::handle_events() {
     SDL_Event event;
@@ -98,9 +115,14 @@ bool InputHandler::handle_events() {
             continue;
         if (handle_mouse_motion_event(event))
             continue;
+        if (handle_shoot_event(event))
+            continue;
+        if (handle_release_shoot_event(event))
+            continue;
     }
     return true;
 }
+
 
 bool InputHandler::handle_waiting_events() {
     SDL_Event event;
@@ -112,10 +134,10 @@ bool InputHandler::handle_waiting_events() {
 }
 
 bool InputHandler::handle_mouse_button_down(const SDL_Event& event) {
-    if (event.type != SDL_MOUSEBUTTONDOWN || event.button.button != SDL_BUTTON_LEFT || click) {
+    if (event.type != SDL_MOUSEBUTTONDOWN || event.button.button != SDL_BUTTON_LEFT || click_buy) {
         return false;
     }
-    click = true;
+    click_buy = true;
 
     int mouse_x = event.button.x;
     int mouse_y = event.button.y;
@@ -155,10 +177,10 @@ bool InputHandler::handle_mouse_button_down(const SDL_Event& event) {
 }
 
 bool InputHandler::handle_mouse_button_up(const SDL_Event& event) {
-    if (event.type != SDL_MOUSEBUTTONUP || event.button.button != SDL_BUTTON_LEFT || !click) {
+    if (event.type != SDL_MOUSEBUTTONUP || event.button.button != SDL_BUTTON_LEFT || !click_buy) {
         return false;
     }
-    click = false;
+    click_buy = false;
     return true;
 }
 

@@ -9,7 +9,7 @@
 #include "server/gun.h"
 #include "server/knife.h"
 
-#define INITIAL_MONEY 800
+#define INITIAL_MONEY 20000
 #define CLIP_PRICE 50
 
 /*

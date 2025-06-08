@@ -17,13 +17,18 @@ private:
     bool s = false;
     bool d = false;
 
-    bool click = false;
+    bool click_buy = false;
+    bool click_attack = false;
 
     bool handle_quit_event(const SDL_Event& event);
+
     bool handle_keydown_event(const SDL_Event& event);
     bool handle_keyup_event(const SDL_Event& event);
     double calculate_angle_to_mouse(int mouse_x, int mouse_y) const;
     bool handle_mouse_motion_event(const SDL_Event& event);
+    bool handle_shoot_event(const SDL_Event& event);
+    bool handle_release_shoot_event(const SDL_Event& event);
+
     bool handle_mouse_button_down(const SDL_Event& event);
     bool handle_mouse_button_up(const SDL_Event& event);
 
