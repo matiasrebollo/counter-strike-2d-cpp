@@ -10,7 +10,7 @@ public:
     Weapon() = default;
 
     virtual void action() = 0;
-    // update??
+    // update
 
     Weapon(const Weapon&) = delete;
     Weapon& operator=(const Weapon&) = delete;

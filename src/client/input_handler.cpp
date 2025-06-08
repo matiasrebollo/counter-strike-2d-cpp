@@ -131,19 +131,20 @@ bool InputHandler::handle_mouse_button_down(const SDL_Event& event) {
                 std::cout << "Shop cerrado\n";
                 break;
             case ShopButtonType::WeaponAK47:
-                std::cout << "AK47 seleccionada\n";
+                sender.add_command_to_queue(BuyGunDTO{AK47});
                 break;
             case ShopButtonType::WeaponAWP:
-                std::cout << "AWP seleccionada\n";
+                sender.add_command_to_queue(BuyGunDTO{AWP});
                 break;
             case ShopButtonType::WeaponM3:
-                std::cout << "M3 seleccionada\n";
+                sender.add_command_to_queue(BuyGunDTO{M3});
                 break;
+            // que el server se encargue de la cantidad de ammo segun el arma que tiene???
             case ShopButtonType::AmmoPrimary:
-                std::cout << "Munición primaria seleccionada\n";
+                sender.add_command_to_queue(BuyAmmoDTO{10, true});
                 break;
             case ShopButtonType::AmmoSecondary:
-                std::cout << "Munición secundaria seleccionada\n";
+                sender.add_command_to_queue(BuyAmmoDTO{10, false});
                 break;
             default:
                 std::cout << "Botón desconocido\n";

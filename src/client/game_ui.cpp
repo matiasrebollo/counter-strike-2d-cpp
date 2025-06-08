@@ -130,13 +130,9 @@ void GameUI::show_attack(const int& /*it*/) {
     sdl.show_screen();
 }
 
-/*void GameUI::update() {
-    GameDTO game_dto;
-    bool pop = true;
-    while (pop) {
-        if (!this->receiver.try_pop_game_dto(game_dto)) {
-            pop = false;
-            continue;
+/*void GameUI::update() { idea para sacar codigo repetido de la actualizacion del juego popeando
+snapshots GameDTO game_dto; bool pop = true; while (pop) { if
+(!this->receiver.try_pop_game_dto(game_dto)) { pop = false; continue;
         }
         handle_x_game_dto(game_dto); // x = segun fase
         if (std::holds_alternative<GameEnded>(game_dto)) {

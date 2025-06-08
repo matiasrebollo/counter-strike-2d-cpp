@@ -6,38 +6,34 @@
 #include "server/weapon.h"
 
 #define GLOCK_INITIAL_AMMO 30
+#define AWP_INITIAL_AMMO 10
+#define M3_INITIAL_AMMO 20
+#define AK47_INITIAL_AMMO 45
 
 class Gun: public Weapon {
-protected:
+private:
     uint16_t ammo;
     bool is_trigger_pressed;
+    GunType type;
 
 public:
-    explicit Gun(int initial_ammo);
-    static std::unique_ptr<Gun> new_gun(const GunType& type);
-    virtual GunType type() const = 0;
-    uint16_t get_ammo() const { return ammo; }
+    explicit Gun(const GunType& gun_type);
+    // static std::unique_ptr<Gun> new_gun(const GunType& type); -> uso para eventual jerarquia
+    // polimorfica
+    GunType get_type() const;
+    uint16_t get_ammo() const;
     void add_ammo(uint16_t ammo_count);
     void action() override;
+    // update override
 
-    virtual void shoot() = 0;
+    void shoot();
 
-    Gun(const Gun&) = delete;
-    Gun& operator=(const Gun&) = delete;
+    // eliminar copia luego con polimorfismo
+    Gun(const Gun&) = default;
+    Gun& operator=(const Gun&) = default;
 
     virtual ~Gun() = default;
 };
-
-class Glock: public Gun {
-public:
-    Glock();
-    void shoot() override;
-    GunType type() const override;
-
-    ~Glock() override = default;
-};
-
-// el resto de armas...
 
 
 #endif

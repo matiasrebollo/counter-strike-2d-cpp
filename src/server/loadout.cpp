@@ -1,23 +1,26 @@
 #include "server/loadout.h"
 
+#include <iostream>
 #include <memory>
 #include <stdexcept>
+#include <string>
 #include <utility>
 
-Loadout::Loadout(): money(INITIAL_MONEY), primary_gun(nullptr), secondary_gun(), equipped(KNIFE) {}
+Loadout::Loadout():
+        money(INITIAL_MONEY), primary_gun(nullptr), secondary_gun(GLOCK), equipped(KNIFE) {}
 
 uint16_t Loadout::ammo_price_for(const GunType& type) {
     // está hardcodeado. inicializar un map a partir del archivo de configuracion al inicializar el
     // Loadout
     switch (type) {
         case GunType::GLOCK:
-            return 10;
+            return 2;
         case GunType::AK47:
-            return 30;
+            return 5;
         case GunType::M3:
-            return 20;
+            return 6;
         case GunType::AWP:
-            return 50;
+            return 8;
         default:
             throw std::invalid_argument(
                     "Weapon::ammo_price_for: tipo de arma no válido para la compra de balas");
@@ -29,11 +32,11 @@ uint16_t Loadout::price_for(const GunType& type) {
     // Loadout
     switch (type) {
         case GunType::AK47:
-            return 1500;
+            return 300;
         case GunType::M3:
-            return 1000;
+            return 300;
         case GunType::AWP:
-            return 1200;
+            return 400;
         default:
             throw std::invalid_argument("Weapon::price_for: tipo de arma no válido para la compra");
     }
@@ -43,41 +46,46 @@ void Loadout::decrease_money_by(const uint16_t& ammount_of_money) {
     this->money -= ammount_of_money;
 }
 
-const std::unique_ptr<Gun> Loadout::new_primary_gun(std::unique_ptr<Gun> gun) {
+std::unique_ptr<Gun> Loadout::new_primary_gun(std::unique_ptr<Gun> gun) {
     std::unique_ptr<Gun> prev = std::move(this->primary_gun);
     this->primary_gun = std::move(gun);
     return prev;
 }
 
+
 bool Loadout::can_buy_gun(const GunType& gun_type) const {
     return this->money >= price_for(gun_type);
 }
 
-bool Loadout::can_buy_ammo(const uint16_t& ammo_count, const bool& for_primary) const {
-    uint16_t price = 0;
-    if (for_primary) {
-        if (not primary_gun)
-            return false;
-        price = ammo_price_for(this->primary_gun->type());
+int Loadout::ammo_price(const uint16_t& ammo_count, const bool& for_primary) const {
+    int price = -1;
+    if (for_primary && primary_gun != nullptr) {
+        price = ammo_price_for(this->primary_gun->get_type()) * ammo_count;
     }
     if (not for_primary)
-        price = ammo_price_for(this->secondary_gun.type());
+        price = ammo_price_for(this->secondary_gun.get_type()) * ammo_count;
 
-    return this->money >= price * ammo_count;
+    if (this->money < price)
+        price = -1;
+
+    return price;
 }
 
-const std::unique_ptr<Gun> Loadout::buy_primary_gun(const GunType& gun_type) {
+std::unique_ptr<Gun> Loadout::buy_primary_gun(const GunType& gun_type) {
     if (!can_buy_gun(gun_type)) {
         return nullptr;
     }
     decrease_money_by(price_for(gun_type));
-    return new_primary_gun(Gun::new_gun(gun_type));
+    auto bought_gun = std::make_unique<Gun>(gun_type);
+    return new_primary_gun(std::move(bought_gun));
 }
 
 bool Loadout::buy_ammo(const uint16_t& ammo_count, const bool& for_primary) {
-    if (not can_buy_ammo(ammo_count, for_primary))
+    int price = ammo_price(ammo_count, for_primary);
+    if (price < 0)
         return false;
 
+    decrease_money_by(price);
     if (for_primary)
         this->primary_gun->add_ammo(ammo_count);
 
@@ -104,8 +112,34 @@ Weapon* Loadout::equipped_weapon() {
 }
 
 const LoadoutDTO Loadout::get_dto() const {
+    std::string p_str;
+    if (primary_gun != nullptr) {
+        switch (primary_gun->get_type()) {
+            case GunType::AK47:
+                p_str = "AK47";
+                break;
+            case GunType::M3:
+                p_str = "M3";
+                break;
+            case GunType::AWP:
+                p_str = "AWP";
+                break;
+            default:
+                p_str = "Unknown";
+                break;
+        }
+    } else {
+        p_str = "NONE";
+    }
+    int p_ammo = 0;
+    if (primary_gun != nullptr) {
+        p_ammo = primary_gun->get_ammo();
+    }
+    std::cout << "Money: " << money << ". Arma primaria: " << p_str << " (" << p_ammo
+              << "). Arma secundaria: GLOCK"
+              << " (" << secondary_gun.get_ammo() << ")" << std::endl;
     return LoadoutDTO{money,
-                      (primary_gun != nullptr) ? primary_gun->type() : GunType::NONE,
+                      (primary_gun != nullptr) ? primary_gun->get_type() : GunType::NONE,
                       (primary_gun != nullptr) ? primary_gun->get_ammo() : static_cast<uint16_t>(0),
                       GLOCK,
                       secondary_gun.get_ammo(),

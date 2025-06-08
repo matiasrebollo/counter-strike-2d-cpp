@@ -6,10 +6,10 @@
 #include "common/phase.h"
 #include "server/command.h"
 
-#define BUY_PHASE_DURATION 15
+#define BUY_PHASE_DURATION 60
 #define ATTACK_PHASE_DURATION 3
 #define WAITING_PLAYERS_PHASE_DURATION 300
-#define BETWEEN_ROUNDS_PHASE_DURATION 5
+#define BETWEEN_ROUNDS_PHASE_DURATION 3
 
 class CS2DGame;  // Forward declaration
 

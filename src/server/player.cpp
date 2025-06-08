@@ -74,6 +74,7 @@ void Player::buy_ammo(const uint16_t& ammo, const bool& for_primary) {
 }
 
 const PlayerDTO Player::get_dto() const {
+    std::cout << "Jugador: " << name << std::endl;
     const PlayerDTO dto{name, rect.position, orientation, life, loadout.get_dto()};
     return dto;
 }

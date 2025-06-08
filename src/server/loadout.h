@@ -24,7 +24,7 @@ private:
     uint16_t money;
     Knife knife;
     std::unique_ptr<Gun> primary_gun;
-    Glock secondary_gun;
+    Gun secondary_gun;
     WeaponType equipped;
 
     /*
@@ -50,8 +50,7 @@ private:
      * Devuelve el arma primaria que poseía anteriormente.
      *
      * */
-    const std::unique_ptr<Gun> new_primary_gun(std::unique_ptr<Gun> gun);
-
+    std::unique_ptr<Gun> new_primary_gun(std::unique_ptr<Gun> gun);
     /*
      * Devuelve true si el jugador tiene el suficiente dinero para comprar un arma,
      * false en caso contrario.
@@ -60,11 +59,12 @@ private:
     bool can_buy_gun(const GunType& gun_type) const;
 
     /*
-     * Devuelve true si el jugador tiene el suficiente dinero para comprar las balas pedidas
-     * para el arma que corresponda, false en caso contrario.
+     * Devuelve el precio de la compra de balas para el arma indicada.
+     * Si el jugador no tiene el suficiente dinero para efectuar la compra,
+     * devuelve -1.
      *
      * */
-    bool can_buy_ammo(const uint16_t& ammo_count, const bool& for_primary) const;
+    int ammo_price(const uint16_t& ammo_count, const bool& for_primary) const;
 
 public:
     /*
@@ -90,7 +90,7 @@ public:
      * Devuelve std::nullopt si no se tenía arma equipada o no se pudo efectuar la compra.
      *
      * */
-    const std::unique_ptr<Gun> buy_primary_gun(const GunType& gun_type);
+    std::unique_ptr<Gun> buy_primary_gun(const GunType& gun_type);
 
     /*
      * Compra munición para algún arma del equipamiento.
