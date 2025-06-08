@@ -168,12 +168,11 @@ CommandDTO ServerProtocol::receive_buy_weapon_request() {
 
 CommandDTO ServerProtocol::receive_buy_ammo_request() {
     uint8_t primary_code = this->receive_byte();
-    uint16_t ammo = this->receive_big_endian_number();
     bool primary = false;
     if (primary_code == CODE_CHOOSE_PRIMARY) {
         primary = true;
     }
-    return BuyAmmoDTO{ammo, primary};
+    return BuyAmmoDTO{primary};
 }
 
 

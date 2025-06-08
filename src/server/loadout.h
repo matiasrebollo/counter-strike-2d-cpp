@@ -9,7 +9,8 @@
 #include "server/gun.h"
 #include "server/knife.h"
 
-#define INITIAL_MONEY 500
+#define INITIAL_MONEY 800
+#define CLIP_PRICE 50
 
 /*
  * Loadout
@@ -28,10 +29,10 @@ private:
     WeaponType equipped;
 
     /*
-     * Devuelve el precio de una bala de un tipo de arma.
+     * Devuelve la cantidad de balas de un cargador para un tipo de arma.
      *
      * */
-    static uint16_t ammo_price_for(const GunType& gun_type);
+    static uint16_t ammo_per_clip_for(const GunType& gun_type);
 
     /*
      * Devuelve el precio de un tipo de arma.
@@ -57,14 +58,6 @@ private:
      *
      * */
     bool can_buy_gun(const GunType& gun_type) const;
-
-    /*
-     * Devuelve el precio de la compra de balas para el arma indicada.
-     * Si el jugador no tiene el suficiente dinero para efectuar la compra,
-     * devuelve -1.
-     *
-     * */
-    int ammo_price(const uint16_t& ammo_count, const bool& for_primary) const;
 
 public:
     /*
@@ -99,14 +92,14 @@ public:
      * secundaria.
      *
      * Si la compra puede ser efectuada, disminuye el dinero en la cantidad de balas compradas
-     * por el precio de cada bala (depende del tipo de arma para la que se compra),
+     * por el precio de cada cargador (depende del tipo de arma para la que se compra),
      * aumenta la cantidad de balas del arma que corresponda y devuelve true.
      *
      * Devuelve false si el jugador no tiene el suficiente dinero para comprar las balas pedidas
      * o si se intenta comprar para el arma primaria y no se tiene una equipada.
      *
      * */
-    bool buy_ammo(const uint16_t& ammo_count, const bool& for_primary);
+    bool buy_ammo(const bool& for_primary);
 
     void equip_primary();
     void equip_secondary();

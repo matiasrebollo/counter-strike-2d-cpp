@@ -166,7 +166,6 @@ void ClientProtocol::handle_buy_ammo(const BuyAmmoDTO& dto) {
     } else {
         this->send_byte(CODE_CHOOSE_SECONDARY);
     }
-    this->send_big_endian_number(dto.ammo);
 }
 
 

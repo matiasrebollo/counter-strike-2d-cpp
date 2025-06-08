@@ -141,10 +141,10 @@ bool InputHandler::handle_mouse_button_down(const SDL_Event& event) {
                 break;
             // que el server se encargue de la cantidad de ammo segun el arma que tiene???
             case ShopButtonType::AmmoPrimary:
-                sender.add_command_to_queue(BuyAmmoDTO{10, true});
+                sender.add_command_to_queue(BuyAmmoDTO{true});
                 break;
             case ShopButtonType::AmmoSecondary:
-                sender.add_command_to_queue(BuyAmmoDTO{10, false});
+                sender.add_command_to_queue(BuyAmmoDTO{false});
                 break;
             default:
                 std::cout << "Botón desconocido\n";

@@ -149,9 +149,8 @@ void GameWorld::buy_gun_for(const std::string& username, const GunType& gun) {
     with_player(username, [&gun](Player& p) { p.buy_gun(gun); });
 }
 
-void GameWorld::buy_ammo_for(const std::string& username, const uint16_t& ammo,
-                             const bool& for_primary) {
-    with_player(username, [&ammo, &for_primary](Player& p) { p.buy_ammo(ammo, for_primary); });
+void GameWorld::buy_ammo_for(const std::string& username, const bool& for_primary) {
+    with_player(username, [&for_primary](Player& p) { p.buy_ammo(for_primary); });
 }
 
 const Collidable* GameWorld::colliding_object_with(const Collidable& coll) const {

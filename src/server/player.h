@@ -48,7 +48,7 @@ public:
     void equip_knife();
     void make_action();
     void buy_gun(const GunType& gun);
-    void buy_ammo(const uint16_t& ammo, const bool& for_primary);
+    void buy_ammo(const bool& for_primary);
     const PlayerDTO get_dto() const;
 
     Player(const Player&) = delete;

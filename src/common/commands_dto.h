@@ -24,7 +24,6 @@ struct BuyGunDTO {
     const GunType gun;
 };
 struct BuyAmmoDTO {
-    const uint16_t ammo;
     const bool for_primary;
 };
 

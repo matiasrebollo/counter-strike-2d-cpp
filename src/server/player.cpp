@@ -68,8 +68,8 @@ void Player::buy_gun(const GunType& gun) {
     loadout.buy_primary_gun(gun);
     // compra exitosa o no: enviar evento al juego para notificar al cliente??
 }
-void Player::buy_ammo(const uint16_t& ammo, const bool& for_primary) {
-    loadout.buy_ammo(ammo, for_primary);
+void Player::buy_ammo(const bool& for_primary) {
+    loadout.buy_ammo(for_primary);
     // compra exitosa o no: enviar evento al juego para notificar al cliente??
 }
 

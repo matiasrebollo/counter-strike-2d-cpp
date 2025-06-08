@@ -22,9 +22,8 @@ public:
 
 class BuyAmmoCommand: public BuyPhaseCommand {
 public:
-    const uint16_t ammo;
     const bool for_primary;
-    BuyAmmoCommand(const std::string& username, const uint16_t& ammo, const bool& for_primary);
+    BuyAmmoCommand(const std::string& username, const bool& for_primary);
     void execute_in_buy_phase(GameWorld& game) const override;
     ~BuyAmmoCommand() override = default;
 };
