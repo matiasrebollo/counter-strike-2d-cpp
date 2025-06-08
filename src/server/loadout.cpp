@@ -68,7 +68,7 @@ std::unique_ptr<Gun> Loadout::buy_primary_gun(const GunType& gun_type) {
 }
 
 bool Loadout::buy_ammo(const bool& for_primary) {
-    if (money < CLIP_PRICE || !primary_gun)
+    if (money < CLIP_PRICE || (!primary_gun && for_primary))
         return false;
 
     decrease_money_by(CLIP_PRICE);
