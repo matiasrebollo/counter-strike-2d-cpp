@@ -16,7 +16,7 @@ void GameUIPhase::run() {
             break;
         update_game_state();  // identificar cambios en el juego y detectar eventos. LANZAR
                               // animaciones que se veran en show_game.
-        if (!keep_running())
+        if (!keep_running() || !game_ui.keep_running)
             break;
 
         it = clock.sleep_and_calc_next_it(FPS, it);

@@ -57,7 +57,7 @@ void GameUI::update_waiting() {
                     } else if constexpr (std::is_same_v<T, GameEnded>) {
                         // guardar estadisticas
                         // estado ended?
-                        keep_running = false;
+                        this->keep_running = false;
                         pop = false;
                     }
                 },
@@ -110,7 +110,7 @@ void GameUI::update_attack() {
             continue;
         }
         if (std::holds_alternative<GameEnded>(game_dto)) {
-            keep_running = false;
+            this->keep_running = false;
             pop = false;
             continue;
         }
