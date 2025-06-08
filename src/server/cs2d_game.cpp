@@ -60,9 +60,6 @@ void CS2DGame::broadcast_map() const {
 
 void CS2DGame::broadcast_snapshot(const int time_left) const {
     const GameWorldSnapshot game_world_snapshot = game_world.get_snapshot();
-    /*std::vector<PlayerDTO> players = game_world_snapshot.ct;
-    players.insert(players.end(), game_world_snapshot.tt.begin(), game_world_snapshot.tt.end());
-    const Snapshot snapshot{players};*/
     const Snapshot snapshot{
             this->phase->type(), this->current_round,    ROUNDS,
             time_left,           game_world_snapshot.ct, game_world_snapshot.tt,

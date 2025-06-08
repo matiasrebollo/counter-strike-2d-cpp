@@ -15,7 +15,7 @@
 #include "SDLManager.h"
 #include "client_protocol.h"
 #include "client_receiver.h"
-#include "game_ui_state.h"
+#include "game_ui_phase.h"
 #include "input_handler.h"
 #include "local_player_info.h"
 
@@ -31,22 +31,41 @@ private:
     InputHandler input_handler;
     ClientReceiver receiver;
     LocalPlayerInfo local_player_info;
-    std::unique_ptr<GameUIState> state;
+    std::unique_ptr<GameUIPhase> phase;
     bool keep_running;
+    GameMap map;  // guardarlo en sdl.
+    Snapshot
+            game_snapshot;  // deberia ser un objeto propio de game_ui, no el dto para comunicacion!
+
+    friend class GameUIPhase;
+    friend class WaitingForGamePhase;
+    friend class UIBuyPhase;
+    friend class UIAttackPhase;
+    friend class GameEndedPhase;
 
     bool validate_qt_results(Lobby& lobby);
     void print_message(const std::string& s);
+
+    void handle_waiting_events();
+    void update_waiting();
+    void show_waiting(const int& it);
+    void handle_buy_events();
+    void update_buy();
+    void show_buy(const int& it);
+    void handle_attack_events();
+    void update_attack();
+    void show_attack(const int& it);
+    void change_phase(std::unique_ptr<GameUIPhase> new_phase);
+
+    void handle_game_ended();
     void close_client();
-    void process_waiting(GameDTO& dto, Snapshot& snapshot, bool& loop, bool& pop);
-    void change_state(std::unique_ptr<GameUIState> new_state);
 
 public:
     explicit GameUI(Lobby& lobby);
     void run();
-    void handle_waiting_phase();
     void handle_buy_phase(const GameMap& map);
     void handle_attack_phase(const GameMap& map);
-    void handle_game_ended_phase();
+
     ~GameUI();
 };
 

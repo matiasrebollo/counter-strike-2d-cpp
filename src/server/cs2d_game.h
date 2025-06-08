@@ -14,7 +14,7 @@
 #include "server/game_world.h"
 
 #define FPS 60
-#define ROUNDS 10
+#define ROUNDS 1
 
 class CS2DGame: public Thread {
 private:

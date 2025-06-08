@@ -6,7 +6,7 @@ target_sources(taller_client
         client_sender.h
         client.h
         game_ui.h
-        game_ui_state.h
+        game_ui_phase.h
         SDLManager.h
         camera.h
         input_handler.h
@@ -23,7 +23,7 @@ target_sources(taller_client
         client_sender.cpp
         client.cpp
         game_ui.cpp
-        game_ui_state.cpp
+        game_ui_phase.cpp
         SDLManager.cpp
         camera.cpp
         input_handler.cpp
