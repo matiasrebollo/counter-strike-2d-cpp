@@ -28,6 +28,7 @@ Lobby::Lobby(QWidget* parent):
     ui->skins_ct_stack->setCurrentIndex(0);
 
     connect(ui->backButton, &QPushButton::clicked, this, &Lobby::go_to_lobby);
+    connect(ui->backButton2, &QPushButton::clicked, this, &Lobby::go_to_lobby);
     connect(ui->back_to_lobby3, &QPushButton::clicked, this, &Lobby::go_to_lobby);
     connect(ui->connectButton, &QPushButton::clicked, this, &Lobby::connect_to_sv);
 }
@@ -68,10 +69,16 @@ void Lobby::create_game() {
 
     for (const auto& entry: std::filesystem::directory_iterator(MAP_PATH)) {
         if (entry.is_regular_file()) {
-            ui->maps_list->addItem(QString::fromStdString(entry.path().filename()));
+            std::string name = entry.path().filename().string();
+            this->format_string(name);
+            QListWidgetItem* item = new QListWidgetItem(QString::fromStdString(name));
+            item->setTextAlignment(Qt::AlignCenter);
+            ui->maps_list->addItem(item);
         }
     }
 }
+
+void Lobby::format_string(std::string& s) { s.erase(s.length() - 5); }
 
 void Lobby::on_CreateGameButton_clicked() {
     if (not(ui->maps_list->currentIndex().isValid())) {
@@ -181,7 +188,7 @@ void Lobby::on_next_ct_skin_clicked() {
     ui->skins_ct_stack->setCurrentIndex(index);
 }
 
-void Lobby::on_go_to_select_skin_btn_clicked() { ui->stack->setCurrentIndex(3); }
+void Lobby::on_go_to_select_skin_btn_clicked() { ui->stack->setCurrentIndex(4); }
 
 TerroristSkin& Lobby::get_tt_skin() { return this->selected_tt_skin; }
 

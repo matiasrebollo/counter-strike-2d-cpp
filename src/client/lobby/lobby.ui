@@ -265,6 +265,7 @@
            <font>
             <family>Counter-Strike</family>
             <pointsize>13</pointsize>
+            <weight>50</weight>
             <italic>false</italic>
             <bold>false</bold>
            </font>
@@ -568,11 +569,20 @@ QPushButton:pressed {
             </property>
             <property name="styleSheet">
              <string notr="true">QListWidget {
-	background-color: rgba(36, 31, 49,160);
-	alternate-background-color: rgb(94, 92, 100);
+    background-color: rgba(0, 0, 0, 150); 
     border: none;
+	border-radius: 5px;
 }
-</string>
+
+QListWidget::item {
+    padding: 5px 0;
+    qproperty-alignment: AlignCenter;
+	color: white;
+}
+
+QListWidget::item:selected {
+    background-color: rgba(255, 255, 255, 40);
+}</string>
             </property>
            </widget>
           </item>
@@ -635,7 +645,7 @@ QPushButton:pressed {
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_8">
         <item>
-         <widget class="QPushButton" name="backButton">
+         <widget class="QPushButton" name="backButton2">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -830,6 +840,7 @@ QPushButton:hover {
                 <property name="font">
                  <font>
                   <pointsize>15</pointsize>
+                  <weight>75</weight>
                   <bold>true</bold>
                  </font>
                 </property>
@@ -858,6 +869,7 @@ QPushButton:hover {
                 <property name="font">
                  <font>
                   <pointsize>15</pointsize>
+                  <weight>75</weight>
                   <bold>true</bold>
                  </font>
                 </property>
@@ -1104,6 +1116,7 @@ QPushButton:pressed {
                 <property name="font">
                  <font>
                   <pointsize>15</pointsize>
+                  <weight>75</weight>
                   <bold>true</bold>
                  </font>
                 </property>
@@ -1133,6 +1146,7 @@ QPushButton:pressed {
                  <font>
                   <family>Cantarell</family>
                   <pointsize>15</pointsize>
+                  <weight>50</weight>
                   <italic>false</italic>
                   <bold>false</bold>
                   <underline>false</underline>
