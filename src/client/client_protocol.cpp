@@ -230,8 +230,9 @@ LoadoutDTO ClientProtocol::receive_loadout() {
 }
 
 GameMap ClientProtocol::receive_map() {
+    Background background = static_cast<Background>(this->receive_byte());
     uint16_t size = this->receive_big_endian_number();
-    return GameMap{0, 0, this->receive_map_objects(size), {}, {}, {}};
+    return GameMap{0, 0, background, this->receive_map_objects(size), {}, {}, {}};
 }
 
 std::vector<MapObject> ClientProtocol::receive_map_objects(const uint8_t& size) {

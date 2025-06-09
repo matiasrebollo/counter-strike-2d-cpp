@@ -22,17 +22,25 @@ Game_editor::Game_editor(QWidget* parent):
 Game_editor::~Game_editor() { delete ui; }
 
 void Game_editor::setupUi() {
-    for (const auto& block: texture_parser.get_keys()) {
+    for (const auto& block: texture_parser.get_blocks_keys()) {
         ClickableLabel* label = new ClickableLabel();
         label->setFixedSize(60, 60);
         BlockTextureInfo texture = texture_parser.get_texture_info(block);
-        std::string path = ":images/tiles/" + texture.tileset_path;
-        QPixmap tileset(QString::fromStdString(path));
+        QPixmap tileset(QString::fromStdString(texture.tileset_path));
         QPixmap tile = tileset.copy(texture.x, texture.y, texture.width, texture.height);
         label->setPixmap(tile.scaled(50, 50));
         ui->block_list->addWidget(label);
 
         connect(label, &ClickableLabel::clicked, [this, block]() { selected_block = block; });
+    }
+
+    for (const auto& background: texture_parser.get_backgrounds()) {
+        ClickableLabel* label = new ClickableLabel();
+        label->setFixedSize(60, 60);
+        std::string background_path = texture_parser.get_background_path(background);
+        QPixmap background_image(QString::fromStdString(background_path));
+        label->setPixmap(background_image.scaled(50, 50));
+        ui->block_list->addWidget(label);
     }
 
     int N = 15, M = 20;
@@ -46,7 +54,7 @@ void Game_editor::setupUi() {
             connect(cell, &ClickableLabel::clicked, this, [this, cell, i, j]() {
                 if (selected_block != NONE_BLOCK) {
                     BlockTextureInfo texture = texture_parser.get_texture_info(selected_block);
-                    std::string path = "../assets/gfx/tiles/" + texture.tileset_path;
+                    std::string path = texture.tileset_path;
                     QPixmap tileset(QString::fromStdString(path));
                     QPixmap tile =
                             tileset.copy(texture.x, texture.y, texture.width, texture.height);
@@ -63,7 +71,7 @@ void Game_editor::on_save_button_clicked() {
     GameMap map = create_map(grid);
     YamlParser parser;
     YAML::Node yaml = parser.game_map_to_Yaml(map);
-    std::ofstream fout("../mapa.yaml");
+    std::ofstream fout("../mapa2.yaml");
     fout << yaml;
     close();
 }
@@ -95,6 +103,6 @@ GameMap Game_editor::create_map(const std::vector<std::vector<int>>& grid) {
     std::vector<Vector2D> sites = {Vector2D(12, 1), Vector2D(12, 2), Vector2D(13, 1),
                                    Vector2D(14, 1)};
 
-    GameMap game_map = {width, height, blocks, ct_spawns, tt_spawns, sites};
+    GameMap game_map = {width, height, AZTEC_BACKGROUND, blocks, ct_spawns, tt_spawns, sites};
     return game_map;
 }

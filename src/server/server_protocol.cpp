@@ -55,6 +55,7 @@ void ServerProtocol::send_game_dto(const GameDTO& response) {
 
 void ServerProtocol::send_map(const GameMap& map) {
     this->send_byte(CODE_SEND_MAP);
+    this->send_byte(static_cast<int>(map.background));
     this->send_big_endian_number(map.map_objects.size());
     for (auto object: map.map_objects) {
         this->send_byte(object.type);

@@ -6,7 +6,15 @@
 
 #include "map_object.h"
 
-BlockTextureParser::BlockTextureParser(): block_textures() {
+BlockTextureParser::BlockTextureParser(): block_textures(), backgrounds_paths() {
+    /*backgrounds_paths = {{AZTEC_BACKGROUND, "../assets/gfx/backgrounds/aztec.png"},
+                         {DUST_BACKGROUND, "../assets/gfx/backgrounds/dust.png"},
+                         {GRASS_BACKGROUND, "../assets/gfx/backgrounds/gras1.png"}};*/
+
+    backgrounds_paths[AZTEC_BACKGROUND] = "../assets/gfx/backgrounds/aztec.png";
+    backgrounds_paths[DUST_BACKGROUND] = "../assets/gfx/backgrounds/dust.png";
+    backgrounds_paths[GRASS_BACKGROUND] = "../assets/gfx/backgrounds/gras1.png";
+
     std::vector<TilesetInfo> tilesets = {{"../assets/gfx/tiles/aztec.bmp",
                                           6,
                                           16,
@@ -125,11 +133,24 @@ const std::string& BlockTextureParser::get_fw_texture(FontsAndBackground fw) con
     return font_and_waiting_textures.at(fw);
 }
 
-std::vector<int> BlockTextureParser::get_keys() {
+const std::vector<int> BlockTextureParser::get_blocks_keys() {
     std::vector<int> keys;
     keys.reserve(block_textures.size());
 
     std::transform(block_textures.begin(), block_textures.end(), std::back_inserter(keys),
                    [](const auto& pair) { return pair.first; });
     return keys;
+}
+
+const std::vector<Background> BlockTextureParser::get_backgrounds() {
+    std::vector<Background> keys;
+    keys.reserve(backgrounds_paths.size());
+
+    std::transform(backgrounds_paths.begin(), backgrounds_paths.end(), std::back_inserter(keys),
+                   [](const auto& pair) { return pair.first; });
+    return keys;
+}
+
+const std::string& BlockTextureParser::get_background_path(const Background& background) {
+    return backgrounds_paths.at(background);
 }

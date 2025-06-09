@@ -22,7 +22,7 @@ private:
     const GameMap map;
 
 public:
-    explicit BuyPhaseState(const GameMap map);
+    explicit BuyPhaseState(const GameMap& map);
 
     void handle(GameUI& game_ui) override;
 };
@@ -32,7 +32,7 @@ private:
     const GameMap map;
 
 public:
-    explicit AttackPhaseState(const GameMap map);
+    explicit AttackPhaseState(const GameMap& map);
 
     void handle(GameUI& game_ui) override;
 };
