@@ -25,7 +25,7 @@
 
 class GameUI {
 private:
-    ClientProtocol protocol;
+    ClientProtocol&& protocol;
     SDLManager sdl;
     InputHandler input_handler;
     ClientReceiver receiver;

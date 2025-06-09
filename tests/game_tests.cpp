@@ -5,7 +5,7 @@
 /* CLIENT PROTOCOL REQUESTS */
 
 TEST(ClientProtocolTest, SendMoveUp) {
-    auto [client, server] = create_connected_protocols("10000");
+    auto [client, server] = create_connected_protocols();
 
     MoveUpDTO dto{};
 
@@ -17,7 +17,7 @@ TEST(ClientProtocolTest, SendMoveUp) {
 }
 
 TEST(ClientProtocolTest, SendMoveDown) {
-    auto [client, server] = create_connected_protocols("10000");
+    auto [client, server] = create_connected_protocols();
 
     MoveDownDTO dto{};
 
@@ -29,7 +29,7 @@ TEST(ClientProtocolTest, SendMoveDown) {
 }
 
 TEST(ClientProtocolTest, SendMoveLeft) {
-    auto [client, server] = create_connected_protocols("10000");
+    auto [client, server] = create_connected_protocols();
 
     MoveLeftDTO dto{};
 
@@ -41,7 +41,7 @@ TEST(ClientProtocolTest, SendMoveLeft) {
 }
 
 TEST(ClientProtocolTest, SendMoveRight) {
-    auto [client, server] = create_connected_protocols("10000");
+    auto [client, server] = create_connected_protocols();
 
     MoveRightDTO dto{};
 
@@ -52,8 +52,8 @@ TEST(ClientProtocolTest, SendMoveRight) {
     ASSERT_NE(MoveRightDTOPtr, nullptr) << "Expected MoveRightDTO but got another";
 }
 
-TEST(ClientProtocolTest, SendRotate) {  // va haber error, pensar como hacer esto.
-    auto [client, server] = create_connected_protocols("10000");
+TEST(ClientProtocolTest, SendRotate) {
+    auto [client, server] = create_connected_protocols();
 
     std::vector<double> angles = {0, 50.24, 303.21313, 100.00};
     for (double angle: angles) {
@@ -69,7 +69,7 @@ TEST(ClientProtocolTest, SendRotate) {  // va haber error, pensar como hacer est
 }
 
 TEST(ClientProtocolTest, SendPlayerAction) {
-    auto [client, server] = create_connected_protocols("10000");
+    auto [client, server] = create_connected_protocols();
 
     PlayerActionDTO dto{};
 
@@ -81,7 +81,7 @@ TEST(ClientProtocolTest, SendPlayerAction) {
 }
 
 TEST(ClientProtocolTest, SendEquipPrimary) {
-    auto [client, server] = create_connected_protocols("10000");
+    auto [client, server] = create_connected_protocols();
 
     EquipPrimaryDTO dto{};
 
@@ -93,7 +93,7 @@ TEST(ClientProtocolTest, SendEquipPrimary) {
 }
 
 TEST(ClientProtocolTest, SendEquipSecondary) {
-    auto [client, server] = create_connected_protocols("10000");
+    auto [client, server] = create_connected_protocols();
 
     EquipSecondaryDTO dto{};
 
@@ -105,7 +105,7 @@ TEST(ClientProtocolTest, SendEquipSecondary) {
 }
 
 TEST(ClientProtocolTest, SendEquipKnife) {
-    auto [client, server] = create_connected_protocols("10000");
+    auto [client, server] = create_connected_protocols();
 
     EquipKnifeDTO dto{};
 
@@ -117,7 +117,7 @@ TEST(ClientProtocolTest, SendEquipKnife) {
 }
 
 TEST(ClientProtocolTest, SendEquipBomb) {
-    auto [client, server] = create_connected_protocols("10000");
+    auto [client, server] = create_connected_protocols();
 
     EquipBombDTO dto{};
 
@@ -129,7 +129,7 @@ TEST(ClientProtocolTest, SendEquipBomb) {
 }
 
 TEST(ClientProtocolTest, SendBuyGun) {
-    auto [client, server] = create_connected_protocols("10000");
+    auto [client, server] = create_connected_protocols();
 
     for (int i = GLOCK; i <= AWP; ++i) {
         GunType gun = static_cast<GunType>(i);
@@ -144,7 +144,7 @@ TEST(ClientProtocolTest, SendBuyGun) {
 }
 
 TEST(ClientProtocolTest, SendBuyAmmo) {
-    auto [client, server] = create_connected_protocols("10000");
+    auto [client, server] = create_connected_protocols();
 
     std::vector<bool> for_primary_values = {false, true};
 
@@ -186,7 +186,7 @@ std::vector<LoadoutDTO> get_loadouts() {
 }
 
 TEST(ServerProtocolTest, SendSnapshot) {
-    auto [client, server] = create_connected_protocols("10000");
+    auto [client, server] = create_connected_protocols();
 
     std::vector<Phase> phases = {Phase::ATTACK, Phase::BUY};
     std::vector<size_t> current_rounds = {};
@@ -214,6 +214,8 @@ TEST(ServerProtocolTest, SendSnapshot) {
                 ASSERT_EQ(snapshotPTr->current_round_number, current_round);
                 ASSERT_EQ(snapshotPTr->total_rounds, total_rounds);
                 ASSERT_EQ(snapshotPTr->time_left, 20);
+                ASSERT_EQ(snapshotPTr->ct[0].username, "Mati");
+                ASSERT_EQ(snapshotPTr->tt[0].username, "Facu");
                 ASSERT_EQ(snapshotPTr->ct[0].life, 100);
                 ASSERT_EQ(snapshotPTr->tt[0].life, 100);
                 ASSERT_EQ(snapshotPTr->ct[0].loadout.primary_gun, loadout.primary_gun);

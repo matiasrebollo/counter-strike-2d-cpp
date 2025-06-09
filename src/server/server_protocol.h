@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <functional>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <type_traits>
 #include <unordered_map>
@@ -43,7 +44,7 @@ private:
     void send_end_game(const GameEnded& message);
 
 public:
-    explicit ServerProtocol(Socket&& socket);
+    explicit ServerProtocol(std::unique_ptr<Socket> socket);
     ServerProtocol(ServerProtocol&& other) noexcept;
     ServerProtocol& operator=(ServerProtocol&& other) noexcept;
 

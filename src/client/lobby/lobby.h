@@ -29,7 +29,7 @@ class Lobby: public QMainWindow {
 public:
     explicit Lobby(QWidget* parent = nullptr);
     ~Lobby();
-    ClientProtocol& get_protocol();
+    ClientProtocol&& get_protocol();
     TerroristSkin& get_tt_skin();
     CounterTerroristSkin& get_ct_skin();
     std::string get_username();

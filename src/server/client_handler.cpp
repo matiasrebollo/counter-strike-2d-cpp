@@ -10,7 +10,7 @@
 #include "server_monitor.h"
 
 ClientHandler::ClientHandler(Socket&& socket, ServerMonitor& server_monitor):
-        protocol(std::move(socket)),
+        protocol(std::make_unique<Socket>(std::move(socket))),
         server_monitor(server_monitor),
         username(""),
         is_in_game(false),

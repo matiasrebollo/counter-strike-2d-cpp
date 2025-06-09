@@ -40,3 +40,12 @@ target_sources(taller_common
     block_texture_parser.h
     yaml_parser.h
     )
+
+if(TALLER_TESTS)
+    target_sources(taller_common
+        PRIVATE
+            mock_socket.cpp
+        PUBLIC
+            mock_socket.h
+    )
+endif()

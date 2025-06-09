@@ -1,39 +1,54 @@
 #include "mock_socket.h"
 
-#include <algorithm>
-#include <cstring>
-#include <iostream>
+MockSocket::MockSocket(std::shared_ptr<std::vector<uint8_t>> input_buffer,
+                       std::shared_ptr<std::vector<uint8_t>> output_buffer):
+        input_buffer(std::move(input_buffer)),
+        output_buffer(std::move(output_buffer)),
+        val(false) {}
 
-MockSocket::MockSocket(const char* hostname, const char* servname): buffer(), val(false) {
+/* Constructores no utilizados */
+
+MockSocket::MockSocket(const char* hostname, const char* servname):
+        input_buffer(std::make_shared<std::vector<uint8_t>>()),
+        output_buffer(std::make_shared<std::vector<uint8_t>>()),
+        val(false) {
     (void)hostname;
     (void)servname;
 }
 
-MockSocket::MockSocket(const char* servname): buffer(), val(false) { (void)servname; }
+MockSocket::MockSocket(const char* servname):
+        input_buffer(std::make_shared<std::vector<uint8_t>>()),
+        output_buffer(std::make_shared<std::vector<uint8_t>>()),
+        val(false) {
+    (void)servname;
+}
+
+/* --------- */
 
 int MockSocket::sendall(const void* data, unsigned int size) {
-    const uint8_t* parsed = static_cast<const uint8_t*>(data);
-    this->buffer.insert(this->buffer.end(), parsed, parsed + size);
+    const uint8_t* bytes = static_cast<const uint8_t*>(data);
+    output_buffer->insert(output_buffer->end(), bytes, bytes + size);
     return size;
 }
 
 int MockSocket::recvall(void* data, unsigned int size) {
-    if (this->buffer.empty()) {
-        std::cout << "[DEBUG] dice q esta empty el buffer" << std::endl;
-        return -1;
-    }
 
-    unsigned int to_read = std::min(size, static_cast<unsigned int>(this->buffer.size()));
-    std::memcpy(data, this->buffer.data(), to_read);
-    this->buffer.erase(this->buffer.begin(), this->buffer.begin() + to_read);
+    unsigned int to_read = std::min(size, static_cast<unsigned int>(input_buffer->size()));
+    std::memcpy(data, input_buffer->data(), to_read);
+    input_buffer->erase(input_buffer->begin(), input_buffer->begin() + to_read);
     return to_read;
 }
 
-void MockSocket::shutdown(int how) { (void)how; }
+void MockSocket::shutdown(int how) {
+    (void)how;
+    val = true;
+}
 
+int MockSocket::close() {
+    val = true;
+    return 0;
+}
 
-int MockSocket::close() { return 0; }
+bool MockSocket::is_stream_recv_closed() { return val; }
 
-bool MockSocket::is_stream_recv_closed() { return this->val; }
-
-bool MockSocket::is_stream_send_closed() { return this->val; }
+bool MockSocket::is_stream_send_closed() { return val; }

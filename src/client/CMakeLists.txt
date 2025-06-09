@@ -25,5 +25,3 @@ target_sources(taller_client
         camera.cpp
         input_handler.cpp
 )
-
-

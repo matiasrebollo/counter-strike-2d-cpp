@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <numbers>
 #include <string>
 #include <unordered_map>
@@ -11,8 +12,15 @@
 #include "commands.h"
 #include "commands_dto.h"
 #include "error_codes.h"
-#include "socket.h"
 #include "weapon_parser.h"
+
+#ifdef TESTS
+#include "../common/mock_socket.h"
+using Socket = MockSocket;
+#else
+#include "../common/socket.h"
+using Socket = RealSocket;
+#endif
 
 template <class>
 inline constexpr bool always_false_v = false;
@@ -42,14 +50,13 @@ inline constexpr bool always_false_v = false;
 
 class CommonProtocol {
 protected:
-    Socket socket;
+    std::unique_ptr<Socket> socket;
     WeaponParser weaponParser;
     std::unordered_map<uint8_t, CommandType> codeToCommands;
     std::unordered_map<CommandType, uint8_t> commandsToCode;
 
 public:
-    CommonProtocol(const std::string& hostname, const std::string& port);
-    explicit CommonProtocol(Socket&& socket);
+    explicit CommonProtocol(std::unique_ptr<Socket> socket);
 
     CommonProtocol(CommonProtocol&& other) noexcept;
     CommonProtocol& operator=(CommonProtocol&& other) noexcept;

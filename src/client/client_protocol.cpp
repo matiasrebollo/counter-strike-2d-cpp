@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <memory>
 #include <string>
 
 #include <arpa/inet.h>
@@ -12,22 +13,8 @@
 #include "../common/message.h"
 #include "../common/vector_2d.h"
 
-ClientProtocol::ClientProtocol(const std::string& hostname, const std::string& port):
-        CommonProtocol(hostname, port), isAlive(true) {}
-
-ClientProtocol::ClientProtocol(ClientProtocol&& other) noexcept:
-        CommonProtocol(std::move(other)), isAlive(other.isAlive) {
-    other.isAlive = false;
-}
-
-ClientProtocol& ClientProtocol::operator=(ClientProtocol&& other) noexcept {
-    if (this != &other) {
-        CommonProtocol::operator=(std::move(other));
-        isAlive = other.isAlive;
-        other.isAlive = false;
-    }
-    return *this;
-}
+ClientProtocol::ClientProtocol(std::unique_ptr<Socket> socket):
+        CommonProtocol(std::move(socket)), isAlive(true) {}
 
 ServerResponseLobby ClientProtocol::receive_command() {
     uint8_t code = this->receive_byte();
@@ -260,11 +247,11 @@ std::vector<MapObject> ClientProtocol::receive_map_objects(const uint8_t& size) 
 }
 
 void ClientProtocol::close() {
-    if (!this->socket.is_stream_recv_closed()) {
-        this->socket.shutdown(SHUT_RD);
+    if (!this->socket->is_stream_recv_closed()) {
+        this->socket->shutdown(SHUT_RD);
     }
-    if (!this->socket.is_stream_send_closed()) {
-        this->socket.shutdown(SHUT_WR);
+    if (!this->socket->is_stream_send_closed()) {
+        this->socket->shutdown(SHUT_WR);
     }
-    this->socket.close();
+    this->socket->close();
 }

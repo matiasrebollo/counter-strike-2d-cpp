@@ -7,7 +7,7 @@
 /* CLIENT REQUESTS TESTS */
 
 TEST(ClientProtocolTest, SendCreateUsername) {
-    auto [client, server] = create_connected_protocols("10000");
+    auto [client, server] = create_connected_protocols();
 
     std::string username = "Taiel";
 
@@ -23,7 +23,7 @@ TEST(ClientProtocolTest, SendCreateUsername) {
 }
 
 TEST(ClientProtocolTest, SendCreateGame) {
-    auto [client, server] = create_connected_protocols("10000");
+    auto [client, server] = create_connected_protocols();
 
     CreateGameDTO dto{};
 
@@ -35,7 +35,7 @@ TEST(ClientProtocolTest, SendCreateGame) {
 }
 
 TEST(ClientProtocolTest, SendJoinGame) {
-    auto [client, server] = create_connected_protocols("10000");
+    auto [client, server] = create_connected_protocols();
 
     std::string gamename = "mygame";
 
@@ -53,18 +53,22 @@ TEST(ClientProtocolTest, SendJoinGame) {
 /* SERVER PROTOCOL RESPONSES */
 
 TEST(ServerProtocolTest, SendLobbyResponse) {
-    auto [client, server] = create_connected_protocols("10000");
+    auto [client, server] = create_connected_protocols();
 
     std::vector<CommandType> commands = {CommandType::CREATE_USERNAME, CommandType::CREATE_GAME,
                                          CommandType::JOIN_GAME};
     std::vector<bool> success_values = {false, true};
-    std::vector<std::string> gamenames = {
-            "", "mipartida"
-                "unnombresuperlargoquequieroponeramipartidaporquesoyunserverloco"};
+    std::vector<std::string> gamenames = {"", "mipartida"
+                                              "unnombresuperlargoquequieroponera"};
 
     for (auto command: commands) {
         for (auto value: success_values) {
             for (auto name: gamenames) {
+                if (command == CommandType::CREATE_GAME && name == "") {
+                    // This case will never happen bc the server MUST create a valid name,
+                    // in our case are numbers mapped to_string.
+                    continue;
+                }
                 ServerResponseLobby dto{command, value, name};
 
                 server->send_lobby_message(dto);

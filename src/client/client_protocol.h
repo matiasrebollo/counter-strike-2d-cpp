@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <functional>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <type_traits>
 #include <unordered_map>
@@ -20,7 +21,14 @@
 #include "../common/map_object.h"
 #include "../common/message.h"
 #include "../common/player_dto.h"
+
+#ifdef TESTS
+#include "../common/mock_socket.h"
+using Socket = MockSocket;
+#else
 #include "../common/socket.h"
+using Socket = RealSocket;
+#endif
 
 class ClientProtocol: public CommonProtocol {
 private:
@@ -57,9 +65,7 @@ private:
     GameMap receive_map();
 
 public:
-    ClientProtocol(const std::string& hostname, const std::string& port);
-    ClientProtocol(ClientProtocol&& other) noexcept;
-    ClientProtocol& operator=(ClientProtocol&& other) noexcept;
+    explicit ClientProtocol(std::unique_ptr<Socket> socket);
 
     void send_command(const CommandDTO& command);
     GameDTO receive_game_dto();
