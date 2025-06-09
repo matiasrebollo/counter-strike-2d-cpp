@@ -58,7 +58,7 @@ void ServerProtocol::send_map(const GameMap& map) {
     this->send_byte(static_cast<int>(map.background));
     this->send_big_endian_number(map.map_objects.size());
     for (auto object: map.map_objects) {
-        this->send_byte(object.type);
+        this->send_big_endian_number(object.type);
         this->send_byte(object.positions.size());
         for (auto vec: object.positions) {
             this->send_big_endian_number(vec.x);

@@ -239,7 +239,7 @@ GameMap ClientProtocol::receive_map() {
 std::vector<MapObject> ClientProtocol::receive_map_objects(const uint8_t& size) {
     std::vector<MapObject> objects = {};
     for (int i = 0; i < size; i++) {
-        uint8_t type = this->receive_byte();
+        uint16_t type = this->receive_big_endian_number();
         uint8_t vec_size = this->receive_byte();
         std::vector<Vector2D> positions;
         for (int j = 0; j < vec_size; j++) {
