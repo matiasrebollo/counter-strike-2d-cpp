@@ -7,7 +7,7 @@
 #include <utility>
 
 Loadout::Loadout():
-        money(INITIAL_MONEY), primary_gun(nullptr), secondary_gun(GLOCK), equipped(KNIFE) {}
+        money(INITIAL_MONEY), primary_gun(nullptr), secondary_gun(GLOCK), equipped(SECONDARY) {}
 
 uint16_t Loadout::ammo_per_clip_for(const GunType& type) {
     // está hardcodeado. inicializar un map a partir del archivo de configuracion al inicializar el

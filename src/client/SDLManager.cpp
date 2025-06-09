@@ -82,23 +82,34 @@ void SDLManager::update_camera(int player_x, int player_y) {
     camera.follow(player_x + SIZE_PLAYER / 2, player_y + SIZE_PLAYER / 2);
 }
 
-Position SDLManager::get_carry_position(const LoadoutDTO& loadout) {
+std::pair<Position, GunSprites> SDLManager::get_gun_info(const LoadoutDTO& loadout) {
     switch (loadout.equipped) {
         case KNIFE:
-            return CARRY_KNIFE;
+            return {CARRY_KNIFE, KNIFE_GAME};
+        // por ahora solo secondary glock
         case SECONDARY:
-            return CARRY_SECONDARY;
+            return {CARRY_SECONDARY, GLOCK_GAME};
         case PRIMARY:
-            return CARRY_PRIMARY;
-        case BOMB:
-            return CARRY_BOMB;
+            switch (loadout.primary_gun) {
+                case AK47:
+                    return {CARRY_PRIMARY, AK47_GAME};
+                case AWP:
+                    return {CARRY_PRIMARY, AWP_GAME};
+                case M3:
+                    return {CARRY_PRIMARY, M3_GAME};
+                default:
+                    return {CARRY_PRIMARY,
+                            AK47_GAME};  // aca llegamos en caso de que sea NONE, no deberia pasar.
+            }
+        /*case BOMB:
+            return {CARRY_BOMB, BOMB_GAME};  */
         default:
-            return CARRY_KNIFE;
+            return {CARRY_KNIFE, KNIFE_GAME};
     }
 }
 
 // falta hacer que quizas podes no ver el player pero si el arma (x la camera)
-void SDLManager::render_player_and_gun(const PlayerDTO& p, const BlockTextureInfo& sprite_info) {
+void SDLManager::render_player(const PlayerDTO& p, const BlockTextureInfo& sprite_info) {
     double angulo = p.orientation;
     int x_pos = p.position.x;
     int y_pos = p.position.y;
@@ -110,126 +121,50 @@ void SDLManager::render_player_and_gun(const PlayerDTO& p, const BlockTextureInf
         return;
 
     SDL2pp::Rect destino_camera = camera.world_to_screen(destino_mundo);
-
     std::string path = sprite_info.tileset_path;
 
     SDL2pp::Texture& skin_texture = texture_manager.get_texture(path);
-
-    WeaponType equipped = p.loadout.equipped;
-    std::string weapon_path;
-
-    if (equipped == KNIFE) {
-        weapon_path = texture_parser.get_gun_texture(KNIFE_GAME);
-
-        int gun_width = 20;
-        int gun_height = 40;
-
-        int offset_x = 18;
-        int offset_y = -10;
-
-        SDL2pp::Rect gun_dst(destino_camera.GetX() + offset_x, destino_camera.GetY() + offset_y,
-                             gun_width, gun_height);
-
-        SDL2pp::Point rotate(-offset_x + SIZE_PLAYER / 2, -offset_y + SIZE_PLAYER / 2);
-
-        SDL2pp::Texture& weapon_texture = texture_manager.get_texture(weapon_path);
-        renderer.Copy(skin_texture, rect_origen, destino_camera, angulo, SDL2pp::NullOpt);
-        renderer.Copy(weapon_texture, SDL2pp::NullOpt, gun_dst, angulo - 110, rotate);
-        return;
-
-    } else if (equipped == SECONDARY) {
-        weapon_path = texture_parser.get_gun_texture(GLOCK_GAME);  // unica secundaria
-        int gun_width = 32;
-        int gun_height = 32;
-
-        int offset_x = 0;
-        int offset_y = -16;
-
-        SDL2pp::Rect gun_dst(destino_camera.GetX() + offset_x, destino_camera.GetY() + offset_y,
-                             gun_width, gun_height);
-
-        SDL2pp::Point rotate(-offset_x + SIZE_PLAYER / 2, -offset_y + SIZE_PLAYER / 2);
-
-        SDL2pp::Texture& weapon_texture = texture_manager.get_texture(weapon_path);
-        renderer.Copy(skin_texture, rect_origen, destino_camera, angulo, SDL2pp::NullOpt);
-        renderer.Copy(weapon_texture, SDL2pp::NullOpt, gun_dst, angulo, rotate);
-        return;
-
-    } else if (equipped == PRIMARY) {
-        switch (p.loadout.primary_gun) {
-            case AK47: {
-                weapon_path = texture_parser.get_gun_texture(AK47_GAME);
-
-                int gun_width = 32;
-                int gun_height = 32;
-
-                int offset_x = 0;
-                int offset_y = -17;
-
-                SDL2pp::Rect gun_dst(destino_camera.GetX() + offset_x,
-                                     destino_camera.GetY() + offset_y, gun_width, gun_height);
-
-                SDL2pp::Point rotate(-offset_x + SIZE_PLAYER / 2, -offset_y + SIZE_PLAYER / 2);
-
-                SDL2pp::Texture& weapon_texture = texture_manager.get_texture(weapon_path);
-
-                renderer.Copy(skin_texture, rect_origen, destino_camera, angulo, SDL2pp::NullOpt);
-                renderer.Copy(weapon_texture, SDL2pp::NullOpt, gun_dst, angulo, rotate);
-
-                return;
-            }
-
-            case AWP: {
-                weapon_path = texture_parser.get_gun_texture(AWP_GAME);
-
-                int gun_width = 32;
-                int gun_height = 32;
-
-                int offset_x = 0;
-                int offset_y = -17;
-
-                SDL2pp::Rect gun_dst(destino_camera.GetX() + offset_x,
-                                     destino_camera.GetY() + offset_y, gun_width, gun_height);
-
-                SDL2pp::Point rotate(-offset_x + SIZE_PLAYER / 2, -offset_y + SIZE_PLAYER / 2);
-
-                SDL2pp::Texture& weapon_texture = texture_manager.get_texture(weapon_path);
-
-                renderer.Copy(skin_texture, rect_origen, destino_camera, angulo, SDL2pp::NullOpt);
-                renderer.Copy(weapon_texture, SDL2pp::NullOpt, gun_dst, angulo, rotate);
-
-                return;
-            }
-
-            case M3: {
-                weapon_path = texture_parser.get_gun_texture(M3_GAME);
-
-                int gun_width = 32;
-                int gun_height = 32;
-
-                int offset_x = 0;
-                int offset_y = -17;
-
-                SDL2pp::Rect gun_dst(destino_camera.GetX() + offset_x,
-                                     destino_camera.GetY() + offset_y, gun_width, gun_height);
-
-                SDL2pp::Point rotate(-offset_x + SIZE_PLAYER / 2, -offset_y + SIZE_PLAYER / 2);
-
-                SDL2pp::Texture& weapon_texture = texture_manager.get_texture(weapon_path);
-
-                renderer.Copy(skin_texture, rect_origen, destino_camera, angulo, SDL2pp::NullOpt);
-                renderer.Copy(weapon_texture, SDL2pp::NullOpt, gun_dst, angulo, rotate);
-                return;
-            }
-
-            default:
-                renderer.Copy(skin_texture, rect_origen, destino_camera, angulo, SDL2pp::NullOpt);
-                return;
-        }
-    } else {
-        return;  // bomba
-    }
+    renderer.Copy(skin_texture, rect_origen, destino_camera, angulo, SDL2pp::NullOpt);
 }
+
+// no dibujo las armas junto a cada player para que todas las armas se dibujen sobre los demas
+// players (z order)
+void SDLManager::render_player_weapon(const PlayerDTO& p) {
+    double angulo = p.orientation;
+    int x_pos = p.position.x;
+    int y_pos = p.position.y;
+
+    SDL2pp::Rect destino_mundo(x_pos, y_pos, SIZE_PLAYER, SIZE_PLAYER);
+    if (!camera.is_visible(destino_mundo))
+        return;
+
+    SDL2pp::Rect destino_camera = camera.world_to_screen(destino_mundo);
+    GunSprites sprite = get_gun_info(p.loadout).second;
+    std::string weapon_path = texture_parser.get_gun_texture(sprite);
+
+    int offset_x, offset_y, gun_width, gun_height;
+    if (sprite == KNIFE_GAME) {
+        offset_x = 18;
+        offset_y = -10;
+        gun_width = 20;
+        gun_height = 40;
+        angulo -= 110;
+    } else {
+        offset_x = 0;
+        offset_y = -17;
+        gun_width = 32;
+        gun_height = 32;
+    }
+
+    SDL2pp::Rect gun_dst(destino_camera.GetX() + offset_x, destino_camera.GetY() + offset_y,
+                         gun_width, gun_height);
+
+    SDL2pp::Point rotate(-offset_x + SIZE_PLAYER / 2, -offset_y + SIZE_PLAYER / 2);
+    SDL2pp::Texture& weapon_texture = texture_manager.get_texture(weapon_path);
+
+    renderer.Copy(weapon_texture, SDL2pp::NullOpt, gun_dst, angulo, rotate);
+}
+
 
 void SDLManager::render_hud_time(int time_left) {
     int minutes = time_left / 60;
@@ -352,15 +287,17 @@ void SDLManager::render_in_z_order(const GameMap& map, const Snapshot& snapshot,
 
 
     for (const PlayerDTO& p: snapshot.ct) {
-        Position pos = get_carry_position(p.loadout);
+        Position pos = get_gun_info(p.loadout).first;
         const BlockTextureInfo& skin_info = texture_parser.get_ct_texture(local_info.ct_skin, pos);
-        render_player_and_gun(p, skin_info);
+        render_player(p, skin_info);
+        render_player_weapon(p);
     }
 
     for (const PlayerDTO& p: snapshot.tt) {
-        Position pos = get_carry_position(p.loadout);
+        Position pos = get_gun_info(p.loadout).first;
         const BlockTextureInfo& skin_info = texture_parser.get_tt_texture(local_info.tt_skin, pos);
-        render_player_and_gun(p, skin_info);
+        render_player(p, skin_info);
+        render_player_weapon(p);
     }
 
     render_hud_time(snapshot.time_left);

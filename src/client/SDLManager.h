@@ -36,8 +36,9 @@ private:
     Shop shop;
 
     void update_camera(int player_x, int player_y);
-    Position get_carry_position(const LoadoutDTO& loadout);
-    void render_player_and_gun(const PlayerDTO& p, const BlockTextureInfo& sprite_info);
+    std::pair<Position, GunSprites> get_gun_info(const LoadoutDTO& loadout);
+    void render_player(const PlayerDTO& p, const BlockTextureInfo& sprite_info);
+    void render_player_weapon(const PlayerDTO& p);
     void render_hud_time(int time_left);
     void render_hud_life(uint16_t life);
     Crosshairs get_crosshair_color(int mouse_x, int mouse_y, const Snapshot& snapshot,
