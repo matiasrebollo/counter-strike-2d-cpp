@@ -2,6 +2,5 @@
     <qresource prefix="/images">
         <file>tiles/default_dust.png</file>
         <file>tiles/aztec.bmp</file>
-        <file>tiles/aztec.png</file>
     </qresource>
 </RCC>

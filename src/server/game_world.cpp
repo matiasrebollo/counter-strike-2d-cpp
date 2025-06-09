@@ -9,7 +9,7 @@
 
 GameWorld::GameWorld():
         spawn_zone(Vector2D(60, 60), 400, 200),
-        game_map(YamlParser().yaml_to_game_map("../mapa.yaml")) {
+        game_map(YamlParser().yaml_to_game_map("../maps/mapa.yaml")) {
     // const int mapWidth = 640;
     // const int mapHeight = 480;
     const int wallThickness = 40;

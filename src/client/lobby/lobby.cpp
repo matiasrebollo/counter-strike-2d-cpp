@@ -3,7 +3,9 @@
 #include <QFont>
 #include <QFontDatabase>
 #include <QMessageBox>
-#include <iostream>
+#include <filesystem>
+
+#define MAP_PATH "../maps"
 
 #include "client/client_protocol.h"
 #include "common/commands.h"
@@ -61,14 +63,29 @@ void Lobby::on_CreateGame_clicked() {
 }
 
 void Lobby::create_game() {
-    CreateGameDTO second_request;
+    ui->stack->setCurrentIndex(2);
+    ui->maps_list->clear();
+
+    for (const auto& entry: std::filesystem::directory_iterator(MAP_PATH)) {
+        if (entry.is_regular_file()) {
+            ui->maps_list->addItem(QString::fromStdString(entry.path().filename()));
+        }
+    }
+}
+
+void Lobby::on_CreateGameButton_clicked() {
+    if (not(ui->maps_list->currentIndex().isValid())) {
+        QMessageBox::information(this, TITLE_MSG_CREATE, MSG_MAP_NOT_SELECTED);
+        return;
+    }
+
+    std::string map_name = ui->maps_list->currentItem()->text().toStdString();
+    CreateGameDTO second_request = {map_name};
 
     protocol.value().send_lobby_request(second_request);
     ServerResponseLobby response = protocol.value().receive_command();
     if (response.success) {
         this->gamecode = response.game_name;
-        QString game_code = QString::fromStdString(response.game_name);
-        QMessageBox::information(this, "Codigo de partida", game_code);
         close();
     } else {
         QMessageBox::information(this, TITLE_MSG_CREATE, MSG_GAME_NOT_CREATED);
@@ -77,7 +94,7 @@ void Lobby::create_game() {
 
 void Lobby::on_JoinGame_clicked() {
     if (this->username != "") {
-        ui->stack->setCurrentIndex(2);
+        ui->stack->setCurrentIndex(3);
         return;
     }
     CreateUsernameDTO request;
@@ -90,7 +107,7 @@ void Lobby::on_JoinGame_clicked() {
 
     ServerResponseLobby response = protocol.value().receive_command();
     if (response.success) {
-        ui->stack->setCurrentIndex(2);
+        ui->stack->setCurrentIndex(3);
         this->username = ui->username->text().toStdString();
     } else {
         QMessageBox::information(this, TITLE_MSG_JOIN, MSG_USERNAME_ALREADY_USED);

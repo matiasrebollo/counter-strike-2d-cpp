@@ -265,7 +265,6 @@
            <font>
             <family>Counter-Strike</family>
             <pointsize>13</pointsize>
-            <weight>50</weight>
             <italic>false</italic>
             <bold>false</bold>
            </font>
@@ -489,7 +488,7 @@ QPushButton:pressed {
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="JoinGamePage">
+      <widget class="QWidget" name="CreateGamePage">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>0</horstretch>
@@ -500,6 +499,141 @@ QPushButton:pressed {
         <string notr="true"/>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_7">
+        <item>
+         <widget class="QPushButton" name="backButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>80</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Counter-Strike</family>
+           </font>
+          </property>
+          <property name="cursor">
+           <cursorShape>CrossCursor</cursorShape>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton{
+	background-color: transparent;
+	border: 1px solid white;
+	padding: 10px;
+	color: white;
+	border-radius: 5px;
+}
+QPushButton:hover {
+	qproperty-cursor: PointingHandCursor;
+}
+QPushButton:pressed {
+    background-color: gray;
+}</string>
+          </property>
+          <property name="text">
+           <string>Atras</string>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QListWidget" name="maps_list">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>500</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QListWidget {
+	background-color: rgba(36, 31, 49,160);
+	alternate-background-color: rgb(94, 92, 100);
+    border: none;
+}
+</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item alignment="Qt::AlignHCenter">
+         <widget class="QPushButton" name="CreateGameButton">
+          <property name="minimumSize">
+           <size>
+            <width>300</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>200</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Counter-Strike</family>
+            <pointsize>13</pointsize>
+           </font>
+          </property>
+          <property name="cursor">
+           <cursorShape>CrossCursor</cursorShape>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton{
+	background-color: transparent;
+	border: 1px solid white;
+	padding: 10px;
+	color: white;
+	border-radius: 5px;
+}
+QPushButton:hover {
+	qproperty-cursor: PointingHandCursor;
+}
+QPushButton:pressed {
+    background-color: gray;
+}</string>
+          </property>
+          <property name="text">
+           <string>Crear</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="JoinGamePage">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_8">
         <item>
          <widget class="QPushButton" name="backButton">
           <property name="sizePolicy">
@@ -696,7 +830,6 @@ QPushButton:hover {
                 <property name="font">
                  <font>
                   <pointsize>15</pointsize>
-                  <weight>75</weight>
                   <bold>true</bold>
                  </font>
                 </property>
@@ -725,7 +858,6 @@ QPushButton:hover {
                 <property name="font">
                  <font>
                   <pointsize>15</pointsize>
-                  <weight>75</weight>
                   <bold>true</bold>
                  </font>
                 </property>
@@ -972,7 +1104,6 @@ QPushButton:pressed {
                 <property name="font">
                  <font>
                   <pointsize>15</pointsize>
-                  <weight>75</weight>
                   <bold>true</bold>
                  </font>
                 </property>
@@ -1002,7 +1133,6 @@ QPushButton:pressed {
                  <font>
                   <family>Cantarell</family>
                   <pointsize>15</pointsize>
-                  <weight>50</weight>
                   <italic>false</italic>
                   <bold>false</bold>
                   <underline>false</underline>
@@ -1206,8 +1336,6 @@ QPushButton:pressed {
    </layout>
   </widget>
  </widget>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

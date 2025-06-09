@@ -185,7 +185,9 @@ CreateUsernameDTO ServerProtocol::receive_create_username_request() {
     return dto;
 }
 
-CreateGameDTO ServerProtocol::receive_create_game_request() { return CreateGameDTO{}; }
+CreateGameDTO ServerProtocol::receive_create_game_request() {
+    return CreateGameDTO{this->receive_string()};
+}
 
 JoinGameDTO ServerProtocol::receive_join_game_request() {
     return JoinGameDTO{this->receive_string()};

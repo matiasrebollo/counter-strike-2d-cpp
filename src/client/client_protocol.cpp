@@ -91,8 +91,9 @@ void ClientProtocol::send_create_username_request(const CreateUsernameDTO& dto) 
     this->send_string(dto.username);
 }
 
-void ClientProtocol::send_create_game_request(const CreateGameDTO&) {
+void ClientProtocol::send_create_game_request(const CreateGameDTO& dto) {
     this->send_byte(commandsToCode.find(CommandType::CREATE_GAME)->second);
+    this->send_string(dto.map_file_name);
 }
 
 void ClientProtocol::send_join_game_request(const JoinGameDTO& dto) {

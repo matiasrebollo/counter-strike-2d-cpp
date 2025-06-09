@@ -15,6 +15,7 @@
 #define MSG_USERNAME_ALREADY_USED "Ya existe un usuario con ese nombre. Ingresa uno distinto."
 #define MSG_GAME_ALREADY_STARTED "La partida ya ha comenzado o no existe."
 #define MSG_GAME_NOT_CREATED "El servidor no ha podido crear su partida."
+#define MSG_MAP_NOT_SELECTED "Debe seleccionar un mapa para crear una partida."
 
 // cppcheck-suppress unknownMacro
 QT_BEGIN_NAMESPACE
@@ -59,6 +60,8 @@ private slots:
     void on_next_ct_skin_clicked();
 
     void on_go_to_select_skin_btn_clicked();
+
+    void on_CreateGameButton_clicked();
 
 private:
     Ui::Lobby* ui;
