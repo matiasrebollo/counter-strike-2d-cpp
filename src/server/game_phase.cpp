@@ -23,7 +23,7 @@ void GamePhase::run() {
         while (game.command_queue.try_pop(cmd)) {
             execute(std::move(cmd));
         }
-        game.update(it, last_it);
+        game.update(delta_seconds);
 
         last_it = it;
         it = clock.sleep_and_calc_next_it(FPS, it);

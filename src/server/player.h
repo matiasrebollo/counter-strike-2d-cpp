@@ -5,13 +5,13 @@
 #include <memory>
 #include <string>
 
-
 class GameWorld;  // forward declaration
 
 #include "common/player_dto.h"
 #include "server/collidable.h"
 #include "server/loadout.h"
 
+#define PLAYER_SPEED 120
 #define PLAYER_WIDTH 32
 #define PLAYER_HEIGHT 32
 #define PLAYER_INITIAL_LIFE 100
@@ -27,8 +27,6 @@ private:
     uint16_t life;
     Loadout loadout;
 
-    void step(const Vector2D& step_dir, GameWorld& game);
-
 public:
     Player(const std::string& name, Vector2D& position);
 
@@ -36,7 +34,7 @@ public:
     uint16_t get_life() const;
     bool is_alive() const;
 
-    void update(GameWorld& game);
+    void update(GameWorld& game, const float& delta_t);
     void rotate(const double& new_orientation);
     void move_up();
     void move_down();

@@ -163,37 +163,37 @@ const Collidable* GameWorld::colliding_object_with(const Collidable& coll) const
     return nullptr;
 }
 
-void GameWorld::make_step_player(Player& player, const Vector2D& step_dir) {
+void GameWorld::make_step_player(Player& player, const Vector2D& step) {
     Vector2D origin = player.rect.position;
-    Vector2D target = origin + step_dir * PLAYER_SPEED;
+    Vector2D target = origin + step;
     player.rect.position = target;
     const Collidable* colliding_obj = colliding_object_with(player);
     if (colliding_obj != nullptr) {
         const Rect& c = colliding_obj->rect;
         const Rect& p = player.rect;
         Vector2D adjusted_pos = origin;
-        if (step_dir.x > 0) {
+        if (step.x > 0) {
             adjusted_pos.x = c.position.x - 1 - p.width;
         }
-        if (step_dir.x < 0) {
+        if (step.x < 0) {
             adjusted_pos.x = c.position.x + c.width + 1;
         }
-        if (step_dir.y > 0) {
+        if (step.y > 0) {
             adjusted_pos.y = c.position.y - 1 - p.height;
         }
-        if (step_dir.y < 0) {
+        if (step.y < 0) {
             adjusted_pos.y = c.position.y + c.height + 1;
         }
         player.rect.position = adjusted_pos;
     }
 }
 
-void GameWorld::update() {
+void GameWorld::update(const float& delta_t) {
     for (const auto& [_, c_terrorist]: counter_terrorists) {
-        c_terrorist->update(*this);
+        c_terrorist->update(*this, delta_t);
     }
     for (const auto& [_, terrorist]: terrorists) {
-        terrorist->update(*this);
+        terrorist->update(*this, delta_t);
     }
 }
 

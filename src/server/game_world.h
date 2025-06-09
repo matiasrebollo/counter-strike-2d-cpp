@@ -13,8 +13,6 @@
 #include "server/player.h"
 // #include "server/shot.h"
 
-
-#define PLAYER_SPEED 1
 #define TERRORISTS 1
 #define COUNTER_TERRORISTS 1
 
@@ -57,7 +55,7 @@ public:
     void spawn_players();
     const GameMap get_map() const;
     const GameWorldSnapshot get_snapshot() const;
-    void update();
+    void update(const float& delta_t);
     bool tt_are_all_dead() const;
     bool ct_are_all_dead() const;
     void rotate_player(const std::string& username, const double& angle);
@@ -72,7 +70,7 @@ public:
     void buy_gun_for(const std::string& username, const GunType& gun);
     void buy_ammo_for(const std::string& username, const bool& for_primary);
 
-    void make_step_player(Player& player, const Vector2D& step_dir);
+    void make_step_player(Player& player, const Vector2D& step);
     const Collidable* colliding_object_with(const Collidable& coll) const;
     // void shoot(const std::string& username);
     // const Collidable* first_impact(const Shot& shot) const;

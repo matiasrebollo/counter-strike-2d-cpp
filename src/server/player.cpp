@@ -1,5 +1,6 @@
 #include "server/player.h"
 
+#include <cmath>
 #include <iostream>
 
 #include "server/game_world.h"
@@ -16,31 +17,30 @@ Player::Player(const std::string& name, Vector2D& position):
 
 bool Player::is_alive() const { return this->life > 0; }
 
-void Player::update(GameWorld& game) {
+void Player::update(GameWorld& game, const float& delta_t) {
+    std::cout << delta_t << std::endl;
+    std::cout << "Estaba en " << this->rect.position.x << ", " << this->rect.position.y
+              << std::endl;
+    int stepped = static_cast<int>(std::round(delta_t * PLAYER_SPEED));
     if (moving_up) {
-        step(Vector2D(0, -1), game);
+        game.make_step_player(*this, Vector2D(0, -stepped));
     }
     if (moving_down) {
-        step(Vector2D(0, 1), game);
+        game.make_step_player(*this, Vector2D(0, stepped));
     }
     if (moving_left) {
-        step(Vector2D(-1, 0), game);
+        game.make_step_player(*this, Vector2D(-stepped, 0));
     }
     if (moving_right) {
-        step(Vector2D(1, 0), game);
+        game.make_step_player(*this, Vector2D(stepped, 0));
     }
+    std::cout << "me fui a  " << this->rect.position.x << ", " << this->rect.position.y
+              << std::endl;
     // si esta disparando, ... update de weapons necesario
     // enviar eventos si disparo, si mato
     // si mato, reconocerlo y aumentar dinero
 }
 
-void Player::step(const Vector2D& step_dir, GameWorld& game) {
-    std::cout << "Estaba en " << this->rect.position.x << ", " << this->rect.position.y
-              << std::endl;
-    game.make_step_player(*this, step_dir);
-    std::cout << "me fui a  " << this->rect.position.x << ", " << this->rect.position.y
-              << std::endl;
-}
 
 void Player::move_up() { moving_up = !moving_up; }
 void Player::move_down() { moving_down = !moving_down; }
@@ -74,7 +74,6 @@ void Player::buy_ammo(const bool& for_primary) {
 }
 
 const PlayerDTO Player::get_dto() const {
-    std::cout << "Jugador: " << name << std::endl;
     const PlayerDTO dto{name, rect.position, orientation, life, loadout.get_dto()};
     return dto;
 }

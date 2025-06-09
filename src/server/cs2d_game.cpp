@@ -68,12 +68,7 @@ void CS2DGame::broadcast_snapshot(const int time_left) const {
     broadcast_game_dto(snapshot);
 }
 
-void CS2DGame::update(const size_t& it, size_t& prev_it) {
-    for (size_t i = 0; i < (it + 1) - prev_it; ++i) {
-        game_world.update();
-    }
-    prev_it = it;
-}
+void CS2DGame::update(const float& delta_t) { game_world.update(delta_t); }
 
 void CS2DGame::execute_in_attack_phase(std::unique_ptr<Command> cmd) {
     cmd->execute_in_attack_phase(this->game_world);
