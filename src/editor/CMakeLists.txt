@@ -4,8 +4,11 @@ target_sources(taller_editor
     game_editor.cpp
     main.cpp
     resources.qrc
+    blocks_setter.cpp
     PUBLIC
     # .h files
     game_editor.h
     clickablelabel.h
+    grid_action.h
+    blocks_setter.h
     )

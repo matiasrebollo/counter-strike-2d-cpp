@@ -9,11 +9,11 @@
 BlockTextureParser::BlockTextureParser(): block_textures(), backgrounds_paths() {
     /*backgrounds_paths = {{AZTEC_BACKGROUND, "../assets/gfx/backgrounds/aztec.png"},
                          {DUST_BACKGROUND, "../assets/gfx/backgrounds/dust.png"},
-                         {GRASS_BACKGROUND, "../assets/gfx/backgrounds/gras1.png"}};*/
+                         {GRASS_BACKGROUND, "../assets/gfx/backgrounds/gras1.jpg"}};*/
 
     backgrounds_paths[AZTEC_BACKGROUND] = "../assets/gfx/backgrounds/aztec.png";
     backgrounds_paths[DUST_BACKGROUND] = "../assets/gfx/backgrounds/dust.png";
-    backgrounds_paths[GRASS_BACKGROUND] = "../assets/gfx/backgrounds/gras1.png";
+    backgrounds_paths[GRASS_BACKGROUND] = "../assets/gfx/backgrounds/gras1.jpg";
 
     std::vector<TilesetInfo> tilesets = {{"../assets/gfx/tiles/aztec.bmp",
                                           6,

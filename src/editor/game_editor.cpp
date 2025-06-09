@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iterator>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -14,7 +15,12 @@
 #include "clickablelabel.h"
 
 Game_editor::Game_editor(QWidget* parent):
-        QMainWindow(parent), ui(new Ui::Game_editor), texture_parser(), selected_block(NONE_BLOCK) {
+        QMainWindow(parent),
+        ui(new Ui::Game_editor),
+        texture_parser(),
+        selected_block(NONE_BLOCK),
+        selected_background(AZTEC_BACKGROUND),
+        mode(std::make_unique<BlocksSetter>()) {
     ui->setupUi(this);
     this->setupUi();
 }
@@ -40,11 +46,16 @@ void Game_editor::setupUi() {
         std::string background_path = texture_parser.get_background_path(background);
         QPixmap background_image(QString::fromStdString(background_path));
         label->setPixmap(background_image.scaled(50, 50));
-        ui->block_list->addWidget(label);
+        ui->backgrounds_list->addWidget(label);
+        connect(label, &ClickableLabel::clicked, [this, background, background_path]() {
+            ui->scrollAreaGridMap->setStyleSheet("background-image: url(" +
+                                                 QString::fromStdString(background_path) + ");");
+            selected_background = background;
+        });
     }
 
     int N = 15, M = 20;
-    ui->scrollAreaWidgetContents_5->setMinimumSize(50 * M, 50 * N);
+    ui->scrollAreaGridMap->setMinimumSize(50 * M, 50 * N);
     this->grid.resize(N);
     for (int i = 0; i < N; ++i) {
         this->grid[i].resize(M, NONE_BLOCK);
@@ -103,6 +114,23 @@ GameMap Game_editor::create_map(const std::vector<std::vector<int>>& grid) {
     std::vector<Vector2D> sites = {Vector2D(12, 1), Vector2D(12, 2), Vector2D(13, 1),
                                    Vector2D(14, 1)};
 
-    GameMap game_map = {width, height, AZTEC_BACKGROUND, blocks, ct_spawns, tt_spawns, sites};
+    GameMap game_map = {width, height, selected_background, blocks, ct_spawns, tt_spawns, sites};
     return game_map;
+}
+
+void Game_editor::setBlock(const int& row, const int& colum) {
+    QLayoutItem* item = ui->grid_map->itemAtPosition(row, colum);
+    if (item) {
+        QWidget* widget = item->widget();
+        if (ClickableLabel* cell = qobject_cast<ClickableLabel*>(widget)) {
+            if (selected_block != NONE_BLOCK) {
+                BlockTextureInfo texture = texture_parser.get_texture_info(selected_block);
+                std::string path = texture.tileset_path;
+                QPixmap tileset(QString::fromStdString(path));
+                QPixmap tile = tileset.copy(texture.x, texture.y, texture.width, texture.height);
+                cell->setPixmap(tile.scaled(50, 50));
+            }
+        }
+    }
+    this->grid[row][colum] = selected_block;
 }

@@ -132,7 +132,7 @@
             <property name="alignment">
              <set>Qt::AlignCenter</set>
             </property>
-            <widget class="QWidget" name="scrollAreaWidgetContents_5">
+            <widget class="QWidget" name="scrollAreaGridMap">
              <property name="geometry">
               <rect>
                <x>0</x>
