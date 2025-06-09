@@ -17,7 +17,7 @@
 #include "client_receiver.h"
 #include "game_ui_phase.h"
 #include "input_handler.h"
-#include "local_player_info.h"
+#include "local_info.h"
 
 #define MSG_NO_PROTOCOL "You have to connect yourself to a server to play :)"
 #define BASH_MSG_NO_USERNAME "You have to enter your username to login in our server"
@@ -30,7 +30,7 @@ private:
     SDLManager sdl;
     InputHandler input_handler;
     ClientReceiver receiver;
-    LocalPlayerInfo local_player_info;
+    LocalInfo local_info;
     std::unique_ptr<GameUIPhase> phase;
     bool keep_running;
     GameMap map;  // guardarlo en sdl.
@@ -45,16 +45,20 @@ private:
 
     bool validate_qt_results(Lobby& lobby);
     void print_message(const std::string& s);
+    void update_local_info_from_snapshot(const Snapshot& snapshot);
 
     void handle_waiting_events();
     bool update_waiting();
     void show_waiting(const int& it);
+
     void handle_buy_events();
     bool update_buy();
     void show_buy(const int& it);
+
     void handle_attack_events();
     bool update_attack();
     void show_attack(const int& it);
+
     void change_phase(std::unique_ptr<GameUIPhase> new_phase);
 
     void handle_game_ended();

@@ -97,6 +97,33 @@ BlockTextureParser::BlockTextureParser(): block_textures() {
     font_and_waiting_textures[BACKGROUND] = "../assets/gfx/splash.bmp";
     font_and_waiting_textures[FONT_WAITING] = "../assets/cs_regular.ttf";
     font_and_waiting_textures[FONT_SHOP] = "../assets/gfx/fonts/korean.ttf";
+
+    TilesetInfo tileset_crosshairs = {"../assets/gfx/pointer.png", 2, 2, 46, 46, {}, {}};
+    std::vector<Crosshairs> crosshairs = {GREEN, RED, YELLOW, TIME};
+
+    int i = 0;
+    for (int row = 0; row < tileset_crosshairs.rows; ++row) {
+        for (int col = 0; col < tileset_crosshairs.columns; ++col) {
+            crosshair_textures[crosshairs[i]] = {tileset_crosshairs.file,
+                                                 col * tileset_crosshairs.tileWidth,
+                                                 row * tileset_crosshairs.tileHeight,
+                                                 tileset_crosshairs.tileWidth,
+                                                 tileset_crosshairs.tileHeight,
+                                                 false};
+            i += 1;
+        }
+    }
+
+    gun_textures[AK47_GAME] = "../assets/gfx/weapons/ak47.bmp";
+    gun_textures[AK47_SHOP] = "../assets/gfx/weapons/ak47_k.bmp";
+    gun_textures[AWP_GAME] = "../assets/gfx/weapons/awp.bmp";
+    gun_textures[AWP_SHOP] = "../assets/gfx/weapons/awp_k.bmp";
+    gun_textures[M3_GAME] = "../assets/gfx/weapons/m3.bmp";
+    gun_textures[M3_SHOP] = "../assets/gfx/weapons/m3_k.bmp";
+    gun_textures[GLOCK_GAME] = "../assets/gfx/weapons/glock.bmp";
+    gun_textures[GLOCK_SHOP] = "../assets/gfx/weapons/glock_k.bmp";
+    gun_textures[KNIFE_GAME] = "../assets/gfx/weapons/knife.bmp";
+    gun_textures[KNIFE_SHOP] = "../assets/gfx/weapons/knife_k.bmp";
 }
 
 const BlockTextureInfo& BlockTextureParser::get_texture_info(int block) {
@@ -123,6 +150,14 @@ const BlockTextureInfo& BlockTextureParser::get_symbol_texture(HudSymbols symbol
 
 const std::string& BlockTextureParser::get_fw_texture(FontsAndBackground fw) const {
     return font_and_waiting_textures.at(fw);
+}
+
+const BlockTextureInfo& BlockTextureParser::get_crosshair_texture(Crosshairs crosshair) const {
+    return crosshair_textures.at(crosshair);
+}
+
+const std::string& BlockTextureParser::get_gun_texture(GunSprites gun) const {
+    return gun_textures.at(gun);
 }
 
 std::vector<int> BlockTextureParser::get_keys() {

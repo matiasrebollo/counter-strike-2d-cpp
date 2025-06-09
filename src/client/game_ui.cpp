@@ -12,8 +12,8 @@ GameUI::GameUI(Lobby& lobby):
         input_handler(sdl, this->protocol),
         receiver(this->protocol),
         // podria usar move?
-        local_player_info{lobby.get_username(), lobby.get_gamecode(), lobby.get_ct_skin(),
-                          lobby.get_tt_skin()},
+        local_info{lobby.get_username(), lobby.get_gamecode(), lobby.get_ct_skin(),
+                   lobby.get_tt_skin()},
         keep_running(true) {
     if (!this->validate_qt_results(lobby)) {
         throw std::runtime_error(
@@ -38,6 +38,28 @@ void GameUI::run() {
     this->close_client();
 }
 
+void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
+    for (const auto& p: snapshot.ct) {
+        if (p.username == local_info.username) {
+            local_info.is_ct = true;
+            local_info.life = p.life;
+            local_info.x = p.position.x;
+            local_info.y = p.position.y;
+            return;
+        }
+    }
+
+    for (const auto& p: snapshot.tt) {
+        if (p.username == local_info.username) {
+            local_info.is_ct = false;
+            local_info.life = p.life;
+            local_info.x = p.position.x;
+            local_info.y = p.position.y;
+            return;
+        }
+    }
+}
+
 void GameUI::handle_waiting_events() { this->keep_running = input_handler.handle_waiting_events(); }
 bool GameUI::update_waiting() {
     GameDTO game_dto;
@@ -52,6 +74,7 @@ bool GameUI::update_waiting() {
                     using T = std::decay_t<decltype(game_dto)>;
                     if constexpr (std::is_same_v<T, Snapshot>) {
                         this->game_snapshot = std::move(game_dto);
+                        update_local_info_from_snapshot(this->game_snapshot);
                     } else if constexpr (std::is_same_v<T, GameMap>) {
                         this->map = std::move(game_dto);  // guardarlo en sdl??
                     } else if constexpr (std::is_same_v<T, GameEnded>) {
@@ -66,11 +89,12 @@ bool GameUI::update_waiting() {
     }
     return true;
 }
+
 void GameUI::show_waiting(const int& it) {
     sdl.clear_display();
     // el 2 luego tiene que ser la cantidad de personas que va a unirse maxima
     sdl.render_waiting_screen(this->game_snapshot.ct.size() + this->game_snapshot.tt.size(), 2,
-                              local_player_info.gamename, it, FPS);
+                              local_info.gamename, it, FPS);
     sdl.show_screen();
 }
 
@@ -87,16 +111,20 @@ bool GameUI::update_buy() {
         // Identificar en snapshot_tmp cambios de equipamiento en el local_player para animación de
         // tienda
         this->game_snapshot = std::move(snapshot_tmp);
+        update_local_info_from_snapshot(this->game_snapshot);
+
         if (this->game_snapshot.phase != BUY) {
             return false;
         }
     }
     return true;
 }
+
 void GameUI::show_buy(const int& /*it*/) {
     sdl.clear_display();
-    sdl.render_in_z_order(this->map, this->game_snapshot, local_player_info);
+    sdl.render_in_z_order(this->map, this->game_snapshot, local_info);
     sdl.render_shop();
+    sdl.render_crosshair(this->game_snapshot, local_info);
     sdl.show_screen();
 }
 
@@ -118,6 +146,8 @@ bool GameUI::update_attack() {
         Snapshot snapshot_tmp = std::get<Snapshot>(game_dto);
         // Identificar en snapshot_tmp cambios/eventos para activar animaciones
         this->game_snapshot = std::move(snapshot_tmp);
+        update_local_info_from_snapshot(this->game_snapshot);
+
         if (snapshot_tmp.phase != ATTACK) {
             return false;
         }
@@ -126,7 +156,8 @@ bool GameUI::update_attack() {
 }
 void GameUI::show_attack(const int& /*it*/) {
     sdl.clear_display();
-    sdl.render_in_z_order(this->map, this->game_snapshot, local_player_info);
+    sdl.render_in_z_order(this->map, this->game_snapshot, local_info);
+    sdl.render_crosshair(this->game_snapshot, local_info);
     sdl.show_screen();
 }
 

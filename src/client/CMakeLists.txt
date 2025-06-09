@@ -10,7 +10,7 @@ target_sources(taller_client
         SDLManager.h
         camera.h
         input_handler.h
-        local_player_info.h
+        local_info.h
         texture_manager.h
         shop.h
     PRIVATE

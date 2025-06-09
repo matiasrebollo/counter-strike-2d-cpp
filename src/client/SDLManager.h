@@ -13,7 +13,7 @@
 #include "../common/game_snapshot.h"
 
 #include "camera.h"
-#include "local_player_info.h"
+#include "local_info.h"
 #include "shop.h"
 
 #define WINDOW_INITIAL_WIDTH 640
@@ -36,9 +36,12 @@ private:
     Shop shop;
 
     void update_camera(int player_x, int player_y);
-    void render_player(const PlayerDTO& p, const BlockTextureInfo& sprite_info);
+    Position get_carry_position(const LoadoutDTO& loadout);
+    void render_player_and_gun(const PlayerDTO& p, const BlockTextureInfo& sprite_info);
     void render_hud_time(int time_left);
     void render_hud_life(uint16_t life);
+    Crosshairs get_crosshair_color(int mouse_x, int mouse_y, const Snapshot& snapshot,
+                                   const LocalInfo& local_info);
 
 public:
     SDLManager();
@@ -48,9 +51,10 @@ public:
     SDL_Point get_logical_size() const;
     void clear_display();
     void render_in_z_order(const GameMap& map, const Snapshot& snapshot,
-                           const LocalPlayerInfo& local_info);
+                           const LocalInfo& local_info);
     std::optional<ShopButtonType> get_clicked_button(int x, int y);
     void render_shop();
+    void render_crosshair(const Snapshot& snapshot, const LocalInfo& local_info);
     void show_screen();
 };
 
