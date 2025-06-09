@@ -185,6 +185,16 @@ std::vector<LoadoutDTO> get_loadouts() {
     return loadouts;
 }
 
+void validate_player(const PlayerDTO& expected_player, const PlayerDTO& actual_player) {
+    ASSERT_EQ(expected_player.username, actual_player.username);
+    ASSERT_EQ(expected_player.life, actual_player.life);
+    ASSERT_EQ(expected_player.loadout.primary_gun, actual_player.loadout.primary_gun);
+    ASSERT_EQ(expected_player.loadout.secondary_gun, actual_player.loadout.secondary_gun);
+    ASSERT_EQ(expected_player.loadout.primary_ammo, actual_player.loadout.primary_ammo);
+    ASSERT_EQ(expected_player.loadout.secondary_ammo, actual_player.loadout.secondary_ammo);
+    ASSERT_EQ(expected_player.loadout.equipped, actual_player.loadout.equipped);
+}
+
 TEST(ServerProtocolTest, SendSnapshot) {
     auto [client, server] = create_connected_protocols();
 
@@ -208,26 +218,18 @@ TEST(ServerProtocolTest, SendSnapshot) {
 
                 server->send_game_dto(snapshot);
                 GameDTO response = client->receive_game_dto();
-                auto snapshotPTr = std::get_if<Snapshot>(&response);
-                ASSERT_NE(snapshotPTr, nullptr) << "Expected SnapshotDTO but got another";
-                ASSERT_EQ(snapshotPTr->phase, phase);
-                ASSERT_EQ(snapshotPTr->current_round_number, current_round);
-                ASSERT_EQ(snapshotPTr->total_rounds, total_rounds);
-                ASSERT_EQ(snapshotPTr->time_left, 20);
-                ASSERT_EQ(snapshotPTr->ct[0].username, "Mati");
-                ASSERT_EQ(snapshotPTr->tt[0].username, "Facu");
-                ASSERT_EQ(snapshotPTr->ct[0].life, 100);
-                ASSERT_EQ(snapshotPTr->tt[0].life, 100);
-                ASSERT_EQ(snapshotPTr->ct[0].loadout.primary_gun, loadout.primary_gun);
-                ASSERT_EQ(snapshotPTr->tt[0].loadout.primary_gun, loadout.primary_gun);
-                ASSERT_EQ(snapshotPTr->ct[0].loadout.secondary_gun, loadout.secondary_gun);
-                ASSERT_EQ(snapshotPTr->tt[0].loadout.secondary_gun, loadout.secondary_gun);
-                ASSERT_EQ(snapshotPTr->ct[0].loadout.primary_ammo, loadout.primary_ammo);
-                ASSERT_EQ(snapshotPTr->tt[0].loadout.primary_ammo, loadout.primary_ammo);
-                ASSERT_EQ(snapshotPTr->ct[0].loadout.secondary_ammo, loadout.secondary_ammo);
-                ASSERT_EQ(snapshotPTr->tt[0].loadout.secondary_ammo, loadout.secondary_ammo);
-                ASSERT_EQ(snapshotPTr->ct[0].loadout.equipped, loadout.equipped);
-                ASSERT_EQ(snapshotPTr->tt[0].loadout.equipped, loadout.equipped);
+                auto snapshotPtr = std::get_if<Snapshot>(&response);
+                ASSERT_NE(snapshotPtr, nullptr) << "Expected SnapshotDTO but got another";
+                ASSERT_EQ(snapshotPtr->phase, phase);
+                ASSERT_EQ(snapshotPtr->current_round_number, current_round);
+                ASSERT_EQ(snapshotPtr->total_rounds, total_rounds);
+                ASSERT_EQ(snapshotPtr->time_left, 20);
+                for (size_t i = 0; i < ct.size(); i++) {
+                    validate_player(ct[i], snapshotPtr->ct[i]);
+                }
+                for (size_t i = 0; i < ct.size(); i++) {
+                    validate_player(tt[i], snapshotPtr->tt[i]);
+                }
             }
         }
     }
