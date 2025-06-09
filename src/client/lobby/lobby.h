@@ -17,6 +17,10 @@
 #define MSG_GAME_NOT_CREATED "El servidor no ha podido crear su partida."
 #define MSG_MAP_NOT_SELECTED "Debe seleccionar un mapa para crear una partida."
 
+#define MSG_NO_PROTOCOL "Debes conectarte a un servidor disponible para poder jugar."
+#define BASH_MSG_NO_USERNAME "Debes tener un nombre de usuario único para poder jugar."
+#define MSG_NO_GAME "Tenes que unirte a un juego o crear uno para jugar!"
+
 // cppcheck-suppress unknownMacro
 QT_BEGIN_NAMESPACE
 namespace Ui {

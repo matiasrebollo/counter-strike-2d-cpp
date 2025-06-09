@@ -15,12 +15,7 @@ GameUI::GameUI(Lobby& lobby):
         local_player_info{lobby.get_username(), lobby.get_gamecode(), lobby.get_ct_skin(),
                           lobby.get_tt_skin()},
         state(std::make_unique<WaitingForGameState>()),
-        keep_running(true) {
-    if (!this->validate_qt_results(lobby)) {
-        throw std::runtime_error(
-                "Error creating SDL interface");  // quizas ponerlo en los get de lobby.
-    }
-}
+        keep_running(true) {}
 
 void GameUI::run() {
     input_handler.start_sender();
@@ -191,25 +186,6 @@ void GameUI::process_waiting(GameDTO& dto, Snapshot& snapshot, bool& loop, bool&
             },
             dto);
 }
-
-bool GameUI::validate_qt_results(Lobby& lobby) {
-    try {
-        lobby.get_protocol();
-    } catch (const std::runtime_error& e) {
-        this->print_message(MSG_NO_PROTOCOL);
-        return false;
-    }
-    if (lobby.get_username() == "") {
-        this->print_message(BASH_MSG_NO_USERNAME);
-        return false;
-    } else if (lobby.get_gamecode() == "") {
-        this->print_message(MSG_NO_GAME);
-        return false;
-    }
-    return true;
-}
-
-void GameUI::print_message(const std::string& s) { std::cout << s << std::endl; }
 
 void GameUI::close_client() {
     this->protocol.close();

@@ -142,10 +142,10 @@ void Lobby::connect_to_sv() {
 }
 
 ClientProtocol& Lobby::get_protocol() {
-    if (protocol.has_value()) {
-        return protocol.value();
+    if (!protocol.has_value()) {
+        throw std::runtime_error(MSG_NO_PROTOCOL);
     }
-    throw std::runtime_error("Protocolo no inicializado");
+    return protocol.value();
 }
 
 void Lobby::on_select_tt_skin_clicked() {
@@ -187,6 +187,16 @@ TerroristSkin& Lobby::get_tt_skin() { return this->selected_tt_skin; }
 
 CounterTerroristSkin& Lobby::get_ct_skin() { return this->selected_ct_skin; }
 
-std::string Lobby::get_username() { return this->username; }
+std::string Lobby::get_username() {
+    if (this->username == "") {
+        throw std::runtime_error(BASH_MSG_NO_USERNAME);
+    }
+    return this->username;
+}
 
-std::string Lobby::get_gamecode() { return this->gamecode; }
+std::string Lobby::get_gamecode() {
+    if (this->gamecode == "") {
+        throw std::runtime_error(MSG_NO_GAME);
+    }
+    return this->gamecode;
+}
