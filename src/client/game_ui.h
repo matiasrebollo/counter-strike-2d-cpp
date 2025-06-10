@@ -34,9 +34,7 @@ private:
     LocalInfo local_info;
     std::unique_ptr<GameUIPhase> phase;
     bool keep_running;
-    GameMap map;  // guardarlo en sdl.
-    Snapshot
-            game_snapshot;  // deberia ser un objeto propio de game_ui, no el dto para comunicacion!
+    Snapshot game_snapshot;  // guarda la ultima snapshot por si no llega una nueva, graficar esta
 
     friend class GameUIPhase;
     friend class WaitingForGamePhase;
@@ -46,18 +44,29 @@ private:
 
     bool validate_qt_results(Lobby& lobby);
     void print_message(const std::string& s);
+
+    /* Actualiza la informacion local del estado del juego en base a una snapshot */
     void update_local_info_from_snapshot(const Snapshot& snapshot);
 
+    /* Maneja eventos de usuario en la fase waiting */
     void handle_waiting_events();
+    /* Recibe snapshots del receiver hasta recibir el mapa y cambiar de fase */
     bool update_waiting();
+    /* Renderiza la fase waiting */
     void show_waiting(const int& it);
 
+    /* Maneja eventos de usuario en la fase de compra */
     void handle_buy_events();
+    /* Recibe snapshots del receiver hasta cambiar de fase */
     bool update_buy();
+    /* Renderiza la fase de compra */
     void show_buy(const int& it);
 
+    /* Maneja eventos de usuario en la fase de juego */
     void handle_attack_events();
+    /* Recibe snapshots del receiver hasta cambiar de fase */
     bool update_attack();
+    /* Renderiza la fase de juego */
     void show_attack(const int& it);
 
     void change_phase(std::unique_ptr<GameUIPhase> new_phase);

@@ -46,6 +46,15 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
             local_info.x = p.position.x;
             local_info.y = p.position.y;
             local_info.money = p.loadout.money;
+            if (p.loadout.equipped == PRIMARY) {
+                local_info.equipped_gun_ammo = p.loadout.primary_ammo;
+            } else if (p.loadout.equipped == SECONDARY) {
+                local_info.equipped_gun_ammo = p.loadout.secondary_ammo;
+            } else {
+                local_info.equipped_gun_ammo = 0;
+            }
+            local_info.primary_gun = p.loadout.primary_gun;
+            local_info.secondary_gun = p.loadout.secondary_gun;
             return;
         }
     }
@@ -57,6 +66,15 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
             local_info.x = p.position.x;
             local_info.y = p.position.y;
             local_info.money = p.loadout.money;
+            if (p.loadout.equipped == PRIMARY) {
+                local_info.equipped_gun_ammo = p.loadout.primary_ammo;
+            } else if (p.loadout.equipped == SECONDARY) {
+                local_info.equipped_gun_ammo = p.loadout.secondary_ammo;
+            } else {
+                local_info.equipped_gun_ammo = 0;
+            }
+            local_info.primary_gun = p.loadout.primary_gun;
+            local_info.secondary_gun = p.loadout.secondary_gun;
             return;
         }
     }
@@ -78,7 +96,7 @@ bool GameUI::update_waiting() {
                         this->game_snapshot = std::move(game_dto);
                         update_local_info_from_snapshot(this->game_snapshot);
                     } else if constexpr (std::is_same_v<T, GameMap>) {
-                        this->map = std::move(game_dto);  // guardarlo en sdl??
+                        this->sdl.set_map(std::move(game_dto));
                     } else if constexpr (std::is_same_v<T, GameEnded>) {
                         // guardar estadisticas
                         // estado ended?
@@ -124,13 +142,13 @@ bool GameUI::update_buy() {
 
 void GameUI::show_buy(const int& /*it*/) {
     sdl.clear_display();
-    sdl.render_in_z_order(this->map, this->game_snapshot, local_info);
-    sdl.render_shop(local_info.money);
+    sdl.render_in_z_order(this->game_snapshot, local_info);
+    sdl.render_shop(local_info.money, local_info.primary_gun, local_info.secondary_gun);
     sdl.render_crosshair(this->game_snapshot, local_info);
     sdl.show_screen();
 }
 
-void GameUI::handle_attack_events() { this->keep_running = input_handler.handle_events(); }
+void GameUI::handle_attack_events() { this->keep_running = input_handler.handle_attack_events(); }
 bool GameUI::update_attack() {
     GameDTO game_dto;
     bool pop = true;
@@ -158,7 +176,7 @@ bool GameUI::update_attack() {
 }
 void GameUI::show_attack(const int& /*it*/) {
     sdl.clear_display();
-    sdl.render_in_z_order(this->map, this->game_snapshot, local_info);
+    sdl.render_in_z_order(this->game_snapshot, local_info);
     sdl.render_crosshair(this->game_snapshot, local_info);
     sdl.show_screen();
 }

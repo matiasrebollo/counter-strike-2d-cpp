@@ -9,6 +9,10 @@ protected:
 
 public:
     explicit GameUIPhase(GameUI& game_ui);
+    /* Metodo principal del gameloop, que posee un clock para mantener un
+     * game rate constante, renderiza la ultima snapshot, maneja eventos del
+     * cliente y actualiza el estado del jugador y del juego.
+     */
     void run();
     void change_phase();
     virtual void handle_game_events() = 0;

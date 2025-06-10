@@ -11,7 +11,7 @@ private:
     SDLManager& sdl;
     ClientSender sender;
 
-    // quizas englobar logica de botones/clicks
+    // quizas englobar logica de botones/clicks en otra clase
     bool w = false;
     bool a = false;
     bool s = false;
@@ -43,9 +43,12 @@ private:
 public:
     InputHandler(SDLManager& sdl, ClientProtocol& protocol);
 
+    /* Maneja eventos del cliente en la fase waiting */
     bool handle_waiting_events();
+    /* Maneja eventos del cliente en la fase de compra */
     bool handle_buy_events();
-    bool handle_events();
+    /* Maneja eventos del cliente en la fase de juego */
+    bool handle_attack_events();
 
     void start_sender();
     void close_sender_queue();

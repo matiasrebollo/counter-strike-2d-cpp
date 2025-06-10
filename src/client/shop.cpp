@@ -1,5 +1,7 @@
 #include "shop.h"
 
+#include <utility>
+
 Shop::Shop(SDL2pp::Renderer& renderer, TextureManager& texture_manager,
            BlockTextureParser& texture_parser):
         renderer(renderer),
@@ -28,6 +30,29 @@ Shop::Shop(SDL2pp::Renderer& renderer, TextureManager& texture_manager,
                               close_button_rect.y + close_button_rect.h + spacing_from_close,
                               money_rect_w, money_rect_h);
 
+    // Rectangulos equipment
+    int eq_rect_w_primary = 80;
+    int eq_rect_w_secondary = 64;
+    int eq_rect_h = 32;
+    int eq_spacing_x = 20;
+
+    int eq_base_y = shop_rect.y + shop_rect.h - 27 - eq_rect_h;
+    int eq_base_x = shop_rect.x + 27;
+
+    primary_gun_rect = SDL2pp::Rect(eq_base_x, eq_base_y, eq_rect_w_primary, eq_rect_h);
+    secondary_gun_rect = SDL2pp::Rect(eq_base_x + eq_rect_w_primary + eq_spacing_x, eq_base_y,
+                                      eq_rect_w_secondary, eq_rect_h);
+    // knife_rect = SDL2pp::Rect(eq_base_x + 2 * (eq_rect_w + eq_spacing_x), eq_base_y, eq_rect_w,
+    // eq_rect_h);
+
+    // Linea divisoria
+    int line_margin = 20;
+    int line_thickness = 1;
+    line_rect = SDL2pp::Rect(shop_rect.x + line_margin, eq_base_y - 20,
+                             shop_rect.w - 2 * line_margin, line_thickness);
+
+    // Texto equipamiento
+    equipment_text = SDL2pp::Point(shop_rect.x + 27, line_rect.y + 2);
 
     // Botones de la tienda
     int button_w = 213;
@@ -52,7 +77,7 @@ Shop::Shop(SDL2pp::Renderer& renderer, TextureManager& texture_manager,
     }
 
 
-    // Definir el botón Open (icono tienda) que aparece fuera del shop_rect
+    // Boton open
     int shop_icon_w = 36;
     int shop_icon_h = 40;
     int shop_icon_x = CAMERA_WIDTH - shop_icon_w - 5;
@@ -62,7 +87,7 @@ Shop::Shop(SDL2pp::Renderer& renderer, TextureManager& texture_manager,
                    ShopButtonType::Open};
 }
 
-void Shop::render(int player_money) {
+void Shop::render(int player_money, GunType primary_gun, GunType secondary_gun) {
     int border_thickness = 1;
 
     SDL2pp::Color shop_color(50, 50, 50, 200);
@@ -178,6 +203,77 @@ void Shop::render(int player_money) {
         }
     }
 
+    // Equipamiento
+    renderer.SetDrawBlendMode(SDL_BLENDMODE_NONE);
+
+    // Linea divisoria
+    renderer.SetDrawColor(border_color);
+    renderer.FillRect(line_rect);
+
+    // Texto equipment
+    std::string equipment_str = "Equipment";
+    int small_font_size = 12;
+    SDL2pp::Texture& equipment_tex =
+            texture_manager.get_text_texture(equipment_str, font_path, small_font_size, text_color);
+
+    renderer.Copy(equipment_tex, SDL2pp::NullOpt,
+                  SDL2pp::Rect(equipment_text.x, equipment_text.y, equipment_tex.GetWidth(),
+                               equipment_tex.GetHeight()));
+
+    std::vector<std::pair<GunType, SDL2pp::Rect>> equipment = {
+            {primary_gun, primary_gun_rect}, {secondary_gun, secondary_gun_rect},
+            //{KNIFE, knife_rect}
+    };
+
+    for (const auto& [gun, rect]: equipment) {
+        // Rectangulo
+        renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
+        renderer.SetDrawColor(0, 0, 0);
+        renderer.FillRect(rect);
+
+        // Borde
+        renderer.SetDrawBlendMode(SDL_BLENDMODE_NONE);
+        renderer.SetDrawColor(border_color);
+        renderer.FillRect(SDL2pp::Rect(rect.x, rect.y, rect.w, border_thickness));
+        renderer.FillRect(
+                SDL2pp::Rect(rect.x, rect.y + rect.h - border_thickness, rect.w, border_thickness));
+        renderer.FillRect(SDL2pp::Rect(rect.x, rect.y, border_thickness, rect.h));
+        renderer.FillRect(
+                SDL2pp::Rect(rect.x + rect.w - border_thickness, rect.y, border_thickness, rect.h));
+
+        // Textura del arma
+        if (gun != NONE) {
+            GunSprites sprite;
+            switch (gun) {
+                case GLOCK:
+                    sprite = GLOCK_SHOP;
+                    break;
+                case AK47:
+                    sprite = AK47_SHOP;
+                    break;
+                case M3:
+                    sprite = M3_SHOP;
+                    break;
+                case AWP:
+                    sprite = AWP_SHOP;
+                    break;
+                default:
+                    continue;
+            }
+
+            std::string weapon_path = texture_parser.get_gun_texture(sprite);
+            SDL2pp::Texture& gun_tex = texture_manager.get_texture(weapon_path);
+            gun_tex.SetAlphaMod(200);
+
+            int margin_x = 10;
+            int margin_y = 4;
+
+            SDL2pp::Rect dst(rect.x + margin_x, rect.y + margin_y, rect.w - 2 * margin_x,
+                             rect.h - 2 * margin_y);
+
+            renderer.Copy(gun_tex, SDL2pp::NullOpt, dst);
+        }
+    }
 
     renderer.SetDrawBlendMode(SDL_BLENDMODE_NONE);
     renderer.SetDrawColor(0, 0, 0, 255);

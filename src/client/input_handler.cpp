@@ -121,7 +121,7 @@ bool InputHandler::handle_buy_events() {
     return true;
 }
 
-
+/* Envia comando de comenzar a moverse si ya no nos estamos moviendo */
 template <typename T>
 bool InputHandler::try_move(bool& flag, T dto) {
     if (!flag) {
@@ -131,6 +131,7 @@ bool InputHandler::try_move(bool& flag, T dto) {
     return true;
 }
 
+/* Envia comando de dejar de moverse si ya no estamos quietos */
 template <typename T>
 bool InputHandler::try_stop(bool& flag, T dto) {
     if (flag) {
@@ -140,6 +141,7 @@ bool InputHandler::try_stop(bool& flag, T dto) {
     return true;
 }
 
+/* Maneja evento de tocar una tecla de movimiento */
 bool InputHandler::handle_keydown_event(const SDL_Event& event) {
     if (event.type != SDL_KEYDOWN)
         return false;
@@ -158,6 +160,7 @@ bool InputHandler::handle_keydown_event(const SDL_Event& event) {
     }
 }
 
+/* Maneja evento de soltar una tecla de movimiento */
 bool InputHandler::handle_keyup_event(const SDL_Event& event) {
     if (event.type != SDL_KEYUP)
         return false;
@@ -176,6 +179,7 @@ bool InputHandler::handle_keyup_event(const SDL_Event& event) {
     }
 }
 
+/* Calcula el angulo del mouse en coords logicas al centro de la camara */
 double InputHandler::calculate_angle_to_mouse(int mouse_x, int mouse_y) const {
     auto [width, height] = sdl.get_logical_size();
     float center_x = width / 2.0f;
@@ -186,6 +190,7 @@ double InputHandler::calculate_angle_to_mouse(int mouse_x, int mouse_y) const {
     return (ang_radianes * 180.0f / M_PI) + 90;
 }
 
+/* Maneja evento de disparo */
 bool InputHandler::handle_mouse_motion_event(const SDL_Event& event) {
     if (event.type != SDL_MOUSEMOTION)
         return false;
@@ -199,6 +204,7 @@ bool InputHandler::handle_mouse_motion_event(const SDL_Event& event) {
     return true;
 }
 
+/* Maneja evento de disparo */
 bool InputHandler::handle_shoot_event(const SDL_Event& event) {
     if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT &&
         !click_attack) {
@@ -216,7 +222,7 @@ bool InputHandler::handle_shoot_event(const SDL_Event& event) {
 }
 
 
-bool InputHandler::handle_events() {
+bool InputHandler::handle_attack_events() {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (handle_quit_event(event))
