@@ -13,6 +13,7 @@ YAML::Node YamlParser::game_map_to_Yaml(const GameMap& game_map) {
     YAML::Node map;
     map["width"] = game_map.width;
     map["height"] = game_map.height;
+    map["background"] = static_cast<int>(game_map.background);
 
     YAML::Node blocks(YAML::NodeType::Sequence);
     for (const auto& obj: game_map.map_objects) {
@@ -73,8 +74,13 @@ GameMap YamlParser::yaml_to_game_map(const std::string& path) {
         sites.push_back(yaml_to_vector2d(block));
     }
 
-    GameMap map{
-            file["width"].as<int>(), file["height"].as<int>(), blocks, ct_spawns, tt_spawns, sites};
+    GameMap map{file["width"].as<int>(),
+                file["height"].as<int>(),
+                static_cast<Background>(file["background"].as<int>()),
+                blocks,
+                ct_spawns,
+                tt_spawns,
+                sites};
     return map;
 }
 

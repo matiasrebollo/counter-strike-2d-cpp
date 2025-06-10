@@ -14,4 +14,6 @@ struct MapObject {
     const bool collidable;
 };
 
+enum Background { AZTEC_BACKGROUND = 0, DUST_BACKGROUND = 1, GRASS_BACKGROUND = 2 };
+
 #endif
