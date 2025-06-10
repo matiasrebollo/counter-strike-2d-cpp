@@ -34,6 +34,9 @@ private:
     Ui::Game_editor* ui;
     void setupUi();
     GameMap create_map(const std::vector<std::vector<int>>& grid);
+    void setupBlockList();
+    void setupBackgroundList();
+    void setupGridMap(const int& rows, const int& colums);
 
 
     BlockTextureParser texture_parser;
@@ -43,5 +46,6 @@ private:
     std::unique_ptr<GridAction> mode;
     std::pair<int, int> click_on;
     std::pair<int, int> click_drop;
+    bool first_click_done;
 };
 #endif  // GAME_EDITOR_H

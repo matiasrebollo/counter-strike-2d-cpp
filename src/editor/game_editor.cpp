@@ -29,9 +29,16 @@ Game_editor::Game_editor(QWidget* parent):
 Game_editor::~Game_editor() { delete ui; }
 
 void Game_editor::setupUi() {
+    this->setupBlockList();
+    this->setupBackgroundList();
+    int N = 150, M = 100;
+    this->setupGridMap(N, M);
+}
+
+void Game_editor::setupBlockList() {
     for (const auto& block: texture_parser.get_blocks_keys()) {
         ClickableLabel* label = new ClickableLabel();
-        label->setFixedSize(60, 60);
+        label->setFixedSize(50, 50);
         BlockTextureInfo texture = texture_parser.get_texture_info(block);
         QPixmap tileset(QString::fromStdString(texture.tileset_path));
         QPixmap tile = tileset.copy(texture.x, texture.y, texture.width, texture.height);
@@ -40,7 +47,9 @@ void Game_editor::setupUi() {
 
         connect(label, &ClickableLabel::clicked, [this, block]() { selected_block = block; });
     }
+}
 
+void Game_editor::setupBackgroundList() {
     for (const auto& background: texture_parser.get_backgrounds()) {
         ClickableLabel* label = new ClickableLabel();
         label->setFixedSize(60, 60);
@@ -50,17 +59,21 @@ void Game_editor::setupUi() {
         ui->backgrounds_list->addWidget(label);
         connect(label, &ClickableLabel::clicked, [this, background, background_path]() {
             ui->scrollAreaGridMap->setStyleSheet("background-image: url(" +
-                                                 QString::fromStdString(background_path) + ");");
+                                                 QString::fromStdString(background_path) +
+                                                 ");"
+                                                 "background-repeat: no-repeat;"
+                                                 "background-position: center;");
             selected_background = background;
         });
     }
+}
 
-    int N = 15, M = 20;
-    ui->scrollAreaGridMap->setMinimumSize(50 * M, 50 * N);
-    this->grid.resize(N);
-    for (int i = 0; i < N; ++i) {
-        this->grid[i].resize(M, NONE_BLOCK);
-        for (int j = 0; j < M; ++j) {
+void Game_editor::setupGridMap(const int& rows, const int& colums) {
+    ui->scrollAreaGridMap->setMinimumSize(50 * colums, 50 * rows);
+    this->grid.resize(rows);
+    for (int i = 0; i < rows; ++i) {
+        this->grid[i].resize(colums, NONE_BLOCK);
+        for (int j = 0; j < colums; ++j) {
             ClickableLabel* cell = new ClickableLabel();
             cell->setFixedSize(50, 50);
             connect(cell, &ClickableLabel::clicked, this, [this, cell, i, j]() {
