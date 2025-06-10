@@ -1,7 +1,6 @@
 #include "server/player.h"
 
-#include <cmath>
-#include <iostream>
+#include <algorithm>
 
 #include "server/game_world.h"
 
@@ -36,7 +35,6 @@ void Player::update(GameWorld& game, const float& delta_t) {
     }
     if (Gun* weapon = loadout.equipped_gun())
         weapon->update(delta_t, *this, game);
-    // enviar eventos si disparo, si mato
     // si mato, reconocerlo y aumentar dinero
 }
 
@@ -45,7 +43,8 @@ void Player::move_down() { moving_down = !moving_down; }
 void Player::move_left() { moving_left = !moving_left; }
 void Player::move_right() { moving_right = !moving_right; }
 void Player::rotate(const double& new_orientation) { this->orientation = new_orientation; }
-void Player::stop() {
+void Player::restart() {
+    life = PLAYER_INITIAL_LIFE;
     moving_up = false;
     moving_down = false;
     moving_left = false;
@@ -59,22 +58,20 @@ void Player::make_action() {
 
     making_action = !making_action;
 }
+
+void Player::receive_damage(const int& damage) { life = std::max(life - damage, 0); }
+
 void Player::equip_primary() { loadout.equip_primary(); }
 void Player::equip_secondary() { loadout.equip_secondary(); }
 void Player::equip_knife() { loadout.equip_knife(); }
 
-void Player::buy_gun(const GunType& gun) {
-    loadout.buy_primary_gun(gun);
-    // compra exitosa o no: enviar evento al juego para notificar al cliente??
-}
-void Player::buy_ammo(const bool& for_primary) {
-    loadout.buy_ammo(for_primary);
-    // compra exitosa o no: enviar evento al juego para notificar al cliente??
-}
+void Player::buy_gun(const GunType& gun) { loadout.buy_primary_gun(gun); }
+void Player::buy_ammo(const bool& for_primary) { loadout.buy_ammo(for_primary); }
 
 const PlayerDTO Player::get_dto() const {
     const PlayerDTO dto{name, rect.position, orientation, life, loadout.get_dto()};
     return dto;
 }
+
 
 Player::~Player() {}

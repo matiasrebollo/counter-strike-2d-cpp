@@ -28,6 +28,7 @@ target_sources(taller_server
         client_receiver.h
         client_sender.h
         collidable.h
+        static_map_object.h
         command.h
         cs2d_game.h
         game_phase.cpp

@@ -3,10 +3,10 @@
 #include "server/game_world.h"
 
 Shot::Shot(const Vector2D<int>& origin, const float& orientation):
-        origin(origin), orientation(orientation) {}
+        origin(origin), orientation(orientation), hit(nullptr), distance(-1) {}
 
-Collidable* Shot::shoot(const GameWorld& game, const Player& shooter) {
-    return game.first_impact(*this, shooter);
+void Shot::shoot(const GameWorld& game, const Player& shooter) {
+    game.calculate_shot(*this, shooter);
 }
 
 Shot::~Shot() {}
