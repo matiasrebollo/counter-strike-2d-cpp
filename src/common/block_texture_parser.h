@@ -31,6 +31,16 @@ struct TilesetInfo {
 };
 
 class BlockTextureParser {
+private:
+    void set_backgrounds_paths();
+    void set_blocks_textures();
+    void set_skins_textures();
+    void set_tileset_numbers();
+    void set_symbols();
+    void set_crosshairs();
+    void set_font_and_waiting();
+    void set_gun_textures();
+
 protected:
     std::unordered_map<int, BlockTextureInfo> block_textures;
     std::unordered_map<CounterTerroristSkin, std::vector<BlockTextureInfo>> ct_skins;
