@@ -65,6 +65,7 @@ void Lobby::on_CreateGame_clicked() {
 
 void Lobby::create_game() {
     ui->stack->setCurrentIndex(2);
+    ui->message->clear();
     ui->maps_list->clear();
 
     for (const auto& entry: std::filesystem::directory_iterator(MAP_PATH)) {
@@ -75,6 +76,9 @@ void Lobby::create_game() {
             item->setTextAlignment(Qt::AlignCenter);
             ui->maps_list->addItem(item);
         }
+    }
+    if (ui->maps_list->count() == 0) {
+        ui->message->setText("Tenes que crear algún mapa para jugar");
     }
 }
 
