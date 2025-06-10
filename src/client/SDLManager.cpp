@@ -9,6 +9,7 @@
 
 #include "../common/block_texture_parser.h"
 
+// Es una clase muy grande, quizas se pueda separar en subclases (como una para el HUD).
 
 SDLManager::SDLManager():
         sdl(SDL_INIT_VIDEO),

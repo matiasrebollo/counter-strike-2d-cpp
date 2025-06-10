@@ -112,7 +112,7 @@ bool GameUI::update_waiting() {
 
 void GameUI::show_waiting(const int& it) {
     sdl.clear_display();
-    // el 2 luego tiene que ser la cantidad de personas que va a unirse maxima
+    // el 2 luego tiene que ser la cantidad de personas que va a unirse maxima que se lee del configurable
     sdl.render_waiting_screen(this->game_snapshot.ct.size() + this->game_snapshot.tt.size(), 2,
                               local_info.gamename, it, FPS);
     sdl.show_screen();
@@ -226,13 +226,9 @@ void GameUI::print_message(const std::string& s) { std::cout << s << std::endl; 
 
 void GameUI::close_client() {
     this->protocol.close();
-    // this->receiver.close_queue();
     this->receiver.join();
-    // El receiver ya no me interesa, cerro su queue y ya está.
-    // this->input_handler.close_sender_queue();
     this->input_handler.close_sender_queue();
-    this->input_handler
-            .join_sender();  // aca me bloqueo hasta que sea joineable, por dentro el sender stopea
+    this->input_handler.join_sender();  
 }
 
 GameUI::~GameUI() {

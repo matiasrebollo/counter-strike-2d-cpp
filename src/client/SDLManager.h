@@ -34,7 +34,6 @@ private:
     TextureManager texture_manager;
     Camera camera;
     Shop shop;
-    // quizas tenerlo optional
     std::optional<GameMap> map;
 
     void update_camera(int player_x, int player_y);
