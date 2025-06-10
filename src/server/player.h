@@ -29,10 +29,9 @@ private:
     Loadout loadout;
 
 public:
-    Player(const std::string& name, Vector2D& position);
+    Player(const std::string& name, Vector2D<int>& position);
 
     float get_orientation() const;
-    uint16_t get_life() const;
     bool is_alive() const;
 
     void update(GameWorld& game, const float& delta_t);

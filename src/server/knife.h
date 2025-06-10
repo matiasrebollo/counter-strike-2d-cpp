@@ -17,7 +17,7 @@ private:
 public:
     Knife();
 
-    void update(GameWorld& game, const float& delta_t) override;
+    void update(const float& delta_t, Player& owner, GameWorld& game) override;
 
     Knife(const Knife&) = delete;
     Knife& operator=(const Knife&) = delete;

@@ -18,7 +18,7 @@ private:
     float time_since_last_shot;
 
     bool can_shoot();
-    void shoot(GameWorld& game);
+    void shoot(GameWorld& game, Player& owner);
 
 public:
     explicit Gun(const GunType& gun_type);
@@ -27,7 +27,7 @@ public:
     GunType get_type() const;
     uint16_t get_ammo() const;
     void add_ammo(uint16_t ammo_count);
-    void update(GameWorld& game, const float& delta_t) override;
+    void update(const float& delta_t, Player& owner, GameWorld& game) override;
 
     // eliminar copia luego con polimorfismo
     Gun(const Gun&) = default;

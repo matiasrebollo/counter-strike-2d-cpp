@@ -16,6 +16,7 @@ target_sources(taller_server
         player.cpp
         loadout.cpp
         weapon.cpp
+        shot.cpp
         gun.cpp
         knife.cpp
         server.cpp
@@ -40,6 +41,7 @@ target_sources(taller_server
         weapon.h
         gun.h
         knife.h
+        shot.h
         server.h
         server_monitor.h
         server_protocol.h

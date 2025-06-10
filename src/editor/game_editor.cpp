@@ -71,11 +71,11 @@ void Game_editor::on_save_button_clicked() {
 GameMap Game_editor::create_map(const std::vector<std::vector<int>>& grid) {
     int height = static_cast<int>(grid.size());
     int width = static_cast<int>(grid[0].size());
-    std::map<int, std::vector<Vector2D>> positions_map;
+    std::map<int, std::vector<Vector2D<int>>> positions_map;
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
             int block = grid[i][j];
-            positions_map[block].push_back(Vector2D(j, i));
+            positions_map[block].push_back(Vector2D<int>(j, i));
         }
     }
 
@@ -88,12 +88,12 @@ GameMap Game_editor::create_map(const std::vector<std::vector<int>>& grid) {
                    });
 
 
-    std::vector<Vector2D> ct_spawns = {Vector2D(1, 1), Vector2D(1, 2), Vector2D(2, 1),
-                                       Vector2D(2, 2)};
-    std::vector<Vector2D> tt_spawns = {Vector2D(13, 6), Vector2D(14, 6), Vector2D(11, 7),
-                                       Vector2D(12, 7)};
-    std::vector<Vector2D> sites = {Vector2D(12, 1), Vector2D(12, 2), Vector2D(13, 1),
-                                   Vector2D(14, 1)};
+    std::vector<Vector2D<int>> ct_spawns = {Vector2D<int>(1, 1), Vector2D<int>(1, 2),
+                                            Vector2D<int>(2, 1), Vector2D<int>(2, 2)};
+    std::vector<Vector2D<int>> tt_spawns = {Vector2D<int>(13, 6), Vector2D<int>(14, 6),
+                                            Vector2D<int>(11, 7), Vector2D<int>(12, 7)};
+    std::vector<Vector2D<int>> sites = {Vector2D<int>(12, 1), Vector2D<int>(12, 2),
+                                        Vector2D<int>(13, 1), Vector2D<int>(14, 1)};
 
     GameMap game_map = {width, height, blocks, ct_spawns, tt_spawns, sites};
     return game_map;

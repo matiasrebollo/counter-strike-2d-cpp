@@ -11,7 +11,7 @@
 #include "server/collidable.h"
 #include "server/game_world_snapshot.h"
 #include "server/player.h"
-// #include "server/shot.h"
+#include "server/shot.h"
 
 #define TERRORISTS 1
 #define COUNTER_TERRORISTS 1
@@ -24,7 +24,7 @@ private:
     const Rect spawn_zone;
     const GameMap game_map;
 
-    Vector2D random_spawn_position() const;
+    Vector2D<int> random_spawn_position() const;
 
     bool team_is_dead(const std::map<std::string, std::shared_ptr<Player>>& team) const;
 
@@ -42,9 +42,9 @@ private:
     }
 
     // devuelve la distancia del objeto con el que impactó o 0 si no impactó.
-    // double impacts(const Shot& shot, const Collidable& collidable) const;
-    // double intersects_segment(const Shot& shot, const Vector2D& seg_start, const Vector2D&
-    // seg_end) const;
+    double impacts(const Shot& shot, const Collidable& collidable) const;
+    double intersects_segment(const Shot& shot, const Vector2D<float>& seg_start,
+                              const Vector2D<float>& seg_end) const;
 
 public:
     const std::string id;
@@ -70,10 +70,9 @@ public:
     void buy_gun_for(const std::string& username, const GunType& gun);
     void buy_ammo_for(const std::string& username, const bool& for_primary);
 
-    void make_step_player(Player& player, const Vector2D& step);
+    void make_step_player(Player& player, const Vector2D<int>& step);
     const Collidable* colliding_object_with(const Collidable& coll) const;
-    // void shoot(const std::string& username);
-    // const Collidable* first_impact(const Shot& shot) const;
+    Collidable* first_impact(const Shot& shot, const Player& shooter) const;
 
     GameWorld(const GameWorld&) = delete;
     GameWorld& operator=(const GameWorld&) = delete;

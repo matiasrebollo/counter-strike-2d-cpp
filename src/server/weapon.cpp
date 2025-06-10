@@ -13,7 +13,7 @@ bool Weapon::just_triggered_action() { return making_action && time_since_last_a
 
 void Weapon::stop_action() { making_action = false; }
 
-void Weapon::update(GameWorld& /*game*/, const float& delta_t) {
+void Weapon::update(const float& delta_t, Player& /*owner*/, GameWorld& /*game*/) {
     if (time_since_last_action > 0.0f)
         time_since_last_action += delta_t;
 }

@@ -4,6 +4,7 @@
 #include <memory>
 
 class GameWorld;  // forward declaration
+class Player;     // forward declaration
 
 #include "common/weapon_type.h"
 
@@ -19,7 +20,7 @@ public:
 
     virtual void action();
     void stop_action();
-    virtual void update(GameWorld& game, const float& delta_t) = 0;
+    virtual void update(const float& delta_t, Player& owner, GameWorld& game) = 0;
 
     Weapon(const Weapon&) = delete;
     Weapon& operator=(const Weapon&) = delete;
