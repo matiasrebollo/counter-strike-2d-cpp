@@ -51,14 +51,8 @@ void ClientProtocol::send_command(const CommandDTO& command) {
     std::visit(
             [this](const auto& d) {
                 using T = std::decay_t<decltype(d)>;
-                if constexpr (std::is_same_v<T, MoveUpDTO>) {
-                    handle_move_up();
-                } else if constexpr (std::is_same_v<T, MoveDownDTO>) {
-                    handle_move_down();
-                } else if constexpr (std::is_same_v<T, MoveLeftDTO>) {
-                    handle_move_left();
-                } else if constexpr (std::is_same_v<T, MoveRightDTO>) {
-                    handle_move_right();
+                if constexpr (std::is_same_v<T, MoveDTO>) {
+                    handle_move(d);
                 } else if constexpr (std::is_same_v<T, RotateDTO>) {
                     handle_rotate(d);
                 } else if constexpr (std::is_same_v<T, PlayerActionDTO>) {
@@ -104,24 +98,10 @@ void ClientProtocol::send_select_map_request(const InternalMessage& request) {
 
 */
 
-void ClientProtocol::handle_move_up() {
+void ClientProtocol::handle_move(const MoveDTO& dto) {
     this->send_byte(CODE_MOVE);
-    this->send_byte(Movement::UP + 1);
-}
-
-void ClientProtocol::handle_move_down() {
-    this->send_byte(CODE_MOVE);
-    this->send_byte(Movement::DOWN + 1);
-}
-
-void ClientProtocol::handle_move_left() {
-    this->send_byte(CODE_MOVE);
-    this->send_byte(Movement::LEFT + 1);
-}
-
-void ClientProtocol::handle_move_right() {
-    this->send_byte(CODE_MOVE);
-    this->send_byte(Movement::RIGHT + 1);
+    this->send_byte(dto.dir + 1);
+    this->send_byte(this->bools_to_code.find(dto.move)->second);
 }
 
 void ClientProtocol::handle_rotate(const RotateDTO& dto) {
@@ -225,16 +205,17 @@ LoadoutDTO ClientProtocol::receive_loadout() {
     return LoadoutDTO{money, primary_gun, primary_ammo, secondary_gun, secondary_ammo, equipped};
 }
 
-GameMap ClientProtocol::receive_map() {
+GameMapDTO ClientProtocol::receive_map() {
     Background background = static_cast<Background>(this->receive_byte());
     uint16_t size = this->receive_big_endian_number();
-    return GameMap{0, 0, background, this->receive_map_objects(size), {}, {}, {}};
+    return GameMapDTO{background, this->receive_map_objects(size)};
 }
 
 std::vector<MapObject> ClientProtocol::receive_map_objects(const uint8_t& size) {
     std::vector<MapObject> objects = {};
     for (int i = 0; i < size; i++) {
         uint16_t type = this->receive_big_endian_number();
+        uint8_t collidable = this->receive_byte();
         uint8_t vec_size = this->receive_byte();
         std::vector<Vector2D<int>> positions;
         for (int j = 0; j < vec_size; j++) {
@@ -242,7 +223,7 @@ std::vector<MapObject> ClientProtocol::receive_map_objects(const uint8_t& size) 
             uint16_t y = this->receive_big_endian_number();
             positions.push_back(Vector2D<int>(x, y));
         }
-        objects.push_back({positions, type, true});
+        objects.push_back({positions, type, this->code_to_bools.find(collidable)->second});
     }
     return objects;
 }

@@ -55,7 +55,7 @@ void CS2DGame::broadcast_game_dto(const GameDTO& game_dto) const {
 
 void CS2DGame::broadcast_map() const {
     const GameMap map = game_world.get_map();
-    broadcast_game_dto(map);
+    broadcast_game_dto(GameMapDTO{map.background, map.map_objects});
 }
 
 void CS2DGame::broadcast_snapshot(const int time_left) const {

@@ -34,13 +34,17 @@ CommonProtocol::CommonProtocol(std::unique_ptr<Socket> socket):
                         {CommandType::CHANGE_WEAPON, CODE_CHANGE_WEAPON},
                         {CommandType::PLANT_BOMB, CODE_PLANT_BOMB},
                         {CommandType::GAME_STARTED, CODE_GAME_STARTED},
-                        {CommandType::GAME_ENDED, CODE_ENDGAME}}) {}
+                        {CommandType::GAME_ENDED, CODE_ENDGAME}}),
+        bools_to_code({{true, CODE_TRUE}, {false, CODE_FALSE}}),
+        code_to_bools({{CODE_TRUE, true}, {CODE_FALSE, false}}) {}
 
 CommonProtocol::CommonProtocol(CommonProtocol&& other) noexcept:
         socket(std::move(other.socket)),
         weaponParser(std::move(other.weaponParser)),
         codeToCommands(std::move(other.codeToCommands)),
-        commandsToCode(std::move(other.commandsToCode)) {}
+        commandsToCode(std::move(other.commandsToCode)),
+        bools_to_code(std::move(other.bools_to_code)),
+        code_to_bools(std::move(other.code_to_bools)) {}
 
 
 // cppcheck-suppress operatorEqVarError

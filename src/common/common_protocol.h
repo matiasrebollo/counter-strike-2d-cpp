@@ -25,6 +25,9 @@ using Socket = RealSocket;
 template <class>
 inline constexpr bool always_false_v = false;
 
+#define CODE_TRUE 0x01
+#define CODE_FALSE 0x00
+
 #define CODE_CREATE_USERNAME 0x01
 #define CODE_CREATE_GAME 0x02
 #define CODE_JOIN_GAME 0x03
@@ -54,6 +57,8 @@ protected:
     WeaponParser weaponParser;
     std::unordered_map<uint8_t, CommandType> codeToCommands;
     std::unordered_map<CommandType, uint8_t> commandsToCode;
+    std::unordered_map<bool, uint8_t> bools_to_code;
+    std::unordered_map<uint8_t, bool> code_to_bools;
 
 public:
     explicit CommonProtocol(std::unique_ptr<Socket> socket);

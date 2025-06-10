@@ -7,6 +7,6 @@
 #include "game_map.h"
 #include "game_snapshot.h"
 
-using GameDTO = std::variant<GameMap, Snapshot, GameEnded>;
+using GameDTO = std::variant<GameMapDTO, Snapshot, GameEnded>;
 
 #endif

@@ -23,7 +23,7 @@ SDLManager::SDLManager():
     SDL_ShowCursor(SDL_DISABLE);
 }
 
-void SDLManager::set_map(GameMap game_map) { map = std::move(game_map); }
+void SDLManager::set_map(GameMapDTO game_map) { map = std::move(game_map); }
 
 void SDLManager::render_waiting_screen(int players_connected, int players_required,
                                        const std::string& gamename, int iteration, int FPS) {
@@ -358,7 +358,13 @@ void SDLManager::render_in_z_order(const Snapshot& snapshot, const LocalInfo& lo
     update_camera(local_info.x, local_info.y);
 
     if (map.has_value()) {
-        GameMap gamemap = map.value();
+        GameMapDTO gamemap = map.value();
+
+        const std::string& background_path = texture_parser.get_background_path(gamemap.background);
+        SDL2pp::Texture& background = texture_manager.get_texture(background_path);
+        SDL2pp::Rect backgroundRect(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
+        renderer.Copy(background, SDL2pp::NullOpt, backgroundRect);
+
         for (const MapObject& obj: gamemap.map_objects) {
             const BlockTextureInfo& obj_info = texture_parser.get_texture_info(obj.type);
             std::string path = obj_info.tileset_path;

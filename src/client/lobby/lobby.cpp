@@ -3,10 +3,10 @@
 #include <QFont>
 #include <QFontDatabase>
 #include <QMessageBox>
+#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <utility>
-#include <filesystem>
 
 #define MAP_PATH "../maps"
 
@@ -169,10 +169,10 @@ void Lobby::connect_to_sv() {
 }
 
 ClientProtocol&& Lobby::get_protocol() {
-    if (protocol.has_value()) {
-        return std::move(protocol.value());
+    if (!protocol.has_value()) {
+        throw std::runtime_error(MSG_NO_PROTOCOL);
     }
-    return protocol.value();
+    return std::move(protocol.value());
 }
 
 void Lobby::on_select_tt_skin_clicked() {

@@ -17,6 +17,8 @@ public:
 
     Vector2D operator*(T scalar) const { return Vector2D(x * scalar, y * scalar); }
 
+    bool operator==(const Vector2D& other) const { return x == other.x && y == other.y; }
+
     T dot(const Vector2D& other) const { return x * other.x + y * other.y; }
 
     T cross(const Vector2D& other) const { return x * other.y - y * other.x; }

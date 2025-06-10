@@ -16,5 +16,9 @@ struct GameMap {
     std::vector<Vector2D<int>> sites;
 };
 
+struct GameMapDTO {
+    Background background;
+    std::vector<MapObject> map_objects;
+};
 
 #endif

@@ -146,13 +146,13 @@ bool InputHandler::handle_keydown_event(const SDL_Event& event) {
 
     switch (event.key.keysym.sym) {
         case SDLK_w:
-            return try_move(w, MoveUpDTO{});
+            return try_move(w, MoveDTO{UP, true});
         case SDLK_a:
-            return try_move(a, MoveLeftDTO{});
+            return try_move(a, MoveDTO{LEFT, true});
         case SDLK_s:
-            return try_move(s, MoveDownDTO{});
+            return try_move(s, MoveDTO{DOWN, true});
         case SDLK_d:
-            return try_move(d, MoveRightDTO{});
+            return try_move(d, MoveDTO{RIGHT, true});
         default:
             return false;
     }
@@ -165,13 +165,13 @@ bool InputHandler::handle_keyup_event(const SDL_Event& event) {
 
     switch (event.key.keysym.sym) {
         case SDLK_w:
-            return try_stop(w, MoveUpDTO{});
+            return try_stop(w, MoveDTO{UP, false});
         case SDLK_a:
-            return try_stop(a, MoveLeftDTO{});
+            return try_stop(a, MoveDTO{LEFT, false});
         case SDLK_s:
-            return try_stop(s, MoveDownDTO{});
+            return try_stop(s, MoveDTO{DOWN, false});
         case SDLK_d:
-            return try_stop(d, MoveRightDTO{});
+            return try_stop(d, MoveDTO{RIGHT, false});
         default:
             return false;
     }
@@ -207,13 +207,13 @@ bool InputHandler::handle_shoot_event(const SDL_Event& event) {
     if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT &&
         !click_attack) {
         click_attack = true;
-        sender.add_command_to_queue(PlayerActionDTO{});
+        sender.add_command_to_queue(PlayerActionDTO{true});
         return true;
     }
 
     if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT && click_attack) {
         click_attack = false;
-        sender.add_command_to_queue(PlayerActionDTO{});
+        sender.add_command_to_queue(PlayerActionDTO{false});
         return true;
     }
 

@@ -170,7 +170,7 @@ GameMap Game_editor::create_map(const std::vector<std::vector<int>>& grid) {
     std::vector<Vector2D<int>> ct_spawns_vector = set_to_vector(ct_spawns);
     std::vector<Vector2D<int>> tt_spawns_vector = set_to_vector(tt_spawns);
     std::vector<Vector2D<int>> sites_vector = set_to_vector(bomb_sites);
-
+  
     GameMap game_map = {width,       height,           selected_background,
                         blocks,      ct_spawns_vector, tt_spawns_vector,
                         sites_vector};
