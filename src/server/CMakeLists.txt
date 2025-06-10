@@ -1,5 +1,6 @@
 target_sources(taller_server
     PRIVATE
+<<<<<<< HEAD
         client_acceptor.cpp
         client_handler.cpp
         client_receiver.cpp
@@ -46,3 +47,10 @@ target_sources(taller_server
         server_monitor.h
         server_protocol.h
 )
+=======
+    # .cpp files
+    main.cpp
+    PUBLIC
+    # .h files
+    )
+>>>>>>> 162e03cfdf34821dad964232aa9b24fc9711e3c5

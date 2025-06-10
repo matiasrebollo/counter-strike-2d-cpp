@@ -1,4 +1,5 @@
 target_sources(taller_client
+<<<<<<< HEAD
     PUBLIC
         lobby/lobby.h
         client_protocol.h
@@ -30,3 +31,11 @@ target_sources(taller_client
         texture_manager.cpp
         shop.cpp
 )
+=======
+    PRIVATE
+    # .cpp files
+    main.cpp
+    PUBLIC
+    # .h files
+    )
+>>>>>>> 162e03cfdf34821dad964232aa9b24fc9711e3c5
