@@ -30,6 +30,10 @@ public:
 private slots:
     void on_save_button_clicked();
 
+    void on_go_to_create_button_clicked();
+
+    void on_create_map_button_clicked();
+
 private:
     Ui::Game_editor* ui;
     void setupUi();

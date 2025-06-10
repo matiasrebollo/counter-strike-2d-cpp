@@ -23,6 +23,7 @@ Game_editor::Game_editor(QWidget* parent):
         selected_background(AZTEC_BACKGROUND),
         mode(std::make_unique<BlocksSetter>()) {
     ui->setupUi(this);
+    ui->stack->setCurrentIndex(2);
     this->setupUi();
 }
 
@@ -31,7 +32,7 @@ Game_editor::~Game_editor() { delete ui; }
 void Game_editor::setupUi() {
     this->setupBlockList();
     this->setupBackgroundList();
-    int N = 150, M = 100;
+    int N = 30, M = 50;
     this->setupGridMap(N, M);
 }
 
@@ -159,4 +160,12 @@ void Game_editor::setBlock(const int& row, const int& colum) {
         }
     }
     this->grid[row][colum] = selected_block;
+}
+
+void Game_editor::on_go_to_create_button_clicked() { ui->stack->setCurrentIndex(1); }
+
+
+void Game_editor::on_create_map_button_clicked() {
+    ui->colums_input->text()->toStdString();
+    ui->rows_input->text()->toStdString();
 }
