@@ -4,24 +4,28 @@
 AttackPhaseCommand::AttackPhaseCommand(const std::string& username): Command(username) {}
 void AttackPhaseCommand::execute_in_buy_phase(GameWorld&) const {}
 
-MoveUpCommand::MoveUpCommand(const std::string& username): AttackPhaseCommand(username) {}
-void MoveUpCommand::execute_in_attack_phase(GameWorld& game) const {
-    game.move_player_up(username);
-}
-
-MoveDownCommand::MoveDownCommand(const std::string& username): AttackPhaseCommand(username) {}
-void MoveDownCommand::execute_in_attack_phase(GameWorld& game) const {
-    game.move_player_down(username);
-}
-
-MoveLeftCommand::MoveLeftCommand(const std::string& username): AttackPhaseCommand(username) {}
-void MoveLeftCommand::execute_in_attack_phase(GameWorld& game) const {
-    game.move_player_left(username);
-}
-
-MoveRightCommand::MoveRightCommand(const std::string& username): AttackPhaseCommand(username) {}
-void MoveRightCommand::execute_in_attack_phase(GameWorld& game) const {
-    game.move_player_right(username);
+MoveCommand::MoveCommand(const std::string& username, const Movement direction, const bool& move):
+        AttackPhaseCommand(username), direction(direction), should_move(move) {}
+void MoveCommand::execute_in_attack_phase(GameWorld& game) const {
+    if (should_move) {
+        if (direction == UP)
+            game.move_player_up(username);
+        if (direction == DOWN)
+            game.move_player_down(username);
+        if (direction == LEFT)
+            game.move_player_left(username);
+        if (direction == RIGHT)
+            game.move_player_right(username);
+    } else {
+        if (direction == UP)
+            game.stop_moving_player_up(username);
+        if (direction == DOWN)
+            game.stop_moving_player_down(username);
+        if (direction == LEFT)
+            game.stop_moving_player_left(username);
+        if (direction == RIGHT)
+            game.stop_moving_player_right(username);
+    }
 }
 
 RotateCommand::RotateCommand(const std::string& username, const double& angle):
@@ -31,10 +35,14 @@ void RotateCommand::execute_in_attack_phase(GameWorld& game) const {
 }
 
 
-PlayerActionCommand::PlayerActionCommand(const std::string& username):
-        AttackPhaseCommand(username) {}
+PlayerActionCommand::PlayerActionCommand(const std::string& username, const bool& make):
+        AttackPhaseCommand(username), make(make) {}
 void PlayerActionCommand::execute_in_attack_phase(GameWorld& game) const {
-    game.make_player_action(username);
+    if (make) {
+        game.make_player_action(username);
+    } else {
+        game.stop_making_player_action(username);
+    }
 }
 
 EquipPrimaryCommand::EquipPrimaryCommand(const std::string& username):

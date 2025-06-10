@@ -7,49 +7,29 @@
 TEST(ClientProtocolTest, SendMoveUp) {
     auto [client, server] = create_connected_protocols();
 
-    MoveUpDTO dto{};
 
-    client->send_command(dto);
+    std::vector<Movement> movements = {Movement::UP, Movement::DOWN, Movement::LEFT,
+                                       Movement::RIGHT};
+    std::vector<std::string> movements_string = {"Movement::UP", "Movement::DOWN", "Movement::LEFT",
+                                                 "Movement::RIGHT"};
 
-    CommandDTO request = server->receive_client_request();
-    auto MoveUpDTOPtr = std::get_if<MoveUpDTO>(&request);
-    ASSERT_NE(MoveUpDTOPtr, nullptr) << "Expected MoveUpDTO but got another";
-}
+    std::vector<bool> values = {false, true};
 
-TEST(ClientProtocolTest, SendMoveDown) {
-    auto [client, server] = create_connected_protocols();
+    for (size_t i = 0; i < movements.size(); i++) {
+        for (size_t j = 0; j < values.size(); j++) {
 
-    MoveDownDTO dto{};
+            MoveDTO dto = MoveDTO{movements[i], values[j]};
 
-    client->send_command(dto);
-
-    CommandDTO request = server->receive_client_request();
-    auto MoveDownDTOPtr = std::get_if<MoveDownDTO>(&request);
-    ASSERT_NE(MoveDownDTOPtr, nullptr) << "Expected MoveDownDTO but got another";
-}
-
-TEST(ClientProtocolTest, SendMoveLeft) {
-    auto [client, server] = create_connected_protocols();
-
-    MoveLeftDTO dto{};
-
-    client->send_command(dto);
-
-    CommandDTO request = server->receive_client_request();
-    auto MoveLeftDTOPtr = std::get_if<MoveLeftDTO>(&request);
-    ASSERT_NE(MoveLeftDTOPtr, nullptr) << "Expected MoveLeftDTO but got another";
-}
-
-TEST(ClientProtocolTest, SendMoveRight) {
-    auto [client, server] = create_connected_protocols();
-
-    MoveRightDTO dto{};
-
-    client->send_command(dto);
-
-    CommandDTO request = server->receive_client_request();
-    auto MoveRightDTOPtr = std::get_if<MoveRightDTO>(&request);
-    ASSERT_NE(MoveRightDTOPtr, nullptr) << "Expected MoveRightDTO but got another";
+            client->send_command(dto);
+            CommandDTO request = server->receive_client_request();
+            auto MoveDTOPtr = std::get_if<MoveDTO>(&request);
+            ASSERT_NE(MoveDTOPtr, nullptr) << "Expected MoveDTO but got another";
+            ASSERT_EQ(movements[i], MoveDTOPtr->dir)
+                    << "Expected " << movements_string[i] << " but got another";
+            ASSERT_EQ(values[j], MoveDTOPtr->move)
+                    << "Expected " << values[j] << " but got another";
+        }
+    }
 }
 
 TEST(ClientProtocolTest, SendRotate) {

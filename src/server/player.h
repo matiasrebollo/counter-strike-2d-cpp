@@ -40,11 +40,16 @@ public:
     void move_down();
     void move_left();
     void move_right();
+    void stop_moving_up();
+    void stop_moving_down();
+    void stop_moving_left();
+    void stop_moving_right();
     void stop();
     void equip_primary();
     void equip_secondary();
     void equip_knife();
     void make_action();
+    void stop_making_action();
     void buy_gun(const GunType& gun);
     void buy_ammo(const bool& for_primary);
     const PlayerDTO get_dto() const;
