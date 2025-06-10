@@ -63,15 +63,15 @@ void Gun::shoot(GameWorld& game, Player& shooter) {
                                shooter.rect.position.y + shooter.rect.height / 2);
     Shot shot(origin, shooter.get_orientation());
 
-    const Collidable* hit = shot.shoot(game, shooter);
+    shot.shoot(game, shooter);
 
-    if (hit != nullptr) {
-        // que hit reciba daño de shot, reemplazar prints
-        Rect h = hit->rect;
-        std::cout << "¡Impacto! Disparo acertó a objeto en (" << h.position.x << ", "
-                  << h.position.y << ")\n";
+    if (shot.hit != nullptr || shot.distance < 0) {
+        // calcular daño (o si debe impactar) según arma.
+
+        shot.hit->receive_damage(10);
+        // game.execute_shot() para guardar el evento del disparo e informar a clientes
     } else {
-        std::cout << "Disparo fallido. No impactó ningún objeto.\n";
+        // excepcion? no debería "no pegar en nada" un disparo
     }
 }
 

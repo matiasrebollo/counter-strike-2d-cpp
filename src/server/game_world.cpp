@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "common/yaml_parser.h"
+#include "server/static_map_object.h"
 
 GameWorld::GameWorld():
         spawn_zone(Vector2D<int>(60, 60), 400, 200),
@@ -25,7 +26,7 @@ GameWorld::GameWorld():
     for (const auto& block: game_map.map_objects) {
         if (block.collidable) {
             for (const auto& vec: block.positions) {
-                collidables.emplace_back(std::make_shared<Collidable>(
+                collidables.emplace_back(std::make_shared<StaticMapObject>(
                         Vector2D<int>(vec.x * wallThickness, vec.y * wallThickness), wallThickness,
                         wallThickness));
             }
@@ -57,12 +58,12 @@ void GameWorld::add_player(const std::string& username) {
     }
 }
 
-void GameWorld::stop_players() {
+void GameWorld::restart_players() {
     for (auto& [_, player]: terrorists) {
-        player->stop();
+        player->restart();
     }
     for (auto& [_, player]: counter_terrorists) {
-        player->stop();
+        player->restart();
     }
 }
 
@@ -73,9 +74,7 @@ void GameWorld::spawn_players() {
 
         while (colliding_object_with(*player)) {
             position = random_spawn_position();
-            player->rect.position = position;  //
-                                               //
-                                               //
+            player->rect.position = position;
         }
     }
 
@@ -97,15 +96,9 @@ const GameWorldSnapshot GameWorld::get_snapshot() const {
     std::vector<PlayerDTO> tt;
 
     for (const auto& player: counter_terrorists) {
-        /*const PlayerDTO dto{player.first, player.second->rect.position,
-                            player.second->get_orientation(), player.second->get_life()};
-        ct.push_back(dto);*/
         ct.push_back(player.second->get_dto());
     }
     for (const auto& player: terrorists) {
-        /*const PlayerDTO dto{player.first, player.second->rect.position,
-                            player.second->get_orientation(), player.second->get_life()};
-        tt.push_back(dto);*/
         tt.push_back(player.second->get_dto());
     }
 
@@ -271,30 +264,7 @@ double GameWorld::intersects_segment(const Shot& shot, const Vector2D<float>& se
     return 0.0;
 }
 
-/*double GameWorld::intersects_segment(const Shot& shot, const Vector2D& seg_start,
-                                    const Vector2D& seg_end) const {
-
-    Vector2D seg_dir = seg_end - seg_start;
-    Vector2D r = seg_start - shot.origin;
-
-    double c = static_cast<double>(shot.direction.cross(seg_dir));
-
-    if (c == 0)
-        return 0.0;  // son paralelos, no hay intersección
-
-    double t = static_cast<double>(r.cross(seg_dir)) / c;
-    double u = static_cast<double>(r.cross(shot.direction)) / c;
-
-    // La semirrecta solo vale para t >= 0, y el segmento para u ∈ [0,1]. Se intersecan si t y u
-    // cumplen con esto.
-    if (t >= 0 && u >= 0 && u <= 1) {
-        return t * shot.direction.magnitude();
-    }
-
-    return 0.0;
-}*/
-
-Collidable* GameWorld::first_impact(const Shot& shot, const Player& shooter) const {
+void GameWorld::calculate_shot(Shot& shot, const Player& shooter) const {
     Collidable* hit = nullptr;
     double closest = std::numeric_limits<double>::max();
 
@@ -310,5 +280,6 @@ Collidable* GameWorld::first_impact(const Shot& shot, const Player& shooter) con
         }
     }
 
-    return hit;
+    shot.hit = hit;
+    shot.distance = closest;
 }
