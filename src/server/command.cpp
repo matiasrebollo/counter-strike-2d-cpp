@@ -15,7 +15,7 @@ std::unique_ptr<Command> Command::new_command(const std::string& username,
                 using T = std::decay_t<decltype(d)>;
 
                 if constexpr (std::is_same_v<T, MoveDTO>) {
-                    return std::make_unique<MoveCommand>(username, d.direction, d.move);
+                    return std::make_unique<MoveCommand>(username, d.dir, d.move);
                 } else if constexpr (std::is_same_v<T, RotateDTO>) {
                     return std::make_unique<RotateCommand>(username, d.angle);
                 } else if constexpr (std::is_same_v<T, PlayerActionDTO>) {

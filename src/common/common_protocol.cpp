@@ -34,7 +34,9 @@ CommonProtocol::CommonProtocol(std::unique_ptr<Socket> socket):
                         {CommandType::CHANGE_WEAPON, CODE_CHANGE_WEAPON},
                         {CommandType::PLANT_BOMB, CODE_PLANT_BOMB},
                         {CommandType::GAME_STARTED, CODE_GAME_STARTED},
-                        {CommandType::GAME_ENDED, CODE_ENDGAME}}) {}
+                        {CommandType::GAME_ENDED, CODE_ENDGAME}}),
+        bools_to_code({{true, CODE_TRUE}, {false, CODE_FALSE}}),
+        code_to_bools({{CODE_TRUE, true}, {CODE_FALSE, false}}) {}
 
 CommonProtocol::CommonProtocol(CommonProtocol&& other) noexcept:
         socket(std::move(other.socket)),

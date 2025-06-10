@@ -37,15 +37,8 @@ private:
     virtual void send_create_username_request(const CreateUsernameDTO& dto);
     virtual void send_create_game_request(const CreateGameDTO& dto);
     virtual void send_join_game_request(const JoinGameDTO& dto);
-    void send_select_map_request(const InternalMessage& request);
-    void send_buy_weapon_request(const InternalMessage& request);
-    void send_buy_weapon_ammo_request(const InternalMessage& request);
-    void send_aim_request(const InternalMessage& request);
 
-    void handle_move_up();
-    void handle_move_down();
-    void handle_move_left();
-    void handle_move_right();
+    void handle_move(const MoveDTO& dto);
     void handle_rotate(const RotateDTO& dto);
     void handle_player_action();
     void handle_equip_primary();
@@ -54,8 +47,6 @@ private:
     void handle_equip_bomb();
     void handle_buy_gun(const BuyGunDTO& dto);
     void handle_buy_ammo(const BuyAmmoDTO& dto);
-
-    void send_change_weapon_request(const InternalMessage& request);
 
     std::vector<PlayerDTO> receive_players(const int& size_players);
     LoadoutDTO receive_loadout();

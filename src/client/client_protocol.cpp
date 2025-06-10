@@ -51,14 +51,8 @@ void ClientProtocol::send_command(const CommandDTO& command) {
     std::visit(
             [this](const auto& d) {
                 using T = std::decay_t<decltype(d)>;
-                if constexpr (std::is_same_v<T, MoveUpDTO>) {
-                    handle_move_up();
-                } else if constexpr (std::is_same_v<T, MoveDownDTO>) {
-                    handle_move_down();
-                } else if constexpr (std::is_same_v<T, MoveLeftDTO>) {
-                    handle_move_left();
-                } else if constexpr (std::is_same_v<T, MoveRightDTO>) {
-                    handle_move_right();
+                if constexpr (std::is_same_v<T, MoveDTO>) {
+                    handle_move(d);
                 } else if constexpr (std::is_same_v<T, RotateDTO>) {
                     handle_rotate(d);
                 } else if constexpr (std::is_same_v<T, PlayerActionDTO>) {
@@ -104,24 +98,10 @@ void ClientProtocol::send_select_map_request(const InternalMessage& request) {
 
 */
 
-void ClientProtocol::handle_move_up() {
+void ClientProtocol::handle_move(const MoveDTO& dto) {
     this->send_byte(CODE_MOVE);
-    this->send_byte(Movement::UP + 1);
-}
-
-void ClientProtocol::handle_move_down() {
-    this->send_byte(CODE_MOVE);
-    this->send_byte(Movement::DOWN + 1);
-}
-
-void ClientProtocol::handle_move_left() {
-    this->send_byte(CODE_MOVE);
-    this->send_byte(Movement::LEFT + 1);
-}
-
-void ClientProtocol::handle_move_right() {
-    this->send_byte(CODE_MOVE);
-    this->send_byte(Movement::RIGHT + 1);
+    this->send_byte(dto.dir + 1);
+    this->send_byte(this->bools_to_code.find(dto.move)->second);
 }
 
 void ClientProtocol::handle_rotate(const RotateDTO& dto) {

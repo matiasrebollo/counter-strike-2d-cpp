@@ -146,18 +146,9 @@ CommandDTO ServerProtocol::receive_client_request() {
 
 CommandDTO ServerProtocol::receive_movement_request() {
     uint8_t code_movement = this->receive_byte();
-    switch (static_cast<Movement>(code_movement - 1)) {
-        case Movement::UP:
-            return MoveUpDTO{};
-        case Movement::DOWN:
-            return MoveDownDTO{};
-        case Movement::LEFT:
-            return MoveLeftDTO{};
-        case Movement::RIGHT:
-            return MoveRightDTO{};
-        default:
-            throw std::runtime_error("Unknown move code");
-    }
+    Movement movement = static_cast<Movement>(code_movement - 1);
+    bool move = this->code_to_bools.find(this->receive_byte())->second;
+    return MoveDTO{movement, move};
 }
 
 CommandDTO ServerProtocol::receive_change_weapon_request() {
