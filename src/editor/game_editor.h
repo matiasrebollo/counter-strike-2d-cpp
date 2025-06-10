@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <memory>
+#include <set>
 #include <utility>
 #include <vector>
 
@@ -10,6 +11,7 @@
 #include "../common/game_map.h"
 
 #include "blocks_setter.h"
+#include "ct_spawns_setter.h"
 #include "grid_action.h"
 
 // cppcheck-suppress unknownMacro
@@ -26,6 +28,7 @@ public:
     explicit Game_editor(QWidget* parent = nullptr);
     ~Game_editor();
     void setBlock(const int& row, const int& colum);
+    void setCtSpawn(const int& row, const int& colum);
 
 private slots:
     void on_save_button_clicked();
@@ -48,6 +51,7 @@ private:
     Background selected_background;
     std::vector<std::vector<int>> grid;
     std::unique_ptr<GridAction> mode;
+    std::set<std::pair<int, int>> ct_spawns;
     std::pair<int, int> first_click;
     std::pair<int, int> second_click;
     bool first_click_done;

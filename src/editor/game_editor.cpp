@@ -136,14 +136,14 @@ GameMap Game_editor::create_map(const std::vector<std::vector<int>>& grid) {
                    });
 
 
-    std::vector<Vector2D> ct_spawns = {Vector2D(1, 1), Vector2D(1, 2), Vector2D(2, 1),
-                                       Vector2D(2, 2)};
+    std::vector<Vector2D> ct_spawns2 = {Vector2D(1, 1), Vector2D(1, 2), Vector2D(2, 1),
+                                        Vector2D(2, 2)};
     std::vector<Vector2D> tt_spawns = {Vector2D(13, 6), Vector2D(14, 6), Vector2D(11, 7),
                                        Vector2D(12, 7)};
     std::vector<Vector2D> sites = {Vector2D(12, 1), Vector2D(12, 2), Vector2D(13, 1),
                                    Vector2D(14, 1)};
 
-    GameMap game_map = {width, height, selected_background, blocks, ct_spawns, tt_spawns, sites};
+    GameMap game_map = {width, height, selected_background, blocks, ct_spawns2, tt_spawns, sites};
     return game_map;
 }
 
@@ -162,6 +162,22 @@ void Game_editor::setBlock(const int& row, const int& colum) {
         }
     }
     this->grid[row][colum] = selected_block;
+}
+
+void Game_editor::setCtSpawn(const int& row, const int& colum) {
+    QLayoutItem* item = ui->grid_map->itemAtPosition(row, colum);
+    if (item) {
+        QWidget* widget = item->widget();
+        if (ClickableLabel* cell = qobject_cast<ClickableLabel*>(widget)) {
+            if (ct_spawns.find({colum, row}) != ct_spawns.end()) {
+                cell->setStyleSheet("background-color: transparent;");
+                ct_spawns.erase({colum, row});
+            } else {
+                cell->setStyleSheet("background-color: rgba(0, 0, 255, 100);");
+                ct_spawns.insert({colum, row});
+            }
+        }
+    }
 }
 
 void Game_editor::on_go_to_create_button_clicked() { ui->stack->setCurrentIndex(1); }
