@@ -98,6 +98,11 @@
         <height>16777215</height>
        </size>
       </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
       <property name="cursor">
        <cursorShape>ArrowCursor</cursorShape>
       </property>
@@ -265,6 +270,7 @@
            <font>
             <family>Counter-Strike</family>
             <pointsize>13</pointsize>
+            <weight>50</weight>
             <italic>false</italic>
             <bold>false</bold>
            </font>
@@ -545,8 +551,35 @@ QPushButton:pressed {
          </widget>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_5">
-          <item>
+         <layout class="QVBoxLayout" name="verticalLayout_15">
+          <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+           <widget class="QLabel" name="message">
+            <property name="minimumSize">
+             <size>
+              <width>600</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>600</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QLabel {
+    color: white;
+}</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item alignment="Qt::AlignHCenter">
            <widget class="QListWidget" name="maps_list">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -556,7 +589,7 @@ QPushButton:pressed {
             </property>
             <property name="minimumSize">
              <size>
-              <width>0</width>
+              <width>600</width>
               <height>0</height>
              </size>
             </property>
@@ -568,11 +601,21 @@ QPushButton:pressed {
             </property>
             <property name="styleSheet">
              <string notr="true">QListWidget {
-	background-color: rgba(36, 31, 49,160);
-	alternate-background-color: rgb(94, 92, 100);
+    background-color: rgba(0, 0, 0, 150); 
+	alternate-background-color: rgba(50, 50, 50, 150);
     border: none;
+	border-radius: 5px;
 }
-</string>
+
+QListWidget::item {
+    padding: 5px 0;
+    qproperty-alignment: AlignCenter;
+	color: white;
+}
+
+QListWidget::item:selected {
+    background-color: rgba(255, 255, 255, 40);
+}</string>
             </property>
            </widget>
           </item>
@@ -635,7 +678,7 @@ QPushButton:pressed {
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_8">
         <item>
-         <widget class="QPushButton" name="backButton">
+         <widget class="QPushButton" name="backButton2">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -681,6 +724,15 @@ QPushButton:pressed {
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
           <item>
            <widget class="QLineEdit" name="game_code">
             <property name="sizePolicy">
@@ -830,6 +882,7 @@ QPushButton:hover {
                 <property name="font">
                  <font>
                   <pointsize>15</pointsize>
+                  <weight>75</weight>
                   <bold>true</bold>
                  </font>
                 </property>
@@ -858,6 +911,7 @@ QPushButton:hover {
                 <property name="font">
                  <font>
                   <pointsize>15</pointsize>
+                  <weight>75</weight>
                   <bold>true</bold>
                  </font>
                 </property>
@@ -1104,6 +1158,7 @@ QPushButton:pressed {
                 <property name="font">
                  <font>
                   <pointsize>15</pointsize>
+                  <weight>75</weight>
                   <bold>true</bold>
                  </font>
                 </property>
@@ -1133,6 +1188,7 @@ QPushButton:pressed {
                  <font>
                   <family>Cantarell</family>
                   <pointsize>15</pointsize>
+                  <weight>50</weight>
                   <italic>false</italic>
                   <bold>false</bold>
                   <underline>false</underline>

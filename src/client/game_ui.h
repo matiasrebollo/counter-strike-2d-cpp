@@ -19,9 +19,6 @@
 #include "input_handler.h"
 #include "local_player_info.h"
 
-#define MSG_NO_PROTOCOL "You have to connect yourself to a server to play :)"
-#define BASH_MSG_NO_USERNAME "You have to enter your username to login in our server"
-#define MSG_NO_GAME "You have to create a game or join one to play!"
 #define FPS 30
 
 class GameUI {
@@ -34,8 +31,6 @@ private:
     std::unique_ptr<GameUIState> state;
     bool keep_running;
 
-    bool validate_qt_results(Lobby& lobby);
-    void print_message(const std::string& s);
     void close_client();
     void process_waiting(GameDTO& dto, Snapshot& snapshot, bool& loop, bool& pop);
     void change_state(std::unique_ptr<GameUIState> new_state);

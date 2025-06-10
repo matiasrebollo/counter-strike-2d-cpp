@@ -28,6 +28,7 @@ Lobby::Lobby(QWidget* parent):
     ui->skins_ct_stack->setCurrentIndex(0);
 
     connect(ui->backButton, &QPushButton::clicked, this, &Lobby::go_to_lobby);
+    connect(ui->backButton2, &QPushButton::clicked, this, &Lobby::go_to_lobby);
     connect(ui->back_to_lobby3, &QPushButton::clicked, this, &Lobby::go_to_lobby);
     connect(ui->connectButton, &QPushButton::clicked, this, &Lobby::connect_to_sv);
 }
@@ -64,14 +65,24 @@ void Lobby::on_CreateGame_clicked() {
 
 void Lobby::create_game() {
     ui->stack->setCurrentIndex(2);
+    ui->message->clear();
     ui->maps_list->clear();
 
     for (const auto& entry: std::filesystem::directory_iterator(MAP_PATH)) {
         if (entry.is_regular_file()) {
-            ui->maps_list->addItem(QString::fromStdString(entry.path().filename()));
+            std::string name = entry.path().filename().string();
+            this->format_string(name);
+            QListWidgetItem* item = new QListWidgetItem(QString::fromStdString(name));
+            item->setTextAlignment(Qt::AlignCenter);
+            ui->maps_list->addItem(item);
         }
     }
+    if (ui->maps_list->count() == 0) {
+        ui->message->setText("Tenes que crear algún mapa para jugar");
+    }
 }
+
+void Lobby::format_string(std::string& s) { s.erase(s.length() - 5); }
 
 void Lobby::on_CreateGameButton_clicked() {
     if (not(ui->maps_list->currentIndex().isValid())) {
@@ -142,10 +153,10 @@ void Lobby::connect_to_sv() {
 }
 
 ClientProtocol& Lobby::get_protocol() {
-    if (protocol.has_value()) {
-        return protocol.value();
+    if (!protocol.has_value()) {
+        throw std::runtime_error(MSG_NO_PROTOCOL);
     }
-    throw std::runtime_error("Protocolo no inicializado");
+    return protocol.value();
 }
 
 void Lobby::on_select_tt_skin_clicked() {
@@ -181,12 +192,22 @@ void Lobby::on_next_ct_skin_clicked() {
     ui->skins_ct_stack->setCurrentIndex(index);
 }
 
-void Lobby::on_go_to_select_skin_btn_clicked() { ui->stack->setCurrentIndex(3); }
+void Lobby::on_go_to_select_skin_btn_clicked() { ui->stack->setCurrentIndex(4); }
 
 TerroristSkin& Lobby::get_tt_skin() { return this->selected_tt_skin; }
 
 CounterTerroristSkin& Lobby::get_ct_skin() { return this->selected_ct_skin; }
 
-std::string Lobby::get_username() { return this->username; }
+std::string Lobby::get_username() {
+    if (this->username == "") {
+        throw std::runtime_error(BASH_MSG_NO_USERNAME);
+    }
+    return this->username;
+}
 
-std::string Lobby::get_gamecode() { return this->gamecode; }
+std::string Lobby::get_gamecode() {
+    if (this->gamecode == "") {
+        throw std::runtime_error(MSG_NO_GAME);
+    }
+    return this->gamecode;
+}
