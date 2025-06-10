@@ -21,7 +21,8 @@ Game_editor::Game_editor(QWidget* parent):
         texture_parser(),
         selected_block(NONE_BLOCK),
         selected_background(AZTEC_BACKGROUND),
-        mode(std::make_unique<BlocksSetter>()) {
+        mode(std::make_unique<BlocksSetter>()),
+        first_click_done(false) {
     ui->setupUi(this);
     ui->stack->setCurrentIndex(0);
 }
@@ -44,7 +45,10 @@ void Game_editor::setupBlockList() {
         label->setPixmap(tile.scaled(50, 50));
         ui->block_list->addWidget(label);
 
-        connect(label, &ClickableLabel::clicked, [this, block]() { selected_block = block; });
+        connect(label, &ClickableLabel::clicked, [this, block]() {
+            selected_block = block;
+            first_click_done = false;
+        });
     }
 }
 
@@ -63,6 +67,7 @@ void Game_editor::setupBackgroundList() {
                                                  "background-repeat: no-repeat;"
                                                  "background-position: center;");
             selected_background = background;
+            first_click_done = false;
         });
     }
 }
@@ -76,15 +81,14 @@ void Game_editor::setupGridMap(const int& rows, const int& colums) {
             ClickableLabel* cell = new ClickableLabel();
             cell->setFixedSize(50, 50);
             connect(cell, &ClickableLabel::clicked, this, [this, cell, i, j]() {
-                if (selected_block != NONE_BLOCK) {
-                    BlockTextureInfo texture = texture_parser.get_texture_info(selected_block);
-                    std::string path = texture.tileset_path;
-                    QPixmap tileset(QString::fromStdString(path));
-                    QPixmap tile =
-                            tileset.copy(texture.x, texture.y, texture.width, texture.height);
-                    cell->setPixmap(tile.scaled(50, 50));
+                if (first_click_done) {
+                    second_click = {j, i};
+                    mode->handle(first_click, second_click, *this);
+                    first_click_done = false;
+                } else {
+                    first_click = {j, i};
+                    first_click_done = true;
                 }
-                this->grid[i][j] = selected_block;
             });
             ui->grid_map->addWidget(cell, i, j);
         }

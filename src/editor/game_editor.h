@@ -48,8 +48,8 @@ private:
     Background selected_background;
     std::vector<std::vector<int>> grid;
     std::unique_ptr<GridAction> mode;
-    std::pair<int, int> click_on;
-    std::pair<int, int> click_drop;
+    std::pair<int, int> first_click;
+    std::pair<int, int> second_click;
     bool first_click_done;
 };
 #endif  // GAME_EDITOR_H
