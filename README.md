@@ -11,7 +11,7 @@ Integrantes:
 
 Corrector: Capón, Mateo.
 
-[Google Docs con features done / feature to do)](https://docs.google.com/document/d/1pZF0eVW9CNA9GqI3HR6EKuBi1kEObvm5I7G2kT7rWyc/edit?hl=es&tab=t.0)
+[Google Docs con features done / feature to do](https://docs.google.com/document/d/1pZF0eVW9CNA9GqI3HR6EKuBi1kEObvm5I7G2kT7rWyc/edit?hl=es&tab=t.0)
 
 ### Cosas a instalar
 
