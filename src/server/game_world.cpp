@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "common/yaml_parser.h"
+#include "server/static_map_object.h"
 
 GameWorld::GameWorld():
         spawn_zone(Vector2D<int>(60, 60), 400, 200),
@@ -20,7 +21,7 @@ GameWorld::GameWorld():
     for (const auto& block: game_map.map_objects) {
         if (block.collidable) {
             for (const auto& vec: block.positions) {
-                collidables.emplace_back(std::make_shared<Collidable>(
+                collidables.emplace_back(std::make_shared<StaticMapObject>(
                         Vector2D<int>(vec.x * wallThickness, vec.y * wallThickness), wallThickness,
                         wallThickness));
             }
@@ -52,12 +53,12 @@ void GameWorld::add_player(const std::string& username) {
     }
 }
 
-void GameWorld::stop_players() {
+void GameWorld::restart_players() {
     for (auto& [_, player]: terrorists) {
-        player->stop();
+        player->restart();
     }
     for (auto& [_, player]: counter_terrorists) {
-        player->stop();
+        player->restart();
     }
 }
 
@@ -279,7 +280,7 @@ double GameWorld::intersects_segment(const Shot& shot, const Vector2D<float>& se
     return 0.0;
 }
 
-Collidable* GameWorld::first_impact(const Shot& shot, const Player& shooter) const {
+void GameWorld::calculate_shot(Shot& shot, const Player& shooter) const {
     Collidable* hit = nullptr;
     double closest = std::numeric_limits<double>::max();
 
@@ -295,5 +296,6 @@ Collidable* GameWorld::first_impact(const Shot& shot, const Player& shooter) con
         }
     }
 
-    return hit;
+    shot.hit = hit;
+    shot.distance = closest;
 }

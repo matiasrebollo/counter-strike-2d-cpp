@@ -31,9 +31,11 @@ private:
         auto ct_it = counter_terrorists.find(username);
         auto tt_it = terrorists.find(username);
         if (ct_it != counter_terrorists.end()) {
-            action(*ct_it->second);
+            if (ct_it->second->is_alive())
+                action(*ct_it->second);
         } else if (tt_it != terrorists.end()) {
-            action(*tt_it->second);
+            if (tt_it->second->is_alive())
+                action(*tt_it->second);
         } else {
             throw std::invalid_argument("Username does not correspond to a player in this game.");
         }
@@ -49,7 +51,7 @@ public:
 
     GameWorld();
     void add_player(const std::string& username);
-    void stop_players();
+    void restart_players();
     void spawn_players();
     const GameMap get_map() const;
     const GameWorldSnapshot get_snapshot() const;
@@ -75,7 +77,7 @@ public:
 
     void make_step_player(Player& player, const Vector2D<int>& step);
     const Collidable* colliding_object_with(const Collidable& coll) const;
-    Collidable* first_impact(const Shot& shot, const Player& shooter) const;
+    void calculate_shot(Shot& shot, const Player& shooter) const;
 
     GameWorld(const GameWorld&) = delete;
     GameWorld& operator=(const GameWorld&) = delete;

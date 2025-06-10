@@ -14,10 +14,12 @@ class Shot {
 public:
     const Vector2D<int> origin;
     const float orientation;
+    Collidable* hit;
+    double distance;
 
     Shot(const Vector2D<int>& origin, const float& orientation);
 
-    Collidable* shoot(const GameWorld& game, const Player& shooter);
+    void shoot(const GameWorld& game, const Player& shooter);
 
     Shot(const Shot&) = delete;
     Shot& operator=(const Shot&) = delete;
