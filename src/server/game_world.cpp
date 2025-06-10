@@ -120,8 +120,28 @@ void GameWorld::move_player_right(const std::string& username) {
     with_player(username, [](Player& p) { p.move_right(); });
 }
 
+void GameWorld::stop_moving_player_up(const std::string& username) {
+    with_player(username, [](Player& p) { p.stop_moving_up(); });
+}
+
+void GameWorld::stop_moving_player_down(const std::string& username) {
+    with_player(username, [](Player& p) { p.stop_moving_down(); });
+}
+
+void GameWorld::stop_moving_player_left(const std::string& username) {
+    with_player(username, [](Player& p) { p.stop_moving_left(); });
+}
+
+void GameWorld::stop_moving_player_right(const std::string& username) {
+    with_player(username, [](Player& p) { p.stop_moving_right(); });
+}
+
 void GameWorld::make_player_action(const std::string& username) {
     with_player(username, [](Player& p) { p.make_action(); });
+}
+
+void GameWorld::stop_making_player_action(const std::string& username) {
+    with_player(username, [](Player& p) { p.stop_making_action(); });
 }
 
 void GameWorld::equip_primary_for(const std::string& username) {

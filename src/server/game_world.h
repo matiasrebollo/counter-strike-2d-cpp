@@ -63,7 +63,12 @@ public:
     void move_player_down(const std::string& username);
     void move_player_left(const std::string& username);
     void move_player_right(const std::string& username);
+    void stop_moving_player_up(const std::string& username);
+    void stop_moving_player_down(const std::string& username);
+    void stop_moving_player_left(const std::string& username);
+    void stop_moving_player_right(const std::string& username);
     void make_player_action(const std::string& username);
+    void stop_making_player_action(const std::string& username);
     void equip_primary_for(const std::string& username);
     void equip_secondary_for(const std::string& username);
     void equip_knife_for(const std::string& username);

@@ -14,18 +14,12 @@ std::unique_ptr<Command> Command::new_command(const std::string& username,
             [username](const auto& d) -> std::unique_ptr<Command> {
                 using T = std::decay_t<decltype(d)>;
 
-                if constexpr (std::is_same_v<T, MoveUpDTO>) {
-                    return std::make_unique<MoveUpCommand>(username);
-                } else if constexpr (std::is_same_v<T, MoveDownDTO>) {
-                    return std::make_unique<MoveDownCommand>(username);
-                } else if constexpr (std::is_same_v<T, MoveLeftDTO>) {
-                    return std::make_unique<MoveLeftCommand>(username);
-                } else if constexpr (std::is_same_v<T, MoveRightDTO>) {
-                    return std::make_unique<MoveRightCommand>(username);
+                if constexpr (std::is_same_v<T, MoveDTO>) {
+                    return std::make_unique<MoveCommand>(username, d.direction, d.move);
                 } else if constexpr (std::is_same_v<T, RotateDTO>) {
                     return std::make_unique<RotateCommand>(username, d.angle);
                 } else if constexpr (std::is_same_v<T, PlayerActionDTO>) {
-                    return std::make_unique<PlayerActionCommand>(username);
+                    return std::make_unique<PlayerActionCommand>(username, d.make);
                 } else if constexpr (std::is_same_v<T, EquipPrimaryDTO>) {
                     return std::make_unique<EquipPrimaryCommand>(username);
                 } else if constexpr (std::is_same_v<T, EquipSecondaryDTO>) {

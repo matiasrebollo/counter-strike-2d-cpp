@@ -12,32 +12,14 @@ public:
     ~AttackPhaseCommand() override = default;
 };
 
-class MoveUpCommand: public AttackPhaseCommand {
+class MoveCommand: public AttackPhaseCommand {
 public:
-    explicit MoveUpCommand(const std::string& username);
-    void execute_in_attack_phase(GameWorld& game) const override;
-    ~MoveUpCommand() override = default;
-};
+    const Movement direction;
+    const bool should_move;
 
-class MoveDownCommand: public AttackPhaseCommand {
-public:
-    explicit MoveDownCommand(const std::string& username);
+    MoveCommand(const std::string& username, const Movement direction, const bool& move);
     void execute_in_attack_phase(GameWorld& game) const override;
-    ~MoveDownCommand() override = default;
-};
-
-class MoveLeftCommand: public AttackPhaseCommand {
-public:
-    explicit MoveLeftCommand(const std::string& username);
-    void execute_in_attack_phase(GameWorld& game) const override;
-    ~MoveLeftCommand() override = default;
-};
-
-class MoveRightCommand: public AttackPhaseCommand {
-public:
-    explicit MoveRightCommand(const std::string& username);
-    void execute_in_attack_phase(GameWorld& game) const override;
-    ~MoveRightCommand() override = default;
+    ~MoveCommand() override = default;
 };
 
 class RotateCommand: public AttackPhaseCommand {
@@ -50,7 +32,8 @@ public:
 
 class PlayerActionCommand: public AttackPhaseCommand {
 public:
-    explicit PlayerActionCommand(const std::string& username);
+    const bool make;
+    PlayerActionCommand(const std::string& username, const bool& make);
     void execute_in_attack_phase(GameWorld& game) const override;
     ~PlayerActionCommand() override = default;
 };
