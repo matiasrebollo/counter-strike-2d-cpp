@@ -3,13 +3,8 @@
 
 #include <memory>
 
+#include "common/settings.h"
 #include "server/weapon.h"
-
-#define GLOCK_INITIAL_AMMO 30
-#define GLOCK_ROF 400
-#define AWP_INITIAL_AMMO 10
-#define M3_INITIAL_AMMO 20
-#define AK47_INITIAL_AMMO 45
 
 class Gun: public Weapon {
 private:

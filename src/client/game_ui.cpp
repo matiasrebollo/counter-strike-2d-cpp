@@ -14,7 +14,8 @@ GameUI::GameUI(Lobby& lobby):
         // podria usar move?
         local_info{lobby.get_username(), lobby.get_gamecode(), lobby.get_ct_skin(),
                    lobby.get_tt_skin()},
-        keep_running(true) {
+        keep_running(true),
+        game_snapshot({WAITING_PLAYERS, 0, 0, 0, {}, {}}) {
     this->phase = std::make_unique<WaitingForGamePhase>(*this);
 }
 
@@ -36,6 +37,7 @@ void GameUI::run() {
 
 void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
     for (const auto& p: snapshot.ct) {
+        // cppcheck-suppress useStlAlgorithm
         if (p.username == local_info.username) {
             local_info.is_ct = true;
             local_info.life = p.life;
@@ -56,6 +58,7 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
     }
 
     for (const auto& p: snapshot.tt) {
+        // cppcheck-suppress useStlAlgorithm
         if (p.username == local_info.username) {
             local_info.is_ct = false;
             local_info.life = p.life;
@@ -111,7 +114,7 @@ void GameUI::show_waiting(const int& it) {
     // el 2 luego tiene que ser la cantidad de personas que va a unirse maxima que se lee del
     // configurable
     sdl.render_waiting_screen(this->game_snapshot.ct.size() + this->game_snapshot.tt.size(), 2,
-                              local_info.gamename, it, FPS);
+                              local_info.gamename, it, FPS_CLIENT);
     sdl.show_screen();
 }
 

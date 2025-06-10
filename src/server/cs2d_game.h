@@ -7,14 +7,13 @@
 #include <string>
 
 #include "common/queue.h"
+#include "common/settings.h"
 #include "common/thread.h"
 #include "server/client_sender.h"
 #include "server/command.h"
 #include "server/game_phase.h"
 #include "server/game_world.h"
 
-#define FPS 60
-#define ROUNDS 10
 class CS2DGame: public Thread {
 private:
     std::map<std::string, std::shared_ptr<ClientSender>> players_senders;

@@ -7,131 +7,14 @@
 #include "map_object.h"
 
 BlockTextureParser::BlockTextureParser(): block_textures(), backgrounds_paths() {
-    /*backgrounds_paths = {{AZTEC_BACKGROUND, "../assets/gfx/backgrounds/aztec.png"},
-                         {DUST_BACKGROUND, "../assets/gfx/backgrounds/dust.png"},
-                         {GRASS_BACKGROUND, "../assets/gfx/backgrounds/gras1.jpg"}};*/
-
-    backgrounds_paths[AZTEC_BACKGROUND] = "../assets/gfx/backgrounds/aztec.png";
-    backgrounds_paths[DUST_BACKGROUND] = "../assets/gfx/backgrounds/dust.png";
-    backgrounds_paths[GRASS_BACKGROUND] = "../assets/gfx/backgrounds/gras1.jpg";
-
-    std::vector<TilesetInfo> tilesets = {{"../assets/gfx/tiles/aztec.bmp",
-                                          6,
-                                          16,
-                                          32,
-                                          32,
-                                          {1, 2, 3, 4, 5, 6, 7, 8, 47, 46, 45, 93, 92, 88, 87},
-                                          {0, 9, 10, 11, 12, 13, 14, 15, 95, 94, 91, 90, 89, 73}}};
-
-    int id_block = 0;
-
-    for (const auto& ts: tilesets) {
-        int offset_tileset = id_block;
-        for (int row = 0; row < ts.rows; row++) {
-            for (int col = 0; col < ts.columns; col++) {
-                if (not(ts.invalids.count(id_block - offset_tileset) > 0)) {
-                    block_textures[id_block] = {
-                            ts.file,
-                            col * ts.tileWidth,
-                            row * ts.tileHeight,
-                            ts.tileWidth,
-                            ts.tileHeight,
-                            ts.collidables.count(id_block - offset_tileset) > 0};
-                }
-                id_block++;
-            }
-        }
-    }
-
-    TilesetInfo tileset_skins = {"", 3, 2, 32, 32, {}, {}};
-    std::unordered_map<CounterTerroristSkin, std::string> ct = {
-            {SEAL_FORCE, "../assets/gfx/player/ct1.bmp"},
-            {GSG_9, "../assets/gfx/player/ct2.bmp"},
-            {UK_SAS, "../assets/gfx/player/ct3.bmp"},
-            {GIGN, "../assets/gfx/player/ct4.bmp"}};
-
-    std::unordered_map<TerroristSkin, std::string> tt = {
-            {PHEONIX, "../assets/gfx/player/t1.bmp"},
-            {L3337_KREW, "../assets/gfx/player/t2.bmp"},
-            {ARTIC_AVENGER, "../assets/gfx/player/t3.bmp"},
-            {GUERRILLA, "../assets/gfx/player/t4.bmp"}};
-
-    for (const auto& pair: ct) {
-        std::vector<BlockTextureInfo> sprites;
-        for (int row = 0; row < tileset_skins.rows; ++row) {
-            for (int col = 0; col < tileset_skins.columns; ++col) {
-                sprites.push_back({pair.second, col * tileset_skins.tileWidth,
-                                   row * tileset_skins.tileHeight, tileset_skins.tileWidth,
-                                   tileset_skins.tileHeight, true});
-            }
-        }
-        ct_skins[pair.first] = sprites;
-    }
-    for (const auto& pair: tt) {
-        std::vector<BlockTextureInfo> sprites;
-        for (int row = 0; row < tileset_skins.rows; ++row) {
-            for (int col = 0; col < tileset_skins.columns; ++col) {
-                sprites.push_back({pair.second, col * tileset_skins.tileWidth,
-                                   row * tileset_skins.tileHeight, tileset_skins.tileWidth,
-                                   tileset_skins.tileHeight, true});
-            }
-        }
-        tt_skins[pair.first] = sprites;
-    }
-
-    TilesetInfo tileset_numbers = {"../assets/gfx/hud_nums.png", 1, 11, 48, 66, {}, {}};
-    std::vector<HudNumbers> numbers = {ZERO, ONE,   TWO,   THREE, FOUR, FIVE,
-                                       SIX,  SEVEN, EIGHT, NINE,  DP};
-    // DP (:) tiene ancho 10px en el spritesheet en vez de 48
-    for (size_t i = 0; i < numbers.size(); ++i) {
-        auto n = numbers[i];
-        bool is_dp = (n == HudNumbers::DP);
-
-        number_textures[n] = {tileset_numbers.file,
-                              static_cast<int>(i * tileset_numbers.tileWidth),
-                              0,
-                              is_dp ? 10 : tileset_numbers.tileWidth,
-                              tileset_numbers.tileHeight,
-                              false};
-    }
-
-    // por ahora cargo todas las texturas de este archivo, luego podria solo cargar las necesarias.
-    TilesetInfo tileset_symbols = {"../assets/gfx/hud_symbols.png", 1, 13, 64, 64, {}, {}};
-    for (int i = 0; i < tileset_symbols.columns; ++i) {
-        symbol_textures[i] = {tileset_symbols.file,      i * tileset_symbols.tileWidth, 0,
-                              tileset_symbols.tileWidth, tileset_symbols.tileHeight,    false};
-    }
-
-    font_and_waiting_textures[BACKGROUND] = "../assets/gfx/splash.bmp";
-    font_and_waiting_textures[FONT_WAITING] = "../assets/cs_regular.ttf";
-    font_and_waiting_textures[FONT_SHOP] = "../assets/gfx/fonts/korean.ttf";
-
-    TilesetInfo tileset_crosshairs = {"../assets/gfx/pointer.png", 2, 2, 46, 46, {}, {}};
-    std::vector<Crosshairs> crosshairs = {GREEN, RED, YELLOW, TIME};
-
-    int i = 0;
-    for (int row = 0; row < tileset_crosshairs.rows; ++row) {
-        for (int col = 0; col < tileset_crosshairs.columns; ++col) {
-            crosshair_textures[crosshairs[i]] = {tileset_crosshairs.file,
-                                                 col * tileset_crosshairs.tileWidth,
-                                                 row * tileset_crosshairs.tileHeight,
-                                                 tileset_crosshairs.tileWidth,
-                                                 tileset_crosshairs.tileHeight,
-                                                 false};
-            i += 1;
-        }
-    }
-
-    gun_textures[AK47_GAME] = "../assets/gfx/weapons/ak47.bmp";
-    gun_textures[AK47_SHOP] = "../assets/gfx/weapons/ak47_k.bmp";
-    gun_textures[AWP_GAME] = "../assets/gfx/weapons/awp.bmp";
-    gun_textures[AWP_SHOP] = "../assets/gfx/weapons/awp_k.bmp";
-    gun_textures[M3_GAME] = "../assets/gfx/weapons/m3.bmp";
-    gun_textures[M3_SHOP] = "../assets/gfx/weapons/m3_k.bmp";
-    gun_textures[GLOCK_GAME] = "../assets/gfx/weapons/glock.bmp";
-    gun_textures[GLOCK_SHOP] = "../assets/gfx/weapons/glock_k.bmp";
-    gun_textures[KNIFE_GAME] = "../assets/gfx/weapons/knife.bmp";
-    gun_textures[KNIFE_SHOP] = "../assets/gfx/weapons/knife_k.bmp";
+    this->set_backgrounds_paths();
+    this->set_blocks_textures();
+    this->set_skins_textures();
+    this->set_tileset_numbers();
+    this->set_symbols();
+    this->set_crosshairs();
+    this->set_font_and_waiting();
+    this->set_gun_textures();
 }
 
 const BlockTextureInfo& BlockTextureParser::get_texture_info(int block) {
@@ -188,4 +71,141 @@ const std::vector<Background> BlockTextureParser::get_backgrounds() {
 
 const std::string& BlockTextureParser::get_background_path(const Background& background) {
     return backgrounds_paths.at(background);
+}
+
+void BlockTextureParser::set_backgrounds_paths() {
+    this->backgrounds_paths = {{AZTEC_BACKGROUND, "../assets/gfx/backgrounds/aztec.png"},
+                               {DUST_BACKGROUND, "../assets/gfx/backgrounds/dust.png"},
+                               {GRASS_BACKGROUND, "../assets/gfx/backgrounds/gras1.jpg"}};
+}
+
+void BlockTextureParser::set_blocks_textures() {
+    std::vector<TilesetInfo> tilesets = {{"../assets/gfx/tiles/aztec.bmp",
+                                          6,
+                                          16,
+                                          32,
+                                          32,
+                                          {1, 2, 3, 4, 5, 6, 7, 8, 47, 46, 45, 93, 92, 88, 87},
+                                          {0, 9, 10, 11, 12, 13, 14, 15, 95, 94, 91, 90, 89, 73}}};
+
+    int id_block = 0;
+    for (const auto& ts: tilesets) {
+        int offset_tileset = id_block;
+        for (int row = 0; row < ts.rows; row++) {
+            for (int col = 0; col < ts.columns; col++) {
+                if (not(ts.invalids.count(id_block - offset_tileset) > 0)) {
+                    block_textures[id_block] = {
+                            ts.file,
+                            col * ts.tileWidth,
+                            row * ts.tileHeight,
+                            ts.tileWidth,
+                            ts.tileHeight,
+                            ts.collidables.count(id_block - offset_tileset) > 0};
+                }
+                id_block++;
+            }
+        }
+    }
+}
+
+void BlockTextureParser::set_skins_textures() {
+    TilesetInfo tileset_skins = {"", 3, 2, 32, 32, {}, {}};
+    std::unordered_map<CounterTerroristSkin, std::string> ct = {
+            {SEAL_FORCE, "../assets/gfx/player/ct1.bmp"},
+            {GSG_9, "../assets/gfx/player/ct2.bmp"},
+            {UK_SAS, "../assets/gfx/player/ct3.bmp"},
+            {GIGN, "../assets/gfx/player/ct4.bmp"}};
+
+    std::unordered_map<TerroristSkin, std::string> tt = {
+            {PHEONIX, "../assets/gfx/player/t1.bmp"},
+            {L3337_KREW, "../assets/gfx/player/t2.bmp"},
+            {ARTIC_AVENGER, "../assets/gfx/player/t3.bmp"},
+            {GUERRILLA, "../assets/gfx/player/t4.bmp"}};
+
+    for (const auto& pair: ct) {
+        std::vector<BlockTextureInfo> sprites;
+        for (int row = 0; row < tileset_skins.rows; ++row) {
+            for (int col = 0; col < tileset_skins.columns; ++col) {
+                sprites.push_back({pair.second, col * tileset_skins.tileWidth,
+                                   row * tileset_skins.tileHeight, tileset_skins.tileWidth,
+                                   tileset_skins.tileHeight, true});
+            }
+        }
+        ct_skins[pair.first] = sprites;
+    }
+    for (const auto& pair: tt) {
+        std::vector<BlockTextureInfo> sprites;
+        for (int row = 0; row < tileset_skins.rows; ++row) {
+            for (int col = 0; col < tileset_skins.columns; ++col) {
+                sprites.push_back({pair.second, col * tileset_skins.tileWidth,
+                                   row * tileset_skins.tileHeight, tileset_skins.tileWidth,
+                                   tileset_skins.tileHeight, true});
+            }
+        }
+        tt_skins[pair.first] = sprites;
+    }
+}
+
+void BlockTextureParser::set_tileset_numbers() {
+    TilesetInfo tileset_numbers = {"../assets/gfx/hud_nums.png", 1, 11, 48, 66, {}, {}};
+    std::vector<HudNumbers> numbers = {ZERO, ONE,   TWO,   THREE, FOUR, FIVE,
+                                       SIX,  SEVEN, EIGHT, NINE,  DP};
+    // DP (:) tiene ancho 10px en el spritesheet en vez de 48
+    for (size_t i = 0; i < numbers.size(); ++i) {
+        auto n = numbers[i];
+        bool is_dp = (n == HudNumbers::DP);
+
+        number_textures[n] = {tileset_numbers.file,
+                              static_cast<int>(i * tileset_numbers.tileWidth),
+                              0,
+                              is_dp ? 10 : tileset_numbers.tileWidth,
+                              tileset_numbers.tileHeight,
+                              false};
+    }
+}
+
+void BlockTextureParser::set_symbols() {
+    // por ahora cargo todas las texturas de este archivo, luego podria solo cargar las necesarias.
+    TilesetInfo tileset_symbols = {"../assets/gfx/hud_symbols.png", 1, 13, 64, 64, {}, {}};
+    for (int i = 0; i < tileset_symbols.columns; ++i) {
+        symbol_textures[i] = {tileset_symbols.file,      i * tileset_symbols.tileWidth, 0,
+                              tileset_symbols.tileWidth, tileset_symbols.tileHeight,    false};
+    }
+}
+
+void BlockTextureParser::set_crosshairs() {
+    TilesetInfo tileset_crosshairs = {"../assets/gfx/pointer.png", 2, 2, 46, 46, {}, {}};
+    std::vector<Crosshairs> crosshairs = {GREEN, RED, YELLOW, TIME};
+
+    int i = 0;
+    for (int row = 0; row < tileset_crosshairs.rows; ++row) {
+        for (int col = 0; col < tileset_crosshairs.columns; ++col) {
+            crosshair_textures[crosshairs[i]] = {tileset_crosshairs.file,
+                                                 col * tileset_crosshairs.tileWidth,
+                                                 row * tileset_crosshairs.tileHeight,
+                                                 tileset_crosshairs.tileWidth,
+                                                 tileset_crosshairs.tileHeight,
+                                                 false};
+            i += 1;
+        }
+    }
+}
+
+void BlockTextureParser::set_font_and_waiting() {
+    font_and_waiting_textures = {{BACKGROUND, "../assets/gfx/splash.bmp"},
+                                 {FONT_WAITING, "../assets/cs_regular.ttf"},
+                                 {FONT_SHOP, "../assets/gfx/fonts/korean.ttf"}};
+}
+
+void BlockTextureParser::set_gun_textures() {
+    gun_textures = {{AK47_GAME, "../assets/gfx/weapons/ak47.bmp"},
+                    {AK47_SHOP, "../assets/gfx/weapons/ak47_k.bmp"},
+                    {AWP_GAME, "../assets/gfx/weapons/awp.bmp"},
+                    {AWP_SHOP, "../assets/gfx/weapons/awp_k.bmp"},
+                    {M3_GAME, "../assets/gfx/weapons/m3.bmp"},
+                    {M3_SHOP, "../assets/gfx/weapons/m3_k.bmp"},
+                    {GLOCK_GAME, "../assets/gfx/weapons/glock.bmp"},
+                    {GLOCK_SHOP, "../assets/gfx/weapons/glock_k.bmp"},
+                    {KNIFE_GAME, "../assets/gfx/weapons/knife.bmp"},
+                    {KNIFE_SHOP, "../assets/gfx/weapons/knife_k.bmp"}};
 }
