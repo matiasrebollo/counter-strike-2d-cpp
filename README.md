@@ -1,45 +1,82 @@
-# Ejemplo de CMAKE para el TP Final
+# Entrega obligatoria 10.06
 
-**Importante:** el primer commit de este repositorio tiene el setup
-básico para el TP Final que incluye la instalación de la lib de Google
-Tests, `SDL2` y `SDL2pp` (el wrapper de C++).
+## Grupo 5
 
-El resto de los commits son a modo de ejemplo de como se pueden
-agregar mas código fuente al proyecto.
+Integrantes: 
 
-Este ejemplo **no** incluye instalarse otras libs que son dependencias
-tanto de `SDL2` como de `SDL2pp` (pero si estan documentadas en el
-`CMakeFile` para Xubuntu 24.04).
+- Fernandez, Facundo 
+- Molina, Taiel
+- Rebollo, Matías
+- Rocha Diaz, Tomás
 
-Este repo **no** incluye tampoco un instalador.
+Corrector: Capón, Mateo.
 
-**Se deben agregar las librerias necesarias y el instalador.**
+[Google Docs con features done / feature to do)](https://docs.google.com/document/d/1pZF0eVW9CNA9GqI3HR6EKuBi1kEObvm5I7G2kT7rWyc/edit?hl=es&tab=t.0)
 
-También el ejemplo usa una estructura de carpetas muy simple:
+### Cosas a instalar
+
+Para que ande lo que está en el cmake, instalar todo esto:
+
+Instalar herramientas esenciales:
 
 ```
-client/
-server/
-editor/
-common/
+sudo apt-get update
+sudo apt-get install build-essential cmake pkg-config
 ```
 
-Bien se puede mejorar (cambiando el cmakefile) agregando mas
-sub-carpetas.
+Instalar bibliotecas necesarias para SDL2 y ALSA:
 
-Asi tambien **deben** ser cambiados los *targets* del cmake (`taller_client`,
-`taller_server`, ...) por nombres mas acordes al TP que se este
-haciendo.
+```
+sudo apt-get install libsdl2-dev libasound2-dev
+```
 
-Tambien, por default solo se compila una version *debug* sin
-optimizar. Si se quiere compilar binarios optimizados
-(lo que cmake llama *release*) se puede, solo hay modificar
-cmake.
+Instalar compiladores (si no los tienes):
 
-Aprender del ejemplo para saber como extenderlo!
+```
+sudo apt-get install gcc g++ clang
+```
 
-**Importante:** este repositorio **no** incluye pre-commits hooks,
-ni scripts adicionales (como correr valgrind).
+Instalar dependencias comunes para C++:
 
-**Eso esta a cargo de los estudiantes,** tal como fue mostrado
-en los tps individuales, recaps y hands-on.
+```
+sudo apt-get install libboost-all-dev libcurl4-openssl-dev libssl-dev 
+```
+
+Para gtest:
+
+```
+sudo apt install libgtest-dev  libgmock-dev
+```
+
+Para SDL2:
+
+```
+sudo apt install libopusfile-dev libxmp-dev libfluidsynth-dev libwavpack-dev \
+                 libmpg123-dev libvorbis-dev libogg-dev libmodplug-dev
+```
+
+Para qt:
+
+```
+sudo apt update
+sudo apt install qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools
+```
+
+Para el yaml:
+
+```
+sudo apt update
+sudo apt install libyaml-cpp-dev
+```
+
+Para la font del cs (lobby), parado sobre la carpeta principal:
+
+```
+mkdir ~/.fonts
+cp ./assets/cs_regular.ttf ~/.fonts
+fc-cache -f -v
+```
+
+Nota: Taiel utilizó Fedora 40 y sacando las diffs de algunas libraries para instalar las equivalentes en su distro, no tuvo que instalar más que esto tampoco.
+
+
