@@ -225,16 +225,17 @@ LoadoutDTO ClientProtocol::receive_loadout() {
     return LoadoutDTO{money, primary_gun, primary_ammo, secondary_gun, secondary_ammo, equipped};
 }
 
-GameMap ClientProtocol::receive_map() {
+GameMapDTO ClientProtocol::receive_map() {
     Background background = static_cast<Background>(this->receive_byte());
     uint16_t size = this->receive_big_endian_number();
-    return GameMap{0, 0, background, this->receive_map_objects(size), {}, {}, {}};
+    return GameMapDTO{background, this->receive_map_objects(size)};
 }
 
 std::vector<MapObject> ClientProtocol::receive_map_objects(const uint8_t& size) {
     std::vector<MapObject> objects = {};
     for (int i = 0; i < size; i++) {
         uint16_t type = this->receive_big_endian_number();
+        uint8_t collidable = this->receive_byte();
         uint8_t vec_size = this->receive_byte();
         std::vector<Vector2D<int>> positions;
         for (int j = 0; j < vec_size; j++) {
@@ -242,7 +243,7 @@ std::vector<MapObject> ClientProtocol::receive_map_objects(const uint8_t& size) 
             uint16_t y = this->receive_big_endian_number();
             positions.push_back(Vector2D<int>(x, y));
         }
-        objects.push_back({positions, type, true});
+        objects.push_back({positions, type, this->code_to_bools.find(collidable)->second});
     }
     return objects;
 }

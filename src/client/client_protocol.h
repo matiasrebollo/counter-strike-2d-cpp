@@ -62,7 +62,7 @@ private:
     std::vector<MapObject> receive_map_objects(const uint8_t& size);
 
     Snapshot receive_snapshot();
-    GameMap receive_map();
+    GameMapDTO receive_map();
 
 public:
     explicit ClientProtocol(std::unique_ptr<Socket> socket);

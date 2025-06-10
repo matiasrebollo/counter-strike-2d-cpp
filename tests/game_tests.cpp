@@ -164,6 +164,41 @@ TEST(ClientProtocolTest, SendBuyAmmo) {
 
 /* SERVER PROTOCOL RESPONSES */
 
+void validate_map(const GameMapDTO& expected_gamemap, const GameMapDTO& actual_gamemap) {
+    ASSERT_EQ(expected_gamemap.background, actual_gamemap.background);
+    for (size_t i = 0; i < expected_gamemap.map_objects.size(); i++) {
+        ASSERT_EQ(expected_gamemap.map_objects[i].collidable,
+                  actual_gamemap.map_objects[i].collidable);
+        ASSERT_EQ(expected_gamemap.map_objects[i].type, actual_gamemap.map_objects[i].type);
+        for (size_t j = 0; j < expected_gamemap.map_objects[i].positions.size(); j++) {
+            ASSERT_EQ(expected_gamemap.map_objects[i].positions[j],
+                      actual_gamemap.map_objects[i].positions[j]);
+        }
+    }
+}
+
+TEST(ServerProtocolTest, SendMap) {
+    auto [client, server] = create_connected_protocols();
+
+    std::vector<MapObject> objects = {};
+
+    for (int i = 0; i < 100; i++) {
+        std::vector<Vector2D<int>> positions = {Vector2D(0, 1), Vector2D(0, 2), Vector2D(0, 3)};
+        MapObject object = {positions, 19, true};
+        objects.push_back(object);
+    }
+
+    GameMapDTO game_map = GameMapDTO{Background::AZTEC_BACKGROUND, objects};
+
+    server->send_game_dto(game_map);
+
+    GameDTO response = client->receive_game_dto();
+
+    auto game_map_ptr = std::get_if<GameMapDTO>(&response);
+    ASSERT_NE(game_map_ptr, nullptr) << "Expected GameMapDTO but got another";
+    validate_map(game_map, *game_map_ptr);
+}
+
 std::vector<LoadoutDTO> get_loadouts() {
     std::vector<LoadoutDTO> loadouts = {};
     std::vector<uint16_t> moneys = {1000, 30000};

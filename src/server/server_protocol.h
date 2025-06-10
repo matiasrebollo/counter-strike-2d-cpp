@@ -19,12 +19,8 @@
 #include "../common/message.h"
 #include "../common/socket.h"
 
-#define CODE_SUCCESS 0x01
-#define CODE_FAIL 0x00
-
 class ServerProtocol: public CommonProtocol {
 private:
-    std::unordered_map<bool, uint8_t> codeSuccessResponse;
     std::unordered_map<CommandType, std::function<LobbyRequestDTO()>> lobbyCommandManagers;
 
     CreateUsernameDTO receive_create_username_request();
@@ -38,7 +34,7 @@ private:
     CommandDTO receive_buy_ammo_request();
 
     void send_snapshot(const Snapshot& snapshot);
-    void send_map(const GameMap& map);
+    void send_map(const GameMapDTO& map);
     void send_players(const std::vector<PlayerDTO>& players);
     void send_loadout(const LoadoutDTO& loadout);
     void send_end_game(const GameEnded& message);
