@@ -129,7 +129,7 @@ CommandDTO ServerProtocol::receive_client_request() {
         case CODE_MOVE:
             return this->receive_movement_request();
         case CODE_ACTION:
-            return PlayerActionDTO{};
+            return PlayerActionDTO{this->code_to_bools.find(this->receive_byte())->second};
         case CODE_CHANGE_WEAPON:
             return this->receive_change_weapon_request();
         case CODE_BUY_WEAPON:

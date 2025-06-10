@@ -40,7 +40,7 @@ private:
 
     void handle_move(const MoveDTO& dto);
     void handle_rotate(const RotateDTO& dto);
-    void handle_player_action();
+    void handle_player_action(const PlayerActionDTO& dto);
     void handle_equip_primary();
     void handle_equip_secondary();
     void handle_equip_knife();

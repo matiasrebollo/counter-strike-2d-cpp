@@ -56,7 +56,7 @@ void ClientProtocol::send_command(const CommandDTO& command) {
                 } else if constexpr (std::is_same_v<T, RotateDTO>) {
                     handle_rotate(d);
                 } else if constexpr (std::is_same_v<T, PlayerActionDTO>) {
-                    handle_player_action();
+                    handle_player_action(d);
                 } else if constexpr (std::is_same_v<T, EquipPrimaryDTO>) {
                     handle_equip_primary();
                 } else if constexpr (std::is_same_v<T, EquipSecondaryDTO>) {
@@ -109,7 +109,10 @@ void ClientProtocol::handle_rotate(const RotateDTO& dto) {
     this->send_angle(dto.angle);
 }
 
-void ClientProtocol::handle_player_action() { this->send_byte(CODE_ACTION); }
+void ClientProtocol::handle_player_action(const PlayerActionDTO& dto) {
+    this->send_byte(CODE_ACTION);
+    this->send_byte(this->bools_to_code.find(dto.make)->second);
+}
 
 void ClientProtocol::handle_equip_primary() {
     this->send_byte(CODE_CHANGE_WEAPON);
@@ -145,10 +148,6 @@ void ClientProtocol::handle_buy_ammo(const BuyAmmoDTO& dto) {
     }
 }
 
-
-void ClientProtocol::send_change_weapon_request(const InternalMessage& request) {
-    this->send_byte(request.code_weapon_type);
-}
 
 GameDTO ClientProtocol::receive_game_dto() {
     uint8_t code = this->receive_byte();

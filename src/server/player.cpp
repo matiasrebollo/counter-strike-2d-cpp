@@ -1,6 +1,7 @@
 #include "server/player.h"
 
 #include <algorithm>
+#include <iostream>
 
 #include "server/game_world.h"
 
@@ -53,6 +54,7 @@ void Player::restart() {
     moving_down = false;
     moving_left = false;
     moving_right = false;
+    making_action = false;
     orientation = 0.0;
 }
 void Player::make_action() {
@@ -61,6 +63,7 @@ void Player::make_action() {
     // si tiene bomba equipada..
 
     making_action = true;
+    std::cout << "stop action" << std::endl;
 }
 void Player::stop_making_action() {
     if (Gun* weapon = loadout.equipped_gun())
@@ -68,6 +71,7 @@ void Player::stop_making_action() {
     // si tiene bomba equipada..
 
     making_action = false;
+    std::cout << "action" << std::endl;
 }
 
 void Player::receive_damage(const int& damage) { life = std::max(life - damage, 0); }

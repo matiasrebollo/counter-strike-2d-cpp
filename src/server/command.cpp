@@ -36,8 +36,8 @@ std::unique_ptr<Command> Command::new_command(const std::string& username,
             command_data);
 }
 
-void Command::execute_in_buy_phase(GameWorld& game) const {}
-void Command::execute_in_attack_phase(GameWorld& game) const {}
+void Command::execute_in_buy_phase(GameWorld&) const {}
+void Command::execute_in_attack_phase(GameWorld&) const {}
 
 Command::~Command() {}
 
@@ -82,6 +82,16 @@ void PlayerActionCommand::execute_in_attack_phase(GameWorld& game) const {
     }
 }
 
+BuyGunCommand::BuyGunCommand(const std::string& username, const GunType& gun):
+        Command(username), gun(gun) {}
+void BuyGunCommand::execute_in_buy_phase(GameWorld& game) const { game.buy_gun_for(username, gun); }
+
+BuyAmmoCommand::BuyAmmoCommand(const std::string& username, const bool& for_primary):
+        Command(username), for_primary(for_primary) {}
+void BuyAmmoCommand::execute_in_buy_phase(GameWorld& game) const {
+    game.buy_ammo_for(username, for_primary);
+}
+
 EquipCommand::EquipCommand(const std::string& username): Command(username) {}
 void EquipCommand::execute_in_attack_phase(GameWorld& game) const { execute(game); }
 void EquipCommand::execute_in_buy_phase(GameWorld& game) const { execute(game); }
@@ -89,10 +99,13 @@ void EquipCommand::execute_in_buy_phase(GameWorld& game) const { execute(game); 
 EquipPrimaryCommand::EquipPrimaryCommand(const std::string& username): EquipCommand(username) {}
 void EquipPrimaryCommand::execute(GameWorld& game) const { game.equip_primary_for(username); }
 
+EquipSecondaryCommand::EquipSecondaryCommand(const std::string& username): EquipCommand(username) {}
 void EquipSecondaryCommand::execute(GameWorld& game) const { game.equip_secondary_for(username); }
 
+EquipKnifeCommand::EquipKnifeCommand(const std::string& username): EquipCommand(username) {}
 void EquipKnifeCommand::execute(GameWorld& game) const { game.equip_knife_for(username); }
 
+EquipBombCommand::EquipBombCommand(const std::string& username): EquipCommand(username) {}
 void EquipBombCommand::execute(GameWorld& /*game*/) const {
     // game.equip_bomb_for(username);
 }
