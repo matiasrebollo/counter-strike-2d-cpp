@@ -967,7 +967,6 @@ QPushButton:hover {
                         background-repeat: no-repeat;
                         background-attachment: fixed;
                         background-position: center;
-                        background-size: 1200% 1200%;
                       }
                     </string>
                   </property>
@@ -1003,7 +1002,6 @@ QPushButton:hover {
                         background-repeat: no-repeat;
                         background-attachment: fixed;
                         background-position: center;
-                        background-size: 1200% 1200%;
                       }
                     </string>
                   </property>
@@ -1042,7 +1040,6 @@ QPushButton:hover {
                         background-repeat: no-repeat;
                         background-attachment: fixed;
                         background-position: center;
-                        background-size: 1200% 1200%;
                       }
                     </string>
                   </property>
@@ -1080,7 +1077,6 @@ QPushButton:hover {
                         background-repeat: no-repeat;
                         background-attachment: fixed;
                         background-position: center;
-                        background-size: 1200% 1200%;
                       }
                     </string>
                   </property>
@@ -1230,7 +1226,6 @@ QPushButton:pressed {
                         background-repeat: no-repeat;
                         background-attachment: fixed;
                         background-position: center;
-                        background-size: 1200% 1200%;
                       }
                     </string>
                   </property>
@@ -1260,7 +1255,6 @@ QPushButton:pressed {
                         background-repeat: no-repeat;
                         background-attachment: fixed;
                         background-position: center;
-                        background-size: 1200% 1200%;
                       }
                     </string>
                   </property>
@@ -1290,7 +1284,6 @@ QPushButton:pressed {
                         background-repeat: no-repeat;
                         background-attachment: fixed;
                         background-position: center;
-                        background-size: 1200% 1200%;
                       }
                     </string>
                   </property>
@@ -1320,7 +1313,6 @@ QPushButton:pressed {
                         background-repeat: no-repeat;
                         background-attachment: fixed;
                         background-position: center;
-                        background-size: 1200% 1200%;
                       }
                     </string>
                   </property>
