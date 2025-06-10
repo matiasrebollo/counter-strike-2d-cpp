@@ -81,7 +81,10 @@ bool Loadout::buy_ammo(const bool& for_primary) {
     return true;
 }
 
-void Loadout::equip_primary() { this->equipped = PRIMARY; }
+void Loadout::equip_primary() {
+    if (primary_gun)
+        this->equipped = PRIMARY;
+}
 void Loadout::equip_secondary() { this->equipped = SECONDARY; }
 void Loadout::equip_knife() { this->equipped = KNIFE; }
 Gun* Loadout::equipped_gun() {

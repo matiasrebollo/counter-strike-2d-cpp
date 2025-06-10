@@ -6,7 +6,15 @@
 
 #include "map_object.h"
 
-BlockTextureParser::BlockTextureParser(): block_textures() {
+BlockTextureParser::BlockTextureParser(): block_textures(), backgrounds_paths() {
+    /*backgrounds_paths = {{AZTEC_BACKGROUND, "../assets/gfx/backgrounds/aztec.png"},
+                         {DUST_BACKGROUND, "../assets/gfx/backgrounds/dust.png"},
+                         {GRASS_BACKGROUND, "../assets/gfx/backgrounds/gras1.jpg"}};*/
+
+    backgrounds_paths[AZTEC_BACKGROUND] = "../assets/gfx/backgrounds/aztec.png";
+    backgrounds_paths[DUST_BACKGROUND] = "../assets/gfx/backgrounds/dust.png";
+    backgrounds_paths[GRASS_BACKGROUND] = "../assets/gfx/backgrounds/gras1.jpg";
+
     std::vector<TilesetInfo> tilesets = {{"../assets/gfx/tiles/aztec.bmp",
                                           6,
                                           16,
@@ -97,6 +105,33 @@ BlockTextureParser::BlockTextureParser(): block_textures() {
     font_and_waiting_textures[BACKGROUND] = "../assets/gfx/splash.bmp";
     font_and_waiting_textures[FONT_WAITING] = "../assets/cs_regular.ttf";
     font_and_waiting_textures[FONT_SHOP] = "../assets/gfx/fonts/korean.ttf";
+
+    TilesetInfo tileset_crosshairs = {"../assets/gfx/pointer.png", 2, 2, 46, 46, {}, {}};
+    std::vector<Crosshairs> crosshairs = {GREEN, RED, YELLOW, TIME};
+
+    int i = 0;
+    for (int row = 0; row < tileset_crosshairs.rows; ++row) {
+        for (int col = 0; col < tileset_crosshairs.columns; ++col) {
+            crosshair_textures[crosshairs[i]] = {tileset_crosshairs.file,
+                                                 col * tileset_crosshairs.tileWidth,
+                                                 row * tileset_crosshairs.tileHeight,
+                                                 tileset_crosshairs.tileWidth,
+                                                 tileset_crosshairs.tileHeight,
+                                                 false};
+            i += 1;
+        }
+    }
+
+    gun_textures[AK47_GAME] = "../assets/gfx/weapons/ak47.bmp";
+    gun_textures[AK47_SHOP] = "../assets/gfx/weapons/ak47_k.bmp";
+    gun_textures[AWP_GAME] = "../assets/gfx/weapons/awp.bmp";
+    gun_textures[AWP_SHOP] = "../assets/gfx/weapons/awp_k.bmp";
+    gun_textures[M3_GAME] = "../assets/gfx/weapons/m3.bmp";
+    gun_textures[M3_SHOP] = "../assets/gfx/weapons/m3_k.bmp";
+    gun_textures[GLOCK_GAME] = "../assets/gfx/weapons/glock.bmp";
+    gun_textures[GLOCK_SHOP] = "../assets/gfx/weapons/glock_k.bmp";
+    gun_textures[KNIFE_GAME] = "../assets/gfx/weapons/knife.bmp";
+    gun_textures[KNIFE_SHOP] = "../assets/gfx/weapons/knife_k.bmp";
 }
 
 const BlockTextureInfo& BlockTextureParser::get_texture_info(int block) {
@@ -125,11 +160,32 @@ const std::string& BlockTextureParser::get_fw_texture(FontsAndBackground fw) con
     return font_and_waiting_textures.at(fw);
 }
 
-std::vector<int> BlockTextureParser::get_keys() {
+const BlockTextureInfo& BlockTextureParser::get_crosshair_texture(Crosshairs crosshair) const {
+    return crosshair_textures.at(crosshair);
+}
+
+const std::string& BlockTextureParser::get_gun_texture(GunSprites gun) const {
+    return gun_textures.at(gun);
+}
+
+const std::vector<int> BlockTextureParser::get_blocks_keys() {
     std::vector<int> keys;
     keys.reserve(block_textures.size());
 
     std::transform(block_textures.begin(), block_textures.end(), std::back_inserter(keys),
                    [](const auto& pair) { return pair.first; });
     return keys;
+}
+
+const std::vector<Background> BlockTextureParser::get_backgrounds() {
+    std::vector<Background> keys;
+    keys.reserve(backgrounds_paths.size());
+
+    std::transform(backgrounds_paths.begin(), backgrounds_paths.end(), std::back_inserter(keys),
+                   [](const auto& pair) { return pair.first; });
+    return keys;
+}
+
+const std::string& BlockTextureParser::get_background_path(const Background& background) {
+    return backgrounds_paths.at(background);
 }

@@ -9,6 +9,7 @@
 
 #include "../common/block_texture_parser.h"
 
+// Es una clase muy grande, quizas se pueda separar en subclases (como una para el HUD).
 
 SDLManager::SDLManager():
         sdl(SDL_INIT_VIDEO),
@@ -19,7 +20,10 @@ SDLManager::SDLManager():
         camera(CAMERA_WIDTH, CAMERA_HEIGHT),
         shop(renderer, texture_manager, texture_parser) {
     renderer.SetLogicalSize(CAMERA_WIDTH, CAMERA_HEIGHT);
-}  // para no hacerlo cada frame
+    SDL_ShowCursor(SDL_DISABLE);
+}
+
+void SDLManager::set_map(GameMap game_map) { map = std::move(game_map); }
 
 void SDLManager::render_waiting_screen(int players_connected, int players_required,
                                        const std::string& gamename, int iteration, int FPS) {
@@ -77,10 +81,39 @@ SDL_Point SDLManager::get_logical_size() const { return renderer.GetLogicalSize(
 
 void SDLManager::clear_display() { renderer.Clear(); }
 
+/* Centra la camara en el player */
 void SDLManager::update_camera(int player_x, int player_y) {
     camera.follow(player_x + SIZE_PLAYER / 2, player_y + SIZE_PLAYER / 2);
 }
 
+/* Devuelve un pair de la posicion del player segun el arma equipada y el sprite del arma a usar */
+std::pair<Position, GunSprites> SDLManager::get_gun_info(const LoadoutDTO& loadout) {
+    switch (loadout.equipped) {
+        case KNIFE:
+            return {CARRY_KNIFE, KNIFE_GAME};
+        // por ahora solo secondary glock
+        case SECONDARY:
+            return {CARRY_SECONDARY, GLOCK_GAME};
+        case PRIMARY:
+            switch (loadout.primary_gun) {
+                case AK47:
+                    return {CARRY_PRIMARY, AK47_GAME};
+                case AWP:
+                    return {CARRY_PRIMARY, AWP_GAME};
+                case M3:
+                    return {CARRY_PRIMARY, M3_GAME};
+                default:
+                    return {CARRY_PRIMARY,
+                            AK47_GAME};  // aca llegamos en caso de que sea NONE, no deberia pasar.
+            }
+        /*case BOMB:
+            return {CARRY_BOMB, BOMB_GAME};  */
+        default:
+            return {CARRY_KNIFE, KNIFE_GAME};
+    }
+}
+
+/* Renderiza un jugador */
 void SDLManager::render_player(const PlayerDTO& p, const BlockTextureInfo& sprite_info) {
     double angulo = p.orientation;
     int x_pos = p.position.x;
@@ -93,16 +126,53 @@ void SDLManager::render_player(const PlayerDTO& p, const BlockTextureInfo& sprit
         return;
 
     SDL2pp::Rect destino_camera = camera.world_to_screen(destino_mundo);
-    SDL2pp::Point centro(SIZE_PLAYER / 2, SIZE_PLAYER / 2);
-
     std::string path = sprite_info.tileset_path;
 
     SDL2pp::Texture& skin_texture = texture_manager.get_texture(path);
-
-    renderer.Copy(skin_texture, rect_origen, destino_camera, angulo, centro);
+    renderer.Copy(skin_texture, rect_origen, destino_camera, angulo, SDL2pp::NullOpt);
 }
 
+// falta hacer que quizas podes no ver el player pero si el arma (x la camera)
+// no dibujo las armas junto a cada player para que todas las armas se dibujen sobre los demas
+// players (z order)
+/* Renderiza las armas de cada jugador */
+void SDLManager::render_player_weapon(const PlayerDTO& p) {
+    double angulo = p.orientation;
+    int x_pos = p.position.x;
+    int y_pos = p.position.y;
 
+    SDL2pp::Rect destino_mundo(x_pos, y_pos, SIZE_PLAYER, SIZE_PLAYER);
+    if (!camera.is_visible(destino_mundo))
+        return;
+
+    SDL2pp::Rect destino_camera = camera.world_to_screen(destino_mundo);
+    GunSprites sprite = get_gun_info(p.loadout).second;
+    std::string weapon_path = texture_parser.get_gun_texture(sprite);
+
+    int offset_x, offset_y, gun_width, gun_height;
+    if (sprite == KNIFE_GAME) {
+        offset_x = 18;
+        offset_y = -10;
+        gun_width = 20;
+        gun_height = 40;
+        angulo -= 110;
+    } else {
+        offset_x = 0;
+        offset_y = -17;
+        gun_width = 32;
+        gun_height = 32;
+    }
+
+    SDL2pp::Rect gun_dst(destino_camera.GetX() + offset_x, destino_camera.GetY() + offset_y,
+                         gun_width, gun_height);
+
+    SDL2pp::Point rotate(-offset_x + SIZE_PLAYER / 2, -offset_y + SIZE_PLAYER / 2);
+    SDL2pp::Texture& weapon_texture = texture_manager.get_texture(weapon_path);
+
+    renderer.Copy(weapon_texture, SDL2pp::NullOpt, gun_dst, angulo, rotate);
+}
+
+/* Renderiza el tiempo restante de la ronda del HUD */
 void SDLManager::render_hud_time(int time_left) {
     int minutes = time_left / 60;
     int seconds = time_left % 60;
@@ -160,6 +230,7 @@ void SDLManager::render_hud_time(int time_left) {
     }
 }
 
+/* Renderiza la vida del HUD */
 void SDLManager::render_hud_life(uint16_t life) {
 
     int plus_width = 30, plus_height = 33;
@@ -200,59 +271,137 @@ void SDLManager::render_hud_life(uint16_t life) {
     }
 }
 
-void SDLManager::render_in_z_order(const GameMap& map, const Snapshot& snapshot,
-                                   const LocalPlayerInfo& local_info) {
+// fijarse de quizas agregar un iconito
+/* Renderiza la municion del HUD */
+void SDLManager::render_hud_ammo(int ammo) {
+    int char_width = 24;
+    int char_height = 33;
+    int spacing = 2;
+
+    std::string ammo_str = std::to_string(ammo);
+
+    int text_width = (ammo_str.size()) * (char_width + spacing) - spacing;
+
+    int start_x = CAMERA_WIDTH - text_width;
+    int y = CAMERA_HEIGHT - char_height;
+
+    int x = start_x;
+    for (char c: ammo_str) {
+        HudNumbers num_enum = static_cast<HudNumbers>(c - '0');
+        const BlockTextureInfo& sprite_info = texture_parser.get_number_texture(num_enum);
+        SDL2pp::Texture& texture = texture_manager.get_texture(sprite_info.tileset_path);
+
+        texture.SetColorMod(255, 255, 0);
+        texture.SetAlphaMod(190);
+
+        SDL2pp::Rect src(sprite_info.x, sprite_info.y, sprite_info.width, sprite_info.height);
+        SDL2pp::Rect dst(x, y, char_width, char_height);
+
+        renderer.Copy(texture, src, dst);
+
+        x += char_width + spacing;
+    }
+}
+
+/* Renderiza el dinero del HUD */
+void SDLManager::render_hud_money(int money) {
+    int icon_width = 30;
+    int icon_height = 33;
+
+    int char_width = 24;
+    int char_height = 33;
+    int spacing = 2;
+
+    int max_digits = 5;
+    int total_text_width = max_digits * (char_width + spacing) - spacing;
+
+    int text_start_x = CAMERA_WIDTH - total_text_width;
+
+    int icon_x = text_start_x - icon_width - spacing;
+
+    int y = CAMERA_HEIGHT - char_height * 2 - spacing;
+
+    const BlockTextureInfo& icon_info = texture_parser.get_symbol_texture(MONEY);
+    SDL2pp::Texture& icon_texture = texture_manager.get_texture(icon_info.tileset_path);
+    icon_texture.SetColorMod(255, 255, 0);
+    icon_texture.SetAlphaMod(190);
+
+    SDL2pp::Rect src_icon(icon_info.x, icon_info.y, icon_info.width, icon_info.height);
+    SDL2pp::Rect dst_icon(icon_x, y, icon_width, icon_height);
+    renderer.Copy(icon_texture, src_icon, dst_icon);
+
+    std::string money_str = std::to_string(money);
+
+    int text_width = (money_str.size()) * (char_width + spacing) - spacing;
+    int number_x = CAMERA_WIDTH - text_width;
+
+    int x = number_x;
+    for (char c: money_str) {
+        HudNumbers num_enum = static_cast<HudNumbers>(c - '0');
+        const BlockTextureInfo& sprite_info = texture_parser.get_number_texture(num_enum);
+        SDL2pp::Texture& texture = texture_manager.get_texture(sprite_info.tileset_path);
+
+        texture.SetColorMod(255, 255, 0);
+        texture.SetAlphaMod(190);
+
+        SDL2pp::Rect src(sprite_info.x, sprite_info.y, sprite_info.width, sprite_info.height);
+        SDL2pp::Rect dst(x, y, char_width, char_height);
+
+        renderer.Copy(texture, src, dst);
+        x += char_width + spacing;
+    }
+}
+
+// quizas eliminar la snapshot y englobar localinfo en un gamestate y solo recibir gamestate
+void SDLManager::render_in_z_order(const Snapshot& snapshot, const LocalInfo& local_info) {
+
+    update_camera(local_info.x, local_info.y);
+
+    if (map.has_value()) {
+        GameMap gamemap = map.value();
+        for (const MapObject& obj: gamemap.map_objects) {
+            const BlockTextureInfo& obj_info = texture_parser.get_texture_info(obj.type);
+            std::string path = obj_info.tileset_path;
+
+            SDL2pp::Texture& obj_texture = texture_manager.get_texture(path);
+
+            SDL2pp::Rect rect_origen(obj_info.x, obj_info.y, obj_info.width, obj_info.height);
+            for (const auto& vec: obj.positions) {
+                SDL2pp::Rect destino_mundo(vec.x * 40, vec.y * 40, 40, 40);
+                if (!camera.is_visible(destino_mundo))
+                    continue;
+                SDL2pp::Rect destino_camera = camera.world_to_screen(destino_mundo);
+                renderer.Copy(obj_texture, rect_origen, destino_camera);
+            }
+        }
+    }
 
     for (const PlayerDTO& p: snapshot.ct) {
-        if (p.username == local_info.username) {
-            update_camera(p.position.x, p.position.y);
-        }
-    }
-    for (const PlayerDTO& p: snapshot.tt) {
-        if (p.username == local_info.username) {
-            update_camera(p.position.x, p.position.y);
-        }
-    }
-
-    for (const MapObject& obj: map.map_objects) {
-        const BlockTextureInfo& obj_info = texture_parser.get_texture_info(obj.type);
-        std::string path = obj_info.tileset_path;
-
-        SDL2pp::Texture& obj_texture = texture_manager.get_texture(path);
-
-        SDL2pp::Rect rect_origen(obj_info.x, obj_info.y, obj_info.width, obj_info.height);
-        for (const auto& vec: obj.positions) {
-            SDL2pp::Rect destino_mundo(vec.x * 40, vec.y * 40, 40, 40);
-            if (!camera.is_visible(destino_mundo))
-                continue;
-            SDL2pp::Rect destino_camera = camera.world_to_screen(destino_mundo);
-            renderer.Copy(obj_texture, rect_origen, destino_camera);
-        }
-    }
-
-    for (const PlayerDTO& p: snapshot.ct) {
-        const BlockTextureInfo& skin_info =
-                texture_parser.get_ct_texture(local_info.ct_skin, CARRY_KNIFE);
+        Position pos = get_gun_info(p.loadout).first;
+        const BlockTextureInfo& skin_info = texture_parser.get_ct_texture(local_info.ct_skin, pos);
         render_player(p, skin_info);
     }
 
     for (const PlayerDTO& p: snapshot.tt) {
-        const BlockTextureInfo& skin_info =
-                texture_parser.get_tt_texture(local_info.tt_skin, CARRY_KNIFE);
+        Position pos = get_gun_info(p.loadout).first;
+        const BlockTextureInfo& skin_info = texture_parser.get_tt_texture(local_info.tt_skin, pos);
         render_player(p, skin_info);
+    }
+
+    // renderizo las armas luego de los players para que las armas siempre aparezcan por encima de
+    // estos, ver si modificar
+    for (const PlayerDTO& p: snapshot.ct) {
+        render_player_weapon(p);
+    }
+
+    for (const PlayerDTO& p: snapshot.tt) {
+        render_player_weapon(p);
     }
 
     render_hud_time(snapshot.time_left);
-    for (const PlayerDTO& p: snapshot.ct) {
-        if (p.username == local_info.username) {
-            render_hud_life(p.life);
-        }
-    }
-    for (const PlayerDTO& p: snapshot.tt) {
-        if (p.username == local_info.username) {
-            render_hud_life(p.life);
-        }
-    }
+    render_hud_life(local_info.life);
+    render_hud_ammo(local_info.equipped_gun_ammo);
+    render_hud_money(local_info.money);
 }
 
 std::optional<ShopButtonType> SDLManager::get_clicked_button(int x, int y) {
@@ -260,6 +409,65 @@ std::optional<ShopButtonType> SDLManager::get_clicked_button(int x, int y) {
 }
 
 
-void SDLManager::render_shop() { shop.render(); }
+void SDLManager::render_shop(int player_money, GunType primary_gun, GunType secondary_gun) {
+    shop.render(player_money, primary_gun, secondary_gun);
+}
+
+/* Devuelve el color de la mira a usar dependiendo donde esta posicionado el mouse */
+Crosshairs SDLManager::get_crosshair_color(int mouse_x, int mouse_y, const Snapshot& snapshot,
+                                           const LocalInfo& local_info) {
+
+    const auto& enemies = local_info.is_ct ? snapshot.tt : snapshot.ct;
+
+    for (const auto& e: enemies) {
+        SDL2pp::Rect destino_mundo(e.position.x, e.position.y, SIZE_PLAYER, SIZE_PLAYER);
+
+        if (!camera.is_visible(destino_mundo)) {
+            continue;
+        }
+
+        SDL2pp::Rect destino_camera = camera.world_to_screen(destino_mundo);
+
+        if (destino_camera.Contains(mouse_x, mouse_y)) {
+            return RED;
+        }
+    }
+
+    return GREEN;
+}
+
+
+void SDLManager::render_crosshair(const Snapshot& snapshot, const LocalInfo& local_info) {
+
+    int mouse_x, mouse_y;
+    SDL_GetMouseState(&mouse_x, &mouse_y);  // da coords fisicas
+
+    float logical_mouse_x, logical_mouse_y;
+    SDL_RenderWindowToLogical(renderer.Get(), static_cast<float>(mouse_x),
+                              static_cast<float>(mouse_y), &logical_mouse_x,
+                              &logical_mouse_y);  // da coords logicas
+
+    float scale_x = static_cast<float>(window.GetWidth()) / CAMERA_WIDTH;
+    float scale_y = static_cast<float>(window.GetHeight()) / CAMERA_HEIGHT;
+
+    int scaled_width = static_cast<int>(20 * scale_x);
+    int scaled_height = static_cast<int>(20 * scale_y);
+    int scale = std::min(scaled_width, scaled_height);
+
+    Crosshairs color = get_crosshair_color(static_cast<int>(logical_mouse_x),
+                                           static_cast<int>(logical_mouse_y), snapshot, local_info);
+
+    const BlockTextureInfo& crosshair_info = texture_parser.get_crosshair_texture(color);
+    SDL2pp::Texture& crosshair_texture = texture_manager.get_texture(crosshair_info.tileset_path);
+
+    SDL2pp::Rect src(crosshair_info.x, crosshair_info.y, crosshair_info.width,
+                     crosshair_info.height);
+    SDL2pp::Rect dst(mouse_x - scale / 2, mouse_y - scale / 2, scale, scale);
+
+    renderer.SetLogicalSize(window.GetWidth(), window.GetHeight());
+    renderer.Copy(crosshair_texture, src, dst);
+    renderer.SetLogicalSize(CAMERA_WIDTH, CAMERA_HEIGHT);
+}
+
 
 void SDLManager::show_screen() { renderer.Present(); }

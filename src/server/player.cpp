@@ -40,7 +40,6 @@ void Player::update(GameWorld& game, const float& delta_t) {
     // si mato, reconocerlo y aumentar dinero
 }
 
-
 void Player::move_up() { moving_up = !moving_up; }
 void Player::move_down() { moving_down = !moving_down; }
 void Player::move_left() { moving_left = !moving_left; }

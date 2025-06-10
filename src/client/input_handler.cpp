@@ -2,7 +2,124 @@
 
 InputHandler::InputHandler(SDLManager& sdl, ClientProtocol& protocol): sdl(sdl), sender(protocol) {}
 
+bool InputHandler::handle_quit_event(const SDL_Event& event) {
+    return (event.type == SDL_QUIT) ||
+           (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE);
+}
 
+
+bool InputHandler::handle_waiting_events() {
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        if (handle_quit_event(event))
+            return false;
+    }
+    return true;
+}
+
+bool InputHandler::handle_weapon_switch_event(const SDL_Event& event) {
+    if (event.type == SDL_KEYDOWN) {
+        switch (event.key.keysym.sym) {
+            case SDLK_1:
+                if (!one) {
+                    sender.add_command_to_queue(EquipPrimaryDTO());
+                    one = true;
+                }
+                return true;
+            case SDLK_2:
+                if (!two) {
+                    sender.add_command_to_queue(EquipSecondaryDTO());
+                    two = true;
+                }
+                return true;
+            case SDLK_3:
+                if (!three) {
+                    sender.add_command_to_queue(EquipKnifeDTO());
+                    three = true;
+                }
+                return true;
+        }
+    }
+
+    if (event.type == SDL_KEYUP) {
+        switch (event.key.keysym.sym) {
+            case SDLK_1:
+                one = false;
+                return true;
+            case SDLK_2:
+                two = false;
+                return true;
+            case SDLK_3:
+                three = false;
+                return true;
+        }
+    }
+
+    return false;
+}
+
+
+bool InputHandler::handle_shop_event(const SDL_Event& event) {
+    if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT && !click_buy) {
+
+        click_buy = true;
+
+        int mouse_x = event.button.x;
+        int mouse_y = event.button.y;
+
+        auto opt_button = sdl.get_clicked_button(mouse_x, mouse_y);
+        if (opt_button.has_value()) {
+            ShopButtonType button = opt_button.value();
+            switch (button) {
+                case ShopButtonType::Open:
+                    break;
+                case ShopButtonType::Close:
+                    break;
+                case ShopButtonType::WeaponAK47:
+                    sender.add_command_to_queue(BuyGunDTO{AK47});
+                    break;
+                case ShopButtonType::WeaponAWP:
+                    sender.add_command_to_queue(BuyGunDTO{AWP});
+                    break;
+                case ShopButtonType::WeaponM3:
+                    sender.add_command_to_queue(BuyGunDTO{M3});
+                    break;
+                case ShopButtonType::AmmoPrimary:
+                    sender.add_command_to_queue(BuyAmmoDTO{true});
+                    break;
+                case ShopButtonType::AmmoSecondary:
+                    sender.add_command_to_queue(BuyAmmoDTO{false});
+                    break;
+                default:
+                    std::cout << "Botón desconocido\n";
+                    break;
+            }
+        }
+        return true;
+    }
+
+    if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT && click_buy) {
+        click_buy = false;
+        return true;
+    }
+
+    return false;
+}
+
+bool InputHandler::handle_buy_events() {
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        if (handle_quit_event(event))
+            return false;
+        if (handle_weapon_switch_event(event))
+            continue;
+        if (handle_shop_event(event))
+            continue;
+    }
+    return true;
+}
+
+/* Envia comando de comenzar a moverse si ya no nos estamos moviendo */
 template <typename T>
 bool InputHandler::try_move(bool& flag, T dto) {
     if (!flag) {
@@ -12,6 +129,7 @@ bool InputHandler::try_move(bool& flag, T dto) {
     return true;
 }
 
+/* Envia comando de dejar de moverse si ya no estamos quietos */
 template <typename T>
 bool InputHandler::try_stop(bool& flag, T dto) {
     if (flag) {
@@ -21,12 +139,7 @@ bool InputHandler::try_stop(bool& flag, T dto) {
     return true;
 }
 
-
-bool InputHandler::handle_quit_event(const SDL_Event& event) {
-    return (event.type == SDL_QUIT) ||
-           (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE);
-}
-
+/* Maneja evento de tocar una tecla de movimiento */
 bool InputHandler::handle_keydown_event(const SDL_Event& event) {
     if (event.type != SDL_KEYDOWN)
         return false;
@@ -45,6 +158,7 @@ bool InputHandler::handle_keydown_event(const SDL_Event& event) {
     }
 }
 
+/* Maneja evento de soltar una tecla de movimiento */
 bool InputHandler::handle_keyup_event(const SDL_Event& event) {
     if (event.type != SDL_KEYUP)
         return false;
@@ -63,6 +177,7 @@ bool InputHandler::handle_keyup_event(const SDL_Event& event) {
     }
 }
 
+/* Calcula el angulo del mouse en coords logicas al centro de la camara */
 double InputHandler::calculate_angle_to_mouse(int mouse_x, int mouse_y) const {
     auto [width, height] = sdl.get_logical_size();
     float center_x = width / 2.0f;
@@ -73,6 +188,7 @@ double InputHandler::calculate_angle_to_mouse(int mouse_x, int mouse_y) const {
     return (ang_radianes * 180.0f / M_PI) + 90;
 }
 
+/* Maneja evento de disparo */
 bool InputHandler::handle_mouse_motion_event(const SDL_Event& event) {
     if (event.type != SDL_MOUSEMOTION)
         return false;
@@ -86,30 +202,32 @@ bool InputHandler::handle_mouse_motion_event(const SDL_Event& event) {
     return true;
 }
 
+/* Maneja evento de disparo */
 bool InputHandler::handle_shoot_event(const SDL_Event& event) {
-    if (event.button.button == SDL_BUTTON_LEFT && !click_attack) {
+    if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT &&
+        !click_attack) {
         click_attack = true;
         sender.add_command_to_queue(PlayerActionDTO{});
         return true;
     }
-    return false;
-}
 
-bool InputHandler::handle_release_shoot_event(const SDL_Event& event) {
-    if (event.button.button == SDL_BUTTON_LEFT && click_attack) {
+    if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT && click_attack) {
         click_attack = false;
         sender.add_command_to_queue(PlayerActionDTO{});
         return true;
     }
+
     return false;
 }
 
 
-bool InputHandler::handle_events() {
+bool InputHandler::handle_attack_events() {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (handle_quit_event(event))
             return false;
+        if (handle_weapon_switch_event(event))
+            continue;
         if (handle_keydown_event(event))
             continue;
         if (handle_keyup_event(event))
@@ -117,83 +235,6 @@ bool InputHandler::handle_events() {
         if (handle_mouse_motion_event(event))
             continue;
         if (handle_shoot_event(event))
-            continue;
-        if (handle_release_shoot_event(event))
-            continue;
-    }
-    return true;
-}
-
-
-bool InputHandler::handle_waiting_events() {
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        if (handle_quit_event(event))
-            return false;
-    }
-    return true;
-}
-
-bool InputHandler::handle_mouse_button_down(const SDL_Event& event) {
-    if (event.type != SDL_MOUSEBUTTONDOWN || event.button.button != SDL_BUTTON_LEFT || click_buy) {
-        return false;
-    }
-    click_buy = true;
-
-    int mouse_x = event.button.x;
-    int mouse_y = event.button.y;
-
-    auto opt_button = sdl.get_clicked_button(mouse_x, mouse_y);
-    if (opt_button.has_value()) {
-        ShopButtonType button = opt_button.value();
-        switch (button) {
-            case ShopButtonType::Open:
-                std::cout << "Shop abierto\n";
-                break;
-            case ShopButtonType::Close:
-                std::cout << "Shop cerrado\n";
-                break;
-            case ShopButtonType::WeaponAK47:
-                sender.add_command_to_queue(BuyGunDTO{AK47});
-                break;
-            case ShopButtonType::WeaponAWP:
-                sender.add_command_to_queue(BuyGunDTO{AWP});
-                break;
-            case ShopButtonType::WeaponM3:
-                sender.add_command_to_queue(BuyGunDTO{M3});
-                break;
-            // que el server se encargue de la cantidad de ammo segun el arma que tiene???
-            case ShopButtonType::AmmoPrimary:
-                sender.add_command_to_queue(BuyAmmoDTO{true});
-                break;
-            case ShopButtonType::AmmoSecondary:
-                sender.add_command_to_queue(BuyAmmoDTO{false});
-                break;
-            default:
-                std::cout << "Botón desconocido\n";
-                break;
-        }
-    }
-    return true;
-}
-
-bool InputHandler::handle_mouse_button_up(const SDL_Event& event) {
-    if (event.type != SDL_MOUSEBUTTONUP || event.button.button != SDL_BUTTON_LEFT || !click_buy) {
-        return false;
-    }
-    click_buy = false;
-    return true;
-}
-
-
-bool InputHandler::handle_buy_events() {
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        if (handle_quit_event(event))
-            return false;
-        if (handle_mouse_button_down(event))
-            continue;
-        if (handle_mouse_button_up(event))
             continue;
     }
     return true;
