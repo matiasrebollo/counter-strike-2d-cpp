@@ -92,7 +92,7 @@ const GameWorldSnapshot GameWorld::get_snapshot() const {
     for (const auto& player: counter_terrorists) {
         ct.push_back(player.second->get_dto());
     }
-  
+
     for (const auto& player: terrorists) {
         tt.push_back(player.second->get_dto());
     }

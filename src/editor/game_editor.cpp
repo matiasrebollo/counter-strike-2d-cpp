@@ -137,7 +137,7 @@ GameMap Game_editor::create_map(const std::vector<std::vector<int>>& grid) {
 
 
     std::vector<Vector2D<int>> ct_spawns2 = {Vector2D<int>(1, 1), Vector2D<int>(1, 2),
-                                            Vector2D<int>(2, 1), Vector2D<int>(2, 2)};
+                                             Vector2D<int>(2, 1), Vector2D<int>(2, 2)};
     std::vector<Vector2D<int>> tt_spawns = {Vector2D<int>(13, 6), Vector2D<int>(14, 6),
                                             Vector2D<int>(11, 7), Vector2D<int>(12, 7)};
     std::vector<Vector2D<int>> sites = {Vector2D<int>(12, 1), Vector2D<int>(12, 2),
