@@ -56,7 +56,6 @@ void Gun::update(const float& delta_t, Player& owner, GameWorld& game) {
 }
 
 void Gun::shoot(GameWorld& game, Player& shooter) {
-    // std::cout << "disparo! " << std::endl;
     ammo -= 1;
 
     const Vector2D<int> origin(shooter.rect.position.x + shooter.rect.width / 2,
