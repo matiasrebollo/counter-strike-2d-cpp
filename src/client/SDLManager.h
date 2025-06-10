@@ -54,7 +54,7 @@ public:
     void render_in_z_order(const GameMap& map, const Snapshot& snapshot,
                            const LocalInfo& local_info);
     std::optional<ShopButtonType> get_clicked_button(int x, int y);
-    void render_shop();
+    void render_shop(int player_money);
     void render_crosshair(const Snapshot& snapshot, const LocalInfo& local_info);
     void show_screen();
 };

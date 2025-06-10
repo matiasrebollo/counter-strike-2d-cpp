@@ -11,26 +11,29 @@ private:
     SDLManager& sdl;
     ClientSender sender;
 
-    // quizas englobar logica al mandar eventos en otra clase.
+    // quizas englobar logica de botones/clicks
     bool w = false;
     bool a = false;
     bool s = false;
     bool d = false;
 
+    bool one = false;
+    bool two = false;
+    bool three = false;
+
     bool click_buy = false;
     bool click_attack = false;
 
     bool handle_quit_event(const SDL_Event& event);
+    bool handle_weapon_switch_event(const SDL_Event& event);
 
-    bool handle_mouse_button_down(const SDL_Event& event);
-    bool handle_mouse_button_up(const SDL_Event& event);
+    bool handle_shop_event(const SDL_Event& event);
 
     bool handle_keydown_event(const SDL_Event& event);
     bool handle_keyup_event(const SDL_Event& event);
     double calculate_angle_to_mouse(int mouse_x, int mouse_y) const;
     bool handle_mouse_motion_event(const SDL_Event& event);
     bool handle_shoot_event(const SDL_Event& event);
-    bool handle_release_shoot_event(const SDL_Event& event);
 
     template <typename T>
     bool try_move(bool& flag, T dto);

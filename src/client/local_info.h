@@ -15,6 +15,7 @@ struct LocalInfo {
     int x = 0;
     int y = 0;
     int life = 0;
+    int money = 0;
 };
 
 #endif

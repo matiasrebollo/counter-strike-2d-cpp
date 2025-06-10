@@ -19,6 +19,16 @@ Shop::Shop(SDL2pp::Renderer& renderer, TextureManager& texture_manager,
     ShopButton close_button = {close_button_rect, "", ShopButtonType::Close};
     buttons.push_back(close_button);
 
+    // Rectangulo money
+    int money_rect_w = 80;
+    int money_rect_h = 27;
+    int spacing_from_close = 10;
+
+    money_rect = SDL2pp::Rect(close_button_rect.x + close_button_rect.w - money_rect_w,
+                              close_button_rect.y + close_button_rect.h + spacing_from_close,
+                              money_rect_w, money_rect_h);
+
+
     // Botones de la tienda
     int button_w = 213;
     int button_h = 27;
@@ -52,7 +62,7 @@ Shop::Shop(SDL2pp::Renderer& renderer, TextureManager& texture_manager,
                    ShopButtonType::Open};
 }
 
-void Shop::render() {
+void Shop::render(int player_money) {
     int border_thickness = 1;
 
     SDL2pp::Color shop_color(50, 50, 50, 200);
@@ -88,6 +98,43 @@ void Shop::render() {
     renderer.FillRect(SDL2pp::Rect(shop_rect.x, shop_rect.y, border_thickness, shop_rect.h));
     renderer.FillRect(SDL2pp::Rect(shop_rect.x + shop_rect.w - border_thickness, shop_rect.y,
                                    border_thickness, shop_rect.h));
+
+    // Rectangulo dinero
+    renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
+    renderer.SetDrawColor(button_color);
+    renderer.FillRect(money_rect);
+
+    // Borde rectangulo dinero
+    renderer.SetDrawBlendMode(SDL_BLENDMODE_NONE);
+    renderer.SetDrawColor(border_color);
+    renderer.FillRect(SDL2pp::Rect(money_rect.x, money_rect.y, money_rect.w, border_thickness));
+    renderer.FillRect(SDL2pp::Rect(money_rect.x, money_rect.y + money_rect.h - border_thickness,
+                                   money_rect.w, border_thickness));
+    renderer.FillRect(SDL2pp::Rect(money_rect.x, money_rect.y, border_thickness, money_rect.h));
+    renderer.FillRect(SDL2pp::Rect(money_rect.x + money_rect.w - border_thickness, money_rect.y,
+                                   border_thickness, money_rect.h));
+
+    // Texto dinero
+    std::string money_str = std::to_string(player_money);  // suponiendo que recibís 'money'
+    std::string dollar = "$";
+
+    SDL2pp::Texture& dollar_tex =
+            texture_manager.get_text_texture(dollar, font_path, font_size, text_color);
+    SDL2pp::Texture& money_tex =
+            texture_manager.get_text_texture(money_str, font_path, font_size, text_color);
+
+    int dollar_x = money_rect.x + 4;
+    int dollar_y = money_rect.y + (money_rect.h - dollar_tex.GetHeight()) / 2;
+
+    int money_x = money_rect.x + money_rect.w - money_tex.GetWidth() - 4;
+    int money_y = money_rect.y + (money_rect.h - money_tex.GetHeight()) / 2;
+
+    renderer.Copy(dollar_tex, SDL2pp::NullOpt,
+                  SDL2pp::Rect(dollar_x, dollar_y, dollar_tex.GetWidth(), dollar_tex.GetHeight()));
+
+    renderer.Copy(money_tex, SDL2pp::NullOpt,
+                  SDL2pp::Rect(money_x, money_y, money_tex.GetWidth(), money_tex.GetHeight()));
+
 
     // Botones
     for (const ShopButton& btn: buttons) {

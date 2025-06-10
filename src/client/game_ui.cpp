@@ -45,6 +45,7 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
             local_info.life = p.life;
             local_info.x = p.position.x;
             local_info.y = p.position.y;
+            local_info.money = p.loadout.money;
             return;
         }
     }
@@ -55,6 +56,7 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
             local_info.life = p.life;
             local_info.x = p.position.x;
             local_info.y = p.position.y;
+            local_info.money = p.loadout.money;
             return;
         }
     }
@@ -123,7 +125,7 @@ bool GameUI::update_buy() {
 void GameUI::show_buy(const int& /*it*/) {
     sdl.clear_display();
     sdl.render_in_z_order(this->map, this->game_snapshot, local_info);
-    sdl.render_shop();
+    sdl.render_shop(local_info.money);
     sdl.render_crosshair(this->game_snapshot, local_info);
     sdl.show_screen();
 }

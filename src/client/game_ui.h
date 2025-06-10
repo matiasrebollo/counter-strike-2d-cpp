@@ -29,6 +29,7 @@ private:
     ClientProtocol protocol;
     SDLManager sdl;
     InputHandler input_handler;
+    // estaria bueno quizas englobar el receiver en una clase que reciba y procese la snapshot
     ClientReceiver receiver;
     LocalInfo local_info;
     std::unique_ptr<GameUIPhase> phase;

@@ -108,7 +108,6 @@ std::pair<Position, GunSprites> SDLManager::get_gun_info(const LoadoutDTO& loado
     }
 }
 
-// falta hacer que quizas podes no ver el player pero si el arma (x la camera)
 void SDLManager::render_player(const PlayerDTO& p, const BlockTextureInfo& sprite_info) {
     double angulo = p.orientation;
     int x_pos = p.position.x;
@@ -127,6 +126,7 @@ void SDLManager::render_player(const PlayerDTO& p, const BlockTextureInfo& sprit
     renderer.Copy(skin_texture, rect_origen, destino_camera, angulo, SDL2pp::NullOpt);
 }
 
+// falta hacer que quizas podes no ver el player pero si el arma (x la camera)
 // no dibujo las armas junto a cada player para que todas las armas se dibujen sobre los demas
 // players (z order)
 void SDLManager::render_player_weapon(const PlayerDTO& p) {
@@ -309,7 +309,7 @@ std::optional<ShopButtonType> SDLManager::get_clicked_button(int x, int y) {
 }
 
 
-void SDLManager::render_shop() { shop.render(); }
+void SDLManager::render_shop(int player_money) { shop.render(player_money); }
 
 Crosshairs SDLManager::get_crosshair_color(int mouse_x, int mouse_y, const Snapshot& snapshot,
                                            const LocalInfo& local_info) {

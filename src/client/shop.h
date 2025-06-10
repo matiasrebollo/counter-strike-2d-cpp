@@ -29,6 +29,7 @@ private:
 
     std::vector<ShopButton> buttons;
     SDL2pp::Rect shop_rect;
+    SDL2pp::Rect money_rect;
     ShopButton open_button;
     bool open;
 
@@ -37,7 +38,7 @@ public:
     Shop(SDL2pp::Renderer& renderer, TextureManager& texture_manager,
          BlockTextureParser& texture_parser);
 
-    void render();
+    void render(int player_money);
     std::optional<ShopButtonType> clicked_button(int x, int y);
 };
 
