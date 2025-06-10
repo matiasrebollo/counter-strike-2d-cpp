@@ -6,7 +6,7 @@
  * Por simplificación este TDA se enfocará solamente
  * en sockets IPv4 para TCP.
  * */
-class Socket {
+class RealSocket {
 private:
     int skt;
     bool closed;
@@ -15,7 +15,7 @@ private:
     /*
      * Construye el socket pasándole directamente el file descriptor.
      * */
-    explicit Socket(int skt);
+    explicit RealSocket(int skt);
 
     /*
      * Checkea que el file descriptor (skt) sea "valido".
@@ -65,9 +65,9 @@ public:
      *
      * En caso de error los constructores lanzaran una excepción.
      * */
-    Socket(const char* hostname, const char* servname);
+    RealSocket(const char* hostname, const char* servname);
 
-    explicit Socket(const char* servname);
+    explicit RealSocket(const char* servname);
 
     /*
      * Deshabilitamos el constructor por copia y operador asignación por copia
@@ -90,14 +90,14 @@ public:
      *
      * Por eso deshabilitamos la copia. No tiene sentido.
      * */
-    Socket(const Socket&) = delete;
-    Socket& operator=(const Socket&) = delete;
+    RealSocket(const RealSocket&) = delete;
+    RealSocket& operator=(const RealSocket&) = delete;
 
     /*
      * Hacemos que el `Socket` sea movible.
      * */
-    Socket(Socket&&);
-    Socket& operator=(Socket&&);
+    RealSocket(RealSocket&&);
+    RealSocket& operator=(RealSocket&&);
 
     /* `Socket::sendsome` lee hasta `sz` bytes del buffer y los envía. La función
      * puede enviar menos bytes sin embargo.
@@ -149,7 +149,7 @@ public:
      *
      * En caso de error, se lanza una excepción.
      * */
-    Socket accept();
+    RealSocket accept();
 
     /*
      * Cierra la conexión ya sea parcial o completamente.
@@ -176,7 +176,7 @@ public:
      * se llamara a `Socket::shutdown` y `Socket::close`
      * automáticamente.
      * */
-    ~Socket();
+    ~RealSocket();
 };
 
 #endif

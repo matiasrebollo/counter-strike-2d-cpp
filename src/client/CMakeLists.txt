@@ -30,5 +30,3 @@ target_sources(taller_client
         texture_manager.cpp
         shop.cpp
 )
-
-

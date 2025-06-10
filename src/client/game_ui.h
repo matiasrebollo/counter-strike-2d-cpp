@@ -23,7 +23,7 @@
 
 class GameUI {
 private:
-    ClientProtocol protocol;
+    ClientProtocol&& protocol;
     SDLManager sdl;
     InputHandler input_handler;
     // estaria bueno quizas englobar el receiver en una clase que reciba y procese la snapshot

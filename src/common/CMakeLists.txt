@@ -1,7 +1,6 @@
 target_sources(taller_common
     PRIVATE
     # .cpp files
-    codes_parser.cpp
     common_protocol.cpp
     liberror.cpp
     resolver.cpp
@@ -25,7 +24,6 @@ target_sources(taller_common
     game_snapshot.h
     game_dto.h
     vector_2d.h
-    codes_parser.h
     commands.h
     commands_dto.h
     common_protocol.h
@@ -42,3 +40,12 @@ target_sources(taller_common
     yaml_parser.h
     sdl_helpers.h
     )
+
+if(TALLER_TESTS)
+    target_sources(taller_common
+        PRIVATE
+            mock_socket.cpp
+        PUBLIC
+            mock_socket.h
+    )
+endif()

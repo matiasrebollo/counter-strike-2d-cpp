@@ -4,13 +4,13 @@
 #include <cstdint>
 #include <functional>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <type_traits>
 #include <unordered_map>
 #include <variant>
 #include <vector>
 
-#include "../common/codes_parser.h"
 #include "../common/commands.h"
 #include "../common/commands_dto.h"
 #include "../common/common_protocol.h"
@@ -22,7 +22,7 @@
 #define CODE_SUCCESS 0x01
 #define CODE_FAIL 0x00
 
-class ServerProtocol: public CommonProtocol, public CodesParser {
+class ServerProtocol: public CommonProtocol {
 private:
     std::unordered_map<bool, uint8_t> codeSuccessResponse;
     std::unordered_map<CommandType, std::function<LobbyRequestDTO()>> lobbyCommandManagers;
@@ -44,14 +44,17 @@ private:
     void send_end_game(const GameEnded& message);
 
 public:
-    explicit ServerProtocol(Socket&& socket);
+    explicit ServerProtocol(std::unique_ptr<Socket> socket);
+    ServerProtocol(ServerProtocol&& other) noexcept;
+    ServerProtocol& operator=(ServerProtocol&& other) noexcept;
+
     void send_lobby_message(const ServerResponseLobby& msg);
     void send_start_game(const ServerResponseLobby& msg);
     void send_game_dto(const GameDTO& message);
     CommandDTO receive_client_request();
     LobbyRequestDTO receive_lobby_request();
     void kill();
-    ServerProtocol(ServerProtocol&& other);
+
     ~ServerProtocol();
 };
 

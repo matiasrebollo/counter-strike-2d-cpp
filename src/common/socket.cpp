@@ -21,7 +21,7 @@
 #define STREAM_BOTH_CLOSED 0x03
 #define STREAM_BOTH_OPEN 0x00
 
-Socket::Socket(const char* hostname, const char* servname) {
+RealSocket::RealSocket(const char* hostname, const char* servname) {
     Resolver resolver(hostname, servname, false);
 
     int s = -1;
@@ -97,7 +97,7 @@ Socket::Socket(const char* hostname, const char* servname) {
                    (hostname ? hostname : ""), (servname ? servname : ""));
 }
 
-Socket::Socket(const char* servname) {
+RealSocket::RealSocket(const char* servname) {
     Resolver resolver(nullptr, servname, true);
 
     int s = -1;
@@ -196,7 +196,7 @@ Socket::Socket(const char* servname) {
                    (servname ? servname : ""));
 }
 
-Socket::Socket(Socket&& other) {
+RealSocket::RealSocket(RealSocket&& other) {
     /* Nos copiamos del otro socket... */
     this->skt = other.skt;
     this->closed = other.closed;
@@ -218,7 +218,7 @@ Socket::Socket(Socket&& other) {
     other.stream_status = STREAM_BOTH_CLOSED;
 }
 
-Socket& Socket::operator=(Socket&& other) {
+RealSocket& RealSocket::operator=(RealSocket&& other) {
     /* Si el usuario hace algo como tratar de moverse
      * a si mismo (`skt = skt;`) simplemente no hacemos
      * nada.
@@ -239,6 +239,7 @@ Socket& Socket::operator=(Socket&& other) {
     /* Ahora hacemos los mismos pasos que en el move constructor */
     this->skt = other.skt;
     this->closed = other.closed;
+    this->stream_status = other.stream_status;
     other.skt = -1;
     other.closed = true;
     other.stream_status = STREAM_BOTH_CLOSED;
@@ -246,7 +247,7 @@ Socket& Socket::operator=(Socket&& other) {
     return *this;
 }
 
-int Socket::recvsome(void* data, unsigned int sz) {
+int RealSocket::recvsome(void* data, unsigned int sz) {
     chk_skt_or_fail();
     int s = recv(this->skt, static_cast<char*>(data), sz, 0);
     if (s == 0) {
@@ -268,7 +269,7 @@ int Socket::recvsome(void* data, unsigned int sz) {
     }
 }
 
-int Socket::sendsome(const void* data, unsigned int sz) {
+int RealSocket::sendsome(const void* data, unsigned int sz) {
     chk_skt_or_fail();
     /*
      * Cuando se hace un send, el sistema operativo puede aceptar
@@ -319,7 +320,7 @@ int Socket::sendsome(const void* data, unsigned int sz) {
     }
 }
 
-int Socket::recvall(void* data, unsigned int sz) {
+int RealSocket::recvall(void* data, unsigned int sz) {
     unsigned int received = 0;
 
     while (received < sz) {
@@ -354,7 +355,7 @@ int Socket::recvall(void* data, unsigned int sz) {
 }
 
 
-int Socket::sendall(const void* data, unsigned int sz) {
+int RealSocket::sendall(const void* data, unsigned int sz) {
     unsigned int sent = 0;
 
     while (sent < sz) {
@@ -375,13 +376,13 @@ int Socket::sendall(const void* data, unsigned int sz) {
     return sz;
 }
 
-Socket::Socket(int skt) {
+RealSocket::RealSocket(int skt) {
     this->skt = skt;
     this->closed = false;
     this->stream_status = STREAM_BOTH_OPEN;
 }
 
-Socket Socket::accept() {
+RealSocket RealSocket::accept() {
     chk_skt_or_fail();
     /*
      * `accept` nos bloqueara hasta que algún cliente se conecte a nosotros
@@ -406,10 +407,10 @@ Socket Socket::accept() {
      *
      * Por eso creamos un `Socket` y lo pasamos por movimiento
      * */
-    return Socket(peer_skt);
+    return RealSocket(peer_skt);
 }
 
-void Socket::shutdown(int how) {
+void RealSocket::shutdown(int how) {
     chk_skt_or_fail();
     if (::shutdown(this->skt, how) == -1) {
         throw LibError(errno, "socket shutdown failed");
@@ -430,25 +431,25 @@ void Socket::shutdown(int how) {
     }
 }
 
-bool Socket::is_stream_send_closed() const { return stream_status & STREAM_SEND_CLOSED; }
+bool RealSocket::is_stream_send_closed() const { return stream_status & STREAM_SEND_CLOSED; }
 
-bool Socket::is_stream_recv_closed() const { return stream_status & STREAM_RECV_CLOSED; }
+bool RealSocket::is_stream_recv_closed() const { return stream_status & STREAM_RECV_CLOSED; }
 
-int Socket::close() {
+int RealSocket::close() {
     chk_skt_or_fail();
     this->closed = true;
     this->stream_status = STREAM_BOTH_CLOSED;
     return ::close(this->skt);
 }
 
-Socket::~Socket() {
+RealSocket::~RealSocket() {
     if (not this->closed) {
         ::shutdown(this->skt, 2);
         ::close(this->skt);
     }
 }
 
-void Socket::chk_skt_or_fail() const {
+void RealSocket::chk_skt_or_fail() const {
     if (skt == -1) {
         throw std::runtime_error("socket with invalid file descriptor (-1), "
                                  "perhaps you are using a *previously moved* "

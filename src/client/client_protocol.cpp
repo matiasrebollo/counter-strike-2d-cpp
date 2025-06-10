@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <memory>
 #include <string>
 
 #include <arpa/inet.h>
@@ -12,15 +13,10 @@
 #include "../common/message.h"
 #include "../common/vector_2d.h"
 
-ClientProtocol::ClientProtocol(const std::string& hostname, const std::string& port):
-        CommonProtocol(hostname, port), isAlive(true) {}
+ClientProtocol::ClientProtocol(std::unique_ptr<Socket> socket):
+        CommonProtocol(std::move(socket)), isAlive(true) {}
 
 ServerResponseLobby ClientProtocol::receive_command() {
-    // aca para la etapa de lobby recibo:
-    // rta de pedido de crear nombre de usuario
-    // rta de pedido de crear partida
-    // rta de pedio de joinear partida
-    // notificacion de empezó partida -> aca lanzó los hilos y queues
     uint8_t code = this->receive_byte();
     ServerResponseLobby response =
             ServerResponseLobby{this->codeToCommands.find(code)->second, false, ""};
@@ -87,7 +83,7 @@ void ClientProtocol::send_command(const CommandDTO& command) {
 }
 
 void ClientProtocol::send_create_username_request(const CreateUsernameDTO& dto) {
-    this->send_byte(commandsToCode.find(CommandType::CREATE_USERNAME)->second);
+    this->send_byte(this->commandsToCode.find(CommandType::CREATE_USERNAME)->second);
     this->send_string(dto.username);
 }
 
@@ -97,7 +93,7 @@ void ClientProtocol::send_create_game_request(const CreateGameDTO& dto) {
 }
 
 void ClientProtocol::send_join_game_request(const JoinGameDTO& dto) {
-    this->send_byte(commandsToCode.find(CommandType::JOIN_GAME)->second);
+    this->send_byte(this->commandsToCode.find(CommandType::JOIN_GAME)->second);
     this->send_string(dto.gamename);
 }
 
@@ -252,16 +248,11 @@ std::vector<MapObject> ClientProtocol::receive_map_objects(const uint8_t& size) 
 }
 
 void ClientProtocol::close() {
-    if (!this->socket.is_stream_recv_closed()) {
-        this->socket.shutdown(SHUT_RD);
+    if (!this->socket->is_stream_recv_closed()) {
+        this->socket->shutdown(SHUT_RD);
     }
-    if (!this->socket.is_stream_send_closed()) {
-        this->socket.shutdown(SHUT_WR);
+    if (!this->socket->is_stream_send_closed()) {
+        this->socket->shutdown(SHUT_WR);
     }
-    this->socket.close();
-}
-
-ClientProtocol::ClientProtocol(ClientProtocol&& other): CommonProtocol(std::move(other.socket)) {
-    this->isAlive = other.isAlive;
-    other.isAlive = false;
+    this->socket->close();
 }

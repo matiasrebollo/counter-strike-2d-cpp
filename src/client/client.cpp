@@ -1,7 +1,7 @@
 #include "client.h"
 
 #include <QApplication>
-#include <chrono>  // al principio del archivo
+#include <chrono>
 #include <cmath>
 #include <iostream>
 #include <vector>

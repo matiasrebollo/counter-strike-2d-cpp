@@ -3,6 +3,9 @@
 #include <QFont>
 #include <QFontDatabase>
 #include <QMessageBox>
+#include <iostream>
+#include <memory>
+#include <utility>
 #include <filesystem>
 
 #define MAP_PATH "../maps"
@@ -14,6 +17,15 @@
 #include "common/skins.h"
 
 #include "ui_lobby.h"
+
+#ifdef TESTS
+#include "common/mock_socket.h"
+using Socket = MockSocket;
+#else
+#include "common/socket.h"
+using Socket = RealSocket;
+#endif
+
 
 #define PATH_CS_FONT "../../../assets/cs_regular.ttf"
 
@@ -145,16 +157,20 @@ void Lobby::connect_to_sv() {
         QString hostname = ui->Host->text();
         QString port = ui->Port->text();
 
-        protocol.emplace(hostname.toStdString(), port.toStdString());
+        const std::string hostname_str = hostname.toStdString();
+        const std::string port_str = port.toStdString();
+
+        auto socket = std::make_unique<Socket>(hostname_str.c_str(), port_str.c_str());
+        protocol.emplace(std::move(socket));
         go_to_lobby();
     } catch (...) {
         // error
     }
 }
 
-ClientProtocol& Lobby::get_protocol() {
-    if (!protocol.has_value()) {
-        throw std::runtime_error(MSG_NO_PROTOCOL);
+ClientProtocol&& Lobby::get_protocol() {
+    if (protocol.has_value()) {
+        return std::move(protocol.value());
     }
     return protocol.value();
 }

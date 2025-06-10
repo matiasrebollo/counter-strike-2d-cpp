@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <functional>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <type_traits>
 #include <unordered_map>
@@ -11,7 +12,6 @@
 #include <variant>
 #include <vector>
 
-#include "../common/codes_parser.h"
 #include "../common/commands.h"
 #include "../common/commands_dto.h"
 #include "../common/common_protocol.h"
@@ -21,9 +21,16 @@
 #include "../common/map_object.h"
 #include "../common/message.h"
 #include "../common/player_dto.h"
-#include "../common/socket.h"
 
-class ClientProtocol: public CommonProtocol, public CodesParser {
+#ifdef TESTS
+#include "../common/mock_socket.h"
+using Socket = MockSocket;
+#else
+#include "../common/socket.h"
+using Socket = RealSocket;
+#endif
+
+class ClientProtocol: public CommonProtocol {
 private:
     bool isAlive;
 
@@ -58,8 +65,8 @@ private:
     GameMap receive_map();
 
 public:
-    ClientProtocol(const std::string& hostname, const std::string& port);
-    ClientProtocol(ClientProtocol&&);
+    explicit ClientProtocol(std::unique_ptr<Socket> socket);
+
     void send_command(const CommandDTO& command);
     GameDTO receive_game_dto();
     ServerResponseLobby receive_command();

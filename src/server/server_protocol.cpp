@@ -1,6 +1,7 @@
 #include "server_protocol.h"
 
 #include <cstring>
+#include <memory>
 #include <numbers>
 #include <utility>
 
@@ -10,7 +11,7 @@
 #include "../common/player_dto.h"
 #include "../common/skins.h"
 
-ServerProtocol::ServerProtocol(Socket&& socket):
+ServerProtocol::ServerProtocol(std::unique_ptr<Socket> socket):
         CommonProtocol(std::move(socket)),
         codeSuccessResponse({{true, CODE_SUCCESS}, {false, CODE_FAIL}}) {
     lobbyCommandManagers[CommandType::CREATE_USERNAME] = [this]() -> LobbyRequestDTO {
@@ -22,6 +23,20 @@ ServerProtocol::ServerProtocol(Socket&& socket):
     lobbyCommandManagers[CommandType::JOIN_GAME] = [this]() -> LobbyRequestDTO {
         return receive_join_game_request();
     };
+}
+
+ServerProtocol::ServerProtocol(ServerProtocol&& other) noexcept:
+        CommonProtocol(std::move(other.socket)),
+        codeSuccessResponse(std::move(other.codeSuccessResponse)),
+        lobbyCommandManagers(std::move(other.lobbyCommandManagers)) {}
+
+ServerProtocol& ServerProtocol::operator=(ServerProtocol&& other) noexcept {
+    if (this != &other) {
+        CommonProtocol::operator=(std::move(other));
+        codeSuccessResponse = std::move(other.codeSuccessResponse);
+        lobbyCommandManagers = std::move(other.lobbyCommandManagers);
+    }
+    return *this;
 }
 
 void ServerProtocol::send_lobby_message(const ServerResponseLobby& msg) {
@@ -196,15 +211,13 @@ JoinGameDTO ServerProtocol::receive_join_game_request() {
 RotateDTO ServerProtocol::receive_rotate() { return RotateDTO{this->receive_angle()}; }
 
 void ServerProtocol::kill() {
-    if (!this->socket.is_stream_recv_closed()) {
-        this->socket.shutdown(SHUT_RD);
+    if (!this->socket->is_stream_recv_closed()) {
+        this->socket->shutdown(SHUT_RD);
     }
-    if (!this->socket.is_stream_send_closed()) {
-        this->socket.shutdown(SHUT_WR);
+    if (!this->socket->is_stream_send_closed()) {
+        this->socket->shutdown(SHUT_WR);
     }
-    this->socket.close();
+    this->socket->close();
 }
-
-ServerProtocol::ServerProtocol(ServerProtocol&& other): CommonProtocol(std::move(other.socket)) {}
 
 ServerProtocol::~ServerProtocol() {}
