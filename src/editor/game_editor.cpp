@@ -56,24 +56,27 @@ void Game_editor::setupBlockList() {
 
 void Game_editor::setupToolbar() {
     ClickableLabel* labelTT = new ClickableLabel();
-    labelTT->setFixedSize(50, 50);
+    labelTT->setFixedSize(40, 40);
     ui->horizontalLayout_2->addWidget(labelTT);
+    labelTT->setText("TT");
     connect(labelTT, &ClickableLabel::clicked, [this]() {
         first_click_done = false;
         mode = std::make_unique<TTSpawnsSetter>();
     });
 
     ClickableLabel* labelCT = new ClickableLabel();
-    labelCT->setFixedSize(50, 50);
+    labelCT->setFixedSize(40, 40);
     ui->horizontalLayout_2->addWidget(labelCT);
+    labelCT->setText("CT");
     connect(labelCT, &ClickableLabel::clicked, [this]() {
         first_click_done = false;
         mode = std::make_unique<CTSpawnsSetter>();
     });
 
     ClickableLabel* labelBombSites = new ClickableLabel();
-    labelBombSites->setFixedSize(50, 50);
+    labelBombSites->setFixedSize(40, 40);
     ui->horizontalLayout_2->addWidget(labelBombSites);
+    labelBombSites->setText("SITES");
     connect(labelBombSites, &ClickableLabel::clicked, [this]() {
         first_click_done = false;
         mode = std::make_unique<BombSiteSetter>();
@@ -210,7 +213,7 @@ void Game_editor::setCtSpawn(const int& row, const int& colum) {
                 cell->setStyleSheet("background-color: transparent;");
                 ct_spawns.erase({colum, row});
             } else {
-                cell->setStyleSheet("background-color: rgba(0, 0, 255, 30);");
+                cell->setStyleSheet("background-color: rgba(0, 0, 255, 60);");
                 ct_spawns.insert({colum, row});
             }
         }
@@ -226,7 +229,7 @@ void Game_editor::setTTSpawn(const int& row, const int& colum) {
                 cell->setStyleSheet("background-color: transparent;");
                 tt_spawns.erase({colum, row});
             } else {
-                cell->setStyleSheet("background-color: rgba(255, 255, 0, 30);");
+                cell->setStyleSheet("background-color: rgba(255, 255, 0, 60);");
                 tt_spawns.insert({colum, row});
             }
         }
@@ -242,7 +245,7 @@ void Game_editor::setBombSite(const int& row, const int& colum) {
                 cell->setStyleSheet("background-color: transparent;");
                 bomb_sites.erase({colum, row});
             } else {
-                cell->setStyleSheet("background-color: rgba(255, 0, 0, 30);");
+                cell->setStyleSheet("background-color: rgba(255, 0, 0, 60);");
                 bomb_sites.insert({colum, row});
             }
         }
