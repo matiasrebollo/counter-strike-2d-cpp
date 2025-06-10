@@ -38,10 +38,14 @@ void Player::update(GameWorld& game, const float& delta_t) {
     // si mato, reconocerlo y aumentar dinero
 }
 
-void Player::move_up() { moving_up = !moving_up; }
-void Player::move_down() { moving_down = !moving_down; }
-void Player::move_left() { moving_left = !moving_left; }
-void Player::move_right() { moving_right = !moving_right; }
+void Player::move_up() { moving_up = true; }
+void Player::move_down() { moving_down = true; }
+void Player::move_left() { moving_left = true; }
+void Player::move_right() { moving_right = true; }
+void Player::stop_moving_up() { moving_up = false; }
+void Player::stop_moving_down() { moving_down = false; }
+void Player::stop_moving_left() { moving_left = false; }
+void Player::stop_moving_right() { moving_right = false; }
 void Player::rotate(const double& new_orientation) { this->orientation = new_orientation; }
 void Player::restart() {
     life = PLAYER_INITIAL_LIFE;
@@ -53,10 +57,17 @@ void Player::restart() {
 }
 void Player::make_action() {
     if (Gun* weapon = loadout.equipped_gun())
-        making_action ? weapon->stop_action() : weapon->action();
+        weapon->action();
     // si tiene bomba equipada..
 
-    making_action = !making_action;
+    making_action = true;
+}
+void Player::stop_making_action() {
+    if (Gun* weapon = loadout.equipped_gun())
+        weapon->stop_action();
+    // si tiene bomba equipada..
+
+    making_action = false;
 }
 
 void Player::receive_damage(const int& damage) { life = std::max(life - damage, 0); }

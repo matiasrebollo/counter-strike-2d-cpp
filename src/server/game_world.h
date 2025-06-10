@@ -8,13 +8,11 @@
 
 #include "common/game_map.h"
 #include "common/game_snapshot.h"
+#include "common/settings.h"
 #include "server/collidable.h"
 #include "server/game_world_snapshot.h"
 #include "server/player.h"
 #include "server/shot.h"
-
-#define TERRORISTS 1
-#define COUNTER_TERRORISTS 1
 
 class GameWorld {
 private:
@@ -65,7 +63,12 @@ public:
     void move_player_down(const std::string& username);
     void move_player_left(const std::string& username);
     void move_player_right(const std::string& username);
+    void stop_moving_player_up(const std::string& username);
+    void stop_moving_player_down(const std::string& username);
+    void stop_moving_player_left(const std::string& username);
+    void stop_moving_player_right(const std::string& username);
     void make_player_action(const std::string& username);
+    void stop_making_player_action(const std::string& username);
     void equip_primary_for(const std::string& username);
     void equip_secondary_for(const std::string& username);
     void equip_knife_for(const std::string& username);

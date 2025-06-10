@@ -8,13 +8,9 @@
 class GameWorld;  // forward declaration
 
 #include "common/player_dto.h"
+#include "common/settings.h"
 #include "server/collidable.h"
 #include "server/loadout.h"
-
-#define PLAYER_SPEED 120
-#define PLAYER_WIDTH 32
-#define PLAYER_HEIGHT 32
-#define PLAYER_INITIAL_LIFE 100
 
 class Player: public Collidable {
 private:
@@ -41,9 +37,14 @@ public:
     void move_left();
     void move_right();
     void restart();
+    void stop_moving_up();
+    void stop_moving_down();
+    void stop_moving_left();
+    void stop_moving_right();
     void equip_primary();
     void equip_secondary();
     void equip_knife();
+    void stop_making_action();
     void make_action();
     void receive_damage(const int& damage) override;
     void buy_gun(const GunType& gun);

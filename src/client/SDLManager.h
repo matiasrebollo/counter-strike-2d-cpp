@@ -11,18 +11,11 @@
 #include "../common/block_texture_parser.h"
 #include "../common/game_map.h"
 #include "../common/game_snapshot.h"
+#include "common/settings.h"
 
 #include "camera.h"
 #include "local_info.h"
 #include "shop.h"
-
-#define WINDOW_INITIAL_WIDTH 640
-#define WINDOW_INITIAL_HEIGHT 400
-#define HUD_IDEAL_WIDTH 640
-#define HUD_IDEAL_HEIGHT 400
-#define FONT_IDEAL_WIDTH 480
-#define FONT_IDEAL_HEIGHT 300
-#define SIZE_PLAYER 32
 
 class SDLManager {
 private:
@@ -34,7 +27,7 @@ private:
     TextureManager texture_manager;
     Camera camera;
     Shop shop;
-    std::optional<GameMap> map;
+    std::optional<GameMapDTO> map;
 
     void update_camera(int player_x, int player_y);
     std::pair<Position, GunSprites> get_gun_info(const LoadoutDTO& loadout);
@@ -51,7 +44,7 @@ public:
     SDLManager();
 
     /* Se asigna el mapa una vez que es recibido cuando comienza la partida */
-    void set_map(GameMap game_map);
+    void set_map(GameMapDTO game_map);
 
     /* Renderiza la fase de waiting */
     void render_waiting_screen(int players_connected, int players_required,

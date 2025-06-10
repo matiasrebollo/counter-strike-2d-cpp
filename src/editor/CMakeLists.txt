@@ -6,6 +6,8 @@ target_sources(taller_editor
     resources.qrc
     blocks_setter.cpp
     ct_spawns_setter.cpp
+    tt_spawns_setter.cpp
+    bomb_sites_setter.cpp
     PUBLIC
     # .h files
     game_editor.h
@@ -13,4 +15,6 @@ target_sources(taller_editor
     grid_action.h
     blocks_setter.h
     ct_spawns_setter.h
+    tt_spawns_setter.h
+    bomb_sites_setter.h
     )

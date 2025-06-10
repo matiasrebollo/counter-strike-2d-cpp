@@ -4,17 +4,20 @@
 #include <cstdint>
 #include <variant>
 
+#include "movements.h"
 #include "weapon_type.h"
 
-struct MoveUpDTO {};
-struct MoveDownDTO {};
-struct MoveLeftDTO {};
-struct MoveRightDTO {};
+struct MoveDTO {
+    Movement dir;
+    bool move;
+};
 struct RotateDTO {
     const double angle;
 };
 
-struct PlayerActionDTO {};
+struct PlayerActionDTO {
+    bool make;
+};
 struct EquipPrimaryDTO {};
 struct EquipSecondaryDTO {};
 struct EquipKnifeDTO {};
@@ -27,8 +30,8 @@ struct BuyAmmoDTO {
     const bool for_primary;
 };
 
-using CommandDTO = std::variant<MoveUpDTO, MoveDownDTO, MoveLeftDTO, MoveRightDTO, RotateDTO,
-                                PlayerActionDTO, EquipPrimaryDTO, EquipSecondaryDTO, EquipKnifeDTO,
-                                EquipBombDTO, BuyGunDTO, BuyAmmoDTO>;
+using CommandDTO =
+        std::variant<MoveDTO, RotateDTO, PlayerActionDTO, EquipPrimaryDTO, EquipSecondaryDTO,
+                     EquipKnifeDTO, EquipBombDTO, BuyGunDTO, BuyAmmoDTO>;
 
 #endif

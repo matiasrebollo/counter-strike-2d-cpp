@@ -6,11 +6,10 @@
 #include <optional>
 
 #include "common/loadout_dto.h"
+#include "common/settings.h"
 #include "server/gun.h"
 #include "server/knife.h"
 
-#define INITIAL_MONEY 20000
-#define CLIP_PRICE 50
 
 /*
  * Loadout

@@ -11,9 +11,7 @@
 #include "../common/player_dto.h"
 #include "../common/skins.h"
 
-ServerProtocol::ServerProtocol(std::unique_ptr<Socket> socket):
-        CommonProtocol(std::move(socket)),
-        codeSuccessResponse({{true, CODE_SUCCESS}, {false, CODE_FAIL}}) {
+ServerProtocol::ServerProtocol(std::unique_ptr<Socket> socket): CommonProtocol(std::move(socket)) {
     lobbyCommandManagers[CommandType::CREATE_USERNAME] = [this]() -> LobbyRequestDTO {
         return receive_create_username_request();
     };
@@ -27,13 +25,11 @@ ServerProtocol::ServerProtocol(std::unique_ptr<Socket> socket):
 
 ServerProtocol::ServerProtocol(ServerProtocol&& other) noexcept:
         CommonProtocol(std::move(other.socket)),
-        codeSuccessResponse(std::move(other.codeSuccessResponse)),
         lobbyCommandManagers(std::move(other.lobbyCommandManagers)) {}
 
 ServerProtocol& ServerProtocol::operator=(ServerProtocol&& other) noexcept {
     if (this != &other) {
         CommonProtocol::operator=(std::move(other));
-        codeSuccessResponse = std::move(other.codeSuccessResponse);
         lobbyCommandManagers = std::move(other.lobbyCommandManagers);
     }
     return *this;
@@ -41,7 +37,7 @@ ServerProtocol& ServerProtocol::operator=(ServerProtocol&& other) noexcept {
 
 void ServerProtocol::send_lobby_message(const ServerResponseLobby& msg) {
     this->send_byte(this->commandsToCode.find(msg.commandType)->second);
-    this->send_byte(this->codeSuccessResponse.find(msg.success)->second);
+    this->send_byte(this->bools_to_code.find(msg.success)->second);
     if (msg.commandType == CommandType::CREATE_GAME) {
         this->send_string(msg.game_name);
     }
@@ -55,7 +51,7 @@ void ServerProtocol::send_game_dto(const GameDTO& response) {
     std::visit(
             [this](const auto& response) {
                 using T = std::decay_t<decltype(response)>;
-                if constexpr (std::is_same_v<T, GameMap>) {
+                if constexpr (std::is_same_v<T, GameMapDTO>) {
                     this->send_map(response);
                 } else if constexpr (std::is_same_v<T, Snapshot>) {
                     this->send_snapshot(response);
@@ -68,12 +64,13 @@ void ServerProtocol::send_game_dto(const GameDTO& response) {
             response);
 }
 
-void ServerProtocol::send_map(const GameMap& map) {
+void ServerProtocol::send_map(const GameMapDTO& map) {
     this->send_byte(CODE_SEND_MAP);
     this->send_byte(static_cast<int>(map.background));
     this->send_big_endian_number(map.map_objects.size());
     for (auto object: map.map_objects) {
         this->send_big_endian_number(object.type);
+        this->send_byte(this->bools_to_code.find(object.collidable)->second);
         this->send_byte(object.positions.size());
         for (auto vec: object.positions) {
             this->send_big_endian_number(vec.x);
@@ -146,18 +143,9 @@ CommandDTO ServerProtocol::receive_client_request() {
 
 CommandDTO ServerProtocol::receive_movement_request() {
     uint8_t code_movement = this->receive_byte();
-    switch (static_cast<Movement>(code_movement - 1)) {
-        case Movement::UP:
-            return MoveUpDTO{};
-        case Movement::DOWN:
-            return MoveDownDTO{};
-        case Movement::LEFT:
-            return MoveLeftDTO{};
-        case Movement::RIGHT:
-            return MoveRightDTO{};
-        default:
-            throw std::runtime_error("Unknown move code");
-    }
+    Movement movement = static_cast<Movement>(code_movement - 1);
+    bool move = this->code_to_bools.find(this->receive_byte())->second;
+    return MoveDTO{movement, move};
 }
 
 CommandDTO ServerProtocol::receive_change_weapon_request() {

@@ -7,49 +7,29 @@
 TEST(ClientProtocolTest, SendMoveUp) {
     auto [client, server] = create_connected_protocols();
 
-    MoveUpDTO dto{};
 
-    client->send_command(dto);
+    std::vector<Movement> movements = {Movement::UP, Movement::DOWN, Movement::LEFT,
+                                       Movement::RIGHT};
+    std::vector<std::string> movements_string = {"Movement::UP", "Movement::DOWN", "Movement::LEFT",
+                                                 "Movement::RIGHT"};
 
-    CommandDTO request = server->receive_client_request();
-    auto MoveUpDTOPtr = std::get_if<MoveUpDTO>(&request);
-    ASSERT_NE(MoveUpDTOPtr, nullptr) << "Expected MoveUpDTO but got another";
-}
+    std::vector<bool> values = {false, true};
 
-TEST(ClientProtocolTest, SendMoveDown) {
-    auto [client, server] = create_connected_protocols();
+    for (size_t i = 0; i < movements.size(); i++) {
+        for (size_t j = 0; j < values.size(); j++) {
 
-    MoveDownDTO dto{};
+            MoveDTO dto = MoveDTO{movements[i], values[j]};
 
-    client->send_command(dto);
-
-    CommandDTO request = server->receive_client_request();
-    auto MoveDownDTOPtr = std::get_if<MoveDownDTO>(&request);
-    ASSERT_NE(MoveDownDTOPtr, nullptr) << "Expected MoveDownDTO but got another";
-}
-
-TEST(ClientProtocolTest, SendMoveLeft) {
-    auto [client, server] = create_connected_protocols();
-
-    MoveLeftDTO dto{};
-
-    client->send_command(dto);
-
-    CommandDTO request = server->receive_client_request();
-    auto MoveLeftDTOPtr = std::get_if<MoveLeftDTO>(&request);
-    ASSERT_NE(MoveLeftDTOPtr, nullptr) << "Expected MoveLeftDTO but got another";
-}
-
-TEST(ClientProtocolTest, SendMoveRight) {
-    auto [client, server] = create_connected_protocols();
-
-    MoveRightDTO dto{};
-
-    client->send_command(dto);
-
-    CommandDTO request = server->receive_client_request();
-    auto MoveRightDTOPtr = std::get_if<MoveRightDTO>(&request);
-    ASSERT_NE(MoveRightDTOPtr, nullptr) << "Expected MoveRightDTO but got another";
+            client->send_command(dto);
+            CommandDTO request = server->receive_client_request();
+            auto MoveDTOPtr = std::get_if<MoveDTO>(&request);
+            ASSERT_NE(MoveDTOPtr, nullptr) << "Expected MoveDTO but got another";
+            ASSERT_EQ(movements[i], MoveDTOPtr->dir)
+                    << "Expected " << movements_string[i] << " but got another";
+            ASSERT_EQ(values[j], MoveDTOPtr->move)
+                    << "Expected " << values[j] << " but got another";
+        }
+    }
 }
 
 TEST(ClientProtocolTest, SendRotate) {
@@ -163,6 +143,41 @@ TEST(ClientProtocolTest, SendBuyAmmo) {
 }
 
 /* SERVER PROTOCOL RESPONSES */
+
+void validate_map(const GameMapDTO& expected_gamemap, const GameMapDTO& actual_gamemap) {
+    ASSERT_EQ(expected_gamemap.background, actual_gamemap.background);
+    for (size_t i = 0; i < expected_gamemap.map_objects.size(); i++) {
+        ASSERT_EQ(expected_gamemap.map_objects[i].collidable,
+                  actual_gamemap.map_objects[i].collidable);
+        ASSERT_EQ(expected_gamemap.map_objects[i].type, actual_gamemap.map_objects[i].type);
+        for (size_t j = 0; j < expected_gamemap.map_objects[i].positions.size(); j++) {
+            ASSERT_EQ(expected_gamemap.map_objects[i].positions[j],
+                      actual_gamemap.map_objects[i].positions[j]);
+        }
+    }
+}
+
+TEST(ServerProtocolTest, SendMap) {
+    auto [client, server] = create_connected_protocols();
+
+    std::vector<MapObject> objects = {};
+
+    for (int i = 0; i < 100; i++) {
+        std::vector<Vector2D<int>> positions = {Vector2D(0, 1), Vector2D(0, 2), Vector2D(0, 3)};
+        MapObject object = {positions, 19, true};
+        objects.push_back(object);
+    }
+
+    GameMapDTO game_map = GameMapDTO{Background::AZTEC_BACKGROUND, objects};
+
+    server->send_game_dto(game_map);
+
+    GameDTO response = client->receive_game_dto();
+
+    auto game_map_ptr = std::get_if<GameMapDTO>(&response);
+    ASSERT_NE(game_map_ptr, nullptr) << "Expected GameMapDTO but got another";
+    validate_map(game_map, *game_map_ptr);
+}
 
 std::vector<LoadoutDTO> get_loadouts() {
     std::vector<LoadoutDTO> loadouts = {};

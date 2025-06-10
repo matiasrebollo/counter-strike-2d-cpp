@@ -16,7 +16,7 @@ void GamePhase::run() {
 
     while (should_continue() && time < duration) {
         size_t delta_it = it - last_it;
-        float delta_seconds = static_cast<float>(delta_it) / FPS;
+        float delta_seconds = static_cast<float>(delta_it) / FPS_SERVER;
         time += delta_seconds;
         game.broadcast_snapshot(duration - std::trunc(time));
         std::unique_ptr<Command> cmd;
@@ -27,7 +27,7 @@ void GamePhase::run() {
             game.update(delta_seconds);
 
         last_it = it;
-        it = clock.sleep_and_calc_next_it(FPS, it);
+        it = clock.sleep_and_calc_next_it(FPS_SERVER, it);
     }
 
     end();

@@ -30,6 +30,7 @@ Game_editor::Game_editor(QWidget* parent):
 Game_editor::~Game_editor() { delete ui; }
 
 void Game_editor::setupUi(const int& rows, const int& columns) {
+    this->setupToolbar();
     this->setupBlockList();
     this->setupBackgroundList();
     this->setupGridMap(rows, columns);
@@ -46,10 +47,40 @@ void Game_editor::setupBlockList() {
         ui->block_list->addWidget(label);
 
         connect(label, &ClickableLabel::clicked, [this, block]() {
+            mode = std::make_unique<BlocksSetter>();
             selected_block = block;
             first_click_done = false;
         });
     }
+}
+
+void Game_editor::setupToolbar() {
+    ClickableLabel* labelTT = new ClickableLabel();
+    labelTT->setFixedSize(40, 40);
+    ui->horizontalLayout_2->addWidget(labelTT);
+    labelTT->setText("TT");
+    connect(labelTT, &ClickableLabel::clicked, [this]() {
+        first_click_done = false;
+        mode = std::make_unique<TTSpawnsSetter>();
+    });
+
+    ClickableLabel* labelCT = new ClickableLabel();
+    labelCT->setFixedSize(40, 40);
+    ui->horizontalLayout_2->addWidget(labelCT);
+    labelCT->setText("CT");
+    connect(labelCT, &ClickableLabel::clicked, [this]() {
+        first_click_done = false;
+        mode = std::make_unique<CTSpawnsSetter>();
+    });
+
+    ClickableLabel* labelBombSites = new ClickableLabel();
+    labelBombSites->setFixedSize(40, 40);
+    ui->horizontalLayout_2->addWidget(labelBombSites);
+    labelBombSites->setText("SITES");
+    connect(labelBombSites, &ClickableLabel::clicked, [this]() {
+        first_click_done = false;
+        mode = std::make_unique<BombSiteSetter>();
+    });
 }
 
 void Game_editor::setupBackgroundList() {
@@ -136,15 +167,24 @@ GameMap Game_editor::create_map(const std::vector<std::vector<int>>& grid) {
                    });
 
 
-    std::vector<Vector2D<int>> ct_spawns2 = {Vector2D<int>(1, 1), Vector2D<int>(1, 2),
-                                             Vector2D<int>(2, 1), Vector2D<int>(2, 2)};
-    std::vector<Vector2D<int>> tt_spawns = {Vector2D<int>(13, 6), Vector2D<int>(14, 6),
-                                            Vector2D<int>(11, 7), Vector2D<int>(12, 7)};
-    std::vector<Vector2D<int>> sites = {Vector2D<int>(12, 1), Vector2D<int>(12, 2),
-                                        Vector2D<int>(13, 1), Vector2D<int>(14, 1)};
-
-    GameMap game_map = {width, height, selected_background, blocks, ct_spawns2, tt_spawns, sites};
+    std::vector<Vector2D<int>> ct_spawns_vector = set_to_vector(ct_spawns);
+    std::vector<Vector2D<int>> tt_spawns_vector = set_to_vector(tt_spawns);
+    std::vector<Vector2D<int>> sites_vector = set_to_vector(bomb_sites);
+  
+    GameMap game_map = {width,       height,           selected_background,
+                        blocks,      ct_spawns_vector, tt_spawns_vector,
+                        sites_vector};
     return game_map;
+}
+
+std::vector<Vector2D<int>> Game_editor::set_to_vector(
+        const std::set<std::pair<int, int>>& set_pos) {
+    std::vector<Vector2D<int>> vec;
+    vec.reserve(set_pos.size());
+
+    std::transform(set_pos.begin(), set_pos.end(), std::back_inserter(vec),
+                   [](const auto& pair) { return Vector2D<int>(pair.first, pair.second); });
+    return vec;
 }
 
 void Game_editor::setBlock(const int& row, const int& colum) {
@@ -173,8 +213,40 @@ void Game_editor::setCtSpawn(const int& row, const int& colum) {
                 cell->setStyleSheet("background-color: transparent;");
                 ct_spawns.erase({colum, row});
             } else {
-                cell->setStyleSheet("background-color: rgba(0, 0, 255, 100);");
+                cell->setStyleSheet("background-color: rgba(0, 0, 255, 60);");
                 ct_spawns.insert({colum, row});
+            }
+        }
+    }
+}
+
+void Game_editor::setTTSpawn(const int& row, const int& colum) {
+    QLayoutItem* item = ui->grid_map->itemAtPosition(row, colum);
+    if (item) {
+        QWidget* widget = item->widget();
+        if (ClickableLabel* cell = qobject_cast<ClickableLabel*>(widget)) {
+            if (tt_spawns.find({colum, row}) != tt_spawns.end()) {
+                cell->setStyleSheet("background-color: transparent;");
+                tt_spawns.erase({colum, row});
+            } else {
+                cell->setStyleSheet("background-color: rgba(255, 255, 0, 60);");
+                tt_spawns.insert({colum, row});
+            }
+        }
+    }
+}
+
+void Game_editor::setBombSite(const int& row, const int& colum) {
+    QLayoutItem* item = ui->grid_map->itemAtPosition(row, colum);
+    if (item) {
+        QWidget* widget = item->widget();
+        if (ClickableLabel* cell = qobject_cast<ClickableLabel*>(widget)) {
+            if (bomb_sites.find({colum, row}) != bomb_sites.end()) {
+                cell->setStyleSheet("background-color: transparent;");
+                bomb_sites.erase({colum, row});
+            } else {
+                cell->setStyleSheet("background-color: rgba(255, 0, 0, 60);");
+                bomb_sites.insert({colum, row});
             }
         }
     }

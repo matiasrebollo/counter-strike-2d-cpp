@@ -4,8 +4,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2pp/SDL2pp.hh>
 
-#define CAMERA_WIDTH 640
-#define CAMERA_HEIGHT 400
+#include "common/settings.h"
 
 class Camera {
 private:
