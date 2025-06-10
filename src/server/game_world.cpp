@@ -245,13 +245,14 @@ double GameWorld::impacts(const Shot& shot, const Collidable& collidable) const 
 // ((shoot_direction))x(seg_dir))
 double GameWorld::intersects_segment(const Shot& shot, const Vector2D<float>& seg_start,
                                      const Vector2D<float>& seg_end) const {
+    double real_orientation = shot.orientation - 90.0f;
 
-    Vector2D<float> direction(std::cos(shot.orientation), std::sin(shot.orientation));
+    double orientation_in_radians = real_orientation * M_PI / 180.0;
+    Vector2D<float> direction(std::cos(orientation_in_radians), std::sin(orientation_in_radians));
     Vector2D<float> origin(shot.origin.x, shot.origin.y);
 
     Vector2D<float> seg_dir = seg_end - seg_start;
     Vector2D<float> r = seg_start - origin;
-
 
     double c = static_cast<double>(direction.cross(seg_dir));
 
@@ -269,6 +270,29 @@ double GameWorld::intersects_segment(const Shot& shot, const Vector2D<float>& se
 
     return 0.0;
 }
+
+/*double GameWorld::intersects_segment(const Shot& shot, const Vector2D& seg_start,
+                                    const Vector2D& seg_end) const {
+
+    Vector2D seg_dir = seg_end - seg_start;
+    Vector2D r = seg_start - shot.origin;
+
+    double c = static_cast<double>(shot.direction.cross(seg_dir));
+
+    if (c == 0)
+        return 0.0;  // son paralelos, no hay intersección
+
+    double t = static_cast<double>(r.cross(seg_dir)) / c;
+    double u = static_cast<double>(r.cross(shot.direction)) / c;
+
+    // La semirrecta solo vale para t >= 0, y el segmento para u ∈ [0,1]. Se intersecan si t y u
+    // cumplen con esto.
+    if (t >= 0 && u >= 0 && u <= 1) {
+        return t * shot.direction.magnitude();
+    }
+
+    return 0.0;
+}*/
 
 Collidable* GameWorld::first_impact(const Shot& shot, const Player& shooter) const {
     Collidable* hit = nullptr;
