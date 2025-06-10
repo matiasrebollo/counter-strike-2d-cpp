@@ -55,9 +55,10 @@ void ServerProtocol::send_game_dto(const GameDTO& response) {
 
 void ServerProtocol::send_map(const GameMap& map) {
     this->send_byte(CODE_SEND_MAP);
+    this->send_byte(static_cast<int>(map.background));
     this->send_big_endian_number(map.map_objects.size());
     for (auto object: map.map_objects) {
-        this->send_byte(object.type);
+        this->send_big_endian_number(object.type);
         this->send_byte(object.positions.size());
         for (auto vec: object.positions) {
             this->send_big_endian_number(vec.x);
@@ -183,7 +184,9 @@ CreateUsernameDTO ServerProtocol::receive_create_username_request() {
     return dto;
 }
 
-CreateGameDTO ServerProtocol::receive_create_game_request() { return CreateGameDTO{}; }
+CreateGameDTO ServerProtocol::receive_create_game_request() {
+    return CreateGameDTO{this->receive_string()};
+}
 
 JoinGameDTO ServerProtocol::receive_join_game_request() {
     return JoinGameDTO{this->receive_string()};

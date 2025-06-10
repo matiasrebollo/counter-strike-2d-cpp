@@ -101,32 +101,6 @@ Weapon* Loadout::equipped_weapon() {
 }
 
 const LoadoutDTO Loadout::get_dto() const {
-    std::string p_str;
-    if (primary_gun != nullptr) {
-        switch (primary_gun->get_type()) {
-            case GunType::AK47:
-                p_str = "AK47";
-                break;
-            case GunType::M3:
-                p_str = "M3";
-                break;
-            case GunType::AWP:
-                p_str = "AWP";
-                break;
-            default:
-                p_str = "Unknown";
-                break;
-        }
-    } else {
-        p_str = "NONE";
-    }
-    int p_ammo = 0;
-    if (primary_gun != nullptr) {
-        p_ammo = primary_gun->get_ammo();
-    }
-    std::cout << "Money: " << money << ". Arma primaria: " << p_str << " (" << p_ammo
-              << "). Arma secundaria: GLOCK"
-              << " (" << secondary_gun.get_ammo() << ")" << std::endl;
     return LoadoutDTO{money,
                       (primary_gun != nullptr) ? primary_gun->get_type() : GunType::NONE,
                       (primary_gun != nullptr) ? primary_gun->get_ammo() : static_cast<uint16_t>(0),

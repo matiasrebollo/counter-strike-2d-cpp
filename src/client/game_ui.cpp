@@ -15,10 +15,6 @@ GameUI::GameUI(Lobby& lobby):
         local_info{lobby.get_username(), lobby.get_gamecode(), lobby.get_ct_skin(),
                    lobby.get_tt_skin()},
         keep_running(true) {
-    if (!this->validate_qt_results(lobby)) {
-        throw std::runtime_error(
-                "Error creating SDL interface");  // quizas ponerlo en los get de lobby.
-    }
     this->phase = std::make_unique<WaitingForGamePhase>(*this);
 }
 
@@ -112,7 +108,8 @@ bool GameUI::update_waiting() {
 
 void GameUI::show_waiting(const int& it) {
     sdl.clear_display();
-    // el 2 luego tiene que ser la cantidad de personas que va a unirse maxima que se lee del configurable
+    // el 2 luego tiene que ser la cantidad de personas que va a unirse maxima que se lee del
+    // configurable
     sdl.render_waiting_screen(this->game_snapshot.ct.size() + this->game_snapshot.tt.size(), 2,
                               local_info.gamename, it, FPS);
     sdl.show_screen();
@@ -205,30 +202,11 @@ void GameUI::change_phase(std::unique_ptr<GameUIPhase> new_phase) {
     this->phase = std::move(new_phase);
 }
 
-bool GameUI::validate_qt_results(Lobby& lobby) {
-    try {
-        lobby.get_protocol();
-    } catch (const std::runtime_error& e) {
-        this->print_message(MSG_NO_PROTOCOL);
-        return false;
-    }
-    if (lobby.get_username() == "") {
-        this->print_message(BASH_MSG_NO_USERNAME);
-        return false;
-    } else if (lobby.get_gamecode() == "") {
-        this->print_message(MSG_NO_GAME);
-        return false;
-    }
-    return true;
-}
-
-void GameUI::print_message(const std::string& s) { std::cout << s << std::endl; }
-
 void GameUI::close_client() {
     this->protocol.close();
     this->receiver.join();
     this->input_handler.close_sender_queue();
-    this->input_handler.join_sender();  
+    this->input_handler.join_sender();
 }
 
 GameUI::~GameUI() {

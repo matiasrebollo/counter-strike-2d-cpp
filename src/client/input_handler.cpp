@@ -72,10 +72,8 @@ bool InputHandler::handle_shop_event(const SDL_Event& event) {
             ShopButtonType button = opt_button.value();
             switch (button) {
                 case ShopButtonType::Open:
-                    std::cout << "Shop abierto\n";
                     break;
                 case ShopButtonType::Close:
-                    std::cout << "Shop cerrado\n";
                     break;
                 case ShopButtonType::WeaponAK47:
                     sender.add_command_to_queue(BuyGunDTO{AK47});
@@ -209,7 +207,6 @@ bool InputHandler::handle_shoot_event(const SDL_Event& event) {
     if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT &&
         !click_attack) {
         click_attack = true;
-        std::cout << "Disparo realizado" << std::endl;
         return true;
     }
 

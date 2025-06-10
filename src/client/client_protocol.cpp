@@ -91,8 +91,9 @@ void ClientProtocol::send_create_username_request(const CreateUsernameDTO& dto) 
     this->send_string(dto.username);
 }
 
-void ClientProtocol::send_create_game_request(const CreateGameDTO&) {
+void ClientProtocol::send_create_game_request(const CreateGameDTO& dto) {
     this->send_byte(commandsToCode.find(CommandType::CREATE_GAME)->second);
+    this->send_string(dto.map_file_name);
 }
 
 void ClientProtocol::send_join_game_request(const JoinGameDTO& dto) {
@@ -229,14 +230,15 @@ LoadoutDTO ClientProtocol::receive_loadout() {
 }
 
 GameMap ClientProtocol::receive_map() {
+    Background background = static_cast<Background>(this->receive_byte());
     uint16_t size = this->receive_big_endian_number();
-    return GameMap{0, 0, this->receive_map_objects(size), {}, {}, {}};
+    return GameMap{0, 0, background, this->receive_map_objects(size), {}, {}, {}};
 }
 
 std::vector<MapObject> ClientProtocol::receive_map_objects(const uint8_t& size) {
     std::vector<MapObject> objects = {};
     for (int i = 0; i < size; i++) {
-        uint8_t type = this->receive_byte();
+        uint16_t type = this->receive_big_endian_number();
         uint8_t vec_size = this->receive_byte();
         std::vector<Vector2D> positions;
         for (int j = 0; j < vec_size; j++) {

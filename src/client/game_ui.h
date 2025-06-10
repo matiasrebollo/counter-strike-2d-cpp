@@ -19,9 +19,6 @@
 #include "input_handler.h"
 #include "local_info.h"
 
-#define MSG_NO_PROTOCOL "You have to connect yourself to a server to play :)"
-#define BASH_MSG_NO_USERNAME "You have to enter your username to login in our server"
-#define MSG_NO_GAME "You have to create a game or join one to play!"
 #define FPS 30
 
 class GameUI {

@@ -10,7 +10,9 @@ struct CreateUsernameDTO {
     std::string username;
 };
 
-struct CreateGameDTO {};
+struct CreateGameDTO {
+    std::string map_file_name;
+};
 
 struct JoinGameDTO {
     std::string gamename;

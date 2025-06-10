@@ -35,11 +35,7 @@ void Player::update(GameWorld& game) {
 }
 
 void Player::step(const Vector2D& step_dir, GameWorld& game) {
-    std::cout << "Estaba en " << this->rect.position.x << ", " << this->rect.position.y
-              << std::endl;
     game.make_step_player(*this, step_dir);
-    std::cout << "me fui a  " << this->rect.position.x << ", " << this->rect.position.y
-              << std::endl;
 }
 
 void Player::move_up() { moving_up = !moving_up; }
@@ -74,7 +70,6 @@ void Player::buy_ammo(const bool& for_primary) {
 }
 
 const PlayerDTO Player::get_dto() const {
-    std::cout << "Jugador: " << name << std::endl;
     const PlayerDTO dto{name, rect.position, orientation, life, loadout.get_dto()};
     return dto;
 }

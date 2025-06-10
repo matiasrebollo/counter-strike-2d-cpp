@@ -40,6 +40,7 @@ protected:
     std::unordered_map<FontsAndBackground, std::string> font_and_waiting_textures;
     std::unordered_map<Crosshairs, BlockTextureInfo> crosshair_textures;
     std::unordered_map<GunSprites, std::string> gun_textures;
+    std::unordered_map<Background, std::string> backgrounds_paths;
 
 public:
     BlockTextureParser();
@@ -52,7 +53,9 @@ public:
     const std::string& get_fw_texture(FontsAndBackground fw) const;
     const BlockTextureInfo& get_crosshair_texture(Crosshairs crosshair) const;
     const std::string& get_gun_texture(GunSprites gun) const;
-    std::vector<int> get_keys();
+    const std::vector<int> get_blocks_keys();
+    const std::vector<Background> get_backgrounds();
+    const std::string& get_background_path(const Background& background);
 };
 
 #endif
