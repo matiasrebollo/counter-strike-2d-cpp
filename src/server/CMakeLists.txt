@@ -15,6 +15,7 @@ target_sources(taller_server
         buy_phase_commands.cpp
         player.cpp
         loadout.cpp
+        weapon.cpp
         gun.cpp
         knife.cpp
         server.cpp

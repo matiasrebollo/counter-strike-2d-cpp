@@ -12,15 +12,13 @@ Player::Player(const std::string& name, Vector2D& position):
         moving_down(false),
         moving_left(false),
         moving_right(false),
+        making_action(false),
         life(PLAYER_INITIAL_LIFE),
         loadout() {}
 
 bool Player::is_alive() const { return this->life > 0; }
 
 void Player::update(GameWorld& game, const float& delta_t) {
-    std::cout << delta_t << std::endl;
-    std::cout << "Estaba en " << this->rect.position.x << ", " << this->rect.position.y
-              << std::endl;
     int stepped = static_cast<int>(std::round(delta_t * PLAYER_SPEED));
     if (moving_up) {
         game.make_step_player(*this, Vector2D(0, -stepped));
@@ -34,9 +32,8 @@ void Player::update(GameWorld& game, const float& delta_t) {
     if (moving_right) {
         game.make_step_player(*this, Vector2D(stepped, 0));
     }
-    std::cout << "me fui a  " << this->rect.position.x << ", " << this->rect.position.y
-              << std::endl;
-    // si esta disparando, ... update de weapons necesario
+    if (Weapon* weapon = loadout.equipped_weapon())
+        weapon->update(game, delta_t);
     // enviar eventos si disparo, si mato
     // si mato, reconocerlo y aumentar dinero
 }
@@ -55,10 +52,10 @@ void Player::stop() {
     orientation = 0.0;
 }
 void Player::make_action() {
-    Weapon* weapon = loadout.equipped_weapon();
-    if (weapon)
-        weapon->action();
-    // necesario saber cuándo se da la acción para manejar el "mantener el click apretado"
+    if (Weapon* weapon = loadout.equipped_weapon())
+        making_action ? weapon->stop_action() : weapon->action();
+
+    making_action = !making_action;
 }
 void Player::equip_primary() { loadout.equip_primary(); }
 void Player::equip_secondary() { loadout.equip_secondary(); }

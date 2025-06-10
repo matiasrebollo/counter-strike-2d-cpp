@@ -14,8 +14,7 @@
 #include "server/game_world.h"
 
 #define FPS 60
-#define ROUNDS 1
-
+#define ROUNDS 10
 class CS2DGame: public Thread {
 private:
     std::map<std::string, std::shared_ptr<ClientSender>> players_senders;

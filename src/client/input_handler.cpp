@@ -89,7 +89,7 @@ bool InputHandler::handle_mouse_motion_event(const SDL_Event& event) {
 bool InputHandler::handle_shoot_event(const SDL_Event& event) {
     if (event.button.button == SDL_BUTTON_LEFT && !click_attack) {
         click_attack = true;
-        std::cout << "Disparo realizado" << std::endl;
+        sender.add_command_to_queue(PlayerActionDTO{});
         return true;
     }
     return false;
@@ -98,6 +98,7 @@ bool InputHandler::handle_shoot_event(const SDL_Event& event) {
 bool InputHandler::handle_release_shoot_event(const SDL_Event& event) {
     if (event.button.button == SDL_BUTTON_LEFT && click_attack) {
         click_attack = false;
+        sender.add_command_to_queue(PlayerActionDTO{});
         return true;
     }
     return false;

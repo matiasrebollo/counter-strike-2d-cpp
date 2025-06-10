@@ -1,6 +1,8 @@
 #include "server/gun.h"
 
-Gun::Gun(const GunType& gun_type): is_trigger_pressed(false), type(gun_type) {
+#include <iostream>
+
+Gun::Gun(const GunType& gun_type): type(gun_type), time_since_last_shot((60.0f / GLOCK_ROF)) {
     switch (type) {
         case GunType::GLOCK:
             ammo = GLOCK_INITIAL_AMMO;
@@ -39,12 +41,20 @@ Gun::Gun(const GunType& gun_type): is_trigger_pressed(false), type(gun_type) {
 
 void Gun::add_ammo(uint16_t ammo_count) { ammo += ammo_count; }
 
-void Gun::action() {
-    is_trigger_pressed = !is_trigger_pressed;
-    // shoot() si no estaba presionado??
+bool Gun::can_shoot() { return ammo > 0 && time_since_last_shot >= (60.0f / GLOCK_ROF); }
+
+void Gun::update(GameWorld& game, const float& delta_t) {
+    if (just_triggered_action() && can_shoot()) {
+        // shoot(game);
+        std::cout << "disparo! " << std::endl;
+        time_since_last_shot = 0.0f;
+    } else {
+        time_since_last_shot += delta_t;
+    }
+    Weapon::update(game, delta_t);
 }
 
-void Gun::shoot() {}
+void Gun::shoot(GameWorld& /*game*/) { ammo -= 1; }
 
 uint16_t Gun::get_ammo() const { return ammo; }
 

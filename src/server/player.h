@@ -23,6 +23,7 @@ private:
     bool moving_down;
     bool moving_left;
     bool moving_right;
+    bool making_action;
     double orientation;
     uint16_t life;
     Loadout loadout;

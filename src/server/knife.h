@@ -5,13 +5,19 @@
 
 #include "server/weapon.h"
 
+#define KNIFE_ROF 60
+
 class Knife: public Weapon {
-    void stab();
+private:
+    float time_since_last_stab;
+
+    bool can_stab();
+    void stab(GameWorld& game);
 
 public:
     Knife();
 
-    void action() override;
+    void update(GameWorld& game, const float& delta_t) override;
 
     Knife(const Knife&) = delete;
     Knife& operator=(const Knife&) = delete;
