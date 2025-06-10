@@ -28,6 +28,10 @@
 #define PLAYER_HEIGHT 32
 #define PLAYER_INITIAL_LIFE 100
 
+#define PATH_FOLDER_MAPS "../maps/"
+#define PATH_CS_FONT "../../../assets/cs_regular.ttf"
+
+
 // client
 #define CAMERA_WIDTH 640
 #define CAMERA_HEIGHT 400

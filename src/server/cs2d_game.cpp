@@ -14,10 +14,10 @@
 #include "common/game_snapshot.h"
 #include "common/yaml_parser.h"
 
-CS2DGame::CS2DGame(const std::string& id):
+CS2DGame::CS2DGame(const std::string& id, const std::string& map_filename):
         players_senders(),
         command_queue(),
-        game_world(),
+        game_world(map_filename),
         current_round(0),
         current_round_winner(std::nullopt),
         ct_wins(0),

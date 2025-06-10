@@ -8,6 +8,7 @@
 
 #include "../../common/skins.h"
 #include "client/client_protocol.h"
+#include "common/settings.h"
 
 #define TITLE_MSG_CREATE "Crear una partida"
 #define TITLE_MSG_JOIN "Unirse a una partida"

@@ -34,6 +34,7 @@ public:
     ServerMonitor();
     bool create_username(const std::string& username);
     std::shared_ptr<CS2DGame> create_new_game(const std::string& username,
+                                              const std::string& map_filename,
                                               std::shared_ptr<ClientSender> sender);
     std::shared_ptr<CS2DGame> join_game(const std::string& gameName, const std::string& username,
                                         std::shared_ptr<ClientSender> sender);

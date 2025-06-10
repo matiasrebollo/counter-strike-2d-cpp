@@ -63,7 +63,6 @@ void Player::make_action() {
     // si tiene bomba equipada..
 
     making_action = true;
-    std::cout << "stop action" << std::endl;
 }
 void Player::stop_making_action() {
     if (Gun* weapon = loadout.equipped_gun())
@@ -71,7 +70,6 @@ void Player::stop_making_action() {
     // si tiene bomba equipada..
 
     making_action = false;
-    std::cout << "action" << std::endl;
 }
 
 void Player::receive_damage(const int& damage) { life = std::max(life - damage, 0); }

@@ -9,9 +9,9 @@
 #include "common/yaml_parser.h"
 #include "server/static_map_object.h"
 
-GameWorld::GameWorld():
+GameWorld::GameWorld(const std::string& map_filename):
         spawn_zone(Vector2D<int>(60, 60), 400, 200),
-        game_map(YamlParser().yaml_to_game_map("../maps/mapa.yaml")) {
+        game_map(YamlParser().yaml_to_game_map(PATH_FOLDER_MAPS + map_filename + ".yaml")) {
     const int wallThickness = 40;
 
     // agregar paredes invisibles segun tamanio mapa

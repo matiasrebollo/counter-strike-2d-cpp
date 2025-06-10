@@ -69,13 +69,13 @@ void ClientHandler::manage_create_username(const CreateUsernameDTO& dto) {
     this->send_lobby_response(CommandType::CREATE_USERNAME, success, "");
 }
 
-void ClientHandler::manage_create_game(const CreateGameDTO&) {
+void ClientHandler::manage_create_game(const CreateGameDTO& dto) {
     if (this->in_game() || this->username == "") {
         this->send_lobby_response(CommandType::CREATE_GAME, false, "");
     } else {
         std::shared_ptr<ClientSender> sender = std::make_shared<ClientSender>(this->protocol);
         std::shared_ptr<CS2DGame> game =
-                this->server_monitor.create_new_game(this->username, sender);
+                this->server_monitor.create_new_game(this->username, dto.map_file_name, sender);
         this->my_game = game->id;
         this->send_lobby_response(CommandType::CREATE_GAME, true, this->my_game);
         this->is_in_game = true;
