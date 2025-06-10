@@ -13,6 +13,7 @@ YAML::Node YamlParser::game_map_to_Yaml(const GameMap& game_map) {
     YAML::Node map;
     map["width"] = game_map.width;
     map["height"] = game_map.height;
+    map["background"] = static_cast<int>(game_map.background);
 
     YAML::Node blocks(YAML::NodeType::Sequence);
     for (const auto& obj: game_map.map_objects) {
@@ -55,26 +56,31 @@ GameMap YamlParser::yaml_to_game_map(const std::string& path) {
         blocks.push_back(yaml_to_map_object(block));
     }
 
-    std::vector<Vector2D> ct_spawns;
+    std::vector<Vector2D<int>> ct_spawns;
     for (const auto& block: file["ct_spawns"]) {
         // cppcheck-suppress useStlAlgorithm
         ct_spawns.push_back(yaml_to_vector2d(block));
     }
 
-    std::vector<Vector2D> tt_spawns;
+    std::vector<Vector2D<int>> tt_spawns;
     for (const auto& block: file["tt_spawns"]) {
         // cppcheck-suppress useStlAlgorithm
         tt_spawns.push_back(yaml_to_vector2d(block));
     }
 
-    std::vector<Vector2D> sites;
+    std::vector<Vector2D<int>> sites;
     for (const auto& block: file["sites"]) {
         // cppcheck-suppress useStlAlgorithm
         sites.push_back(yaml_to_vector2d(block));
     }
 
-    GameMap map{
-            file["width"].as<int>(), file["height"].as<int>(), blocks, ct_spawns, tt_spawns, sites};
+    GameMap map{file["width"].as<int>(),
+                file["height"].as<int>(),
+                static_cast<Background>(file["background"].as<int>()),
+                blocks,
+                ct_spawns,
+                tt_spawns,
+                sites};
     return map;
 }
 
@@ -93,7 +99,7 @@ YAML::Node YamlParser::map_object_to_yaml(const MapObject& map_obj) {
     return obj;
 }
 
-YAML::Node YamlParser::vector2d_to_yaml(const Vector2D& vector) {
+YAML::Node YamlParser::vector2d_to_yaml(const Vector2D<int>& vector) {
     YAML::Node pos;
     pos["x"] = vector.x;
     pos["y"] = vector.y;
@@ -101,7 +107,7 @@ YAML::Node YamlParser::vector2d_to_yaml(const Vector2D& vector) {
 }
 
 MapObject YamlParser::yaml_to_map_object(const YAML::Node& node) {
-    std::vector<Vector2D> positions;
+    std::vector<Vector2D<int>> positions;
     for (const auto& pos: node["positions"]) {
         // cppcheck-suppress useStlAlgorithm
         positions.push_back(yaml_to_vector2d(pos));
@@ -111,6 +117,6 @@ MapObject YamlParser::yaml_to_map_object(const YAML::Node& node) {
     return obj;
 }
 
-Vector2D YamlParser::yaml_to_vector2d(const YAML::Node& node) {
-    return Vector2D{node["x"].as<int>(), node["y"].as<int>()};
+Vector2D<int> YamlParser::yaml_to_vector2d(const YAML::Node& node) {
+    return Vector2D<int>{node["x"].as<int>(), node["y"].as<int>()};
 }

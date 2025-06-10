@@ -9,7 +9,6 @@ void ClientSender::run() {
         }
     } catch (const CommunicationEnded& e) {
         std::cout << MSG_CLOSE_SENDER << std::endl;
-        // this->close_queue();
         this->stop();
         return;
     } catch (const ClosedQueue& e) {

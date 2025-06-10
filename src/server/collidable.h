@@ -7,7 +7,7 @@ class Collidable {
 public:
     Rect rect;
 
-    Collidable(Vector2D pos, int w, int h);
+    Collidable(Vector2D<int> pos, int w, int h);
 
     virtual bool collides_with(const Collidable& other_collidable) const;
 

@@ -15,6 +15,11 @@
 #define MSG_USERNAME_ALREADY_USED "Ya existe un usuario con ese nombre. Ingresa uno distinto."
 #define MSG_GAME_ALREADY_STARTED "La partida ya ha comenzado o no existe."
 #define MSG_GAME_NOT_CREATED "El servidor no ha podido crear su partida."
+#define MSG_MAP_NOT_SELECTED "Debe seleccionar un mapa para crear una partida."
+
+#define MSG_NO_PROTOCOL "Debes conectarte a un servidor disponible para poder jugar."
+#define BASH_MSG_NO_USERNAME "Debes tener un nombre de usuario único para poder jugar."
+#define MSG_NO_GAME "Tenes que unirte a un juego o crear uno para jugar!"
 
 // cppcheck-suppress unknownMacro
 QT_BEGIN_NAMESPACE
@@ -60,6 +65,8 @@ private slots:
 
     void on_go_to_select_skin_btn_clicked();
 
+    void on_CreateGameButton_clicked();
+
 private:
     Ui::Lobby* ui;
     CounterTerroristSkin selected_ct_skin;
@@ -70,6 +77,7 @@ private:
     std::optional<ClientProtocol> protocol;
 
     void create_game();
+    void format_string(std::string& s);
 
     enum TerroristSkin skins_tt[4] = {PHEONIX, L3337_KREW, ARTIC_AVENGER, GUERRILLA};
     enum CounterTerroristSkin skins_ct[4] = {SEAL_FORCE, GSG_9, UK_SAS, GIGN};

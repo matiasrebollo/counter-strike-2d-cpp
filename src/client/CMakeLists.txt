@@ -6,10 +6,13 @@ target_sources(taller_client
         client_sender.h
         client.h
         game_ui.h
-        game_ui_state.h
+        game_ui_phase.h
         SDLManager.h
         camera.h
         input_handler.h
+        local_info.h
+        texture_manager.h
+        shop.h
     PRIVATE
         main.cpp
         lobby/lobby.cpp
@@ -20,8 +23,10 @@ target_sources(taller_client
         client_sender.cpp
         client.cpp
         game_ui.cpp
-        game_ui_state.cpp
+        game_ui_phase.cpp
         SDLManager.cpp
         camera.cpp
         input_handler.cpp
+        texture_manager.cpp
+        shop.cpp
 )

@@ -4,6 +4,9 @@
 #include <SDL2/SDL.h>
 #include <SDL2pp/SDL2pp.hh>
 
+#define CAMERA_WIDTH 640
+#define CAMERA_HEIGHT 400
+
 class Camera {
 private:
     int base_width;
@@ -15,7 +18,6 @@ private:
 
 public:
     Camera(int screen_w, int screen_h);
-    double calculate_angle_from_center(int mouse_x, int mouse_y) const;
     void follow(int x, int y);
     SDL2pp::Rect world_to_screen(const SDL2pp::Rect& rect_mundo) const;
     bool is_visible(const SDL2pp::Rect& rect_mundo) const;

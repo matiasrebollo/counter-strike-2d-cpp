@@ -1,6 +1,6 @@
 #include "server/rect.h"
 
-Rect::Rect(Vector2D position, int width, int height):
+Rect::Rect(Vector2D<int> position, int width, int height):
         position(position), width(width), height(height) {}
 
 bool Rect::intersects_with(const Rect& other_rect) const {

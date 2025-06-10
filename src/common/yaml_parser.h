@@ -16,9 +16,9 @@ public:
 
 private:
     YAML::Node map_object_to_yaml(const MapObject& map_obj);
-    YAML::Node vector2d_to_yaml(const Vector2D& vector);
+    YAML::Node vector2d_to_yaml(const Vector2D<int>& vector);
     MapObject yaml_to_map_object(const YAML::Node& node);
-    Vector2D yaml_to_vector2d(const YAML::Node& node);
+    Vector2D<int> yaml_to_vector2d(const YAML::Node& node);
 };
 
 #endif

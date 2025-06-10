@@ -10,7 +10,7 @@
 
 struct PlayerDTO {
     std::string username;
-    Vector2D position;
+    Vector2D<int> position;
     double orientation;
     uint16_t life;
     LoadoutDTO loadout;

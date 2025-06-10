@@ -5,10 +5,10 @@
 
 class Rect {
 public:
-    Vector2D position;
+    Vector2D<int> position;
     int width, height;
 
-    Rect(Vector2D position, int width, int height);
+    Rect(Vector2D<int> position, int width, int height);
 
     bool intersects_with(const Rect& other_Rect) const;
 

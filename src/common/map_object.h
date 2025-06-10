@@ -9,9 +9,11 @@
 #define NONE_BLOCK -1
 
 struct MapObject {
-    const std::vector<Vector2D> positions;
-    const int type;
-    const bool collidable;
+    std::vector<Vector2D<int>> positions;
+    int type;
+    bool collidable;
 };
+
+enum Background { AZTEC_BACKGROUND = 0, DUST_BACKGROUND = 1, GRASS_BACKGROUND = 2 };
 
 #endif

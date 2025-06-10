@@ -19,7 +19,6 @@ public:
     explicit ClientReceiver(ClientProtocol& protocol);
     void receive_snapshot_from_server();
     bool try_pop_game_dto(GameDTO& response);
-    GameDTO pop_game_dto();
     void close_queue();
     void run() override;
 };

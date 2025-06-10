@@ -1,10 +1,12 @@
 #include "server/shot.h"
 
-#include "server/cs2d_game.h"
+#include "server/game_world.h"
 
-Shot::Shot(const Vector2D& origin, const float& orientation):
+Shot::Shot(const Vector2D<int>& origin, const float& orientation):
         origin(origin), orientation(orientation) {}
 
-const Collidable* Shot::shoot(const CS2DGame& game) const { return game.first_impact(*this); }
+Collidable* Shot::shoot(const GameWorld& game, const Player& shooter) {
+    return game.first_impact(*this, shooter);
+}
 
 Shot::~Shot() {}

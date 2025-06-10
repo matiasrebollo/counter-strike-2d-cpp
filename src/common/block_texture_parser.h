@@ -7,6 +7,8 @@
 #include <vector>
 
 #include "map_object.h"
+#include "sdl_helpers.h"
+#include "skins.h"
 
 struct BlockTextureInfo {
     std::string tileset_path;
@@ -16,6 +18,7 @@ struct BlockTextureInfo {
     int height;
     bool collidable;
 };
+
 
 struct TilesetInfo {
     std::string file;
@@ -30,11 +33,29 @@ struct TilesetInfo {
 class BlockTextureParser {
 protected:
     std::unordered_map<int, BlockTextureInfo> block_textures;
+    std::unordered_map<CounterTerroristSkin, std::vector<BlockTextureInfo>> ct_skins;
+    std::unordered_map<TerroristSkin, std::vector<BlockTextureInfo>> tt_skins;
+    std::unordered_map<HudNumbers, BlockTextureInfo> number_textures;
+    std::unordered_map<int, BlockTextureInfo> symbol_textures;
+    std::unordered_map<FontsAndBackground, std::string> font_and_waiting_textures;
+    std::unordered_map<Crosshairs, BlockTextureInfo> crosshair_textures;
+    std::unordered_map<GunSprites, std::string> gun_textures;
+    std::unordered_map<Background, std::string> backgrounds_paths;
 
 public:
     BlockTextureParser();
-    BlockTextureInfo get_texture_info(int block);
-    std::vector<int> get_keys();
+    // deberia ser const&
+    const BlockTextureInfo& get_texture_info(int block);
+    const BlockTextureInfo& get_ct_texture(CounterTerroristSkin skin, Position sprite_index) const;
+    const BlockTextureInfo& get_tt_texture(TerroristSkin skin, Position sprite_index) const;
+    const BlockTextureInfo& get_number_texture(HudNumbers sprite) const;
+    const BlockTextureInfo& get_symbol_texture(HudSymbols symbol) const;
+    const std::string& get_fw_texture(FontsAndBackground fw) const;
+    const BlockTextureInfo& get_crosshair_texture(Crosshairs crosshair) const;
+    const std::string& get_gun_texture(GunSprites gun) const;
+    const std::vector<int> get_blocks_keys();
+    const std::vector<Background> get_backgrounds();
+    const std::string& get_background_path(const Background& background);
 };
 
 #endif

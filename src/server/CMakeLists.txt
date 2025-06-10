@@ -15,6 +15,8 @@ target_sources(taller_server
         buy_phase_commands.cpp
         player.cpp
         loadout.cpp
+        weapon.cpp
+        shot.cpp
         gun.cpp
         knife.cpp
         server.cpp
@@ -39,6 +41,7 @@ target_sources(taller_server
         weapon.h
         gun.h
         knife.h
+        shot.h
         server.h
         server_monitor.h
         server_protocol.h
