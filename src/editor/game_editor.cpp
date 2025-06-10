@@ -1,5 +1,6 @@
 #include "game_editor.h"
 
+#include <QFileDialog>
 #include <algorithm>
 #include <fstream>
 #include <iterator>
@@ -82,7 +83,19 @@ void Game_editor::on_save_button_clicked() {
     GameMap map = create_map(grid);
     YamlParser parser;
     YAML::Node yaml = parser.game_map_to_Yaml(map);
-    std::ofstream fout("../mapa.yaml");
+
+    QString fileName = QFileDialog::getSaveFileName(
+            this, "Guardar Mapa", "", "Archivos YAML (*.yaml);;Todos los archivos (*)");
+
+    if (fileName.isEmpty()) {
+        return;
+    }
+
+    if (!fileName.endsWith(".yaml", Qt::CaseInsensitive)) {
+        fileName += ".yaml";
+    }
+
+    std::ofstream fout(fileName.toStdString());
     fout << yaml;
     close();
 }
