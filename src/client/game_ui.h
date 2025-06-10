@@ -10,6 +10,7 @@
 
 #include "../common/clock.h"
 #include "../common/skins.h"
+#include "common/settings.h"
 #include "lobby/lobby.h"
 
 #include "SDLManager.h"
@@ -18,8 +19,6 @@
 #include "game_ui_phase.h"
 #include "input_handler.h"
 #include "local_info.h"
-
-#define FPS 30
 
 class GameUI {
 private:

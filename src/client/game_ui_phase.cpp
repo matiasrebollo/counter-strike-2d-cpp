@@ -22,7 +22,7 @@ void GameUIPhase::run() {
         // luego habria que sacarlo
         if (!game_ui.keep_running)
             break;
-        it = clock.sleep_and_calc_next_it(FPS, it);
+        it = clock.sleep_and_calc_next_it(FPS_CLIENT, it);
     }
 
     change_phase();

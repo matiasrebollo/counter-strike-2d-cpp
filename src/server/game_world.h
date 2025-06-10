@@ -8,13 +8,11 @@
 
 #include "common/game_map.h"
 #include "common/game_snapshot.h"
+#include "common/settings.h"
 #include "server/collidable.h"
 #include "server/game_world_snapshot.h"
 #include "server/player.h"
 #include "server/shot.h"
-
-#define TERRORISTS 1
-#define COUNTER_TERRORISTS 1
 
 class GameWorld {
 private:

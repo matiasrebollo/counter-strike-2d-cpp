@@ -8,13 +8,9 @@
 class GameWorld;  // forward declaration
 
 #include "common/player_dto.h"
+#include "common/settings.h"
 #include "server/collidable.h"
 #include "server/loadout.h"
-
-#define PLAYER_SPEED 120
-#define PLAYER_WIDTH 32
-#define PLAYER_HEIGHT 32
-#define PLAYER_INITIAL_LIFE 100
 
 class Player: public Collidable {
 private:

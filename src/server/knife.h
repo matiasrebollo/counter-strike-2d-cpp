@@ -3,9 +3,8 @@
 
 #include <memory>
 
+#include "common/settings.h"
 #include "server/weapon.h"
-
-#define KNIFE_ROF 60
 
 class Knife: public Weapon {
 private:

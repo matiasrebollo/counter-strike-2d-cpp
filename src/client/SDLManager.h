@@ -11,18 +11,11 @@
 #include "../common/block_texture_parser.h"
 #include "../common/game_map.h"
 #include "../common/game_snapshot.h"
+#include "common/settings.h"
 
 #include "camera.h"
 #include "local_info.h"
 #include "shop.h"
-
-#define WINDOW_INITIAL_WIDTH 640
-#define WINDOW_INITIAL_HEIGHT 400
-#define HUD_IDEAL_WIDTH 640
-#define HUD_IDEAL_HEIGHT 400
-#define FONT_IDEAL_WIDTH 480
-#define FONT_IDEAL_HEIGHT 300
-#define SIZE_PLAYER 32
 
 class SDLManager {
 private:
