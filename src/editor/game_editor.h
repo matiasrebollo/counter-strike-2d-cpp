@@ -36,7 +36,7 @@ private slots:
 
 private:
     Ui::Game_editor* ui;
-    void setupUi();
+    void setupUi(const int& rows, const int& columns);
     GameMap create_map(const std::vector<std::vector<int>>& grid);
     void setupBlockList();
     void setupBackgroundList();
