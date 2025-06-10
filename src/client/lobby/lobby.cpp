@@ -8,8 +8,6 @@
 #include <memory>
 #include <utility>
 
-#define MAP_PATH "../maps"
-
 #include "client/client_protocol.h"
 #include "common/commands.h"
 #include "common/lobby_request.h"
@@ -25,9 +23,6 @@ using Socket = MockSocket;
 #include "common/socket.h"
 using Socket = RealSocket;
 #endif
-
-
-#define PATH_CS_FONT "../../../assets/cs_regular.ttf"
 
 Lobby::Lobby(QWidget* parent):
         QMainWindow(parent),
@@ -80,7 +75,7 @@ void Lobby::create_game() {
     ui->message->clear();
     ui->maps_list->clear();
 
-    for (const auto& entry: std::filesystem::directory_iterator(MAP_PATH)) {
+    for (const auto& entry: std::filesystem::directory_iterator(PATH_FOLDER_MAPS)) {
         if (entry.is_regular_file()) {
             std::string name = entry.path().filename().string();
             this->format_string(name);

@@ -52,7 +52,7 @@ private:
 public:
     const std::string id;
 
-    explicit CS2DGame(const std::string& id);
+    explicit CS2DGame(const std::string& id, const std::string& map_filename);
     bool can_add_player() const;
     void add_player(const std::string& username, std::shared_ptr<ClientSender> sender);
     void push(const std::unique_ptr<Command> command);

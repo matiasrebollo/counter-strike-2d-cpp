@@ -49,7 +49,7 @@ private:
 public:
     const std::string id;
 
-    GameWorld();
+    explicit GameWorld(const std::string& map_filename);
     void add_player(const std::string& username);
     void restart_players();
     void spawn_players();

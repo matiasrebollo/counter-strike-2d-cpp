@@ -16,10 +16,12 @@ bool ServerMonitor::create_username(const std::string& username) {
 
 
 std::shared_ptr<CS2DGame> ServerMonitor::create_new_game(const std::string& username,
+                                                         const std::string& map_filename,
                                                          std::shared_ptr<ClientSender> sender) {
     std::unique_lock<std::mutex> lck(this->mutex);
     std::string game_name = std::to_string(this->game_id);
-    auto [it, inserted] = this->games.try_emplace(game_name, std::make_shared<CS2DGame>(game_name));
+    auto [it, inserted] =
+            this->games.try_emplace(game_name, std::make_shared<CS2DGame>(game_name, map_filename));
     this->game_id++;
     it->second->start();
     it->second->add_player(username, sender);
