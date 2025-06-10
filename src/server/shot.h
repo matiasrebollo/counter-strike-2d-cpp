@@ -7,16 +7,17 @@
 
 #include "server/collidable.h"
 
-class CS2DGame;  // forward declaration
+class GameWorld;  // forward declaration
+class Player;     // forward declaration
 
 class Shot {
 public:
-    const Vector2D origin;
+    const Vector2D<int> origin;
     const float orientation;
 
-    Shot(const Vector2D& origin, const float& orientation);
+    Shot(const Vector2D<int>& origin, const float& orientation);
 
-    const Collidable* shoot(const CS2DGame& game) const;
+    Collidable* shoot(const GameWorld& game, const Player& shooter);
 
     Shot(const Shot&) = delete;
     Shot& operator=(const Shot&) = delete;

@@ -1,7 +1,6 @@
 target_sources(taller_common
     PRIVATE
     # .cpp files
-    vector_2d.cpp
     codes_parser.cpp
     common_protocol.cpp
     liberror.cpp

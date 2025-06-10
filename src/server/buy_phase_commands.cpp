@@ -1,7 +1,5 @@
 #include "server/buy_phase_commands.h"
 
-// #include "server/game_world.h"
-
 BuyPhaseCommand::BuyPhaseCommand(const std::string& username): Command(username) {}
 void BuyPhaseCommand::execute_in_attack_phase(GameWorld&) const {}
 

@@ -104,7 +104,7 @@ public:
     void equip_primary();
     void equip_secondary();
     void equip_knife();
-    Weapon* equipped_weapon();
+    Gun* equipped_gun();
     const LoadoutDTO get_dto() const;
 
     Loadout(const Loadout&) = delete;

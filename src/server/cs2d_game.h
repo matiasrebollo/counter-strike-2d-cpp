@@ -14,8 +14,7 @@
 #include "server/game_world.h"
 
 #define FPS 60
-#define ROUNDS 1
-
+#define ROUNDS 10
 class CS2DGame: public Thread {
 private:
     std::map<std::string, std::shared_ptr<ClientSender>> players_senders;
@@ -46,7 +45,7 @@ private:
     void begin_new_round();
     void swap_teams();
     void change_phase(std::unique_ptr<GamePhase> new_phase);
-    void update(const size_t& it, size_t& prev_it);
+    void update(const float& delta_t);
     void execute_in_attack_phase(std::unique_ptr<Command> cmd);
     void execute_in_buy_phase(std::unique_ptr<Command> cmd);
     void end_game();

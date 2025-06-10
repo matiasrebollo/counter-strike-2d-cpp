@@ -1,41 +1,43 @@
 #include "server/player.h"
 
+#include <cmath>
 #include <iostream>
 
 #include "server/game_world.h"
 
-Player::Player(const std::string& name, Vector2D& position):
+Player::Player(const std::string& name, Vector2D<int>& position):
         Collidable(position, PLAYER_WIDTH, PLAYER_HEIGHT),
         name(name),
         moving_up(false),
         moving_down(false),
         moving_left(false),
         moving_right(false),
+        making_action(false),
         life(PLAYER_INITIAL_LIFE),
         loadout() {}
 
+float Player::get_orientation() const { return orientation; }
+
 bool Player::is_alive() const { return this->life > 0; }
 
-void Player::update(GameWorld& game) {
+void Player::update(GameWorld& game, const float& delta_t) {
+    int stepped = static_cast<int>(std::round(delta_t * PLAYER_SPEED));
     if (moving_up) {
-        step(Vector2D(0, -1), game);
+        game.make_step_player(*this, Vector2D<int>(0, -stepped));
     }
     if (moving_down) {
-        step(Vector2D(0, 1), game);
+        game.make_step_player(*this, Vector2D<int>(0, stepped));
     }
     if (moving_left) {
-        step(Vector2D(-1, 0), game);
+        game.make_step_player(*this, Vector2D<int>(-stepped, 0));
     }
     if (moving_right) {
-        step(Vector2D(1, 0), game);
+        game.make_step_player(*this, Vector2D<int>(stepped, 0));
     }
-    // si esta disparando, ... update de weapons necesario
+    if (Gun* weapon = loadout.equipped_gun())
+        weapon->update(delta_t, *this, game);
     // enviar eventos si disparo, si mato
     // si mato, reconocerlo y aumentar dinero
-}
-
-void Player::step(const Vector2D& step_dir, GameWorld& game) {
-    game.make_step_player(*this, step_dir);
 }
 
 void Player::move_up() { moving_up = !moving_up; }
@@ -51,10 +53,11 @@ void Player::stop() {
     orientation = 0.0;
 }
 void Player::make_action() {
-    Weapon* weapon = loadout.equipped_weapon();
-    if (weapon)
-        weapon->action();
-    // necesario saber cuándo se da la acción para manejar el "mantener el click apretado"
+    if (Gun* weapon = loadout.equipped_gun())
+        making_action ? weapon->stop_action() : weapon->action();
+    // si tiene bomba equipada..
+
+    making_action = !making_action;
 }
 void Player::equip_primary() { loadout.equip_primary(); }
 void Player::equip_secondary() { loadout.equip_secondary(); }
@@ -73,23 +76,5 @@ const PlayerDTO Player::get_dto() const {
     const PlayerDTO dto{name, rect.position, orientation, life, loadout.get_dto()};
     return dto;
 }
-
-/*
-void Player::shoot(const CS2DGame& game) const {
-    const Vector2D origin(rect.position.x + rect.width / 2,
-                          rect.position.y + rect.height / 2);
-    Shot shot(origin, orientation);
-
-    const Collidable* hit = shot.shoot(game);
-
-    if (hit != nullptr) {
-        // que hit reciba daño de shot, reemplazar prints
-        rect h = hit->get_rect();
-        std::cout << "¡Impacto! Disparo acertó a objeto en (" << h.position.x << ", "
-                  << h.position.y << ")\n";
-    } else {
-        std::cout << "Disparo fallido. No impactó ningún objeto.\n";
-    }
-}*/
 
 Player::~Player() {}

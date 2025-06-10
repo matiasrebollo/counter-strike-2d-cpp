@@ -339,9 +339,10 @@ TEST(ServerProtocolTest, SendSnapshot) {
     for (auto phase: phases) {
         for (auto current_round: current_rounds) {
             for (auto loadout: loadouts) {
-                std::vector<PlayerDTO> ct = {PlayerDTO{"Mati", Vector2D(0, 0), 0, 100, loadout}};
+                std::vector<PlayerDTO> ct = {
+                        PlayerDTO{"Mati", Vector2D<int>(0, 0), 0, 100, loadout}};
                 std::vector<PlayerDTO> tt = {
-                        PlayerDTO{"Facu", Vector2D(10, 10), 100, 100, loadout}};
+                        PlayerDTO{"Facu", Vector2D<int>(10, 10), 100, 100, loadout}};
                 Snapshot snapshot{phase, current_round, total_rounds, 20, ct, tt};
 
                 server.send_game_dto(snapshot);

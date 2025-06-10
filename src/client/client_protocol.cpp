@@ -211,7 +211,7 @@ std::vector<PlayerDTO> ClientProtocol::receive_players(const int& size_players) 
         uint16_t life16 = static_cast<uint16_t>(life);
         LoadoutDTO loadout = this->receive_loadout();
         players.push_back(
-                PlayerDTO{username, Vector2D(position_x, position_y), angle, life16, loadout});
+                PlayerDTO{username, Vector2D<int>(position_x, position_y), angle, life16, loadout});
     }
     return players;
 }
@@ -240,11 +240,11 @@ std::vector<MapObject> ClientProtocol::receive_map_objects(const uint8_t& size) 
     for (int i = 0; i < size; i++) {
         uint16_t type = this->receive_big_endian_number();
         uint8_t vec_size = this->receive_byte();
-        std::vector<Vector2D> positions;
+        std::vector<Vector2D<int>> positions;
         for (int j = 0; j < vec_size; j++) {
             uint16_t x = this->receive_big_endian_number();
             uint16_t y = this->receive_big_endian_number();
-            positions.push_back(Vector2D(x, y));
+            positions.push_back(Vector2D<int>(x, y));
         }
         objects.push_back({positions, type, true});
     }

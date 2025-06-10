@@ -11,9 +11,9 @@ struct GameMap {
     int height;
     Background background;
     std::vector<MapObject> map_objects;
-    std::vector<Vector2D> ct_spawns;
-    std::vector<Vector2D> tt_spawns;
-    std::vector<Vector2D> sites;
+    std::vector<Vector2D<int>> ct_spawns;
+    std::vector<Vector2D<int>> tt_spawns;
+    std::vector<Vector2D<int>> sites;
 };
 
 

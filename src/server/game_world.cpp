@@ -2,22 +2,18 @@
 
 #include <algorithm>
 #include <iostream>
+#include <limits>
 #include <random>
 #include <vector>
 
 #include "common/yaml_parser.h"
 
 GameWorld::GameWorld():
-        spawn_zone(Vector2D(60, 60), 400, 200),
+        spawn_zone(Vector2D<int>(60, 60), 400, 200),
         game_map(YamlParser().yaml_to_game_map("../maps/mapa.yaml")) {
-    // const int mapWidth = 640;
-    // const int mapHeight = 480;
     const int wallThickness = 40;
-    /*
-    YamlParser parser_yaml;
-    this->game_map = parser_yaml.yaml_to_game_map("../mapa.yaml");*/
 
-    // agregar paredes invisibles egun tamanio mapa
+    // agregar paredes invisibles segun tamanio mapa
     // 0-wallthick, 0-wallthick, game_map width, height
     // Agregar spawns zones segun spawns de game_map
 
@@ -25,25 +21,25 @@ GameWorld::GameWorld():
         if (block.collidable) {
             for (const auto& vec: block.positions) {
                 collidables.emplace_back(std::make_shared<Collidable>(
-                        Vector2D(vec.x * wallThickness, vec.y * wallThickness), wallThickness,
+                        Vector2D<int>(vec.x * wallThickness, vec.y * wallThickness), wallThickness,
                         wallThickness));
             }
         }
     }
 }
 
-Vector2D GameWorld::random_spawn_position() const {
+Vector2D<int> GameWorld::random_spawn_position() const {
     static std::random_device rd;
     static std::mt19937 gen(rd());
     std::uniform_int_distribution<> disX(spawn_zone.position.x,
                                          spawn_zone.position.x + spawn_zone.width);
     std::uniform_int_distribution<> disY(spawn_zone.position.y,
                                          spawn_zone.position.y + spawn_zone.height);
-    return Vector2D(disX(gen), disY(gen));
+    return Vector2D<int>(disX(gen), disY(gen));
 }
 
 void GameWorld::add_player(const std::string& username) {
-    Vector2D default_position(-100, -100);
+    Vector2D<int> default_position(-100, -100);
     auto player = std::make_shared<Player>(username, default_position);
     collidables.push_back(player);
 
@@ -67,7 +63,7 @@ void GameWorld::stop_players() {
 
 void GameWorld::spawn_players() {
     for (auto& [_, player]: terrorists) {
-        Vector2D position = random_spawn_position();
+        Vector2D<int> position = random_spawn_position();
         player->rect.position = position;
 
         while (colliding_object_with(*player)) {
@@ -77,7 +73,7 @@ void GameWorld::spawn_players() {
     }
 
     for (auto& [_, player]: counter_terrorists) {
-        Vector2D position = random_spawn_position();
+        Vector2D<int> position = random_spawn_position();
         player->rect.position = position;
 
         while (colliding_object_with(*player)) {
@@ -94,15 +90,10 @@ const GameWorldSnapshot GameWorld::get_snapshot() const {
     std::vector<PlayerDTO> tt;
 
     for (const auto& player: counter_terrorists) {
-        /*const PlayerDTO dto{player.first, player.second->rect.position,
-                            player.second->get_orientation(), player.second->get_life()};
-        ct.push_back(dto);*/
         ct.push_back(player.second->get_dto());
     }
+  
     for (const auto& player: terrorists) {
-        /*const PlayerDTO dto{player.first, player.second->rect.position,
-                            player.second->get_orientation(), player.second->get_life()};
-        tt.push_back(dto);*/
         tt.push_back(player.second->get_dto());
     }
 
@@ -163,37 +154,37 @@ const Collidable* GameWorld::colliding_object_with(const Collidable& coll) const
     return nullptr;
 }
 
-void GameWorld::make_step_player(Player& player, const Vector2D& step_dir) {
-    Vector2D origin = player.rect.position;
-    Vector2D target = origin + step_dir * PLAYER_SPEED;
+void GameWorld::make_step_player(Player& player, const Vector2D<int>& step) {
+    Vector2D<int> origin = player.rect.position;
+    Vector2D<int> target = origin + step;
     player.rect.position = target;
     const Collidable* colliding_obj = colliding_object_with(player);
     if (colliding_obj != nullptr) {
         const Rect& c = colliding_obj->rect;
         const Rect& p = player.rect;
-        Vector2D adjusted_pos = origin;
-        if (step_dir.x > 0) {
+        Vector2D<int> adjusted_pos = origin;
+        if (step.x > 0) {
             adjusted_pos.x = c.position.x - 1 - p.width;
         }
-        if (step_dir.x < 0) {
+        if (step.x < 0) {
             adjusted_pos.x = c.position.x + c.width + 1;
         }
-        if (step_dir.y > 0) {
+        if (step.y > 0) {
             adjusted_pos.y = c.position.y - 1 - p.height;
         }
-        if (step_dir.y < 0) {
+        if (step.y < 0) {
             adjusted_pos.y = c.position.y + c.height + 1;
         }
         player.rect.position = adjusted_pos;
     }
 }
 
-void GameWorld::update() {
+void GameWorld::update(const float& delta_t) {
     for (const auto& [_, c_terrorist]: counter_terrorists) {
-        c_terrorist->update(*this);
+        c_terrorist->update(*this, delta_t);
     }
     for (const auto& [_, terrorist]: terrorists) {
-        terrorist->update(*this);
+        terrorist->update(*this, delta_t);
     }
 }
 
@@ -208,12 +199,15 @@ bool GameWorld::ct_are_all_dead() const { return team_is_dead(counter_terrorists
 
 GameWorld::~GameWorld() {}
 
-/*double GameWorld::impacts(const Shot& shot, const Collidable& collidable) const {
+double GameWorld::impacts(const Shot& shot, const Collidable& collidable) const {
     Rect h = collidable.rect;
-    Vector2D v1 = h.position;
-    Vector2D v2 = {h.position.x + h.width, h.position.y};
-    Vector2D v3 = {h.position.x + h.width, h.position.y + h.height};
-    Vector2D v4 = {h.position.x, h.position.y + h.height};
+    Vector2D<float> v1(static_cast<float>(h.position.x), static_cast<float>(h.position.y));
+    Vector2D<float> v2(static_cast<float>(h.position.x + h.width),
+                       static_cast<float>(h.position.y));
+    Vector2D<float> v3(static_cast<float>(h.position.x + h.width),
+                       static_cast<float>(h.position.y + h.height));
+    Vector2D<float> v4(static_cast<float>(h.position.x),
+                       static_cast<float>(h.position.y + h.height));
 
     std::vector<double> distances = {
             intersects_segment(shot, v1, v2), intersects_segment(shot, v2, v3),
@@ -228,7 +222,7 @@ GameWorld::~GameWorld() {}
     });
 
     return (it != distances.end() && *it > 0.0) ? *it : 0.0;
-}*/
+}
 
 // R(t) = origin + direction * t, con t ≥ 0 - Semirrecta por la que recorrerá el disparo.
 // S(u) = seg_start + seg_dir * u, con 0 ≤ u ≤ 1 - Segmento, se quiere ver si la recta lo corta.
@@ -237,34 +231,41 @@ GameWorld::~GameWorld() {}
 // => direction * t + (-seg_dir) * u = r (siendo r = seg_start - origin)
 // => ... (wolfram) =>  t = (r x (seg_dir)) / ((direction))x(seg_dir)), u = (r x direction) /
 // ((shoot_direction))x(seg_dir))
-/*double GameWorld::intersects_segment(const Shot& shot, const Vector2D& seg_start,
-                                    const Vector2D& seg_end) const {
+double GameWorld::intersects_segment(const Shot& shot, const Vector2D<float>& seg_start,
+                                     const Vector2D<float>& seg_end) const {
+    double real_orientation = shot.orientation - 90.0f;
 
-    Vector2D seg_dir = seg_end - seg_start;
-    Vector2D r = seg_start - shot.origin;
+    double orientation_in_radians = real_orientation * M_PI / 180.0;
+    Vector2D<float> direction(std::cos(orientation_in_radians), std::sin(orientation_in_radians));
+    Vector2D<float> origin(shot.origin.x, shot.origin.y);
 
-    double c = static_cast<double>(shot.direction.cross(seg_dir));
+    Vector2D<float> seg_dir = seg_end - seg_start;
+    Vector2D<float> r = seg_start - origin;
+
+    double c = static_cast<double>(direction.cross(seg_dir));
 
     if (c == 0)
         return 0.0;  // son paralelos, no hay intersección
 
     double t = static_cast<double>(r.cross(seg_dir)) / c;
-    double u = static_cast<double>(r.cross(shot.direction)) / c;
+    double u = static_cast<double>(r.cross(direction)) / c;
 
     // La semirrecta solo vale para t >= 0, y el segmento para u ∈ [0,1]. Se intersecan si t y u
     // cumplen con esto.
     if (t >= 0 && u >= 0 && u <= 1) {
-        return t * shot.direction.magnitude();
+        return t * direction.magnitude();
     }
 
     return 0.0;
-}*/
+}
 
-/*const Collidable* GameWorld::first_impact(const Shot& shot) const {
-    const Collidable* hit = nullptr;
+Collidable* GameWorld::first_impact(const Shot& shot, const Player& shooter) const {
+    Collidable* hit = nullptr;
     double closest = std::numeric_limits<double>::max();
 
     for (const auto& collidable: collidables) {
+        if (collidable.get() == &shooter)
+            continue;
         double dist = impacts(shot, *collidable);
         if (dist != 0.0) {
             if (dist < closest) {
@@ -275,13 +276,4 @@ GameWorld::~GameWorld() {}
     }
 
     return hit;
-}*/
-
-/*void GameWorld::shoot(const std::string& username) {
-    auto it = players.find(username);
-    if (it != players.end()) {
-        it->second->shoot(*this);
-    } else {
-        throw std::invalid_argument("Username does not correspond to a player in this game.");
-    }
-}*/
+}

@@ -1,6 +1,10 @@
 #include "server/gun.h"
 
-Gun::Gun(const GunType& gun_type): is_trigger_pressed(false), type(gun_type) {
+#include <iostream>
+
+#include "server/game_world.h"
+
+Gun::Gun(const GunType& gun_type): type(gun_type), time_since_last_shot((60.0f / GLOCK_ROF)) {
     switch (type) {
         case GunType::GLOCK:
             ammo = GLOCK_INITIAL_AMMO;
@@ -39,12 +43,37 @@ Gun::Gun(const GunType& gun_type): is_trigger_pressed(false), type(gun_type) {
 
 void Gun::add_ammo(uint16_t ammo_count) { ammo += ammo_count; }
 
-void Gun::action() {
-    is_trigger_pressed = !is_trigger_pressed;
-    // shoot() si no estaba presionado??
+bool Gun::can_shoot() { return ammo > 0 && time_since_last_shot >= (60.0f / GLOCK_ROF); }
+
+void Gun::update(const float& delta_t, Player& owner, GameWorld& game) {
+    if (just_triggered_action() && can_shoot()) {
+        shoot(game, owner);
+        time_since_last_shot = 0.0f;
+    } else {
+        time_since_last_shot += delta_t;
+    }
+    Weapon::update(delta_t, owner, game);
 }
 
-void Gun::shoot() {}
+void Gun::shoot(GameWorld& game, Player& shooter) {
+    std::cout << "disparo! " << std::endl;
+    ammo -= 1;
+
+    const Vector2D<int> origin(shooter.rect.position.x + shooter.rect.width / 2,
+                               shooter.rect.position.y + shooter.rect.height / 2);
+    Shot shot(origin, shooter.get_orientation());
+
+    const Collidable* hit = shot.shoot(game, shooter);
+
+    if (hit != nullptr) {
+        // que hit reciba daño de shot, reemplazar prints
+        Rect h = hit->rect;
+        std::cout << "¡Impacto! Disparo acertó a objeto en (" << h.position.x << ", "
+                  << h.position.y << ")\n";
+    } else {
+        std::cout << "Disparo fallido. No impactó ningún objeto.\n";
+    }
+}
 
 uint16_t Gun::get_ammo() const { return ammo; }
 

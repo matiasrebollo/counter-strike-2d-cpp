@@ -87,14 +87,14 @@ void Loadout::equip_primary() {
 }
 void Loadout::equip_secondary() { this->equipped = SECONDARY; }
 void Loadout::equip_knife() { this->equipped = KNIFE; }
-Weapon* Loadout::equipped_weapon() {
+Gun* Loadout::equipped_gun() {
     switch (equipped) {
         case PRIMARY:
             return primary_gun ? primary_gun.get() : nullptr;
         case SECONDARY:
             return &secondary_gun;
-        case KNIFE:
-            return &knife;
+        /*case KNIFE:
+            return &knife;*/
         default:
             return nullptr;
     }
