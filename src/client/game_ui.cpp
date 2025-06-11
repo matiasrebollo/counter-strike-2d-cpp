@@ -95,7 +95,8 @@ bool GameUI::update_waiting() {
                         this->game_snapshot = std::move(game_dto);
                         update_local_info_from_snapshot(this->game_snapshot);
                     } else if constexpr (std::is_same_v<T, GameInitialInfoDTO>) {
-                        this->sdl.set_map(std::move(game_dto));
+                        this->sdl.set_map(std::move(game_dto.game_map));
+                        this->sdl.set_shop(std::move(game_dto.shop_info));
                     } else if constexpr (std::is_same_v<T, GameEnded>) {
                         // guardar estadisticas
                         // estado ended?

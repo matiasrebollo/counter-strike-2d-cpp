@@ -27,7 +27,7 @@ private:
     TextureManager texture_manager;
     Camera camera;
     Shop shop;
-    std::optional<GameInitialInfoDTO> map;
+    std::optional<GameMapDTO> map;
 
     void update_camera(int player_x, int player_y);
     std::pair<Position, GunSprites> get_gun_info(const LoadoutDTO& loadout);
@@ -44,7 +44,11 @@ public:
     SDLManager();
 
     /* Se asigna el mapa una vez que es recibido cuando comienza la partida */
-    void set_map(GameInitialInfoDTO game_map);
+    void set_map(GameMapDTO game_map);
+
+
+    /* Se asigna los valores de la shop una vez que es recibido cuando comienza la partida*/
+    void set_shop(const ShopInfoDTO& shop_info);
 
     /* Renderiza la fase de waiting */
     void render_waiting_screen(int players_connected, int players_required,

@@ -23,7 +23,18 @@ SDLManager::SDLManager():
     SDL_ShowCursor(SDL_DISABLE);
 }
 
-void SDLManager::set_map(GameInitialInfoDTO game_map) { map = std::move(game_map); }
+void SDLManager::set_map(GameMapDTO game_map) { map = std::move(game_map); }
+
+void SDLManager::set_shop(ShopInfoDTO shop_info) {
+    for (const auto& [gun, price]: shop_info.shop_gun_prices) {
+        std::cout << gun << std::endl;
+        std::cout << price << std::endl;
+    }
+    for (const auto& [gun, amount]: shop_info.shop_clip_by_gun_prices) {
+        std::cout << gun << std::endl;
+        std::cout << amount << std::endl;
+    }
+}
 
 void SDLManager::render_waiting_screen(int players_connected, int players_required,
                                        const std::string& gamename, int iteration, int FPS) {
@@ -358,7 +369,7 @@ void SDLManager::render_in_z_order(const Snapshot& snapshot, const LocalInfo& lo
     update_camera(local_info.x, local_info.y);
 
     if (map.has_value()) {
-        GameMapDTO game_map = map.value().game_map;
+        GameMapDTO game_map = map.value();
 
         const std::string& background_path =
                 texture_parser.get_background_path(game_map.background);
