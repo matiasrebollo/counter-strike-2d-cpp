@@ -9,39 +9,16 @@
 Loadout::Loadout():
         money(INITIAL_MONEY), primary_gun(nullptr), secondary_gun(GLOCK), equipped(SECONDARY) {}
 
-uint16_t Loadout::ammo_per_clip_for(const GunType& type) {
-    // está hardcodeado. inicializar un map a partir del archivo de configuracion al inicializar el
-    // Loadout
-    switch (type) {
-        case GunType::GLOCK:
-            return 50;
-        case GunType::AK47:
-            return 20;
-        case GunType::M3:
-            return 80;
-        case GunType::AWP:
-            return 4;
-        default:
-            throw std::invalid_argument(
-                    "Weapon::ammo_per_clip_for: tipo de arma no válido para la compra de balas");
-    }
-}
+int Loadout::get_money() const { return money; }
 
-uint16_t Loadout::price_for(const GunType& type) {
-    // está hardcodeado. inicializar un map a partir del archivo de configuracion al inicializar el
-    // Loadout
-    switch (type) {
-        case GunType::AK47:
-            return 2500;
-        case GunType::M3:
-            return 1700;
-        case GunType::AWP:
-            return 4750;
-        default:
-            throw std::invalid_argument(
-                    "Loadout::price_for: tipo de arma no válido para la compra");
-    }
+bool Loadout::has_primary_gun() const { return primary_gun != nullptr; }
+
+GunType Loadout::primary_gun_type() const {
+    if (primary_gun == nullptr)
+        return NONE;
+    return primary_gun->get_type();
 }
+GunType Loadout::secondary_gun_type() const { return secondary_gun.get_type(); }
 
 void Loadout::decrease_money_by(const uint16_t& ammount_of_money) {
     this->money -= ammount_of_money;
@@ -53,33 +30,8 @@ std::unique_ptr<Gun> Loadout::new_primary_gun(std::unique_ptr<Gun> gun) {
     return prev;
 }
 
-
-bool Loadout::can_buy_gun(const GunType& gun_type) const {
-    return this->money >= price_for(gun_type);
-}
-
-std::unique_ptr<Gun> Loadout::buy_primary_gun(const GunType& gun_type) {
-    if (!can_buy_gun(gun_type)) {
-        return nullptr;
-    }
-    decrease_money_by(price_for(gun_type));
-    auto bought_gun = std::make_unique<Gun>(gun_type);
-    return new_primary_gun(std::move(bought_gun));
-}
-
-bool Loadout::buy_ammo(const bool& for_primary) {
-    if (money < CLIP_PRICE || (!primary_gun && for_primary))
-        return false;
-
-    decrease_money_by(CLIP_PRICE);
-    if (for_primary)
-        primary_gun->add_ammo(ammo_per_clip_for(primary_gun->get_type()));
-
-    if (!for_primary)
-        secondary_gun.add_ammo(ammo_per_clip_for(secondary_gun.get_type()));
-
-    return true;
-}
+void Loadout::add_ammo_to_primary(const int& ammo_count) { primary_gun->add_ammo(ammo_count); }
+void Loadout::add_ammo_to_secondary(const int& ammo_count) { secondary_gun.add_ammo(ammo_count); }
 
 void Loadout::equip_primary() {
     if (primary_gun)
@@ -108,7 +60,6 @@ const LoadoutDTO Loadout::get_dto() const {
                       secondary_gun.get_ammo(),
                       equipped};
     // agregar bomba
-    // agregar disparos ??
 }
 
 Loadout::~Loadout() {}

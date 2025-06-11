@@ -10,6 +10,7 @@
 #include "server/static_map_object.h"
 
 GameWorld::GameWorld(const std::string& map_filename):
+        shop(),
         spawn_zone(Vector2D<int>(60, 60), 400, 200),
         game_map(YamlParser().yaml_to_game_map(PATH_FOLDER_MAPS + map_filename + ".yaml")) {
     const int wallThickness = 40;
@@ -86,6 +87,8 @@ void GameWorld::spawn_players() {
 
 const GameMap GameWorld::get_map() const { return this->game_map; }
 
+const ShopInfoDTO GameWorld::get_shop_info() const { return this->shop.get_shop_info(); }
+
 const GameWorldSnapshot GameWorld::get_snapshot() const {
     std::vector<PlayerDTO> ct;
     std::vector<PlayerDTO> tt;
@@ -158,11 +161,24 @@ void GameWorld::equip_knife_for(const std::string& username) {
 }
 
 void GameWorld::buy_gun_for(const std::string& username, const GunType& gun) {
-    with_player(username, [&gun](Player& p) { p.buy_gun(gun); });
+    with_player(username, [this, &gun](Player& p) {
+        Loadout& loadout = p.get_loadout();
+
+        this->shop.buy_gun(gun, loadout);
+        // std::unique_ptr<Gun> old_gun = this->shop.buy_gun(gun, loadout);
+
+        /*if (old_gun) {
+            this->drop_gun(p.get_position(), old_gun); // o similar
+        }*/
+    });
 }
 
 void GameWorld::buy_ammo_for(const std::string& username, const bool& for_primary) {
-    with_player(username, [&for_primary](Player& p) { p.buy_ammo(for_primary); });
+    with_player(username, [this, &for_primary](Player& p) {
+        Loadout& loadout = p.get_loadout();
+
+        this->shop.buy_clip(for_primary, loadout);
+    });
 }
 
 const Collidable* GameWorld::colliding_object_with(const Collidable& coll) const {

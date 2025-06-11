@@ -35,9 +35,9 @@ private:
 
     bool should_start() const;
 
-    void broadcast_game_dto(const GameDTO& game_dto);
-    void broadcast_map();
-    void broadcast_snapshot(const int time_left);
+    void broadcast_game_dto(const GameDTO& game_dto) const;
+    void broadcast_game_initial_info() const;
+    void broadcast_snapshot(const int time_left) const;
 
     bool current_round_has_a_winner() const;
     void decide_winner();

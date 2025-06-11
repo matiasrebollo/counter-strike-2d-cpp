@@ -91,13 +91,6 @@ void ClientProtocol::send_join_game_request(const JoinGameDTO& dto) {
     this->send_string(dto.gamename);
 }
 
-/*
-void ClientProtocol::send_select_map_request(const InternalMessage& request) {
-    this->send_byte(request.map_id);
-}
-
-*/
-
 void ClientProtocol::handle_move(const MoveDTO& dto) {
     this->send_byte(CODE_MOVE);
     this->send_byte(dto.dir + 1);
@@ -151,8 +144,8 @@ void ClientProtocol::handle_buy_ammo(const BuyAmmoDTO& dto) {
 
 GameDTO ClientProtocol::receive_game_dto() {
     uint8_t code = this->receive_byte();
-    if (code == CODE_SEND_MAP) {
-        return this->receive_map();
+    if (code == CODE_SEND_GAME_INIT_INFO) {
+        return this->receive_game_initial_info();
     } else if (code == CODE_SNAPSHOT) {
         return this->receive_snapshot();
     } else {
@@ -204,11 +197,39 @@ LoadoutDTO ClientProtocol::receive_loadout() {
     return LoadoutDTO{money, primary_gun, primary_ammo, secondary_gun, secondary_ammo, equipped};
 }
 
-GameMapDTO ClientProtocol::receive_map() {
+GameInitialInfoDTO ClientProtocol::receive_game_initial_info() {
     Background background = static_cast<Background>(this->receive_byte());
     uint16_t size = this->receive_big_endian_number();
-    return GameMapDTO{background, this->receive_map_objects(size)};
+    std::vector<MapObject> map_objects = this->receive_map_objects(size);
+    GameMapDTO game_map = GameMapDTO{background, map_objects};
+    uint8_t shop_gun_prices_size = this->receive_byte();
+    std::unordered_map<GunType, int> gun_prices = this->receive_gun_prices(shop_gun_prices_size);
+    uint8_t shop_gun_clips_size = this->receive_byte();
+    std::unordered_map<GunType, int> gun_clips = this->receive_gun_clips_size(shop_gun_clips_size);
+    ShopInfoDTO shop_info = ShopInfoDTO{gun_prices, gun_clips};
+    return GameInitialInfoDTO{game_map, shop_info};
 }
+
+std::unordered_map<GunType, int> ClientProtocol::receive_gun_prices(const uint8_t& size) {
+    std::unordered_map<GunType, int> response = {};
+    for (int i = 0; i < size; i++) {
+        GunType gun = this->weaponParser.getWeaponFromByte(this->receive_byte());
+        int price_gun = this->receive_big_endian_number();
+        response[gun] = price_gun;
+    }
+    return response;
+}
+
+std::unordered_map<GunType, int> ClientProtocol::receive_gun_clips_size(const uint8_t& size) {
+    std::unordered_map<GunType, int> response = {};
+    for (int i = 0; i < size; i++) {
+        GunType gun = this->weaponParser.getWeaponFromByte(this->receive_byte());
+        int clip_size = this->receive_big_endian_number();
+        response[gun] = clip_size;
+    }
+    return response;
+}
+
 
 std::vector<MapObject> ClientProtocol::receive_map_objects(const uint8_t& size) {
     std::vector<MapObject> objects = {};

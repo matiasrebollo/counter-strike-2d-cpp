@@ -146,6 +146,7 @@ TEST(ClientProtocolTest, SendBuyAmmo) {
 
 void validate_map(const GameMapDTO& expected_gamemap, const GameMapDTO& actual_gamemap) {
     ASSERT_EQ(expected_gamemap.background, actual_gamemap.background);
+    ASSERT_EQ(expected_gamemap.map_objects.size(), actual_gamemap.map_objects.size());
     for (size_t i = 0; i < expected_gamemap.map_objects.size(); i++) {
         ASSERT_EQ(expected_gamemap.map_objects[i].collidable,
                   actual_gamemap.map_objects[i].collidable);
@@ -157,7 +158,21 @@ void validate_map(const GameMapDTO& expected_gamemap, const GameMapDTO& actual_g
     }
 }
 
-TEST(ServerProtocolTest, SendMap) {
+void validate_shop_info(const ShopInfoDTO& expected_shop_info,
+                        const ShopInfoDTO& actual_shop_info) {
+    ASSERT_EQ(expected_shop_info.prices.size(), actual_shop_info.prices.size());
+    ASSERT_EQ(expected_shop_info.ammo_by_clip.size(), actual_shop_info.ammo_by_clip.size());
+    for (const auto& [gun, price]: expected_shop_info.prices) {
+        EXPECT_NE(actual_shop_info.prices.find(gun), actual_shop_info.prices.end());
+        ASSERT_EQ(price, actual_shop_info.prices.find(gun)->second);
+    }
+    for (const auto& [gun, price]: expected_shop_info.ammo_by_clip) {
+        EXPECT_NE(actual_shop_info.ammo_by_clip.find(gun), actual_shop_info.prices.end());
+        ASSERT_EQ(price, actual_shop_info.ammo_by_clip.find(gun)->second);
+    }
+}
+
+TEST(ServerProtocolTest, SendGameInitialInfo) {
     auto [client, server] = create_connected_protocols();
 
     std::vector<MapObject> objects = {};
@@ -170,13 +185,30 @@ TEST(ServerProtocolTest, SendMap) {
 
     GameMapDTO game_map = GameMapDTO{Background::AZTEC_BACKGROUND, objects};
 
-    server->send_game_dto(game_map);
+    std::unordered_map<GunType, int> prices = {
+            {GunType::AK47, 2700},
+            {GunType::M3, 3000},
+            {GunType::AWP, 4750},
+    };
+
+    std::unordered_map<GunType, int> ammo_by_clip = {
+            {GunType::GLOCK, 30},
+            {GunType::AK47, 25},
+            {GunType::M3, 8},
+            {GunType::AWP, 4},
+    };
+
+    ShopInfoDTO shop_info = ShopInfoDTO{prices, ammo_by_clip};
+
+    GameInitialInfoDTO dto = GameInitialInfoDTO{game_map, shop_info};
+
+    server->send_game_dto(dto);
 
     GameDTO response = client->receive_game_dto();
 
-    auto game_map_ptr = std::get_if<GameMapDTO>(&response);
-    ASSERT_NE(game_map_ptr, nullptr) << "Expected GameMapDTO but got another";
-    validate_map(game_map, *game_map_ptr);
+    auto game_map_ptr = std::get_if<GameInitialInfoDTO>(&response);
+    ASSERT_NE(game_map_ptr, nullptr) << "Expected GameInitialInfoDTO but got another";
+    validate_map(dto.game_map, game_map_ptr->game_map);
 }
 
 std::vector<LoadoutDTO> get_loadouts() {

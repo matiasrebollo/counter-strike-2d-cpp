@@ -50,10 +50,12 @@ private:
 
     std::vector<PlayerDTO> receive_players(const int& size_players);
     LoadoutDTO receive_loadout();
-    std::vector<MapObject> receive_map_objects(const uint8_t& size);
 
     Snapshot receive_snapshot();
-    GameMapDTO receive_map();
+    GameInitialInfoDTO receive_game_initial_info();
+    std::vector<MapObject> receive_map_objects(const uint8_t& size);
+    std::unordered_map<GunType, int> receive_gun_prices(const uint8_t& size);
+    std::unordered_map<GunType, int> receive_gun_clips_size(const uint8_t& size);
 
 public:
     explicit ClientProtocol(std::unique_ptr<Socket> socket);

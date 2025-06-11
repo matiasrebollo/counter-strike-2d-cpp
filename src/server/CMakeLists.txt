@@ -13,6 +13,7 @@ target_sources(taller_server
         command.cpp
         player.cpp
         loadout.cpp
+        shop.cpp
         weapon.cpp
         shot.cpp
         gun.cpp
@@ -35,6 +36,7 @@ target_sources(taller_server
         rect.h
         player.h
         loadout.h
+        shop.h
         weapon.h
         gun.h
         knife.h
