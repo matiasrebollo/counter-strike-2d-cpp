@@ -14,13 +14,13 @@ uint16_t Loadout::ammo_per_clip_for(const GunType& type) {
     // Loadout
     switch (type) {
         case GunType::GLOCK:
-            return 50;
+            return SIZE_GLOCK_CLIP;
         case GunType::AK47:
-            return 20;
+            return SIZE_AK47_CLIP;
         case GunType::M3:
-            return 80;
+            return SIZE_M3_CLIP;
         case GunType::AWP:
-            return 4;
+            return SIZE_AWP_CLIP;
         default:
             throw std::invalid_argument(
                     "Weapon::ammo_per_clip_for: tipo de arma no válido para la compra de balas");
@@ -32,11 +32,11 @@ uint16_t Loadout::price_for(const GunType& type) {
     // Loadout
     switch (type) {
         case GunType::AK47:
-            return 2500;
+            return AK47_PRICE;
         case GunType::M3:
-            return 1700;
+            return M3_PRICE;
         case GunType::AWP:
-            return 4750;
+            return AWP_PRICE;
         default:
             throw std::invalid_argument(
                     "Loadout::price_for: tipo de arma no válido para la compra");

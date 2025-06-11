@@ -21,7 +21,17 @@
 #define KNIFE_ROF 60
 
 #define INITIAL_MONEY 20000
+
+#define AK47_PRICE 2500
+#define M3_PRICE 1700
+#define AWP_PRICE 4750
+
 #define CLIP_PRICE 50
+
+#define SIZE_GLOCK_CLIP 50
+#define SIZE_AK47_CLIP 20
+#define SIZE_M3_CLIP 8
+#define SIZE_AWP_CLIP 4
 
 #define PLAYER_SPEED 120
 #define PLAYER_WIDTH 32

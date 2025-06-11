@@ -51,8 +51,8 @@ void ServerProtocol::send_game_dto(const GameDTO& response) {
     std::visit(
             [this](const auto& response) {
                 using T = std::decay_t<decltype(response)>;
-                if constexpr (std::is_same_v<T, GameMapDTO>) {
-                    this->send_map(response);
+                if constexpr (std::is_same_v<T, GameInitialInfoDTO>) {
+                    this->send_game_init_info(response);
                 } else if constexpr (std::is_same_v<T, Snapshot>) {
                     this->send_snapshot(response);
                 } else if constexpr (std::is_same_v<T, GameEnded>) {
@@ -64,11 +64,11 @@ void ServerProtocol::send_game_dto(const GameDTO& response) {
             response);
 }
 
-void ServerProtocol::send_map(const GameMapDTO& map) {
-    this->send_byte(CODE_SEND_MAP);
-    this->send_byte(static_cast<int>(map.background));
-    this->send_big_endian_number(map.map_objects.size());
-    for (auto object: map.map_objects) {
+void ServerProtocol::send_game_init_info(const GameInitialInfoDTO& dto) {
+    this->send_byte(CODE_SEND_GAME_INIT_INFO);
+    this->send_byte(static_cast<int>(dto.game_map.background));
+    this->send_big_endian_number(dto.game_map.map_objects.size());
+    for (auto object: dto.game_map.map_objects) {
         this->send_big_endian_number(object.type);
         this->send_byte(this->bools_to_code.find(object.collidable)->second);
         this->send_byte(object.positions.size());
@@ -76,6 +76,16 @@ void ServerProtocol::send_map(const GameMapDTO& map) {
             this->send_big_endian_number(vec.x);
             this->send_big_endian_number(vec.y);
         }
+    }
+    this->send_byte(dto.shop_info.shop_gun_prices.size());
+    for (const auto& [gun, price]: dto.shop_info.shop_gun_prices) {
+        this->send_byte(this->weaponParser.getWeaponToByte(gun));
+        this->send_big_endian_number(price);
+    }
+    this->send_byte(dto.shop_info.shop_clip_by_gun_prices.size());
+    for (const auto& [gun, price]: dto.shop_info.shop_clip_by_gun_prices) {
+        this->send_byte(this->weaponParser.getWeaponToByte(gun));
+        this->send_big_endian_number(price);
     }
 }
 

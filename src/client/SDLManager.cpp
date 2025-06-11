@@ -23,7 +23,7 @@ SDLManager::SDLManager():
     SDL_ShowCursor(SDL_DISABLE);
 }
 
-void SDLManager::set_map(GameMapDTO game_map) { map = std::move(game_map); }
+void SDLManager::set_map(GameInitialInfoDTO game_map) { map = std::move(game_map); }
 
 void SDLManager::render_waiting_screen(int players_connected, int players_required,
                                        const std::string& gamename, int iteration, int FPS) {
@@ -358,7 +358,7 @@ void SDLManager::render_in_z_order(const Snapshot& snapshot, const LocalInfo& lo
     update_camera(local_info.x, local_info.y);
 
     if (map.has_value()) {
-        GameMapDTO gamemap = map.value();
+        GameInitialInfoDTO gamemap = map.value();
 
         const std::string& background_path = texture_parser.get_background_path(gamemap.background);
         SDL2pp::Texture& background = texture_manager.get_texture(background_path);

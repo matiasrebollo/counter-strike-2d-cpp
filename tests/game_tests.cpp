@@ -144,7 +144,8 @@ TEST(ClientProtocolTest, SendBuyAmmo) {
 
 /* SERVER PROTOCOL RESPONSES */
 
-void validate_map(const GameMapDTO& expected_gamemap, const GameMapDTO& actual_gamemap) {
+void validate_map(const GameInitialInfoDTO& expected_gamemap,
+                  const GameInitialInfoDTO& actual_gamemap) {
     ASSERT_EQ(expected_gamemap.background, actual_gamemap.background);
     for (size_t i = 0; i < expected_gamemap.map_objects.size(); i++) {
         ASSERT_EQ(expected_gamemap.map_objects[i].collidable,
@@ -168,14 +169,14 @@ TEST(ServerProtocolTest, SendMap) {
         objects.push_back(object);
     }
 
-    GameMapDTO game_map = GameMapDTO{Background::AZTEC_BACKGROUND, objects};
+    GameInitialInfoDTO game_map = GameInitialInfoDTO{Background::AZTEC_BACKGROUND, objects};
 
     server->send_game_dto(game_map);
 
     GameDTO response = client->receive_game_dto();
 
-    auto game_map_ptr = std::get_if<GameMapDTO>(&response);
-    ASSERT_NE(game_map_ptr, nullptr) << "Expected GameMapDTO but got another";
+    auto game_map_ptr = std::get_if<GameInitialInfoDTO>(&response);
+    ASSERT_NE(game_map_ptr, nullptr) << "Expected GameInitialInfoDTO but got another";
     validate_map(game_map, *game_map_ptr);
 }
 
