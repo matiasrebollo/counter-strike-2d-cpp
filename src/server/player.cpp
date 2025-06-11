@@ -13,6 +13,7 @@ Player::Player(const std::string& name, Vector2D<int>& position):
         moving_left(false),
         moving_right(false),
         making_action(false),
+        orientation(0.0),
         life(PLAYER_INITIAL_LIFE),
         loadout() {}
 
