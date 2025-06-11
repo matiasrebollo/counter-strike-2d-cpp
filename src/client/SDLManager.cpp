@@ -25,12 +25,12 @@ SDLManager::SDLManager():
 
 void SDLManager::set_map(GameMapDTO game_map) { map = std::move(game_map); }
 
-void SDLManager::set_shop(ShopInfoDTO shop_info) {
-    for (const auto& [gun, price]: shop_info.shop_gun_prices) {
+void SDLManager::set_shop(const ShopInfoDTO& shop_info) {
+    for (const auto& [gun, price]: shop_info.prices) {
         std::cout << gun << std::endl;
         std::cout << price << std::endl;
     }
-    for (const auto& [gun, amount]: shop_info.shop_clip_by_gun_prices) {
+    for (const auto& [gun, amount]: shop_info.ammo_by_clip) {
         std::cout << gun << std::endl;
         std::cout << amount << std::endl;
     }
