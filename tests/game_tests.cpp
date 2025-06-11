@@ -266,12 +266,14 @@ TEST(ServerProtocolTest, SendSnapshot) {
                 std::vector<PlayerDTO> ct = {PlayerDTO{"Mati", Vector2D(0, 0), 0, 100, loadout}};
                 std::vector<PlayerDTO> tt = {
                         PlayerDTO{"Facu", Vector2D(10, 10), 100, 100, loadout}};
-                Snapshot snapshot{phase, current_round, total_rounds, 20, ct, tt};
+                Snapshot snapshot{2, phase, current_round, total_rounds, 20, ct, tt};
 
                 server->send_game_dto(snapshot);
                 GameDTO response = client->receive_game_dto();
                 auto snapshotPtr = std::get_if<Snapshot>(&response);
                 ASSERT_NE(snapshotPtr, nullptr) << "Expected SnapshotDTO but got another";
+                ASSERT_EQ(snapshotPtr->phase, phase);
+                ASSERT_EQ(snapshotPtr->total_players, 2);
                 ASSERT_EQ(snapshotPtr->phase, phase);
                 ASSERT_EQ(snapshotPtr->current_round_number, current_round);
                 ASSERT_EQ(snapshotPtr->total_rounds, total_rounds);

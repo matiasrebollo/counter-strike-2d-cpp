@@ -92,6 +92,7 @@ void ServerProtocol::send_game_init_info(const GameInitialInfoDTO& dto) {
 
 void ServerProtocol::send_snapshot(const Snapshot& snapshot) {
     this->send_byte(CODE_SNAPSHOT);
+    this->send_byte(snapshot.total_players);
     this->send_byte(snapshot.phase);
     this->send_byte(snapshot.current_round_number);
     this->send_byte(snapshot.total_rounds);

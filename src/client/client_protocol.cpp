@@ -155,6 +155,7 @@ GameDTO ClientProtocol::receive_game_dto() {
 
 Snapshot ClientProtocol::receive_snapshot() {
     // snasphot.bomb_status = BombStatus(this->receive_byte());
+    int total_players = this->receive_byte();
     int phase = this->receive_byte();
     size_t current_round_number = this->receive_byte();
     size_t total_rounds = this->receive_byte();
@@ -163,8 +164,8 @@ Snapshot ClientProtocol::receive_snapshot() {
     std::vector<PlayerDTO> cts = this->receive_players(size_ct);
     int size_tt = this->receive_byte();
     std::vector<PlayerDTO> tts = this->receive_players(size_tt);
-    Snapshot snapshot =
-            Snapshot{Phase(phase), current_round_number, total_rounds, time_left, cts, tts};
+    Snapshot snapshot = Snapshot{
+            total_players, Phase(phase), current_round_number, total_rounds, time_left, cts, tts};
     return snapshot;
 }
 
