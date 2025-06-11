@@ -46,12 +46,18 @@ void CS2DGame::add_player(const std::string& username, std::shared_ptr<ClientSen
 
 void CS2DGame::push(std::unique_ptr<Command> command) { command_queue.push(std::move(command)); }
 
-void CS2DGame::broadcast_game_dto(const GameDTO& game_dto) const {
+void CS2DGame::broadcast_game_dto(const GameDTO& game_dto) {
+    bool any_alive = false;
     for (const auto& [_, sender]: players_senders) {
         if (sender->is_alive()) {
             sender->send_game_dto(game_dto);
+            any_alive = true;
+        } else {
+            std::cout << "jugador desconectado!" << std::endl;
         }
     }
+    if (!any_alive)
+        end();
 }
 
 void CS2DGame::broadcast_game_initial_info() const {
@@ -62,7 +68,7 @@ void CS2DGame::broadcast_game_initial_info() const {
     broadcast_game_dto(dto);
 }
 
-void CS2DGame::broadcast_snapshot(const int time_left) const {
+void CS2DGame::broadcast_snapshot(const int time_left) {
     const GameWorldSnapshot game_world_snapshot = game_world.get_snapshot();
     const Snapshot snapshot{
             this->phase->type(), this->current_round,    ROUNDS,
@@ -114,11 +120,15 @@ void CS2DGame::change_phase(std::unique_ptr<GamePhase> new_phase) {
 
 void CS2DGame::swap_teams() {}
 
+void CS2DGame::end() {
+    this->command_queue.close();
+    this->stop();
+}
+
 void CS2DGame::end_game() {
     // determinar equipo ganador y enviar estadisticas finales
-    this->command_queue.close();
     this->broadcast_game_dto(GameEnded{});
-    this->stop();
+    end();
 }
 
 void CS2DGame::run() {

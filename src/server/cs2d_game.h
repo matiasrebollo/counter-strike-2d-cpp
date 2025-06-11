@@ -48,6 +48,7 @@ private:
     void execute_in_attack_phase(std::unique_ptr<Command> cmd);
     void execute_in_buy_phase(std::unique_ptr<Command> cmd);
     void end_game();
+    void end();
 
 public:
     const std::string id;
