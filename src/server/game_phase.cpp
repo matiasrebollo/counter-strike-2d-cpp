@@ -19,6 +19,8 @@ void GamePhase::run() {
         float delta_seconds = static_cast<float>(delta_it) / FPS_SERVER;
         time += delta_seconds;
         game.broadcast_snapshot(duration - std::trunc(time));
+        if (!game.should_keep_running())
+            return;
         std::unique_ptr<Command> cmd;
         while (game.command_queue.try_pop(cmd)) {
             execute(std::move(cmd));

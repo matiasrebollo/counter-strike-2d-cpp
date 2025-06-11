@@ -35,9 +35,9 @@ private:
 
     bool should_start() const;
 
-    void broadcast_game_dto(const GameDTO& game_dto) const;
-    void broadcast_map() const;
-    void broadcast_snapshot(const int time_left) const;
+    void broadcast_game_dto(const GameDTO& game_dto);
+    void broadcast_map();
+    void broadcast_snapshot(const int time_left);
 
     bool current_round_has_a_winner() const;
     void decide_winner();
@@ -48,6 +48,7 @@ private:
     void execute_in_attack_phase(std::unique_ptr<Command> cmd);
     void execute_in_buy_phase(std::unique_ptr<Command> cmd);
     void end_game();
+    void end();
 
 public:
     const std::string id;
