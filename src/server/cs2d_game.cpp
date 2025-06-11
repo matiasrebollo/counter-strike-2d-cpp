@@ -52,15 +52,13 @@ void CS2DGame::broadcast_game_dto(const GameDTO& game_dto) {
         if (sender->is_alive()) {
             sender->send_game_dto(game_dto);
             any_alive = true;
-        } else {
-            std::cout << "jugador desconectado!" << std::endl;
         }
     }
     if (!any_alive)
         end();
 }
 
-void CS2DGame::broadcast_game_initial_info() const {
+void CS2DGame::broadcast_game_initial_info() {
     const GameMap map = game_world.get_map();
     const GameMapDTO gamemap_dto = GameMapDTO{map.background, map.map_objects};
     const ShopInfoDTO shop_info = game_world.get_shop_info();

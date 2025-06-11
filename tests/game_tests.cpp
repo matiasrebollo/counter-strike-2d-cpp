@@ -51,13 +51,18 @@ TEST(ClientProtocolTest, SendRotate) {
 TEST(ClientProtocolTest, SendPlayerAction) {
     auto [client, server] = create_connected_protocols();
 
-    PlayerActionDTO dto{};
 
-    client->send_command(dto);
+    std::vector<bool> values = {false, true};
 
-    CommandDTO request = server->receive_client_request();
-    auto PlayerActionDTOPtr = std::get_if<PlayerActionDTO>(&request);
-    ASSERT_NE(PlayerActionDTOPtr, nullptr) << "Expected PlayerActionDTO but got another";
+    for (bool v: values) {
+        PlayerActionDTO dto{v};
+        client->send_command(dto);
+
+        CommandDTO request = server->receive_client_request();
+        auto PlayerActionDTOPtr = std::get_if<PlayerActionDTO>(&request);
+        ASSERT_NE(PlayerActionDTOPtr, nullptr) << "Expected PlayerActionDTO but got another";
+        ASSERT_EQ(v, PlayerActionDTOPtr->make);
+    }
 }
 
 TEST(ClientProtocolTest, SendEquipPrimary) {
