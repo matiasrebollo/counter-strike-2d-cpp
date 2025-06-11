@@ -10,34 +10,48 @@
 #include "server/static_map_object.h"
 
 GameWorld::GameWorld(const std::string& map_filename):
-        shop(),
-        spawn_zone(Vector2D<int>(60, 60), 400, 200),
-        game_map(YamlParser().yaml_to_game_map(PATH_FOLDER_MAPS + map_filename + ".yaml")) {
-    const int wallThickness = 40;
-
+        shop(), game_map(YamlParser().yaml_to_game_map(PATH_FOLDER_MAPS + map_filename + ".yaml")) {
     // agregar paredes invisibles segun tamanio mapa
-    // 0-wallthick, 0-wallthick, game_map width, height
-    // Agregar spawns zones segun spawns de game_map
+    // 0-wallthick, 0-wallthick, map width, height
+    // Agregar spawns zones segun spawns de map
 
     for (const auto& block: game_map.map_objects) {
         if (block.collidable) {
             for (const auto& vec: block.positions) {
                 collidables.emplace_back(std::make_shared<StaticMapObject>(
-                        Vector2D<int>(vec.x * wallThickness, vec.y * wallThickness), wallThickness,
-                        wallThickness));
+                        Vector2D<int>(vec.x * BLOCK_THICKNESS, vec.y * BLOCK_THICKNESS),
+                        BLOCK_THICKNESS, BLOCK_THICKNESS));
             }
         }
     }
 }
 
-Vector2D<int> GameWorld::random_spawn_position() const {
+// spawn_points deben ser suficientes como para que eventualmente se pueda spawnear a un jugador y
+// no quedarse buscando.
+Vector2D<int> GameWorld::random_spawn_position(
+        const std::vector<Vector2D<int>>& spawn_points) const {
     static std::random_device rd;
     static std::mt19937 gen(rd());
-    std::uniform_int_distribution<> disX(spawn_zone.position.x,
-                                         spawn_zone.position.x + spawn_zone.width);
-    std::uniform_int_distribution<> disY(spawn_zone.position.y,
-                                         spawn_zone.position.y + spawn_zone.height);
-    return Vector2D<int>(disX(gen), disY(gen));
+
+    std::uniform_int_distribution<> dis(0, spawn_points.size() - 1);
+    Vector2D<int> grid_pos = spawn_points[dis(gen)];
+
+    int x = grid_pos.x * BLOCK_THICKNESS;
+    int y = grid_pos.y * BLOCK_THICKNESS;
+
+    if (BLOCK_THICKNESS > PLAYER_THICKNESS) {
+        x += (BLOCK_THICKNESS - PLAYER_THICKNESS) / 2;
+        y += (BLOCK_THICKNESS - PLAYER_THICKNESS) / 2;
+    }
+
+    return Vector2D<int>(x, y);
+}
+
+Vector2D<int> GameWorld::random_ct_spawn_position() const {
+    return random_spawn_position(game_map.ct_spawns);
+}
+Vector2D<int> GameWorld::random_tt_spawn_position() const {
+    return random_spawn_position(game_map.ct_spawns);
 }
 
 void GameWorld::add_player(const std::string& username) {
@@ -65,21 +79,21 @@ void GameWorld::restart_players() {
 
 void GameWorld::spawn_players() {
     for (auto& [_, player]: terrorists) {
-        Vector2D<int> position = random_spawn_position();
+        Vector2D<int> position = random_tt_spawn_position();
         player->rect.position = position;
 
         while (colliding_object_with(*player)) {
-            position = random_spawn_position();
+            position = random_tt_spawn_position();
             player->rect.position = position;
         }
     }
 
     for (auto& [_, player]: counter_terrorists) {
-        Vector2D<int> position = random_spawn_position();
+        Vector2D<int> position = random_ct_spawn_position();
         player->rect.position = position;
 
         while (colliding_object_with(*player)) {
-            position = random_spawn_position();
+            position = random_ct_spawn_position();
             player->rect.position = position;
         }
     }
