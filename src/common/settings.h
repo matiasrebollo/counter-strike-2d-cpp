@@ -33,9 +33,10 @@
 #define SIZE_M3_CLIP 8
 #define SIZE_AWP_CLIP 4
 
-#define PLAYER_SPEED 120
-#define PLAYER_WIDTH 32
-#define PLAYER_HEIGHT 32
+#define BLOCK_THICKNESS 40
+
+#define PLAYER_SPEED 120     // debe ser un numero par
+#define PLAYER_THICKNESS 32  // debe ser menor a BLOCK_THICKNESS (para spawns)
 #define PLAYER_INITIAL_LIFE 100
 
 #define PATH_FOLDER_MAPS "../maps/"
