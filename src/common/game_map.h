@@ -6,6 +6,7 @@
 
 #include "common/map_object.h"
 #include "common/vector_2d.h"
+#include "common/weapon_type.h"
 
 struct GameMap {
     int width;

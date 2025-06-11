@@ -358,14 +358,15 @@ void SDLManager::render_in_z_order(const Snapshot& snapshot, const LocalInfo& lo
     update_camera(local_info.x, local_info.y);
 
     if (map.has_value()) {
-        GameInitialInfoDTO gamemap = map.value();
+        GameMapDTO game_map = map.value().game_map;
 
-        const std::string& background_path = texture_parser.get_background_path(gamemap.background);
+        const std::string& background_path =
+                texture_parser.get_background_path(game_map.background);
         SDL2pp::Texture& background = texture_manager.get_texture(background_path);
         SDL2pp::Rect backgroundRect(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
         renderer.Copy(background, SDL2pp::NullOpt, backgroundRect);
 
-        for (const MapObject& obj: gamemap.map_objects) {
+        for (const MapObject& obj: game_map.map_objects) {
             const BlockTextureInfo& obj_info = texture_parser.get_texture_info(obj.type);
             std::string path = obj_info.tileset_path;
 
