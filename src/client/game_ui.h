@@ -73,8 +73,6 @@ private:
 public:
     explicit GameUI(Lobby& lobby);
     void run();
-    void handle_buy_phase(const GameMap& map);
-    void handle_attack_phase(const GameMap& map);
 
     ~GameUI();
 };

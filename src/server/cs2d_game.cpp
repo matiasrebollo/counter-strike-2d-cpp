@@ -57,9 +57,7 @@ void CS2DGame::broadcast_game_dto(const GameDTO& game_dto) const {
 void CS2DGame::broadcast_game_initial_info() const {
     const GameMap map = game_world.get_map();
     const GameMapDTO gamemap_dto = GameMapDTO{map.background, map.map_objects};
-    std::unordered_map<GunType, int> shop_gun_prices = {};
-    std::unordered_map<GunType, int> shop_clip_by_gun_prices = {};
-    const ShopInfoDTO shop_info = ShopInfoDTO{shop_gun_prices, shop_clip_by_gun_prices};
+    const ShopInfoDTO shop_info = game_world.get_shop_info();
     const GameInitialInfoDTO dto = GameInitialInfoDTO{gamemap_dto, shop_info};
     broadcast_game_dto(dto);
 }

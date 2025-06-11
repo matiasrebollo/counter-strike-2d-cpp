@@ -12,6 +12,7 @@
 #include "server/collidable.h"
 #include "server/game_world_snapshot.h"
 #include "server/player.h"
+#include "server/shop.h"
 #include "server/shot.h"
 
 class GameWorld {
@@ -19,6 +20,7 @@ private:
     std::map<std::string, std::shared_ptr<Player>> terrorists;
     std::map<std::string, std::shared_ptr<Player>> counter_terrorists;
     std::list<std::shared_ptr<Collidable>> collidables;
+    Shop shop;
     const Rect spawn_zone;
     const GameMap game_map;
 
@@ -26,8 +28,8 @@ private:
 
     bool team_is_dead(const std::map<std::string, std::shared_ptr<Player>>& team) const;
 
-    template <typename PlayerAction>
-    void with_player(const std::string& username, PlayerAction action) {
+    template <typename PlayerMethod>
+    void with_player(const std::string& username, PlayerMethod action) {
         auto ct_it = counter_terrorists.find(username);
         auto tt_it = terrorists.find(username);
         if (ct_it != counter_terrorists.end()) {
@@ -54,6 +56,7 @@ public:
     void restart_players();
     void spawn_players();
     const GameMap get_map() const;
+    const ShopInfoDTO get_shop_info() const;
     const GameWorldSnapshot get_snapshot() const;
     void update(const float& delta_t);
     bool tt_are_all_dead() const;

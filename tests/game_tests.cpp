@@ -160,18 +160,15 @@ void validate_map(const GameMapDTO& expected_gamemap, const GameMapDTO& actual_g
 
 void validate_shop_info(const ShopInfoDTO& expected_shop_info,
                         const ShopInfoDTO& actual_shop_info) {
-    ASSERT_EQ(expected_shop_info.shop_gun_prices.size(), actual_shop_info.shop_gun_prices.size());
-    ASSERT_EQ(expected_shop_info.shop_clip_by_gun_prices.size(),
-              actual_shop_info.shop_clip_by_gun_prices.size());
-    for (const auto& [gun, price]: expected_shop_info.shop_gun_prices) {
-        EXPECT_NE(actual_shop_info.shop_gun_prices.find(gun),
-                  actual_shop_info.shop_gun_prices.end());
-        ASSERT_EQ(price, actual_shop_info.shop_gun_prices.find(gun)->second);
+    ASSERT_EQ(expected_shop_info.prices.size(), actual_shop_info.prices.size());
+    ASSERT_EQ(expected_shop_info.ammo_by_clip.size(), actual_shop_info.ammo_by_clip.size());
+    for (const auto& [gun, price]: expected_shop_info.prices) {
+        EXPECT_NE(actual_shop_info.prices.find(gun), actual_shop_info.prices.end());
+        ASSERT_EQ(price, actual_shop_info.prices.find(gun)->second);
     }
-    for (const auto& [gun, price]: expected_shop_info.shop_clip_by_gun_prices) {
-        EXPECT_NE(actual_shop_info.shop_clip_by_gun_prices.find(gun),
-                  actual_shop_info.shop_gun_prices.end());
-        ASSERT_EQ(price, actual_shop_info.shop_clip_by_gun_prices.find(gun)->second);
+    for (const auto& [gun, price]: expected_shop_info.ammo_by_clip) {
+        EXPECT_NE(actual_shop_info.ammo_by_clip.find(gun), actual_shop_info.prices.end());
+        ASSERT_EQ(price, actual_shop_info.ammo_by_clip.find(gun)->second);
     }
 }
 
@@ -188,20 +185,20 @@ TEST(ServerProtocolTest, SendGameInitialInfo) {
 
     GameMapDTO game_map = GameMapDTO{Background::AZTEC_BACKGROUND, objects};
 
-    std::unordered_map<GunType, int> shop_gun_prices = {
+    std::unordered_map<GunType, int> prices = {
             {GunType::AK47, 2700},
             {GunType::M3, 3000},
             {GunType::AWP, 4750},
     };
 
-    std::unordered_map<GunType, int> shop_clip_by_gun_prices = {
+    std::unordered_map<GunType, int> ammo_by_clip = {
             {GunType::GLOCK, 30},
             {GunType::AK47, 25},
             {GunType::M3, 8},
             {GunType::AWP, 4},
     };
 
-    ShopInfoDTO shop_info = ShopInfoDTO{shop_gun_prices, shop_clip_by_gun_prices};
+    ShopInfoDTO shop_info = ShopInfoDTO{prices, ammo_by_clip};
 
     GameInitialInfoDTO dto = GameInitialInfoDTO{game_map, shop_info};
 

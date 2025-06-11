@@ -79,8 +79,7 @@ void Player::equip_primary() { loadout.equip_primary(); }
 void Player::equip_secondary() { loadout.equip_secondary(); }
 void Player::equip_knife() { loadout.equip_knife(); }
 
-void Player::buy_gun(const GunType& gun) { loadout.buy_primary_gun(gun); }
-void Player::buy_ammo(const bool& for_primary) { loadout.buy_ammo(for_primary); }
+Loadout& Player::get_loadout() { return loadout; }
 
 const PlayerDTO Player::get_dto() const {
     const PlayerDTO dto{name, rect.position, orientation, life, loadout.get_dto()};

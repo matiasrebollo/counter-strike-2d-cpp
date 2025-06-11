@@ -47,8 +47,7 @@ public:
     void stop_making_action();
     void make_action();
     void receive_damage(const int& damage) override;
-    void buy_gun(const GunType& gun);
-    void buy_ammo(const bool& for_primary);
+    Loadout& get_loadout();
     const PlayerDTO get_dto() const;
 
     Player(const Player&) = delete;
