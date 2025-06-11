@@ -22,6 +22,7 @@ target_sources(taller_common
     player_dto.h
     loadout_dto.h
     game_snapshot.h
+    game_info_dto.h
     game_dto.h
     vector_2d.h
     commands.h

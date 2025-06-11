@@ -9,7 +9,7 @@
 #include <SDL2pp/SDL2pp.hh>
 
 #include "../common/block_texture_parser.h"
-#include "../common/game_map.h"
+#include "../common/game_info_dto.h"
 #include "../common/game_snapshot.h"
 #include "common/settings.h"
 

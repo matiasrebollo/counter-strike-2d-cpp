@@ -77,13 +77,13 @@ void ServerProtocol::send_game_init_info(const GameInitialInfoDTO& dto) {
             this->send_big_endian_number(vec.y);
         }
     }
-    this->send_byte(dto.shop_info.shop_gun_prices.size());
-    for (const auto& [gun, price]: dto.shop_info.shop_gun_prices) {
+    this->send_byte(dto.shop_info.prices.size());
+    for (const auto& [gun, price]: dto.shop_info.prices) {
         this->send_byte(this->weaponParser.getWeaponToByte(gun));
         this->send_big_endian_number(price);
     }
-    this->send_byte(dto.shop_info.shop_clip_by_gun_prices.size());
-    for (const auto& [gun, price]: dto.shop_info.shop_clip_by_gun_prices) {
+    this->send_byte(dto.shop_info.ammo_by_clip.size());
+    for (const auto& [gun, price]: dto.shop_info.ammo_by_clip) {
         this->send_byte(this->weaponParser.getWeaponToByte(gun));
         this->send_big_endian_number(price);
     }
