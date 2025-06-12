@@ -13,7 +13,6 @@ GameWorld::GameWorld(const std::string& map_filename):
         shop(), game_map(YamlParser().yaml_to_game_map(PATH_FOLDER_MAPS + map_filename + ".yaml")) {
     // agregar paredes invisibles segun tamanio mapa
     // 0-wallthick, 0-wallthick, map width, height
-    // Agregar spawns zones segun spawns de map
 
     for (const auto& block: game_map.map_objects) {
         if (block.collidable) {
@@ -51,7 +50,7 @@ Vector2D<int> GameWorld::random_ct_spawn_position() const {
     return random_spawn_position(game_map.ct_spawns);
 }
 Vector2D<int> GameWorld::random_tt_spawn_position() const {
-    return random_spawn_position(game_map.ct_spawns);
+    return random_spawn_position(game_map.tt_spawns);
 }
 
 void GameWorld::add_player(const std::string& username) {
