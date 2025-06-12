@@ -4,26 +4,37 @@
 
 #include "server/game_world.h"
 
-Gun::Gun(const GunType& gun_type): type(gun_type), time_since_last_shot((60.0f / GLOCK_ROF)) {
+Gun::Gun(const GunType& gun_type): type(gun_type) {
     switch (type) {
         case GunType::GLOCK:
             ammo = GLOCK_INITIAL_AMMO;
+            tipo = GUN_GLOCK;
+            rate_of_fire = GLOCK_ROF;
             break;
         case GunType::AK47:
             ammo = AK47_INITIAL_AMMO;
+            tipo = NO;
+            rate_of_fire = AK47_ROF;
             break;
         case GunType::AWP:
             ammo = AWP_INITIAL_AMMO;
+            tipo = GUN_AWP;
+            rate_of_fire = AWP_ROF;
             break;
         case GunType::M3:
             ammo = M3_INITIAL_AMMO;
+            tipo = GUN_M3;
+            rate_of_fire = M3_ROF;
             break;
         case GunType::NONE:
             ammo = 0;
+            tipo = GUN_KNIFE;
+            rate_of_fire = KNIFE_ROF;
             break;
         default:
             throw std::invalid_argument("not a gun type");
     }
+    time_since_last_shot = 60.0f / rate_of_fire;
 }
 
 /*std::unique_ptr<Gun> Gun::new_gun(const GunType& type) {
@@ -43,7 +54,11 @@ Gun::Gun(const GunType& gun_type): type(gun_type), time_since_last_shot((60.0f /
 
 void Gun::add_ammo(uint16_t ammo_count) { ammo += ammo_count; }
 
-bool Gun::can_shoot() { return ammo > 0 && time_since_last_shot >= (60.0f / GLOCK_ROF); }
+bool Gun::can_shoot() {
+    if (tipo == GUN_KNIFE)
+        return time_since_last_shot >= (60.0f / rate_of_fire);
+    return ammo > 0 && time_since_last_shot >= (60.0f / rate_of_fire);
+}
 
 void Gun::update(const float& delta_t, Player& owner, GameWorld& game) {
     if (just_triggered_action && can_shoot()) {
@@ -56,18 +71,26 @@ void Gun::update(const float& delta_t, Player& owner, GameWorld& game) {
 }
 
 void Gun::shoot(GameWorld& game, Player& shooter) {
-    ammo -= 1;
+    if (tipo != GUN_KNIFE)
+        ammo -= 1;
 
     const Vector2D<int> origin(shooter.rect.position.x + shooter.rect.width / 2,
                                shooter.rect.position.y + shooter.rect.height / 2);
     Shot shot(origin, shooter.get_orientation());
-
     shot.shoot(game, shooter);
-    std::cout << "disparo!" << std::endl;
-    if (shot.hit != nullptr || shot.distance < 0) {
-        // calcular daño (o si debe impactar) según arma.
 
-        shot.hit->receive_damage(10);
+
+    if (shot.hit != nullptr || shot.distance < 0) {
+        if (tipo == GUN_GLOCK) {
+            shot.hit->receive_damage(10);
+        } else if (tipo == GUN_AWP) {
+            shot.hit->receive_damage(100);
+        } else if (tipo == GUN_KNIFE) {
+            shot.hit->receive_damage(30);
+        } else if (tipo == GUN_M3) {
+            shot.hit->receive_damage(50);
+        }
+
         // game.execute_shot() para guardar el evento del disparo e informar a clientes
     } else {
         // excepcion? no debería "no pegar en nada" un disparo

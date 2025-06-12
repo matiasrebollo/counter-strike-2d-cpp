@@ -7,7 +7,11 @@
 #include <utility>
 
 Loadout::Loadout():
-        money(INITIAL_MONEY), primary_gun(nullptr), secondary_gun(GLOCK), equipped(SECONDARY) {}
+        money(INITIAL_MONEY),
+        knife(NONE),
+        primary_gun(nullptr),
+        secondary_gun(GLOCK),
+        equipped(SECONDARY) {}
 
 int Loadout::get_money() const { return money; }
 
@@ -45,8 +49,8 @@ Gun* Loadout::equipped_gun() {
             return primary_gun ? primary_gun.get() : nullptr;
         case SECONDARY:
             return &secondary_gun;
-        /*case KNIFE:
-            return &knife;*/
+        case KNIFE:
+            return &knife;
         default:
             return nullptr;
     }

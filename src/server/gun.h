@@ -6,10 +6,14 @@
 #include "common/settings.h"
 #include "server/weapon.h"
 
+enum ShotOnActionWeapon { GUN_KNIFE, GUN_GLOCK, GUN_AWP, GUN_M3, NO };
+
 class Gun: public Weapon {
 private:
     uint16_t ammo;
     GunType type;
+    ShotOnActionWeapon tipo;
+    int rate_of_fire;
     float time_since_last_shot;
 
     bool can_shoot();

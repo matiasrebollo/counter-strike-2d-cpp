@@ -8,12 +8,11 @@
 #include "common/loadout_dto.h"
 #include "common/settings.h"
 #include "server/gun.h"
-#include "server/knife.h"
 
 class Loadout {
 private:
     uint16_t money;
-    Knife knife;
+    Gun knife;
     std::unique_ptr<Gun> primary_gun;
     Gun secondary_gun;
     WeaponType equipped;
