@@ -53,6 +53,8 @@ void CS2DGame::broadcast_game_dto(const GameDTO& game_dto) {
         if (sender->is_alive()) {
             sender->send_game_dto(game_dto);
             any_alive = true;
+        } else {
+            std::cout << "jugador desconectado" << std::endl;
         }
     }
     if (!any_alive)

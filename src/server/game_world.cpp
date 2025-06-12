@@ -9,11 +9,7 @@
 #include "common/yaml_parser.h"
 #include "server/static_map_object.h"
 
-GameWorld::GameWorld(const std::string& map_filename):
-        shop(), game_map(YamlParser().yaml_to_game_map(PATH_FOLDER_MAPS + map_filename + ".yaml")) {
-    // agregar paredes invisibles segun tamanio mapa
-    // 0-wallthick, 0-wallthick, map width, height
-
+void GameWorld::add_collidables() {
     for (const auto& block: game_map.map_objects) {
         if (block.collidable) {
             for (const auto& vec: block.positions) {
@@ -23,6 +19,24 @@ GameWorld::GameWorld(const std::string& map_filename):
             }
         }
     }
+
+    // paredes invisibles al borde del mapa
+    collidables.emplace_back(std::make_shared<StaticMapObject>(
+            Vector2D<int>(0, -BLOCK_THICKNESS), game_map.width * BLOCK_THICKNESS, BLOCK_THICKNESS));
+    collidables.emplace_back(
+            std::make_shared<StaticMapObject>(Vector2D<int>(game_map.width * BLOCK_THICKNESS, 0),
+                                              BLOCK_THICKNESS, game_map.height * BLOCK_THICKNESS));
+    collidables.emplace_back(
+            std::make_shared<StaticMapObject>(Vector2D<int>(0, game_map.height * BLOCK_THICKNESS),
+                                              game_map.width * BLOCK_THICKNESS, BLOCK_THICKNESS));
+    collidables.emplace_back(std::make_shared<StaticMapObject>(Vector2D<int>(-BLOCK_THICKNESS, 0),
+                                                               BLOCK_THICKNESS,
+                                                               game_map.height * BLOCK_THICKNESS));
+}
+
+GameWorld::GameWorld(const std::string& map_filename):
+        shop(), game_map(YamlParser().yaml_to_game_map(PATH_FOLDER_MAPS + map_filename + ".yaml")) {
+    add_collidables();
 }
 
 // spawn_points deben ser suficientes como para que eventualmente se pueda spawnear a un jugador y
@@ -60,10 +74,12 @@ void GameWorld::add_player(const std::string& username) {
 
     size_t cts = counter_terrorists.size();
     size_t tts = terrorists.size();
-    if (cts > tts && tts < TERRORISTS) {
-        terrorists[username] = player;
-    } else if (cts < COUNTER_TERRORISTS) {
+    if (cts < COUNTER_TERRORISTS) {
         counter_terrorists[username] = player;
+    } else if (tts < TERRORISTS) {
+        terrorists[username] = player;
+    } else {
+        throw std::runtime_error("No hay lugar para más jugadores");
     }
 }
 

@@ -24,6 +24,8 @@ private:
     Shop shop;
     const GameMap game_map;
 
+    void add_collidables();
+
     Vector2D<int> random_spawn_position(const std::vector<Vector2D<int>>& spawn_points) const;
     Vector2D<int> random_ct_spawn_position() const;
     Vector2D<int> random_tt_spawn_position() const;
