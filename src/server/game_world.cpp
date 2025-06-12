@@ -214,7 +214,7 @@ const Collidable* GameWorld::colliding_object_with(const Collidable& coll) const
     for (const auto& collidable: collidables) {
         if (collidable.get() == &coll)
             continue;
-        if (coll.collides_with(*collidable))
+        if (collidable->collides_with(coll))
             return collidable.get();
     }
     return nullptr;

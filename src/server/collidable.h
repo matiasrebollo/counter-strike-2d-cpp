@@ -9,7 +9,7 @@ public:
 
     Collidable(Vector2D<int> pos, int w, int h);
 
-    bool collides_with(const Collidable& other_collidable) const;
+    virtual bool collides_with(const Collidable& other_collidable) const;
     virtual void receive_damage(const int& damage) = 0;
 
     Collidable(const Collidable&) = delete;

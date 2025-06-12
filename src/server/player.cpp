@@ -51,6 +51,14 @@ void Player::move_up() { moving_up = true; }
 void Player::move_down() { moving_down = true; }
 void Player::move_left() { moving_left = true; }
 void Player::move_right() { moving_right = true; }
+
+bool Player::collides_with(const Collidable& other_collidable) const {
+    if (!is_alive())
+        return false;
+    return Collidable::collides_with(other_collidable);
+}
+
+
 void Player::stop_moving_up() { moving_up = false; }
 void Player::stop_moving_down() { moving_down = false; }
 void Player::stop_moving_left() { moving_left = false; }
