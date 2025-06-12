@@ -221,27 +221,33 @@ const Collidable* GameWorld::colliding_object_with(const Collidable& coll) const
 }
 
 void GameWorld::make_step_player(Player& player, const Vector2D<int>& step) {
-    Vector2D<int> origin = player.rect.position;
-    Vector2D<int> target = origin + step;
-    player.rect.position = target;
-    const Collidable* colliding_obj = colliding_object_with(player);
-    if (colliding_obj != nullptr) {
-        const Rect& c = colliding_obj->rect;
-        const Rect& p = player.rect;
-        Vector2D<int> adjusted_pos = origin;
-        if (step.x > 0) {
-            adjusted_pos.x = c.position.x - 1 - p.width;
+
+    if (step.x != 0) {
+        player.rect.position.x += step.x;
+        const Collidable* colliding_obj_x = colliding_object_with(player);
+        if (colliding_obj_x != nullptr) {
+            const Rect& c = colliding_obj_x->rect;
+            const Rect& p = player.rect;
+            if (step.x > 0) {
+                player.rect.position.x = c.position.x - p.width;
+            } else if (step.x < 0) {
+                player.rect.position.x = c.position.x + c.width;
+            }
         }
-        if (step.x < 0) {
-            adjusted_pos.x = c.position.x + c.width + 1;
+    }
+
+    if (step.y != 0) {
+        player.rect.position.y += step.y;
+        const Collidable* colliding_obj_y = colliding_object_with(player);
+        if (colliding_obj_y != nullptr) {
+            const Rect& c = colliding_obj_y->rect;
+            const Rect& p = player.rect;
+            if (step.y > 0) {
+                player.rect.position.y = c.position.y - p.height;
+            } else if (step.y < 0) {
+                player.rect.position.y = c.position.y + c.height;
+            }
         }
-        if (step.y > 0) {
-            adjusted_pos.y = c.position.y - 1 - p.height;
-        }
-        if (step.y < 0) {
-            adjusted_pos.y = c.position.y + c.height + 1;
-        }
-        player.rect.position = adjusted_pos;
     }
 }
 

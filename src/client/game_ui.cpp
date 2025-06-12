@@ -41,8 +41,8 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
         if (p.username == local_info.username) {
             local_info.is_ct = true;
             local_info.life = p.life;
-            local_info.x = p.position.x;
-            local_info.y = p.position.y;
+            local_info.x = p.position.x / GRAPHIC_SCALE;
+            local_info.y = p.position.y / GRAPHIC_SCALE;
             local_info.money = p.loadout.money;
             if (p.loadout.equipped == PRIMARY) {
                 local_info.equipped_gun_ammo = p.loadout.primary_ammo;
@@ -62,8 +62,8 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
         if (p.username == local_info.username) {
             local_info.is_ct = false;
             local_info.life = p.life;
-            local_info.x = p.position.x;
-            local_info.y = p.position.y;
+            local_info.x = p.position.x / GRAPHIC_SCALE;
+            local_info.y = p.position.y / GRAPHIC_SCALE;
             local_info.money = p.loadout.money;
             if (p.loadout.equipped == PRIMARY) {
                 local_info.equipped_gun_ammo = p.loadout.primary_ammo;
