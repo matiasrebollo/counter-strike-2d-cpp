@@ -5,6 +5,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "common/game_map.h"
 #include "common/game_snapshot.h"
@@ -21,10 +22,13 @@ private:
     std::map<std::string, std::shared_ptr<Player>> counter_terrorists;
     std::list<std::shared_ptr<Collidable>> collidables;
     Shop shop;
-    const Rect spawn_zone;
     const GameMap game_map;
 
-    Vector2D<int> random_spawn_position() const;
+    void add_collidables();
+
+    Vector2D<int> random_spawn_position(const std::vector<Vector2D<int>>& spawn_points) const;
+    Vector2D<int> random_ct_spawn_position() const;
+    Vector2D<int> random_tt_spawn_position() const;
 
     bool team_is_dead(const std::map<std::string, std::shared_ptr<Player>>& team) const;
 

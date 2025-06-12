@@ -5,7 +5,7 @@
 #define FPS_SERVER 60
 #define ROUNDS 10
 
-#define BUY_PHASE_DURATION 20
+#define BUY_PHASE_DURATION 10
 #define ATTACK_PHASE_DURATION 60
 #define WAITING_PLAYERS_PHASE_DURATION 300
 #define BETWEEN_ROUNDS_PHASE_DURATION 5
@@ -33,9 +33,10 @@
 #define SIZE_M3_CLIP 8
 #define SIZE_AWP_CLIP 4
 
-#define PLAYER_SPEED 120
-#define PLAYER_WIDTH 32
-#define PLAYER_HEIGHT 32
+#define BLOCK_THICKNESS 400
+
+#define PLAYER_SPEED 20       // debe ser un numero par
+#define PLAYER_THICKNESS 320  // debe ser menor a BLOCK_THICKNESS (para spawns)
 #define PLAYER_INITIAL_LIFE 100
 
 #define PATH_FOLDER_MAPS "../maps/"
@@ -53,7 +54,7 @@
 #define HUD_IDEAL_HEIGHT 400
 #define FONT_IDEAL_WIDTH 480
 #define FONT_IDEAL_HEIGHT 300
-#define SIZE_PLAYER 32
+#define GRAPHIC_SCALE 10
 
 struct ServerSettings {
     int fps;
