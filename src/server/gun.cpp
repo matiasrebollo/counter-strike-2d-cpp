@@ -46,7 +46,7 @@ void Gun::add_ammo(uint16_t ammo_count) { ammo += ammo_count; }
 bool Gun::can_shoot() { return ammo > 0 && time_since_last_shot >= (60.0f / GLOCK_ROF); }
 
 void Gun::update(const float& delta_t, Player& owner, GameWorld& game) {
-    if (just_triggered_action() && can_shoot()) {
+    if (just_triggered_action && can_shoot()) {
         shoot(game, owner);
         time_since_last_shot = 0.0f;
     } else {

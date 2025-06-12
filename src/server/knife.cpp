@@ -7,7 +7,7 @@ bool Knife::can_stab() { return time_since_last_stab >= (KNIFE_ROF / 60.0f); }
 void Knife::stab(GameWorld& /*game*/) {}
 
 void Knife::update(const float& delta_t, Player& owner, GameWorld& game) {
-    if (just_triggered_action() && can_stab()) {
+    if (just_triggered_action && can_stab()) {
         stab(game);
         time_since_last_stab = 0.0f;
     } else {
