@@ -23,8 +23,8 @@ std::shared_ptr<CS2DGame> ServerMonitor::create_new_game(const std::string& user
     auto [it, inserted] =
             this->games.try_emplace(game_name, std::make_shared<CS2DGame>(game_name, map_filename));
     this->game_id++;
-    it->second->start();
     it->second->add_player(username, sender);
+    it->second->start();
     return it->second;
 }
 
@@ -42,7 +42,7 @@ std::shared_ptr<CS2DGame> ServerMonitor::join_game(const std::string& gameName,
                                                    std::shared_ptr<ClientSender> sender) {
     std::unique_lock<std::mutex> lck(this->mutex);
     auto it = this->games.find(gameName);
-    if (it == this->games.end() || !it->second->can_add_player()) {
+    if (it == this->games.end() || !it->second->can_add_player(username)) {
         return nullptr;
     } else {
         it->second->add_player(username, sender);

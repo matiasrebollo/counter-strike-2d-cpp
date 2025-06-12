@@ -27,8 +27,9 @@ CS2DGame::CS2DGame(const std::string& id, const std::string& map_filename):
     phase = std::make_unique<WaitingPlayersPhase>(*this);
 }
 
-bool CS2DGame::can_add_player() const {
-    return players_senders.size() < COUNTER_TERRORISTS + TERRORISTS;
+bool CS2DGame::can_add_player(const std::string& username) const {
+    return players_senders.size() < COUNTER_TERRORISTS + TERRORISTS &&
+           players_senders.find(username) == players_senders.end();
 }
 
 bool CS2DGame::should_start() const {
