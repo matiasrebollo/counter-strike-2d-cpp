@@ -122,7 +122,9 @@ void GameUI::show_waiting(const int& it) {
     sdl.show_screen();
 }
 
-void GameUI::handle_buy_events() { this->keep_running = input_handler.handle_buy_events(); }
+void GameUI::handle_buy_events() {
+    this->keep_running = input_handler.handle_buy_events(local_info.money, local_info.primary_gun);
+}
 bool GameUI::update_buy() {
     GameDTO game_dto;
     bool pop = true;

@@ -42,8 +42,6 @@ Shop::Shop(SDL2pp::Renderer& renderer, TextureManager& texture_manager,
     primary_gun_rect = SDL2pp::Rect(eq_base_x, eq_base_y, eq_rect_w_primary, eq_rect_h);
     secondary_gun_rect = SDL2pp::Rect(eq_base_x + eq_rect_w_primary + eq_spacing_x, eq_base_y,
                                       eq_rect_w_secondary, eq_rect_h);
-    // knife_rect = SDL2pp::Rect(eq_base_x + 2 * (eq_rect_w + eq_spacing_x), eq_base_y, eq_rect_w,
-    // eq_rect_h);
 
     // Linea divisoria
     int line_margin = 20;
@@ -87,16 +85,41 @@ Shop::Shop(SDL2pp::Renderer& renderer, TextureManager& texture_manager,
                    ShopButtonType::Open};
 }
 
+void Shop::set_shop_info(const ShopInfoDTO& info) {
+    ammo_by_clip = info.ammo_by_clip;
+
+    for (auto& button: buttons) {
+        switch (button.type) {
+            case WeaponAK47:
+                button.weapon_type = AK47;
+                button.price = info.prices.at(AK47);
+                break;
+            case WeaponAWP:
+                button.weapon_type = AWP;
+                button.price = info.prices.at(AWP);
+                break;
+            case WeaponM3:
+                button.weapon_type = M3;
+                button.price = info.prices.at(M3);
+                break;
+            default:
+                break;  // AmmoPrimary y AmmoSecondary se resuelven en render()
+        }
+    }
+}
+
 void Shop::render(int player_money, GunType primary_gun, GunType secondary_gun) {
     int border_thickness = 1;
 
     SDL2pp::Color shop_color(50, 50, 50, 200);
     SDL2pp::Color border_color(255, 255, 255, 255);
+    SDL2pp::Color highlight_color(255, 255, 0, 255);
     SDL2pp::Color button_color(0, 0, 0, 200);
     SDL2pp::Color text_color(255, 255, 255);
 
     const std::string& font_path = texture_parser.get_fw_texture(FONT_WAITING);
     int font_size = 16;
+    int small_font_size = 12;
 
     if (!open) {
         const BlockTextureInfo& shop_info = texture_parser.get_symbol_texture(SHOP);
@@ -127,20 +150,33 @@ void Shop::render(int player_money, GunType primary_gun, GunType secondary_gun) 
     // Rectangulo dinero
     renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
     renderer.SetDrawColor(button_color);
-    renderer.FillRect(money_rect);
+    SDL2pp::Rect draw_money_rect = money_rect;
+    if (highlight_money) {
+        int expand = 2;
+        draw_money_rect.x -= expand;
+        draw_money_rect.y -= expand;
+        draw_money_rect.w += 2 * expand;
+        draw_money_rect.h += 2 * expand;
+    }
+
+    renderer.FillRect(draw_money_rect);
 
     // Borde rectangulo dinero
     renderer.SetDrawBlendMode(SDL_BLENDMODE_NONE);
-    renderer.SetDrawColor(border_color);
-    renderer.FillRect(SDL2pp::Rect(money_rect.x, money_rect.y, money_rect.w, border_thickness));
-    renderer.FillRect(SDL2pp::Rect(money_rect.x, money_rect.y + money_rect.h - border_thickness,
-                                   money_rect.w, border_thickness));
-    renderer.FillRect(SDL2pp::Rect(money_rect.x, money_rect.y, border_thickness, money_rect.h));
-    renderer.FillRect(SDL2pp::Rect(money_rect.x + money_rect.w - border_thickness, money_rect.y,
-                                   border_thickness, money_rect.h));
+    SDL2pp::Color money_border = highlight_money ? highlight_color : border_color;
+    renderer.SetDrawColor(money_border);
+    renderer.FillRect(SDL2pp::Rect(draw_money_rect.x, draw_money_rect.y, draw_money_rect.w,
+                                   border_thickness));
+    renderer.FillRect(SDL2pp::Rect(draw_money_rect.x,
+                                   draw_money_rect.y + draw_money_rect.h - border_thickness,
+                                   draw_money_rect.w, border_thickness));
+    renderer.FillRect(SDL2pp::Rect(draw_money_rect.x, draw_money_rect.y, border_thickness,
+                                   draw_money_rect.h));
+    renderer.FillRect(SDL2pp::Rect(draw_money_rect.x + draw_money_rect.w - border_thickness,
+                                   draw_money_rect.y, border_thickness, draw_money_rect.h));
 
     // Texto dinero
-    std::string money_str = std::to_string(player_money);  // suponiendo que recibís 'money'
+    std::string money_str = std::to_string(player_money);
     std::string dollar = "$";
 
     SDL2pp::Texture& dollar_tex =
@@ -194,6 +230,52 @@ void Shop::render(int player_money, GunType primary_gun, GunType secondary_gun) 
             renderer.Copy(text_tex, SDL2pp::NullOpt, SDL2pp::Rect(text_x, text_y, text_w, text_h));
         }
 
+        // Precio
+        int price = 0;
+        if (btn.type == AmmoPrimary || btn.type == AmmoSecondary) {
+            price = 50;  // hardcodeado por ahora
+        } else if (btn.weapon_type != NONE) {
+            price = btn.price;
+        }
+
+        if (price > 0) {
+            std::string price_str = "$" + std::to_string(price);
+            SDL2pp::Color grey_color(180, 180, 180);
+            SDL2pp::Texture& price_tex = texture_manager.get_text_texture(
+                    price_str, font_path, small_font_size, grey_color);
+
+            int price_x = btn.rect.x + btn.rect.w - price_tex.GetWidth() - 6;
+            int price_y = btn.rect.y + btn.rect.h - price_tex.GetHeight() - 4;
+
+            renderer.Copy(
+                    price_tex, SDL2pp::NullOpt,
+                    SDL2pp::Rect(price_x, price_y, price_tex.GetWidth(), price_tex.GetHeight()));
+        }
+
+        // Cantidad de balas
+        if ((btn.type == AmmoPrimary && primary_gun != NONE) ||
+            (btn.type == AmmoSecondary && secondary_gun != NONE)) {
+            int ammo = 0;
+
+            if (btn.type == AmmoPrimary) {
+                ammo = ammo_by_clip.at(primary_gun);
+            } else {
+                ammo = ammo_by_clip.at(secondary_gun);
+            }
+
+            std::string ammo_str = "+" + std::to_string(ammo);
+            SDL2pp::Color grey_color(180, 180, 180);
+            SDL2pp::Texture& ammo_tex = texture_manager.get_text_texture(
+                    ammo_str, font_path, small_font_size, grey_color);
+
+            int ammo_x = btn.rect.x + btn.rect.w - ammo_tex.GetWidth() - 6;
+            int ammo_y = btn.rect.y + 4;
+
+            renderer.Copy(ammo_tex, SDL2pp::NullOpt,
+                          SDL2pp::Rect(ammo_x, ammo_y, ammo_tex.GetWidth(), ammo_tex.GetHeight()));
+        }
+
+
         if (btn.type == Close) {
             renderer.SetDrawColor(255, 255, 255);
             renderer.DrawLine(btn.rect.x + 4, btn.rect.y + 4, btn.rect.x + btn.rect.w - 4,
@@ -212,34 +294,43 @@ void Shop::render(int player_money, GunType primary_gun, GunType secondary_gun) 
 
     // Texto equipment
     std::string equipment_str = "Equipment";
-    int small_font_size = 12;
-    SDL2pp::Texture& equipment_tex =
-            texture_manager.get_text_texture(equipment_str, font_path, small_font_size, text_color);
+    int equipment_font_size = 12;
+    SDL2pp::Texture& equipment_tex = texture_manager.get_text_texture(
+            equipment_str, font_path, equipment_font_size, text_color);
 
     renderer.Copy(equipment_tex, SDL2pp::NullOpt,
                   SDL2pp::Rect(equipment_text.x, equipment_text.y, equipment_tex.GetWidth(),
                                equipment_tex.GetHeight()));
 
     std::vector<std::pair<GunType, SDL2pp::Rect>> equipment = {
-            {primary_gun, primary_gun_rect}, {secondary_gun, secondary_gun_rect},
-            //{KNIFE, knife_rect}
+            {primary_gun, primary_gun_rect},
+            {secondary_gun, secondary_gun_rect},
     };
 
     for (const auto& [gun, rect]: equipment) {
         // Rectangulo
         renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
         renderer.SetDrawColor(0, 0, 0);
-        renderer.FillRect(rect);
+        SDL2pp::Rect draw_rect = rect;
+        if (highlight_primary) {
+            int expand = 2;
+            draw_rect.x -= expand;
+            draw_rect.y -= expand;
+            draw_rect.w += 2 * expand;
+            draw_rect.h += 2 * expand;
+        }
+        renderer.FillRect(draw_rect);
 
         // Borde
         renderer.SetDrawBlendMode(SDL_BLENDMODE_NONE);
-        renderer.SetDrawColor(border_color);
-        renderer.FillRect(SDL2pp::Rect(rect.x, rect.y, rect.w, border_thickness));
-        renderer.FillRect(
-                SDL2pp::Rect(rect.x, rect.y + rect.h - border_thickness, rect.w, border_thickness));
-        renderer.FillRect(SDL2pp::Rect(rect.x, rect.y, border_thickness, rect.h));
-        renderer.FillRect(
-                SDL2pp::Rect(rect.x + rect.w - border_thickness, rect.y, border_thickness, rect.h));
+        SDL2pp::Color equipment_border = highlight_primary ? highlight_color : border_color;
+        renderer.SetDrawColor(equipment_border);
+        renderer.FillRect(SDL2pp::Rect(draw_rect.x, draw_rect.y, draw_rect.w, border_thickness));
+        renderer.FillRect(SDL2pp::Rect(draw_rect.x, draw_rect.y + draw_rect.h - border_thickness,
+                                       draw_rect.w, border_thickness));
+        renderer.FillRect(SDL2pp::Rect(draw_rect.x, draw_rect.y, border_thickness, draw_rect.h));
+        renderer.FillRect(SDL2pp::Rect(draw_rect.x + draw_rect.w - border_thickness, draw_rect.y,
+                                       border_thickness, draw_rect.h));
 
         // Textura del arma
         if (gun != NONE) {
@@ -277,9 +368,11 @@ void Shop::render(int player_money, GunType primary_gun, GunType secondary_gun) 
 
     renderer.SetDrawBlendMode(SDL_BLENDMODE_NONE);
     renderer.SetDrawColor(0, 0, 0, 255);
+    highlight_money = false;
+    highlight_primary = false;
 }
 
-std::optional<ShopButtonType> Shop::clicked_button(int x, int y) {
+std::optional<ShopButtonType> Shop::clicked_button(int x, int y, int money, GunType primary_gun) {
     SDL2pp::Point point(x, y);
 
     if (!open) {
@@ -296,6 +389,22 @@ std::optional<ShopButtonType> Shop::clicked_button(int x, int y) {
                 open = false;
                 return ShopButtonType::Close;
             }
+
+            // quizas un if que incluya ambas condiciones, para setear los dos true
+            // si queres comprar un arma que ya tenes y ADEMAS no te alcanza
+
+            if (money < button.price) {
+                highlight_money = true;
+                return std::nullopt;
+            }
+
+            if ((button.type == WeaponAK47 || button.type == WeaponAWP ||
+                 button.type == WeaponM3) &&
+                button.weapon_type == primary_gun) {
+                highlight_primary = true;
+                return std::nullopt;
+            }
+
             return button.type;
         }
     }

@@ -59,7 +59,7 @@ bool InputHandler::handle_weapon_switch_event(const SDL_Event& event) {
 }
 
 
-bool InputHandler::handle_shop_event(const SDL_Event& event) {
+bool InputHandler::handle_shop_event(const SDL_Event& event, int money, GunType primary) {
     if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT && !click_buy) {
 
         click_buy = true;
@@ -67,7 +67,7 @@ bool InputHandler::handle_shop_event(const SDL_Event& event) {
         int mouse_x = event.button.x;
         int mouse_y = event.button.y;
 
-        auto opt_button = sdl.get_clicked_button(mouse_x, mouse_y);
+        auto opt_button = sdl.get_clicked_button(mouse_x, mouse_y, money, primary);
         if (opt_button.has_value()) {
             ShopButtonType button = opt_button.value();
             switch (button) {
@@ -106,14 +106,14 @@ bool InputHandler::handle_shop_event(const SDL_Event& event) {
     return false;
 }
 
-bool InputHandler::handle_buy_events() {
+bool InputHandler::handle_buy_events(int money, GunType primary) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (handle_quit_event(event))
             return false;
         if (handle_weapon_switch_event(event))
             continue;
-        if (handle_shop_event(event))
+        if (handle_shop_event(event, money, primary))
             continue;
     }
     return true;

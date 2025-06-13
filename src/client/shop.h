@@ -3,12 +3,14 @@
 
 #include <optional>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include <SDL2/SDL.h>
 #include <SDL2pp/SDL2pp.hh>
 
 #include "../common/block_texture_parser.h"
+#include "../common/game_info_dto.h"
 #include "../common/weapon_type.h"
 
 #include "camera.h"
@@ -21,6 +23,8 @@ struct ShopButton {
     SDL2pp::Rect rect;
     std::string text;
     ShopButtonType type;
+    int price = 0;
+    GunType weapon_type = NONE;
 };
 
 class Shop {
@@ -39,13 +43,25 @@ private:
     ShopButton open_button;
     bool open;
 
+    std::unordered_map<GunType, int> ammo_by_clip;
+
+    bool highlight_money = false;
+    bool highlight_primary = false;
+
 public:
     Shop(SDL2pp::Renderer& renderer, TextureManager& texture_manager,
          BlockTextureParser& texture_parser);
 
+    /* Setea los precios y cantidades de cada cosa de la tienda, al comenzar la partida */
+    void set_shop_info(const ShopInfoDTO& info);
+
     /* Renderiza la tienda */
     void render(int player_money, GunType primary_gun, GunType secondary_gun);
-    std::optional<ShopButtonType> clicked_button(int x, int y);
+
+    /* Devuelve el boton clickeado si x e y estan dentro, o nada si no esta dentro
+     * o si no alcanza el dinero o si ya se posee esa arma.
+     */
+    std::optional<ShopButtonType> clicked_button(int x, int y, int money, GunType primary_gun);
 };
 
 

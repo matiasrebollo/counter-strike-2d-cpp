@@ -65,7 +65,7 @@ public:
     void render_in_z_order(const Snapshot& snapshot, const LocalInfo& local_info);
 
     /* Devuelve què boton de la tienda fue clickeado si alguno fue clickeado */
-    std::optional<ShopButtonType> get_clicked_button(int x, int y);
+    std::optional<ShopButtonType> get_clicked_button(int x, int y, int money, GunType primary);
 
     /* Renderiza la tienda de la fase de compra */
     void render_shop(int player_money, GunType primary_gun, GunType secondary_gun);

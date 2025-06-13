@@ -47,10 +47,11 @@ protected:
     std::unordered_map<TerroristSkin, std::vector<BlockTextureInfo>> tt_skins;
     std::unordered_map<HudNumbers, BlockTextureInfo> number_textures;
     std::unordered_map<int, BlockTextureInfo> symbol_textures;
-    std::unordered_map<FontsAndBackground, std::string> font_and_waiting_textures;
+    std::unordered_map<FontsAndBackground, std::string>
+            font_and_waiting_textures;  // Ver de separar fonts en otra clase
     std::unordered_map<Crosshairs, BlockTextureInfo> crosshair_textures;
     std::unordered_map<GunSprites, std::string> gun_textures;
-    std::unordered_map<Background, std::string> backgrounds_paths;
+    std::unordered_map<Background, std::string> backgrounds_paths;  // juntar el waiting Background
 
 public:
     BlockTextureParser();

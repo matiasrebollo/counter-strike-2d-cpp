@@ -27,7 +27,7 @@ private:
     bool handle_quit_event(const SDL_Event& event);
     bool handle_weapon_switch_event(const SDL_Event& event);
 
-    bool handle_shop_event(const SDL_Event& event);
+    bool handle_shop_event(const SDL_Event& event, int money, GunType primary);
 
     bool handle_keydown_event(const SDL_Event& event);
     bool handle_keyup_event(const SDL_Event& event);
@@ -46,7 +46,7 @@ public:
     /* Maneja eventos del cliente en la fase waiting */
     bool handle_waiting_events();
     /* Maneja eventos del cliente en la fase de compra */
-    bool handle_buy_events();
+    bool handle_buy_events(int money, GunType primary);
     /* Maneja eventos del cliente en la fase de juego */
     bool handle_attack_events();
 

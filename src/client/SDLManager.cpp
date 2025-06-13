@@ -25,16 +25,7 @@ SDLManager::SDLManager():
 
 void SDLManager::set_map(GameMapDTO game_map) { map = std::move(game_map); }
 
-void SDLManager::set_shop(const ShopInfoDTO& shop_info) {
-    for (const auto& [gun, price]: shop_info.prices) {
-        std::cout << gun << std::endl;
-        std::cout << price << std::endl;
-    }
-    for (const auto& [gun, amount]: shop_info.ammo_by_clip) {
-        std::cout << gun << std::endl;
-        std::cout << amount << std::endl;
-    }
-}
+void SDLManager::set_shop(const ShopInfoDTO& shop_info) { shop.set_shop_info(shop_info); }
 
 void SDLManager::render_waiting_screen(int players_connected, int players_required,
                                        const std::string& gamename, int iteration, int FPS) {
@@ -447,8 +438,9 @@ void SDLManager::render_in_z_order(const Snapshot& snapshot, const LocalInfo& lo
     render_hud_money(local_info.money);
 }
 
-std::optional<ShopButtonType> SDLManager::get_clicked_button(int x, int y) {
-    return shop.clicked_button(x, y);
+std::optional<ShopButtonType> SDLManager::get_clicked_button(int x, int y, int money,
+                                                             GunType primary) {
+    return shop.clicked_button(x, y, money, primary);
 }
 
 
