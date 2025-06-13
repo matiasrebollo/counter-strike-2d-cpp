@@ -207,12 +207,14 @@ bool InputHandler::handle_shoot_event(const SDL_Event& event) {
     if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT &&
         !click_attack) {
         click_attack = true;
+        std::cout << "click" << std::endl;
         sender.add_command_to_queue(PlayerActionDTO{true});
         return true;
     }
 
     if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT && click_attack) {
         click_attack = false;
+        std::cout << "suelto click" << std::endl;
         sender.add_command_to_queue(PlayerActionDTO{false});
         return true;
     }

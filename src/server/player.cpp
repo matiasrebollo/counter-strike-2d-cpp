@@ -6,7 +6,7 @@
 #include "server/game_world.h"
 
 Player::Player(const std::string& name, Vector2D<int>& position):
-        Collidable(position, PLAYER_WIDTH, PLAYER_HEIGHT),
+        Collidable(position, PLAYER_THICKNESS, PLAYER_THICKNESS),
         name(name),
         moving_up(false),
         moving_down(false),
@@ -22,19 +22,26 @@ float Player::get_orientation() const { return orientation; }
 bool Player::is_alive() const { return this->life > 0; }
 
 void Player::update(GameWorld& game, const float& delta_t) {
-    int stepped = static_cast<int>(std::round(delta_t * PLAYER_SPEED));
+    int delta_it = static_cast<int>(std::round(delta_t * FPS_SERVER));
+    int stepped = delta_it * PLAYER_SPEED;
+    Vector2D<int> step(0, 0);
     if (moving_up) {
-        game.make_step_player(*this, Vector2D<int>(0, -stepped));
+        step = step + Vector2D<int>(0, -stepped);
     }
     if (moving_down) {
-        game.make_step_player(*this, Vector2D<int>(0, stepped));
+        step = step + Vector2D<int>(0, stepped);
     }
     if (moving_left) {
-        game.make_step_player(*this, Vector2D<int>(-stepped, 0));
+        step = step + Vector2D<int>(-stepped, 0);
     }
     if (moving_right) {
-        game.make_step_player(*this, Vector2D<int>(stepped, 0));
+        step = step + Vector2D<int>(stepped, 0);
     }
+    if (step.x != 0 && step.y != 0) {
+        step.x = static_cast<int>(step.x / std::sqrt(2));
+        step.y = static_cast<int>(step.y / std::sqrt(2));
+    }
+    game.make_step_player(*this, step);
     if (Gun* weapon = loadout.equipped_gun())
         weapon->update(delta_t, *this, game);
     // si mato, reconocerlo y aumentar dinero
@@ -63,6 +70,7 @@ void Player::make_action() {
         weapon->action();
     // si tiene bomba equipada..
 
+    std::cout << "action player" << std::endl;
     making_action = true;
 }
 void Player::stop_making_action() {
@@ -70,6 +78,7 @@ void Player::stop_making_action() {
         weapon->stop_action();
     // si tiene bomba equipada..
 
+    std::cout << "stop action player" << std::endl;
     making_action = false;
 }
 

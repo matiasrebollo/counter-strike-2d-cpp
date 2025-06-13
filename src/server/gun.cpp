@@ -63,7 +63,7 @@ void Gun::shoot(GameWorld& game, Player& shooter) {
     Shot shot(origin, shooter.get_orientation());
 
     shot.shoot(game, shooter);
-
+    std::cout << "disparo!" << std::endl;
     if (shot.hit != nullptr || shot.distance < 0) {
         // calcular daño (o si debe impactar) según arma.
 

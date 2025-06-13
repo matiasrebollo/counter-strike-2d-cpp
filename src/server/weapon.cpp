@@ -1,5 +1,7 @@
 #include "server/weapon.h"
 
+#include <iostream>
+
 #include "server/game_world.h"
 
 Weapon::Weapon(): making_action(false), time_since_last_action(0.0f) {}
@@ -14,6 +16,5 @@ bool Weapon::just_triggered_action() { return making_action && time_since_last_a
 void Weapon::stop_action() { making_action = false; }
 
 void Weapon::update(const float& delta_t, Player& /*owner*/, GameWorld& /*game*/) {
-    if (time_since_last_action > 0.0f)
-        time_since_last_action += delta_t;
+    time_since_last_action += delta_t;
 }
