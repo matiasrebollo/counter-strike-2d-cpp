@@ -7,6 +7,8 @@
 
 #include "client_receiver.h"
 #include "client_sender.h"
+#include "game_full_exception.h"
+#include "player_in_game_exception.h"
 #include "server_monitor.h"
 
 ClientHandler::ClientHandler(Socket&& socket, ServerMonitor& server_monitor):
@@ -39,9 +41,9 @@ void ClientHandler::launch_lobby() {
     }
 }
 
-void ClientHandler::send_lobby_response(const CommandType& command, const bool& success,
+void ClientHandler::send_lobby_response(const CommandType& command, const ResponseStatus& status,
                                         const std::string& game_name) {
-    this->protocol.send_lobby_message(ServerResponseLobby{command, success, game_name});
+    this->protocol.send_lobby_message(ServerResponseLobby{command, status, game_name});
 }
 
 void ClientHandler::manage_lobby_request(const LobbyRequestDTO& dto) {
@@ -61,46 +63,64 @@ void ClientHandler::manage_lobby_request(const LobbyRequestDTO& dto) {
 
 void ClientHandler::manage_create_username(const CreateUsernameDTO& dto) {
     bool success = this->server_monitor.create_username(dto.username);
+    ResponseStatus status = ResponseStatus::USERNAME_IN_USE;
     if (success) {
         this->server_monitor.delete_username(this->get_username());
-        // usa erase, si existe el nombre actual lo va a sacar del map, si no no hace nada
         this->username = dto.username;
+        status = ResponseStatus::SUCCESS;
     }
-    this->send_lobby_response(CommandType::CREATE_USERNAME, success, "");
+    this->send_lobby_response(CommandType::CREATE_USERNAME, status, "");
 }
 
 void ClientHandler::manage_create_game(const CreateGameDTO& dto) {
     if (this->in_game() || this->username == "") {
-        this->send_lobby_response(CommandType::CREATE_GAME, false, "");
+        this->send_lobby_response(CommandType::CREATE_GAME, ResponseStatus::WITHOUT_USERNAME, "");
     } else {
         std::shared_ptr<ClientSender> sender = std::make_shared<ClientSender>(this->protocol);
-        std::shared_ptr<CS2DGame> game =
-                this->server_monitor.create_new_game(this->username, dto.map_file_name, sender);
-        this->my_game = game->id;
-        this->send_lobby_response(CommandType::CREATE_GAME, true, this->my_game);
-        this->is_in_game = true;
-        ClientReceiver receiver(this->protocol, this->username, game);
-        receiver.start();
-        this->game_ended = sender->run();
+        try {
+            std::shared_ptr<CS2DGame> game =
+                    this->server_monitor.create_new_game(this->username, dto.map_file_name, sender);
+            this->my_game = game->id;
+            this->send_lobby_response(CommandType::CREATE_GAME, ResponseStatus::SUCCESS,
+                                      this->my_game);
+            this->is_in_game = true;
+            ClientReceiver receiver(this->protocol, this->username, game);
+            receiver.start();
+            this->game_ended = sender->run();
+        } catch (const GameFullException& e) {
+            this->send_lobby_response(CommandType::JOIN_GAME, ResponseStatus::GAME_IS_FULL, "");
+        } catch (const PlayerAlreadyInGameException& e) {
+            this->send_lobby_response(CommandType::JOIN_GAME,
+                                      ResponseStatus::USERNAME_ALREADY_IN_GAME, "");
+        }
     }
 }
 
 void ClientHandler::manage_join_game(const JoinGameDTO& dto) {
     if (this->in_game() || this->get_username() == "") {
-        this->send_lobby_response(CommandType::JOIN_GAME, false, "");
+        this->send_lobby_response(CommandType::JOIN_GAME, ResponseStatus::WITHOUT_USERNAME, "");
     } else {
         std::shared_ptr<ClientSender> sender = std::make_shared<ClientSender>(this->protocol);
-        std::shared_ptr<CS2DGame> game =
-                this->server_monitor.join_game(dto.gamename, this->username, sender);
-        if (game == nullptr) {
-            this->send_lobby_response(CommandType::JOIN_GAME, false, "");
-        } else {
-            this->is_in_game = true;
-            this->my_game = dto.gamename;
-            this->send_lobby_response(CommandType::JOIN_GAME, true, "");
-            ClientReceiver receiver(this->protocol, this->username, game);
-            receiver.start();
-            this->game_ended = sender->run();
+        try {
+            std::cout << "Intentando ingresar con: " + this->username << std::endl;
+            std::shared_ptr<CS2DGame> game =
+                    this->server_monitor.join_game(dto.gamename, this->username, sender);
+            if (game == nullptr) {
+                this->send_lobby_response(CommandType::JOIN_GAME, ResponseStatus::GAME_NOT_EXIST,
+                                          "");
+            } else {
+                this->is_in_game = true;
+                this->my_game = dto.gamename;
+                this->send_lobby_response(CommandType::JOIN_GAME, ResponseStatus::SUCCESS, "");
+                ClientReceiver receiver(this->protocol, this->username, game);
+                receiver.start();
+                this->game_ended = sender->run();
+            }
+        } catch (const GameFullException& e) {
+            this->send_lobby_response(CommandType::JOIN_GAME, ResponseStatus::GAME_IS_FULL, "");
+        } catch (const PlayerAlreadyInGameException& e) {
+            this->send_lobby_response(CommandType::JOIN_GAME,
+                                      ResponseStatus::USERNAME_ALREADY_IN_GAME, "");
         }
     }
 }

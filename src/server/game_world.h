@@ -1,6 +1,7 @@
 #ifndef GAME_WORLD_H
 #define GAME_WORLD_H
 
+#include <iostream>
 #include <list>
 #include <map>
 #include <memory>
@@ -30,6 +31,7 @@ private:
 
     template <typename PlayerMethod>
     void with_player(const std::string& username, PlayerMethod action) {
+
         auto ct_it = counter_terrorists.find(username);
         auto tt_it = terrorists.find(username);
         if (ct_it != counter_terrorists.end()) {
@@ -39,6 +41,7 @@ private:
             if (tt_it->second->is_alive())
                 action(*tt_it->second);
         } else {
+            std::cout << username << std::endl;
             throw std::invalid_argument("Username does not correspond to a player in this game.");
         }
     }

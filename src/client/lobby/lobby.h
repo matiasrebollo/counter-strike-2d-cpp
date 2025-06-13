@@ -14,6 +14,7 @@
 #define TITLE_MSG_JOIN "Unirse a una partida"
 #define MSG_NO_USERNAME "Ingrese un nombre de usuario para registrarse."
 #define MSG_USERNAME_ALREADY_USED "Ya existe un usuario con ese nombre. Ingresa uno distinto."
+#define MSG_USERNAME_ALREADY_USED_IN_GAME "Ya existe un usuario con ese nombre en esta partida."
 #define MSG_GAME_ALREADY_STARTED "La partida ya ha comenzado o no existe."
 #define MSG_GAME_NOT_CREATED "El servidor no ha podido crear su partida."
 #define MSG_MAP_NOT_SELECTED "Debe seleccionar un mapa para crear una partida."
@@ -72,9 +73,9 @@ private:
     Ui::Lobby* ui;
     CounterTerroristSkin selected_ct_skin;
     TerroristSkin selected_tt_skin;
-    std::vector<std::string> partidas;
     std::string username;
     std::string gamecode;
+    bool can_change_name;
     std::optional<ClientProtocol> protocol;
 
     void create_game();

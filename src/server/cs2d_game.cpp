@@ -15,6 +15,9 @@
 #include "common/game_snapshot.h"
 #include "common/yaml_parser.h"
 
+#include "game_full_exception.h"
+#include "player_in_game_exception.h"
+
 CS2DGame::CS2DGame(const std::string& id, const std::string& map_filename):
         players_senders(),
         command_queue(),
@@ -27,20 +30,18 @@ CS2DGame::CS2DGame(const std::string& id, const std::string& map_filename):
     phase = std::make_unique<WaitingPlayersPhase>(*this);
 }
 
-bool CS2DGame::can_add_player(const std::string& username) const {
-    return players_senders.size() < COUNTER_TERRORISTS + TERRORISTS &&
-           players_senders.find(username) == players_senders.end();
-}
-
 bool CS2DGame::should_start() const {
     return players_senders.size() >= COUNTER_TERRORISTS + TERRORISTS;
 }
 
 void CS2DGame::add_player(const std::string& username, std::shared_ptr<ClientSender> sender) {
-    if (players_senders.contains(username)) {
-        throw std::runtime_error("Username '" + username + "' is already in the game.");
+    if (players_senders.size() == COUNTER_TERRORISTS + TERRORISTS) {
+        throw GameFullException();
+    } else if (players_senders.contains(username)) {
+        std::cout << "Ya está en la partida el jugador: " + username << std::endl;
+        throw PlayerAlreadyInGameException();
     }
-
+    std::cout << "Agregando jugador: " + username << std::endl;
     game_world.add_player(username);
     players_senders[username] = sender;
 }

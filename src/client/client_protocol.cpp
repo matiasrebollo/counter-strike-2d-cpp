@@ -18,10 +18,10 @@ ClientProtocol::ClientProtocol(std::unique_ptr<Socket> socket):
 
 ServerResponseLobby ClientProtocol::receive_command() {
     uint8_t code = this->receive_byte();
-    ServerResponseLobby response =
-            ServerResponseLobby{this->codeToCommands.find(code)->second, false, ""};
+    ServerResponseLobby response = ServerResponseLobby{this->codeToCommands.find(code)->second,
+                                                       ResponseStatus::SUCCESS, ""};
     if (this->codeToCommands.find(code)->second != CommandType::GAME_STARTED) {
-        response.success = this->receive_byte();
+        response.status = static_cast<ResponseStatus>(this->receive_byte());
         if (response.commandType == CommandType::CREATE_GAME) {
             response.game_name = this->receive_string();
             // recibo el nombre de la partida que el server me generó automáticamente
