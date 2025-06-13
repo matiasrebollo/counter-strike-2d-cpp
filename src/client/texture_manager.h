@@ -18,4 +18,5 @@ public:
     SDL2pp::Texture& get_texture(const std::string& path);
     SDL2pp::Texture& get_text_texture(const std::string& text, const std::string& font_path,
                                       int size, const SDL2pp::Color& color);
+    SDL2pp::Texture& get_fov_texture(int angle_deg, float opacity, int diagonal);
 };

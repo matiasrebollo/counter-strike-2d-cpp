@@ -305,9 +305,8 @@ double GameWorld::impacts(const Shot& shot, const Collidable& collidable) const 
 // ((shoot_direction))x(seg_dir))
 double GameWorld::intersects_segment(const Shot& shot, const Vector2D<float>& seg_start,
                                      const Vector2D<float>& seg_end) const {
-    double real_orientation = shot.orientation - 90.0f;
 
-    double orientation_in_radians = real_orientation * M_PI / 180.0;
+    double orientation_in_radians = shot.orientation * M_PI / 180.0;
     Vector2D<float> direction(std::cos(orientation_in_radians), std::sin(orientation_in_radians));
     Vector2D<float> origin(shot.origin.x, shot.origin.y);
 

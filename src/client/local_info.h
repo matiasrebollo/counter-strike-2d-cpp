@@ -16,6 +16,7 @@ struct LocalInfo {
     bool is_ct = false;
     int x = 0;
     int y = 0;
+    double orientation = 270;
     int life = 0;
     int money = 0;
     int equipped_gun_ammo = 0;

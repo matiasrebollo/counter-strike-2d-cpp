@@ -54,7 +54,8 @@
 #define HUD_IDEAL_HEIGHT 400
 #define FONT_IDEAL_WIDTH 480
 #define FONT_IDEAL_HEIGHT 300
-#define GRAPHIC_SCALE 10
+#define GRAPHIC_SCALE 10  // despues habria que sacarlo
+#define PLAYER_SPRITE_GAP 90
 
 struct ServerSettings {
     int fps;

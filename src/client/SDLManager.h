@@ -33,6 +33,7 @@ private:
     std::pair<Position, GunSprites> get_gun_info(const LoadoutDTO& loadout);
     void render_player(const PlayerDTO& p, const BlockTextureInfo& sprite_info);
     void render_player_weapon(const PlayerDTO& p);
+    void render_fov(float orientation_deg);
     void render_hud_time(int time_left);
     void render_hud_life(uint16_t life);
     void render_hud_ammo(int ammo);

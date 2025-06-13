@@ -185,7 +185,7 @@ double InputHandler::calculate_angle_to_mouse(int mouse_x, int mouse_y) const {
     float dx = mouse_x - center_x;
     float dy = mouse_y - center_y;
     float ang_radianes = atan2(dy, dx);
-    return (ang_radianes * 180.0f / M_PI) + 90;
+    return (ang_radianes * 180.0f / M_PI);
 }
 
 /* Maneja evento de disparo */

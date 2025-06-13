@@ -39,7 +39,6 @@ void SDLManager::set_shop(const ShopInfoDTO& shop_info) {
 void SDLManager::render_waiting_screen(int players_connected, int players_required,
                                        const std::string& gamename, int iteration, int FPS) {
 
-    // si font_scale es menor a 1 queda medio mal
     int large_font_size = 53;
     int small_font_size = 27;
     // Fondo
@@ -94,8 +93,9 @@ void SDLManager::clear_display() { renderer.Clear(); }
 
 /* Centra la camara en el player */
 void SDLManager::update_camera(int player_x, int player_y) {
-    camera.follow(player_x + PLAYER_THICKNESS / (GRAPHIC_SCALE * 2),
-                  player_y + PLAYER_THICKNESS / (GRAPHIC_SCALE * 2));
+    // una vez que sea cte el player thickness en el server, ponemos su resultado.
+    int size_player = PLAYER_THICKNESS / GRAPHIC_SCALE;
+    camera.follow(player_x + size_player / 2, player_y + size_player / 2);
 }
 
 /* Devuelve un pair de la posicion del player segun el arma equipada y el sprite del arma a usar */
@@ -127,13 +127,15 @@ std::pair<Position, GunSprites> SDLManager::get_gun_info(const LoadoutDTO& loado
 
 /* Renderiza un jugador */
 void SDLManager::render_player(const PlayerDTO& p, const BlockTextureInfo& sprite_info) {
-    double angulo = p.orientation;
+    double angulo = p.orientation + PLAYER_SPRITE_GAP;
     int x_pos = p.position.x;
     int y_pos = p.position.y;
 
+    int size_player = PLAYER_THICKNESS / GRAPHIC_SCALE;
+
     SDL2pp::Rect rect_origen(sprite_info.x, sprite_info.y, sprite_info.width, sprite_info.height);
-    SDL2pp::Rect destino_mundo(x_pos / GRAPHIC_SCALE, y_pos / GRAPHIC_SCALE,
-                               PLAYER_THICKNESS / GRAPHIC_SCALE, PLAYER_THICKNESS / GRAPHIC_SCALE);
+    SDL2pp::Rect destino_mundo(x_pos / GRAPHIC_SCALE, y_pos / GRAPHIC_SCALE, size_player,
+                               size_player);
 
     if (!camera.is_visible(destino_mundo))
         return;
@@ -150,13 +152,13 @@ void SDLManager::render_player(const PlayerDTO& p, const BlockTextureInfo& sprit
 // players (z order)
 /* Renderiza las armas de cada jugador */
 void SDLManager::render_player_weapon(const PlayerDTO& p) {
-    double angulo = p.orientation;
+    double angulo = p.orientation + PLAYER_SPRITE_GAP;
     int x_pos = p.position.x;
     int y_pos = p.position.y;
 
-    int player_size = PLAYER_THICKNESS / GRAPHIC_SCALE;
-    SDL2pp::Rect destino_mundo(x_pos / GRAPHIC_SCALE, y_pos / GRAPHIC_SCALE, player_size,
-                               player_size);
+    int size_player = PLAYER_THICKNESS / GRAPHIC_SCALE;
+    SDL2pp::Rect destino_mundo(x_pos / GRAPHIC_SCALE, y_pos / GRAPHIC_SCALE, size_player,
+                               size_player);
     if (!camera.is_visible(destino_mundo))
         return;
 
@@ -181,12 +183,26 @@ void SDLManager::render_player_weapon(const PlayerDTO& p) {
     SDL2pp::Rect gun_dst(destino_camera.GetX() + offset_x, destino_camera.GetY() + offset_y,
                          gun_width, gun_height);
 
-    SDL2pp::Point rotate(-offset_x + PLAYER_THICKNESS / (GRAPHIC_SCALE * 2),
-                         -offset_y + PLAYER_THICKNESS / (GRAPHIC_SCALE * 2));
+    SDL2pp::Point rotate(-offset_x + size_player / 2, -offset_y + size_player / 2);
     SDL2pp::Texture& weapon_texture = texture_manager.get_texture(weapon_path);
 
     renderer.Copy(weapon_texture, SDL2pp::NullOpt, gun_dst, angulo, rotate);
 }
+
+void SDLManager::render_fov(float orientation) {
+    const int diagonal = static_cast<int>(
+            std::ceil(std::sqrt(CAMERA_WIDTH * CAMERA_WIDTH + CAMERA_HEIGHT * CAMERA_HEIGHT)));
+    float opacity = 0.9f;
+    int fov_angle = 90;
+
+    SDL2pp::Texture& fov_texture = texture_manager.get_fov_texture(fov_angle, opacity, diagonal);
+
+    SDL2pp::Rect dest_rect((CAMERA_WIDTH / 2) - (diagonal / 2),
+                           (CAMERA_HEIGHT / 2) - (diagonal / 2), diagonal, diagonal);
+    renderer.Copy(fov_texture, SDL2pp::NullOpt, dest_rect,
+                  orientation - PLAYER_SPRITE_GAP);  // PLAYER_SPRITE_GAP desfasaje textura cono
+}
+
 
 /* Renderiza el tiempo restante de la ronda del HUD */
 void SDLManager::render_hud_time(int time_left) {
@@ -423,6 +439,8 @@ void SDLManager::render_in_z_order(const Snapshot& snapshot, const LocalInfo& lo
         render_player_weapon(p);
     }
 
+    render_fov(local_info.orientation);
+
     render_hud_time(snapshot.time_left);
     render_hud_life(local_info.life);
     render_hud_ammo(local_info.equipped_gun_ammo);
@@ -443,10 +461,10 @@ Crosshairs SDLManager::get_crosshair_color(int mouse_x, int mouse_y, const Snaps
                                            const LocalInfo& local_info) {
 
     const auto& enemies = local_info.is_ct ? snapshot.tt : snapshot.ct;
+    int size_player = PLAYER_THICKNESS / GRAPHIC_SCALE;
 
     for (const auto& e: enemies) {
-        SDL2pp::Rect destino_mundo(e.position.x, e.position.y, PLAYER_THICKNESS / GRAPHIC_SCALE,
-                                   PLAYER_THICKNESS / GRAPHIC_SCALE);
+        SDL2pp::Rect destino_mundo(e.position.x, e.position.y, size_player, size_player);
 
         if (!camera.is_visible(destino_mundo)) {
             continue;
@@ -473,12 +491,7 @@ void SDLManager::render_crosshair(const Snapshot& snapshot, const LocalInfo& loc
                               static_cast<float>(mouse_y), &logical_mouse_x,
                               &logical_mouse_y);  // da coords logicas
 
-    float scale_x = static_cast<float>(window.GetWidth()) / CAMERA_WIDTH;
-    float scale_y = static_cast<float>(window.GetHeight()) / CAMERA_HEIGHT;
-
-    int scaled_width = static_cast<int>(20 * scale_x);
-    int scaled_height = static_cast<int>(20 * scale_y);
-    int scale = std::min(scaled_width, scaled_height);
+    int size = 20;
 
     Crosshairs color = get_crosshair_color(static_cast<int>(logical_mouse_x),
                                            static_cast<int>(logical_mouse_y), snapshot, local_info);
@@ -488,11 +501,11 @@ void SDLManager::render_crosshair(const Snapshot& snapshot, const LocalInfo& loc
 
     SDL2pp::Rect src(crosshair_info.x, crosshair_info.y, crosshair_info.width,
                      crosshair_info.height);
-    SDL2pp::Rect dst(mouse_x - scale / 2, mouse_y - scale / 2, scale, scale);
+    SDL2pp::Rect dst(logical_mouse_x - size / 2, logical_mouse_y - size / 2, size, size);
 
-    renderer.SetLogicalSize(window.GetWidth(), window.GetHeight());
     renderer.Copy(crosshair_texture, src, dst);
-    renderer.SetLogicalSize(CAMERA_WIDTH, CAMERA_HEIGHT);
+    // hice cambios hace poco (x si algo falla)
+    //  el mouse no se ve arriba de los bordes negros (ver si solucionar)
 }
 
 
