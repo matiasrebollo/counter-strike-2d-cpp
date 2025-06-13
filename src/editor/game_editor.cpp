@@ -18,6 +18,7 @@ Game_editor::Game_editor(QWidget* parent):
         QMainWindow(parent),
         ui(new Ui::Game_editor),
         texture_parser(),
+        pixmap_manager(),
         selected_block(NONE_BLOCK),
         selected_background(AZTEC_BACKGROUND),
         mode(std::make_unique<BlocksSetter>()),
@@ -40,8 +41,7 @@ void Game_editor::setupBlockList() {
         ClickableLabel* label = new ClickableLabel();
         label->setFixedSize(50, 50);
         BlockTextureInfo texture = texture_parser.get_texture_info(block);
-        QPixmap tileset(QString::fromStdString(texture.tileset_path));
-        QPixmap tile = tileset.copy(texture.x, texture.y, texture.width, texture.height);
+        QPixmap& tile = pixmap_manager.get_block_pixmap(block);
         label->setPixmap(tile.scaled(50, 50));
         ui->block_list->addWidget(label);
         if (texture.collidable) {
@@ -89,7 +89,7 @@ void Game_editor::setupBackgroundList() {
         ClickableLabel* label = new ClickableLabel();
         label->setFixedSize(60, 60);
         std::string background_path = texture_parser.get_background_path(background);
-        QPixmap background_image(QString::fromStdString(background_path));
+        QPixmap& background_image = pixmap_manager.get_pixmap(background_path);
         label->setPixmap(background_image.scaled(50, 50));
         ui->backgrounds_list->addWidget(label);
         connect(label, &ClickableLabel::clicked, [this, background, background_path]() {
@@ -114,8 +114,7 @@ void Game_editor::setupGridMap() {
         for (int j = 0; j < columns; ++j) {
             ClickableLabel* cell = new ClickableLabel();
             cell->setFixedSize(50, 50);
-            QPixmap base(50, 50);
-            base.fill(Qt::transparent);
+            QPixmap& base = pixmap_manager.get_block_pixmap(grid[i][j]);
             cell->setPixmap(base);
             connect(cell, &ClickableLabel::clicked, this, [this, cell, i, j]() {
                 if (first_click_done) {
@@ -266,8 +265,7 @@ void Game_editor::on_add_columns_button_clicked() {
         for (int j = collumns_actual; j < collumns_actual + COLLUMNS_TO_ADD; ++j) {
             ClickableLabel* cell = new ClickableLabel();
             cell->setFixedSize(50, 50);
-            QPixmap base(50, 50);
-            base.fill(Qt::transparent);
+            QPixmap& base = pixmap_manager.get_block_pixmap(grid[i][j]);
             cell->setPixmap(base);
             connect(cell, &ClickableLabel::clicked, this, [this, cell, i, j]() {
                 if (first_click_done) {
@@ -296,8 +294,7 @@ void Game_editor::on_add_rows_button_clicked() {
         for (int j = 0; j < collumns_actual; ++j) {
             ClickableLabel* cell = new ClickableLabel();
             cell->setFixedSize(50, 50);
-            QPixmap base(50, 50);
-            base.fill(Qt::transparent);
+            QPixmap& base = pixmap_manager.get_block_pixmap(grid[i][j]);
             cell->setPixmap(base);
             connect(cell, &ClickableLabel::clicked, this, [this, cell, i, j]() {
                 if (first_click_done) {
@@ -337,7 +334,7 @@ void Game_editor::mark_as_collidable(ClickableLabel* label) {
     QPixmap result = label->pixmap(Qt::ReturnByValue);
     QPainter painter(&result);
 
-    QPixmap overlay("../assets/gfx/collidable.png");
+    QPixmap& overlay = pixmap_manager.get_pixmap("../assets/gfx/collidable.png");
     QPixmap scaledOverlay = overlay.scaled(20, 20);
 
     int x = result.width() - scaledOverlay.width();
@@ -349,20 +346,15 @@ void Game_editor::mark_as_collidable(ClickableLabel* label) {
 }
 
 void Game_editor::render_block(ClickableLabel* cell, const int& block) {
-    if (block != NONE_BLOCK) {
-        BlockTextureInfo texture = texture_parser.get_texture_info(block);
-        std::string path = texture.tileset_path;
-        QPixmap tileset(QString::fromStdString(path));
-        QPixmap tile = tileset.copy(texture.x, texture.y, texture.width, texture.height);
-        cell->setPixmap(tile.scaled(50, 50));
-    }
+    QPixmap& tile = pixmap_manager.get_block_pixmap(block);
+    cell->setPixmap(tile.scaled(50, 50));
 }
 
 void Game_editor::mark_as_tt_spawn(ClickableLabel* label) {
     QPixmap result = label->pixmap(Qt::ReturnByValue);
     QPainter painter(&result);
 
-    QPixmap overlay("../assets/gfx/terrorist_logo.png");
+    QPixmap& overlay = pixmap_manager.get_pixmap("../assets/gfx/terrorist_logo.png");
     QPixmap scaledOverlay = overlay.scaled(20, 20);
 
     int x = result.width() - scaledOverlay.width();
@@ -377,7 +369,7 @@ void Game_editor::mark_as_ct_spawn(ClickableLabel* label) {
     QPixmap result = label->pixmap(Qt::ReturnByValue);
     QPainter painter(&result);
 
-    QPixmap overlay("../assets/gfx/counter_terrorist_logo.png");
+    QPixmap& overlay = pixmap_manager.get_pixmap("../assets/gfx/counter_terrorist_logo.png");
     QPixmap scaledOverlay = overlay.scaled(20, 20);
 
     int x = 0;
@@ -392,7 +384,7 @@ void Game_editor::mark_as_bomb_site(ClickableLabel* label) {
     QPixmap result = label->pixmap(Qt::ReturnByValue);
     QPainter painter(&result);
 
-    QPixmap overlay("../assets/gfx/weapons/bomb.bmp");
+    QPixmap& overlay = pixmap_manager.get_pixmap("../assets/gfx/weapons/bomb.bmp");
     QPixmap scaledOverlay = overlay.scaled(20, 20);
 
     int x = 0;

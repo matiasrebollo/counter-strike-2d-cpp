@@ -8,6 +8,7 @@ target_sources(taller_editor
     ct_spawns_setter.cpp
     tt_spawns_setter.cpp
     bomb_sites_setter.cpp
+    pixmap_manager.cpp
     PUBLIC
     # .h files
     game_editor.h
@@ -17,4 +18,5 @@ target_sources(taller_editor
     ct_spawns_setter.h
     tt_spawns_setter.h
     bomb_sites_setter.h
+    pixmap_manager.h
     )

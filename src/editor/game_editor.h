@@ -15,6 +15,7 @@
 #include "clickablelabel.h"
 #include "ct_spawns_setter.h"
 #include "grid_action.h"
+#include "pixmap_manager.h"
 #include "tt_spawns_setter.h"
 
 // cppcheck-suppress unknownMacro
@@ -60,6 +61,7 @@ private:
                                              const int& offset_x, const int& offset_y);
 
     BlockTextureParser texture_parser;
+    PixmapManager pixmap_manager;
     int selected_block;
     Background selected_background;
     std::vector<std::vector<int>> grid;
