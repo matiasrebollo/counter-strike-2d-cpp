@@ -68,7 +68,6 @@ Vector2D<int> GameWorld::random_tt_spawn_position() const {
 }
 
 void GameWorld::add_player(const std::string& username) {
-    std::cout << "Agregando a gameworld: " + username << std::endl;
     Vector2D<int> default_position(-100, -100);
     auto player = std::make_shared<Player>(username, default_position);
     collidables.push_back(player);

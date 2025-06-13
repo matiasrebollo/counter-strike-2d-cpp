@@ -38,10 +38,8 @@ void CS2DGame::add_player(const std::string& username, std::shared_ptr<ClientSen
     if (players_senders.size() == COUNTER_TERRORISTS + TERRORISTS) {
         throw GameFullException();
     } else if (players_senders.contains(username)) {
-        std::cout << "Ya está en la partida el jugador: " + username << std::endl;
         throw PlayerAlreadyInGameException();
     }
-    std::cout << "Agregando jugador: " + username << std::endl;
     game_world.add_player(username);
     players_senders[username] = sender;
 }

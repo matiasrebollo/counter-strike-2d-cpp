@@ -45,7 +45,6 @@ private:
             if (tt_it->second->is_alive())
                 action(*tt_it->second);
         } else {
-            std::cout << username << std::endl;
             throw std::invalid_argument("Username does not correspond to a player in this game.");
         }
     }

@@ -102,7 +102,6 @@ void ClientHandler::manage_join_game(const JoinGameDTO& dto) {
     } else {
         std::shared_ptr<ClientSender> sender = std::make_shared<ClientSender>(this->protocol);
         try {
-            std::cout << "Intentando ingresar con: " + this->username << std::endl;
             std::shared_ptr<CS2DGame> game =
                     this->server_monitor.join_game(dto.gamename, this->username, sender);
             if (game == nullptr) {
