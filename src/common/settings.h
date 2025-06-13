@@ -14,15 +14,31 @@
 #define COUNTER_TERRORISTS 1
 
 #define GLOCK_INITIAL_AMMO 30
-#define GLOCK_ROF 200
-#define KNIFE_ROF 120
-#define AK47_ROF 150
-#define M3_ROF 60
-#define AWP_ROF 40
 #define AWP_INITIAL_AMMO 10
 #define M3_INITIAL_AMMO 20
 #define AK47_INITIAL_AMMO 45
-
+#define DAMAGE_VARIATION_FACTOR 0.1
+#define GLOCK_PRECISION 0.87
+#define GLOCK_FALLOF 6400
+#define GLOCK_DMG 25
+#define GLOCK_ROF 200
+#define AWP_PRECISION 1.0
+#define AWP_FALLOF -1  // no tiene
+#define AWP_DMG 130
+#define AWP_ROF 40
+#define KNIFE_PRECISION 1.0
+#define KNIFE_FALLOF -1  // no tiene
+#define KNIFE_DISTANCE 40
+#define KNIFE_DMG 33
+#define KNIFE_ROF 120
+#define M3_PRECISION 0.9
+#define M3_FALLOF 3200
+#define M3_DMG 10
+#define M3_ROF 60
+#define AK47_PRECISION 0.92
+#define AK47_FALLOF 8000
+#define AK47_DMG 20
+#define AK47_ROF 150
 #define INITIAL_MONEY 20000
 
 #define AK47_PRICE 2500
@@ -40,7 +56,7 @@
 
 #define PLAYER_SPEED 20       // debe ser un numero par
 #define PLAYER_THICKNESS 320  // debe ser menor a BLOCK_THICKNESS (para spawns)
-#define PLAYER_INITIAL_LIFE 100
+#define PLAYER_INITIAL_LIFE 10000
 
 #define PATH_FOLDER_MAPS "../maps/"
 #define PATH_CS_FONT "../../../assets/cs_regular.ttf"

@@ -4,12 +4,12 @@ target_sources(taller_server
         client_handler.cpp
         client_receiver.cpp
         client_sender.cpp
-        collidable.cpp
         cs2d_game.cpp
         game_phase.cpp
         game_world.cpp
         rect.cpp
         main.cpp
+        static_map_object.cpp
         command.cpp
         player.cpp
         loadout.cpp

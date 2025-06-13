@@ -47,7 +47,7 @@ public:
     void equip_knife();
     void stop_making_action();
     void make_action();
-    void receive_damage(const int& damage) override;
+    void receive_damage(const int& damage);
     Loadout& get_loadout();
     const PlayerDTO get_dto() const;
 

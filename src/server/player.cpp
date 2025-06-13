@@ -55,7 +55,7 @@ void Player::move_right() { moving_right = true; }
 bool Player::collides_with(const Collidable& other_collidable) const {
     if (!is_alive())
         return false;
-    return Collidable::collides_with(other_collidable);
+    return rect.intersects_with(other_collidable.rect);
 }
 
 
@@ -77,16 +77,12 @@ void Player::make_action() {
     if (Gun* weapon = loadout.equipped_gun())
         weapon->action();
     // si tiene bomba equipada..
-
-    std::cout << "action player" << std::endl;
     making_action = true;
 }
 void Player::stop_making_action() {
     if (Gun* weapon = loadout.equipped_gun())
         weapon->stop_action();
     // si tiene bomba equipada..
-
-    std::cout << "stop action player" << std::endl;
     making_action = false;
 }
 

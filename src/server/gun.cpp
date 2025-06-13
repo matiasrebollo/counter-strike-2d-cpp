@@ -1,6 +1,8 @@
 #include "server/gun.h"
 
+#include <algorithm>
 #include <iostream>
+#include <random>
 
 #include "server/game_world.h"
 
@@ -70,6 +72,49 @@ void Gun::update(const float& delta_t, Player& owner, GameWorld& game) {
     Weapon::update(delta_t, owner, game);
 }
 
+double random_double(double min = 0.0, double max = 1.0) {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis(min, max);
+    return dis(gen);
+}
+
+void Gun::execute_shoot(GameWorld& /*game*/, Player* shot_victim, double shot_distance) {
+    const auto& stats = GUN_STATS.at(tipo);
+
+    double precision = stats.precision_base;
+    double falloff = std::min((shot_distance / stats.fallof_distance), 1.0);
+    std::cout << "falloff: " << falloff << std::endl;
+    int damage = stats.damage;
+    if (tipo == GUN_KNIFE) {
+        if (shot_distance < KNIFE_DISTANCE) {
+            std::cout << "cuchillada" << std::endl;
+            shot_victim->receive_damage(damage);
+            // game.execute_shot() para guardar el evento del disparo e informar a clientes
+        }
+        // game.execute_shot() para guardar el evento del disparo e informar a clientes
+        return;
+    }
+    if (!stats.ignores_precision) {
+        precision *= (1.0 - 0.5 * falloff);
+    }
+
+    if (random_double() <=
+        precision) {  // si el random es menor o igual a precision, el disparo impacta.
+        if (stats.damage_falls_with_distance) {
+            damage = static_cast<int>(damage * (1.0 - 0.5 * falloff));
+        }
+
+        double variation =
+                random_double(1.0 - DAMAGE_VARIATION_FACTOR, 1.0 + DAMAGE_VARIATION_FACTOR);
+        damage = static_cast<int>(damage * variation);
+        shot_victim->receive_damage(damage);
+        // game.execute_shot() para guardar el evento del disparo e informar a clientes
+    } else {
+        // game.execute_shot() con impacto en posicion player pero sin daño
+    }
+}
+
 void Gun::shoot(GameWorld& game, Player& shooter) {
     if (tipo != GUN_KNIFE)
         ammo -= 1;
@@ -79,21 +124,10 @@ void Gun::shoot(GameWorld& game, Player& shooter) {
     Shot shot(origin, shooter.get_orientation());
     shot.shoot(game, shooter);
 
-
-    if (shot.hit != nullptr || shot.distance < 0) {
-        if (tipo == GUN_GLOCK) {
-            shot.hit->receive_damage(10);
-        } else if (tipo == GUN_AWP) {
-            shot.hit->receive_damage(100);
-        } else if (tipo == GUN_KNIFE) {
-            shot.hit->receive_damage(30);
-        } else if (tipo == GUN_M3) {
-            shot.hit->receive_damage(50);
-        }
-
-        // game.execute_shot() para guardar el evento del disparo e informar a clientes
+    if (Player* hit_player = dynamic_cast<Player*>(shot.hit)) {
+        execute_shoot(game, hit_player, shot.distance);
     } else {
-        // excepcion? no debería "no pegar en nada" un disparo
+        // game.execute_shot() con impacto en objeto del mapa
     }
 }
 

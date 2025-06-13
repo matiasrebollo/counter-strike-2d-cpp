@@ -176,11 +176,10 @@ std::vector<PlayerDTO> ClientProtocol::receive_players(const int& size_players) 
         int position_x = this->receive_big_endian_number();
         int position_y = this->receive_big_endian_number();
         double angle = this->receive_angle();
-        int life = this->receive_byte();
-        uint16_t life16 = static_cast<uint16_t>(life);
+        uint16_t life = this->receive_big_endian_number();
         LoadoutDTO loadout = this->receive_loadout();
         players.push_back(
-                PlayerDTO{username, Vector2D<int>(position_x, position_y), angle, life16, loadout});
+                PlayerDTO{username, Vector2D<int>(position_x, position_y), angle, life, loadout});
     }
     return players;
 }

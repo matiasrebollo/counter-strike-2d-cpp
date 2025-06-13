@@ -110,7 +110,7 @@ void ServerProtocol::send_players(const std::vector<PlayerDTO>& players) {
         this->send_big_endian_number(player.position.x);
         this->send_big_endian_number(player.position.y);
         this->send_angle(player.orientation);
-        this->send_byte(player.life);
+        this->send_big_endian_number(player.life);
         this->send_loadout(player.loadout);
     }
 }
