@@ -167,6 +167,7 @@ void validate_shop_info(const ShopInfoDTO& expected_shop_info,
                         const ShopInfoDTO& actual_shop_info) {
     ASSERT_EQ(expected_shop_info.prices.size(), actual_shop_info.prices.size());
     ASSERT_EQ(expected_shop_info.ammo_by_clip.size(), actual_shop_info.ammo_by_clip.size());
+    ASSERT_EQ(expected_shop_info.price_clips, actual_shop_info.price_clips);
     for (const auto& [gun, price]: expected_shop_info.prices) {
         EXPECT_NE(actual_shop_info.prices.find(gun), actual_shop_info.prices.end());
         ASSERT_EQ(price, actual_shop_info.prices.find(gun)->second);
@@ -203,7 +204,7 @@ TEST(ServerProtocolTest, SendGameInitialInfo) {
             {GunType::AWP, 4},
     };
 
-    ShopInfoDTO shop_info = ShopInfoDTO{prices, ammo_by_clip};
+    ShopInfoDTO shop_info = ShopInfoDTO{prices, ammo_by_clip, 100};
 
     GameInitialInfoDTO dto = GameInitialInfoDTO{game_map, shop_info};
 

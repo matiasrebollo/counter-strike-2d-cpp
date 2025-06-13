@@ -207,7 +207,8 @@ GameInitialInfoDTO ClientProtocol::receive_game_initial_info() {
     std::unordered_map<GunType, int> gun_prices = this->receive_gun_prices(shop_gun_prices_size);
     uint8_t shop_gun_clips_size = this->receive_byte();
     std::unordered_map<GunType, int> gun_clips = this->receive_gun_clips_size(shop_gun_clips_size);
-    ShopInfoDTO shop_info = ShopInfoDTO{gun_prices, gun_clips};
+    int price_clips = this->receive_byte();
+    ShopInfoDTO shop_info = ShopInfoDTO{gun_prices, gun_clips, price_clips};
     return GameInitialInfoDTO{game_map, shop_info};
 }
 

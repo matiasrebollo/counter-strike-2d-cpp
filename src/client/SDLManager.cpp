@@ -34,6 +34,7 @@ void SDLManager::set_shop(const ShopInfoDTO& shop_info) {
         std::cout << gun << std::endl;
         std::cout << amount << std::endl;
     }
+    std::cout << shop_info.price_clips << std::endl;
 }
 
 void SDLManager::render_waiting_screen(int players_connected, int players_required,

@@ -87,6 +87,7 @@ void ServerProtocol::send_game_init_info(const GameInitialInfoDTO& dto) {
         this->send_byte(this->weaponParser.getWeaponToByte(gun));
         this->send_big_endian_number(price);
     }
+    this->send_byte(dto.shop_info.price_clips);
 }
 
 

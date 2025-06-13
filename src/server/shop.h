@@ -15,7 +15,7 @@ private:
     std::unordered_map<GunType, int> ammo_by_clip;
 
     int gun_price(const GunType& gun_type);
-    int clip_price();
+    int clip_price() const;
     int clip_ammo(const GunType& gun_type);
 
 public:
