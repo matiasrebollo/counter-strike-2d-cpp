@@ -42,7 +42,7 @@ void Player::update(GameWorld& game, const float& delta_t) {
         step.y = static_cast<int>(step.y / std::sqrt(2));
     }
     game.make_step_player(*this, step);
-    if (Gun* weapon = loadout.equipped_gun())
+    if (Weapon* weapon = loadout.equipped_weapon())
         weapon->update(delta_t, *this, game);
     // si mato, reconocerlo y aumentar dinero
 }
@@ -74,15 +74,13 @@ void Player::restart() {
     orientation = 0.0;
 }
 void Player::make_action() {
-    if (Gun* weapon = loadout.equipped_gun())
+    if (Weapon* weapon = loadout.equipped_weapon())
         weapon->action();
-    // si tiene bomba equipada..
     making_action = true;
 }
 void Player::stop_making_action() {
-    if (Gun* weapon = loadout.equipped_gun())
+    if (Weapon* weapon = loadout.equipped_weapon())
         weapon->stop_action();
-    // si tiene bomba equipada..
     making_action = false;
 }
 

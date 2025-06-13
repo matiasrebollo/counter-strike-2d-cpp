@@ -8,13 +8,14 @@
 #include "common/loadout_dto.h"
 #include "common/settings.h"
 #include "server/gun.h"
+#include "server/knife.h"
 
 class Loadout {
 private:
     uint16_t money;
-    Gun knife;
+    Knife knife;
     std::unique_ptr<Gun> primary_gun;
-    Gun secondary_gun;
+    std::unique_ptr<Gun> secondary_gun;
     WeaponType equipped;
 
 
@@ -33,7 +34,7 @@ public:
     void equip_primary();
     void equip_secondary();
     void equip_knife();
-    Gun* equipped_gun();
+    Weapon* equipped_weapon();
     const LoadoutDTO get_dto() const;
 
     Loadout(const Loadout&) = delete;

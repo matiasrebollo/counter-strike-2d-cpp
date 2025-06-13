@@ -17,6 +17,11 @@ target_sources(taller_server
         weapon.cpp
         shot.cpp
         gun.cpp
+        knife.cpp
+        glock.cpp
+        awp.cpp
+        m3.cpp
+        ak47.cpp
         server.cpp
         server_monitor.cpp
         server_protocol.cpp
@@ -38,6 +43,11 @@ target_sources(taller_server
         shop.h
         weapon.h
         gun.h
+        knife.h
+        glock.h
+        awp.h
+        m3.h
+        ak47.cpp
         shot.h
         server.h
         server_monitor.h

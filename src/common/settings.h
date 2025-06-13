@@ -20,24 +20,20 @@
 #define DAMAGE_VARIATION_FACTOR 0.1
 #define GLOCK_PRECISION 0.87
 #define GLOCK_FALLOF 6400
-#define GLOCK_DMG 25
+#define GLOCK_DMG 30
 #define GLOCK_ROF 200
-#define AWP_PRECISION 1.0
-#define AWP_FALLOF -1  // no tiene
 #define AWP_DMG 130
 #define AWP_ROF 40
-#define KNIFE_PRECISION 1.0
-#define KNIFE_FALLOF -1  // no tiene
-#define KNIFE_DISTANCE 40
-#define KNIFE_DMG 33
-#define KNIFE_ROF 120
+#define KNIFE_DISTANCE 50
+#define KNIFE_DMG 25
+#define KNIFE_AR 120
 #define M3_PRECISION 0.9
 #define M3_FALLOF 3200
 #define M3_DMG 10
 #define M3_ROF 60
 #define AK47_PRECISION 0.92
 #define AK47_FALLOF 8000
-#define AK47_DMG 20
+#define AK47_DMG 25
 #define AK47_ROF 150
 #define INITIAL_MONEY 20000
 
@@ -48,7 +44,7 @@
 #define CLIP_PRICE 50
 
 #define SIZE_GLOCK_CLIP 50
-#define SIZE_AK47_CLIP 20
+#define SIZE_AK47_CLIP 21
 #define SIZE_M3_CLIP 8
 #define SIZE_AWP_CLIP 4
 
