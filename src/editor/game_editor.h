@@ -39,9 +39,7 @@ public:
 private slots:
     void on_save_button_clicked();
     void on_go_to_create_button_clicked();
-
     void on_add_columns_button_clicked();
-
     void on_add_rows_button_clicked();
 
 private:
@@ -57,7 +55,9 @@ private:
     void mark_as_ct_spawn(ClickableLabel* label);
     void mark_as_tt_spawn(ClickableLabel* label);
     void mark_as_bomb_site(ClickableLabel* label);
-    std::vector<Vector2D<int>> set_to_vector(const std::set<std::pair<int, int>>& set_pos);
+    std::vector<MapObject> load_blocks(const int& offset_x, const int& offset_y);
+    std::vector<Vector2D<int>> set_to_vector(const std::set<std::pair<int, int>>& set_pos,
+                                             const int& offset_x, const int& offset_y);
 
     BlockTextureParser texture_parser;
     int selected_block;

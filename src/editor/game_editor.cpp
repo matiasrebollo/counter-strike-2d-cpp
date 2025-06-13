@@ -156,11 +156,41 @@ void Game_editor::on_save_button_clicked() {
 GameMap Game_editor::create_map(const std::vector<std::vector<int>>& grid) {
     int height = static_cast<int>(grid.size());
     int width = static_cast<int>(grid[0].size());
-    std::map<int, std::vector<Vector2D<int>>> positions_map;
+
+    int offset_x = width;
+    int right_most = 0;
+    int offset_y = height;
+    int bottom_most = 0;
+
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
             int block = grid[i][j];
-            positions_map[block].push_back(Vector2D<int>(j, i));
+            if (block != NONE_BLOCK) {
+                offset_x = std::min(j, offset_x);
+                right_most = std::max(j, right_most);
+                offset_y = std::min(i, offset_y);
+                bottom_most = std::max(i, bottom_most);
+            }
+        }
+    }
+
+    std::vector<MapObject> blocks = load_blocks(offset_x, offset_y);
+    std::vector<Vector2D<int>> ct_spawns_vector = set_to_vector(ct_spawns, offset_x, offset_y);
+    std::vector<Vector2D<int>> tt_spawns_vector = set_to_vector(tt_spawns, offset_x, offset_x);
+    std::vector<Vector2D<int>> sites_vector = set_to_vector(bomb_sites, offset_x, offset_y);
+
+    return {right_most - offset_x + 1, bottom_most - offset_y + 1, selected_background, blocks,
+            ct_spawns_vector,          tt_spawns_vector,           sites_vector};
+}
+
+std::vector<MapObject> Game_editor::load_blocks(const int& offset_x, const int& offset_y) {
+    std::map<int, std::vector<Vector2D<int>>> positions_map;
+    int height = static_cast<int>(grid.size());
+    int width = static_cast<int>(grid[0].size());
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            int block = grid[i][j];
+            positions_map[block].push_back(Vector2D<int>(j - offset_x, i - offset_y));
         }
     }
 
@@ -171,25 +201,18 @@ GameMap Game_editor::create_map(const std::vector<std::vector<int>>& grid) {
                        return MapObject{pair.second, pair.first,
                                         texture_parser.get_texture_info(pair.first).collidable};
                    });
-
-
-    std::vector<Vector2D<int>> ct_spawns_vector = set_to_vector(ct_spawns);
-    std::vector<Vector2D<int>> tt_spawns_vector = set_to_vector(tt_spawns);
-    std::vector<Vector2D<int>> sites_vector = set_to_vector(bomb_sites);
-
-    GameMap game_map = {width,       height,           selected_background,
-                        blocks,      ct_spawns_vector, tt_spawns_vector,
-                        sites_vector};
-    return game_map;
+    return blocks;
 }
 
-std::vector<Vector2D<int>> Game_editor::set_to_vector(
-        const std::set<std::pair<int, int>>& set_pos) {
+std::vector<Vector2D<int>> Game_editor::set_to_vector(const std::set<std::pair<int, int>>& set_pos,
+                                                      const int& offset_x, const int& offset_y) {
     std::vector<Vector2D<int>> vec;
     vec.reserve(set_pos.size());
 
     std::transform(set_pos.begin(), set_pos.end(), std::back_inserter(vec),
-                   [](const auto& pair) { return Vector2D<int>(pair.first, pair.second); });
+                   [offset_x, offset_y](const auto& pair) {
+                       return Vector2D<int>(pair.first - offset_x, pair.second - offset_y);
+                   });
     return vec;
 }
 
