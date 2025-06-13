@@ -243,6 +243,9 @@ void Game_editor::on_add_columns_button_clicked() {
         for (int j = collumns_actual; j < collumns_actual + COLLUMNS_TO_ADD; ++j) {
             ClickableLabel* cell = new ClickableLabel();
             cell->setFixedSize(50, 50);
+            QPixmap base(50, 50);
+            base.fill(Qt::transparent);
+            cell->setPixmap(base);
             connect(cell, &ClickableLabel::clicked, this, [this, cell, i, j]() {
                 if (first_click_done) {
                     second_click = {j, i};
@@ -270,6 +273,9 @@ void Game_editor::on_add_rows_button_clicked() {
         for (int j = 0; j < collumns_actual; ++j) {
             ClickableLabel* cell = new ClickableLabel();
             cell->setFixedSize(50, 50);
+            QPixmap base(50, 50);
+            base.fill(Qt::transparent);
+            cell->setPixmap(base);
             connect(cell, &ClickableLabel::clicked, this, [this, cell, i, j]() {
                 if (first_click_done) {
                     second_click = {j, i};
@@ -320,7 +326,6 @@ void Game_editor::mark_as_collidable(ClickableLabel* label) {
 }
 
 void Game_editor::render_block(ClickableLabel* cell, const int& block) {
-
     if (block != NONE_BLOCK) {
         BlockTextureInfo texture = texture_parser.get_texture_info(block);
         std::string path = texture.tileset_path;
