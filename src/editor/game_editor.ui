@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="stack">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="mainPage">
        <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -33,27 +33,6 @@
          <widget class="QPushButton" name="load_map">
           <property name="text">
            <string>CARGAR UN MAPA</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="createMapPage">
-       <layout class="QVBoxLayout" name="verticalLayout_3">
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_6">
-          <item>
-           <widget class="QLineEdit" name="rows_input"/>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="columns_input"/>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QPushButton" name="create_map_button">
-          <property name="text">
-           <string>CREAR MAPA</string>
           </property>
          </widget>
         </item>
@@ -78,6 +57,20 @@
         </property>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QPushButton" name="add_rows_button">
+            <property name="text">
+             <string>AGREGAR FILAS</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="add_columns_button">
+            <property name="text">
+             <string>AGREGAR COLUMNAS</string>
+            </property>
+           </widget>
+          </item>
           <item>
            <widget class="QPushButton" name="save_button">
             <property name="text">

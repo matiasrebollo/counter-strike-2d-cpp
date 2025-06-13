@@ -12,6 +12,7 @@
 
 #include "blocks_setter.h"
 #include "bomb_sites_setter.h"
+#include "clickablelabel.h"
 #include "ct_spawns_setter.h"
 #include "grid_action.h"
 #include "tt_spawns_setter.h"
@@ -37,18 +38,25 @@ public:
 
 private slots:
     void on_save_button_clicked();
-
     void on_go_to_create_button_clicked();
 
-    void on_create_map_button_clicked();
+    void on_add_columns_button_clicked();
+
+    void on_add_rows_button_clicked();
 
 private:
     Ui::Game_editor* ui;
-    void setupUi(const int& rows, const int& columns);
+    void setupUi();
     GameMap create_map(const std::vector<std::vector<int>>& grid);
     void setupBlockList();
     void setupBackgroundList();
-    void setupGridMap(const int& rows, const int& colums);
+    void setupGridMap();
+    void render_block_info(const int& row, const int& column);
+    void render_block(ClickableLabel* cell, const int& block);
+    void mark_as_collidable(ClickableLabel* label);
+    void mark_as_ct_spawn(ClickableLabel* label);
+    void mark_as_tt_spawn(ClickableLabel* label);
+    void mark_as_bomb_site(ClickableLabel* label);
     std::vector<Vector2D<int>> set_to_vector(const std::set<std::pair<int, int>>& set_pos);
 
     BlockTextureParser texture_parser;

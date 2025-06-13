@@ -1,6 +1,7 @@
 #include "game_editor.h"
 
 #include <QFileDialog>
+#include <QPainter>
 #include <algorithm>
 #include <fstream>
 #include <iterator>
@@ -12,8 +13,6 @@
 #include "../common/block_texture_parser.h"
 #include "../common/yaml_parser.h"
 #include "./ui_game_editor.h"
-
-#include "clickablelabel.h"
 
 Game_editor::Game_editor(QWidget* parent):
         QMainWindow(parent),
@@ -29,11 +28,11 @@ Game_editor::Game_editor(QWidget* parent):
 
 Game_editor::~Game_editor() { delete ui; }
 
-void Game_editor::setupUi(const int& rows, const int& columns) {
+void Game_editor::setupUi() {
     this->setupToolbar();
     this->setupBlockList();
     this->setupBackgroundList();
-    this->setupGridMap(rows, columns);
+    this->setupGridMap();
 }
 
 void Game_editor::setupBlockList() {
@@ -45,7 +44,9 @@ void Game_editor::setupBlockList() {
         QPixmap tile = tileset.copy(texture.x, texture.y, texture.width, texture.height);
         label->setPixmap(tile.scaled(50, 50));
         ui->block_list->addWidget(label);
-
+        if (texture.collidable) {
+            mark_as_collidable(label);
+        }
         connect(label, &ClickableLabel::clicked, [this, block]() {
             mode = std::make_unique<BlocksSetter>();
             selected_block = block;
@@ -103,14 +104,19 @@ void Game_editor::setupBackgroundList() {
     }
 }
 
-void Game_editor::setupGridMap(const int& rows, const int& colums) {
-    ui->scrollAreaGridMap->setMinimumSize(50 * colums, 50 * rows);
-    this->grid.resize(rows);
+void Game_editor::setupGridMap() {
+    int rows = 10;
+    int columns = 10;
+
+    ui->scrollAreaGridMap->setMinimumSize(50 * columns, 50 * rows);
+    this->grid.resize(rows, std::vector<int>(columns, NONE_BLOCK));
     for (int i = 0; i < rows; ++i) {
-        this->grid[i].resize(colums, NONE_BLOCK);
-        for (int j = 0; j < colums; ++j) {
+        for (int j = 0; j < columns; ++j) {
             ClickableLabel* cell = new ClickableLabel();
             cell->setFixedSize(50, 50);
+            QPixmap base(50, 50);
+            base.fill(Qt::transparent);
+            cell->setPixmap(base);
             connect(cell, &ClickableLabel::clicked, this, [this, cell, i, j]() {
                 if (first_click_done) {
                     second_click = {j, i};
@@ -187,90 +193,184 @@ std::vector<Vector2D<int>> Game_editor::set_to_vector(
     return vec;
 }
 
-void Game_editor::setBlock(const int& row, const int& colum) {
-    QLayoutItem* item = ui->grid_map->itemAtPosition(row, colum);
+void Game_editor::setBlock(const int& row, const int& column) {
+    this->grid[row][column] = selected_block;
+    this->render_block_info(row, column);
+}
+
+void Game_editor::setCtSpawn(const int& row, const int& column) {
+    if (ct_spawns.find({column, row}) != ct_spawns.end()) {
+        ct_spawns.erase({column, row});
+    } else {
+        ct_spawns.insert({column, row});
+    }
+    this->render_block_info(row, column);
+}
+
+
+void Game_editor::setTTSpawn(const int& row, const int& column) {
+    if (tt_spawns.find({column, row}) != tt_spawns.end()) {
+        tt_spawns.erase({column, row});
+    } else {
+        tt_spawns.insert({column, row});
+    }
+    this->render_block_info(row, column);
+}
+
+void Game_editor::setBombSite(const int& row, const int& column) {
+    if (bomb_sites.find({column, row}) != bomb_sites.end()) {
+        bomb_sites.erase({column, row});
+    } else {
+        bomb_sites.insert({column, row});
+    }
+    this->render_block_info(row, column);
+}
+
+void Game_editor::on_go_to_create_button_clicked() {
+    this->setupUi();
+    ui->stack->setCurrentIndex(1);
+}
+
+void Game_editor::on_add_columns_button_clicked() {
+    int COLLUMNS_TO_ADD = 1;
+    int rows_actual = grid.size();
+    int collumns_actual = grid[0].size();
+
+    ui->scrollAreaGridMap->setMinimumSize(50 * (collumns_actual + COLLUMNS_TO_ADD),
+                                          50 * rows_actual);
+    for (int i = 0; i < rows_actual; ++i) {
+        this->grid[i].resize(collumns_actual + COLLUMNS_TO_ADD, NONE_BLOCK);
+        for (int j = collumns_actual; j < collumns_actual + COLLUMNS_TO_ADD; ++j) {
+            ClickableLabel* cell = new ClickableLabel();
+            cell->setFixedSize(50, 50);
+            connect(cell, &ClickableLabel::clicked, this, [this, cell, i, j]() {
+                if (first_click_done) {
+                    second_click = {j, i};
+                    mode->handle(first_click, second_click, *this);
+                    first_click_done = false;
+                } else {
+                    first_click = {j, i};
+                    first_click_done = true;
+                }
+            });
+            ui->grid_map->addWidget(cell, i, j);
+        }
+    }
+}
+
+void Game_editor::on_add_rows_button_clicked() {
+    int ROWS_TO_ADD = 1;
+    int rows_actual = grid.size();
+    int collumns_actual = grid[0].size();
+
+    this->grid.resize(rows_actual + ROWS_TO_ADD, std::vector<int>(collumns_actual, NONE_BLOCK));
+    ui->scrollAreaGridMap->setMinimumSize(50 * collumns_actual, 50 * (rows_actual + ROWS_TO_ADD));
+
+    for (int i = rows_actual; i < ROWS_TO_ADD + rows_actual; ++i) {
+        for (int j = 0; j < collumns_actual; ++j) {
+            ClickableLabel* cell = new ClickableLabel();
+            cell->setFixedSize(50, 50);
+            connect(cell, &ClickableLabel::clicked, this, [this, cell, i, j]() {
+                if (first_click_done) {
+                    second_click = {j, i};
+                    mode->handle(first_click, second_click, *this);
+                    first_click_done = false;
+                } else {
+                    first_click = {j, i};
+                    first_click_done = true;
+                }
+            });
+            ui->grid_map->addWidget(cell, i, j);
+        }
+    }
+}
+
+void Game_editor::render_block_info(const int& row, const int& column) {
+    QLayoutItem* item = ui->grid_map->itemAtPosition(row, column);
     if (item) {
         QWidget* widget = item->widget();
         if (ClickableLabel* cell = qobject_cast<ClickableLabel*>(widget)) {
-            if (selected_block != NONE_BLOCK) {
-                BlockTextureInfo texture = texture_parser.get_texture_info(selected_block);
-                std::string path = texture.tileset_path;
-                QPixmap tileset(QString::fromStdString(path));
-                QPixmap tile = tileset.copy(texture.x, texture.y, texture.width, texture.height);
-                cell->setPixmap(tile.scaled(50, 50));
+            this->render_block(cell, grid[row][column]);
+            if (tt_spawns.find({column, row}) != tt_spawns.end()) {
+                mark_as_tt_spawn(cell);
             }
-        }
-    }
-    this->grid[row][colum] = selected_block;
-}
-
-void Game_editor::setCtSpawn(const int& row, const int& colum) {
-    QLayoutItem* item = ui->grid_map->itemAtPosition(row, colum);
-    if (item) {
-        QWidget* widget = item->widget();
-        if (ClickableLabel* cell = qobject_cast<ClickableLabel*>(widget)) {
-            if (ct_spawns.find({colum, row}) != ct_spawns.end()) {
-                cell->setStyleSheet("background-color: transparent;");
-                ct_spawns.erase({colum, row});
-            } else {
-                cell->setStyleSheet("background-color: rgba(0, 0, 255, 60);");
-                ct_spawns.insert({colum, row});
+            if (ct_spawns.find({column, row}) != ct_spawns.end()) {
+                mark_as_ct_spawn(cell);
+            }
+            if (bomb_sites.find({column, row}) != bomb_sites.end()) {
+                mark_as_bomb_site(cell);
             }
         }
     }
 }
 
-void Game_editor::setTTSpawn(const int& row, const int& colum) {
-    QLayoutItem* item = ui->grid_map->itemAtPosition(row, colum);
-    if (item) {
-        QWidget* widget = item->widget();
-        if (ClickableLabel* cell = qobject_cast<ClickableLabel*>(widget)) {
-            if (tt_spawns.find({colum, row}) != tt_spawns.end()) {
-                cell->setStyleSheet("background-color: transparent;");
-                tt_spawns.erase({colum, row});
-            } else {
-                cell->setStyleSheet("background-color: rgba(255, 255, 0, 60);");
-                tt_spawns.insert({colum, row});
-            }
-        }
+void Game_editor::mark_as_collidable(ClickableLabel* label) {
+    QPixmap result = label->pixmap(Qt::ReturnByValue);
+    QPainter painter(&result);
+
+    QPixmap overlay("../assets/gfx/collidable.png");
+    QPixmap scaledOverlay = overlay.scaled(20, 20);
+
+    int x = result.width() - scaledOverlay.width();
+    int y = 0;
+    painter.drawPixmap(x, y, scaledOverlay);
+
+    painter.end();
+    label->setPixmap(result.scaled(50, 50));
+}
+
+void Game_editor::render_block(ClickableLabel* cell, const int& block) {
+
+    if (block != NONE_BLOCK) {
+        BlockTextureInfo texture = texture_parser.get_texture_info(block);
+        std::string path = texture.tileset_path;
+        QPixmap tileset(QString::fromStdString(path));
+        QPixmap tile = tileset.copy(texture.x, texture.y, texture.width, texture.height);
+        cell->setPixmap(tile.scaled(50, 50));
     }
 }
 
-void Game_editor::setBombSite(const int& row, const int& colum) {
-    QLayoutItem* item = ui->grid_map->itemAtPosition(row, colum);
-    if (item) {
-        QWidget* widget = item->widget();
-        if (ClickableLabel* cell = qobject_cast<ClickableLabel*>(widget)) {
-            if (bomb_sites.find({colum, row}) != bomb_sites.end()) {
-                cell->setStyleSheet("background-color: transparent;");
-                bomb_sites.erase({colum, row});
-            } else {
-                cell->setStyleSheet("background-color: rgba(255, 0, 0, 60);");
-                bomb_sites.insert({colum, row});
-            }
-        }
-    }
+void Game_editor::mark_as_tt_spawn(ClickableLabel* label) {
+    QPixmap result = label->pixmap(Qt::ReturnByValue);
+    QPainter painter(&result);
+
+    QPixmap overlay("../assets/gfx/terrorist_logo.png");
+    QPixmap scaledOverlay = overlay.scaled(20, 20);
+
+    int x = result.width() - scaledOverlay.width();
+    int y = result.height() - scaledOverlay.height();
+    painter.drawPixmap(x, y, scaledOverlay);
+
+    painter.end();
+    label->setPixmap(result.scaled(50, 50));
 }
 
-void Game_editor::on_go_to_create_button_clicked() { ui->stack->setCurrentIndex(1); }
+void Game_editor::mark_as_ct_spawn(ClickableLabel* label) {
+    QPixmap result = label->pixmap(Qt::ReturnByValue);
+    QPainter painter(&result);
 
+    QPixmap overlay("../assets/gfx/counter_terrorist_logo.png");
+    QPixmap scaledOverlay = overlay.scaled(20, 20);
 
-void Game_editor::on_create_map_button_clicked() {
-    bool ok;
-    QString cols = ui->columns_input->text();
-    int columns = cols.toInt(&ok);
-    if (not ok) {
-        // mesaje error
-        return;
-    }
+    int x = 0;
+    int y = result.height() - scaledOverlay.height();
+    painter.drawPixmap(x, y, scaledOverlay);
 
-    QString rows_str = ui->rows_input->text();
-    int rows = rows_str.toInt(&ok);
-    if (not ok) {
-        // mesaje error
-        return;
-    }
+    painter.end();
+    label->setPixmap(result.scaled(50, 50));
+}
 
-    this->setupUi(rows, columns);
-    ui->stack->setCurrentIndex(2);
+void Game_editor::mark_as_bomb_site(ClickableLabel* label) {
+    QPixmap result = label->pixmap(Qt::ReturnByValue);
+    QPainter painter(&result);
+
+    QPixmap overlay("../assets/gfx/weapons/bomb.bmp");
+    QPixmap scaledOverlay = overlay.scaled(20, 20);
+
+    int x = 0;
+    int y = 0;
+    painter.drawPixmap(x, y, scaledOverlay);
+
+    painter.end();
+    label->setPixmap(result.scaled(50, 50));
 }
