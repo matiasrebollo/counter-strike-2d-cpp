@@ -2,7 +2,7 @@
 
 PixmapManager::PixmapManager(): texture_parser() {
     QPixmap base(50, 50);
-    base.fill(Qt::transparent);
+    base.fill(QColor(255, 255, 255, 80));
     this->block_pixmap_cache[NONE_BLOCK] = base;
 }
 

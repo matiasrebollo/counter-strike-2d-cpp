@@ -93,11 +93,13 @@ void Game_editor::setupBackgroundList() {
         label->setPixmap(background_image.scaled(50, 50));
         ui->backgrounds_list->addWidget(label);
         connect(label, &ClickableLabel::clicked, [this, background, background_path]() {
-            ui->scrollAreaGridMap->setStyleSheet("background-image: url(" +
-                                                 QString::fromStdString(background_path) +
-                                                 ");"
-                                                 "background-repeat: no-repeat;"
-                                                 "background-position: center;");
+            QString qss = QString("#scrollAreaGridMap {"
+                                  "border-image: url(%1) 0 0 0 0 stretch stretch;"
+                                  "}")
+                                  .arg(QString::fromStdString(background_path));
+
+            ui->scrollAreaGridMap->setStyleSheet(qss);
+            ui->scrollAreaGridMap->setStyleSheet(qss);
             selected_background = background;
             first_click_done = false;
         });
