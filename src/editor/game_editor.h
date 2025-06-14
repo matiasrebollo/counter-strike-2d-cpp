@@ -12,7 +12,7 @@
 
 #include "blocks_setter.h"
 #include "bomb_sites_setter.h"
-#include "clickablelabel.h"
+#include "clickable_label.h"
 #include "ct_spawns_setter.h"
 #include "grid_action.h"
 #include "pixmap_manager.h"

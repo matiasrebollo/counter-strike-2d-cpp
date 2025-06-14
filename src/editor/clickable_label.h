@@ -1,5 +1,5 @@
-#ifndef CLICKABLELABEL_H
-#define CLICKABLELABEL_H
+#ifndef CLICKABLE_LABEL_H
+#define CLICKABLE_LABEL_H
 
 #include <QLabel>
 #include <QMouseEvent>
@@ -21,4 +21,4 @@ protected:
     void mousePressEvent(QMouseEvent*) override { emit clicked(); }
 };
 
-#endif  // CLICKABLELABEL_H
+#endif

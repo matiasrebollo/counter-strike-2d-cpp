@@ -12,7 +12,7 @@ target_sources(taller_editor
     PUBLIC
     # .h files
     game_editor.h
-    clickablelabel.h
+    clickable_label.h
     grid_action.h
     blocks_setter.h
     ct_spawns_setter.h

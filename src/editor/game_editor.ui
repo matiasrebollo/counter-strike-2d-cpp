@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>818</width>
+    <height>642</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -45,7 +45,7 @@
 }</string>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="mainPage">
        <property name="minimumSize">
@@ -392,6 +392,21 @@ QPushButton:pressed {
                <layout class="QGridLayout" name="grid_map">
                 <property name="sizeConstraint">
                  <enum>QLayout::SetFixedSize</enum>
+                </property>
+                <property name="leftMargin">
+                 <number>25</number>
+                </property>
+                <property name="topMargin">
+                 <number>25</number>
+                </property>
+                <property name="rightMargin">
+                 <number>25</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>25</number>
+                </property>
+                <property name="spacing">
+                 <number>0</number>
                 </property>
                </layout>
               </item>
