@@ -11,19 +11,23 @@ ClickableLabel::ClickableLabel(const QString& text, QWidget* parent): QLabel(tex
 
 void ClickableLabel::mousePressEvent(QMouseEvent* event) {
     if (event->button() == Qt::LeftButton) {
-        emit clicked();
+        emit this->left_clicked();
+    } else if (event->button() == Qt::RightButton) {
+        emit this->right_clicked();
     }
 }
 
 void ClickableLabel::mouseDoubleClickEvent(QMouseEvent* event) {
     if (event->button() == Qt::LeftButton) {
-        emit doubleClicked();
+        emit this->double_click_left();
+    } else if (event->button() == Qt::RightButton) {
+        emit this->double_click_right();
     }
 }
 
 
 void ClickableLabel::mouseMoveEvent(QMouseEvent* event) {
-    if (!(event->buttons() & Qt::LeftButton))
+    if (!event->buttons())
         return;
     if ((event->pos() - dragStartPosition).manhattanLength() < QApplication::startDragDistance())
         return;

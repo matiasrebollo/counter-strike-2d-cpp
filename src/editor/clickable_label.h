@@ -17,9 +17,11 @@ public:
     explicit ClickableLabel(const QString& text = "", QWidget* parent = nullptr);
 
 signals:
-    void clicked();
+    void left_clicked();
+    void right_clicked();
     void dropped(int x, int y);
-    void doubleClicked();
+    void double_click_left();
+    void double_click_right();
 
 protected:
     void mousePressEvent(QMouseEvent*) override;

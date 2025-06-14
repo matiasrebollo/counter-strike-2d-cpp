@@ -10,6 +10,8 @@ public:
     virtual ~GridAction() {}
     virtual void handle(std::pair<int, int> click_on, std::pair<int, int> click_drop,
                         Game_editor& editor) = 0;
+    virtual void handle_delete(std::pair<int, int> click_on, std::pair<int, int> click_drop,
+                               Game_editor& editor) = 0;
 };
 
 #endif

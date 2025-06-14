@@ -32,10 +32,10 @@ public:
     explicit Game_editor(QWidget* parent = nullptr);
     ~Game_editor();
     void setupToolbar();
-    void setBlock(const int& row, const int& colum);
-    void setCtSpawn(const int& row, const int& colum);
-    void setTTSpawn(const int& row, const int& colum);
-    void setBombSite(const int& row, const int& colum);
+    void setBlock(const int& row, const int& column, const bool& to_delete);
+    void setCtSpawn(const int& row, const int& column, const bool& to_delete);
+    void setTTSpawn(const int& row, const int& column, const bool& to_delete);
+    void setBombSite(const int& row, const int& column, const bool& to_delete);
 
 private slots:
     void on_save_button_clicked();
@@ -69,8 +69,11 @@ private:
     std::set<std::pair<int, int>> tt_spawns;
     std::set<std::pair<int, int>> ct_spawns;
     std::set<std::pair<int, int>> bomb_sites;
-    std::pair<int, int> first_click;
-    std::pair<int, int> second_click;
-    bool first_click_done;
+    std::pair<int, int> first_left_click;
+    std::pair<int, int> second_left_click;
+    std::pair<int, int> first_right_click;
+    std::pair<int, int> second_right_click;
+    bool first_left_click_done;
+    bool first_right_click_done;
 };
 #endif  // GAME_EDITOR_H

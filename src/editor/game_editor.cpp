@@ -23,7 +23,7 @@ Game_editor::Game_editor(QWidget* parent):
         selected_block(NONE_BLOCK),
         selected_background(AZTEC_BACKGROUND),
         mode(std::make_unique<BlocksSetter>()),
-        first_click_done(false) {
+        first_left_click_done(false) {
     ui->setupUi(this);
     ui->stack->setCurrentIndex(0);
 }
@@ -75,10 +75,10 @@ void Game_editor::setupBlockList() {
             mark_as_collidable(label);
         }
 
-        connect(label, &ClickableLabel::clicked, [this, block]() {
+        connect(label, &ClickableLabel::left_clicked, [this, block]() {
             mode = std::make_unique<BlocksSetter>();
             selected_block = block;
-            first_click_done = false;
+            first_left_click_done = false;
         });
 
         count_blocks++;
@@ -96,8 +96,8 @@ void Game_editor::setupToolbar() {
                            "border-width: 1px;"
                            "border-style: solid;"
                            "border-color: white;");
-    connect(labelTT, &ClickableLabel::clicked, [this]() {
-        first_click_done = false;
+    connect(labelTT, &ClickableLabel::left_clicked, [this]() {
+        first_left_click_done = false;
         mode = std::make_unique<TTSpawnsSetter>();
     });
 
@@ -109,8 +109,8 @@ void Game_editor::setupToolbar() {
                            "border-width: 1px;"
                            "border-style: solid;"
                            "border-color: white;");
-    connect(labelCT, &ClickableLabel::clicked, [this]() {
-        first_click_done = false;
+    connect(labelCT, &ClickableLabel::left_clicked, [this]() {
+        first_left_click_done = false;
         mode = std::make_unique<CTSpawnsSetter>();
     });
 
@@ -122,8 +122,8 @@ void Game_editor::setupToolbar() {
                                   "border-width: 1px;"
                                   "border-style: solid;"
                                   "border-color: white;");
-    connect(labelBombSites, &ClickableLabel::clicked, [this]() {
-        first_click_done = false;
+    connect(labelBombSites, &ClickableLabel::left_clicked, [this]() {
+        first_left_click_done = false;
         mode = std::make_unique<BombSiteSetter>();
     });
     ui->GameAreas->addWidget(labelTT, 0, Qt::AlignHCenter);
@@ -141,7 +141,7 @@ void Game_editor::setupBackgroundList() {
         label->setPixmap(background_image.scaled(50, 50));
         ui->backgrounds_list->addWidget(label);
         label->setCursor(Qt::CrossCursor);
-        connect(label, &ClickableLabel::clicked, [this, background, background_path]() {
+        connect(label, &ClickableLabel::left_clicked, [this, background, background_path]() {
             QString qss = QString("#scrollAreaGridMap {"
                                   "border-image: url(%1) 0 0 0 0 stretch stretch;"
                                   "}")
@@ -150,7 +150,7 @@ void Game_editor::setupBackgroundList() {
             ui->scrollAreaGridMap->setStyleSheet(qss);
             ui->scrollAreaGridMap->setStyleSheet(qss);
             selected_background = background;
-            first_click_done = false;
+            first_left_click_done = false;
         });
     }
 }
@@ -167,25 +167,43 @@ void Game_editor::setupGridMap() {
             cell->setFixedSize(50, 50);
             QPixmap& base = pixmap_manager.get_block_pixmap(grid[i][j]);
             cell->setPixmap(base);
-            connect(cell, &ClickableLabel::clicked, this, [this, cell, i, j]() {
-                first_click = {j, i};
-                first_click_done = true;
+            connect(cell, &ClickableLabel::left_clicked, this, [this, cell, i, j]() {
+                first_left_click = {j, i};
+                first_left_click_done = true;
+            });
+
+            connect(cell, &ClickableLabel::right_clicked, this, [this, cell, i, j]() {
+                first_right_click = {j, i};
+                first_right_click_done = true;
             });
 
             connect(cell, &ClickableLabel::dropped, this, [this, i, j]() {
-                if (first_click_done) {
-                    second_click = {j, i};
-                    mode->handle(first_click, second_click, *this);
-                    first_click_done = false;
+                if (first_left_click_done) {
+                    second_left_click = {j, i};
+                    mode->handle(first_left_click, second_left_click, *this);
+                    first_left_click_done = false;
+                } else if (first_right_click_done) {
+                    second_right_click = {j, i};
+                    mode->handle_delete(first_right_click, second_right_click, *this);
+                    first_right_click_done = false;
                 }
             });
 
-            connect(cell, &ClickableLabel::doubleClicked, this, [this, cell, i, j]() {
-                first_click = {j, i};
-                second_click = {j, i};
-                mode->handle(first_click, second_click, *this);
-                first_click_done = false;
+            connect(cell, &ClickableLabel::double_click_left, this, [this, cell, i, j]() {
+                first_left_click = {j, i};
+                second_left_click = {j, i};
+                mode->handle(first_left_click, second_left_click, *this);
+                first_left_click_done = false;
             });
+
+
+            connect(cell, &ClickableLabel::double_click_right, this, [this, cell, i, j]() {
+                first_right_click = {j, i};
+                second_right_click = {j, i};
+                mode->handle_delete(first_right_click, second_right_click, *this);
+                first_right_click_done = false;
+            });
+
             ui->grid_map->addWidget(cell, i, j);
         }
     }
@@ -275,13 +293,13 @@ std::vector<Vector2D<int>> Game_editor::set_to_vector(const std::set<std::pair<i
     return vec;
 }
 
-void Game_editor::setBlock(const int& row, const int& column) {
-    this->grid[row][column] = selected_block;
+void Game_editor::setBlock(const int& row, const int& column, const bool& to_delete) {
+    this->grid[row][column] = to_delete ? NONE_BLOCK : selected_block;
     this->render_block_info(row, column);
 }
 
-void Game_editor::setCtSpawn(const int& row, const int& column) {
-    if (ct_spawns.find({column, row}) != ct_spawns.end()) {
+void Game_editor::setCtSpawn(const int& row, const int& column, const bool& to_delete) {
+    if (to_delete) {
         ct_spawns.erase({column, row});
     } else {
         ct_spawns.insert({column, row});
@@ -290,8 +308,8 @@ void Game_editor::setCtSpawn(const int& row, const int& column) {
 }
 
 
-void Game_editor::setTTSpawn(const int& row, const int& column) {
-    if (tt_spawns.find({column, row}) != tt_spawns.end()) {
+void Game_editor::setTTSpawn(const int& row, const int& column, const bool& to_delete) {
+    if (to_delete) {
         tt_spawns.erase({column, row});
     } else {
         tt_spawns.insert({column, row});
@@ -299,8 +317,8 @@ void Game_editor::setTTSpawn(const int& row, const int& column) {
     this->render_block_info(row, column);
 }
 
-void Game_editor::setBombSite(const int& row, const int& column) {
-    if (bomb_sites.find({column, row}) != bomb_sites.end()) {
+void Game_editor::setBombSite(const int& row, const int& column, const bool& to_delete) {
+    if (to_delete) {
         bomb_sites.erase({column, row});
     } else {
         bomb_sites.insert({column, row});
@@ -327,14 +345,14 @@ void Game_editor::on_add_columns_button_clicked() {
             cell->setFixedSize(50, 50);
             QPixmap& base = pixmap_manager.get_block_pixmap(grid[i][j]);
             cell->setPixmap(base);
-            connect(cell, &ClickableLabel::clicked, this, [this, cell, i, j]() {
-                if (first_click_done) {
-                    second_click = {j, i};
-                    mode->handle(first_click, second_click, *this);
-                    first_click_done = false;
+            connect(cell, &ClickableLabel::left_clicked, this, [this, cell, i, j]() {
+                if (first_left_click_done) {
+                    second_left_click = {j, i};
+                    mode->handle(first_left_click, second_left_click, *this);
+                    first_left_click_done = false;
                 } else {
-                    first_click = {j, i};
-                    first_click_done = true;
+                    first_left_click = {j, i};
+                    first_left_click_done = true;
                 }
             });
             ui->grid_map->addWidget(cell, i, j);
@@ -356,14 +374,14 @@ void Game_editor::on_add_rows_button_clicked() {
             cell->setFixedSize(50, 50);
             QPixmap& base = pixmap_manager.get_block_pixmap(grid[i][j]);
             cell->setPixmap(base);
-            connect(cell, &ClickableLabel::clicked, this, [this, cell, i, j]() {
-                if (first_click_done) {
-                    second_click = {j, i};
-                    mode->handle(first_click, second_click, *this);
-                    first_click_done = false;
+            connect(cell, &ClickableLabel::left_clicked, this, [this, cell, i, j]() {
+                if (first_left_click_done) {
+                    second_left_click = {j, i};
+                    mode->handle(first_left_click, second_left_click, *this);
+                    first_left_click_done = false;
                 } else {
-                    first_click = {j, i};
-                    first_click_done = true;
+                    first_left_click = {j, i};
+                    first_left_click_done = true;
                 }
             });
             ui->grid_map->addWidget(cell, i, j);
