@@ -26,7 +26,6 @@ using Socket = MockSocket;
 using Socket = RealSocket;
 #endif
 
-
 #define PATH_CS_FONT "../../../assets/cs_regular.ttf"
 
 Lobby::Lobby(QWidget* parent):

@@ -2,5 +2,6 @@
     <qresource prefix="/images">
         <file>tiles/default_dust.png</file>
         <file>tiles/aztec.bmp</file>
+        <file alias="fondo">assets/editor.png</file>
     </qresource>
 </RCC>

@@ -4,6 +4,7 @@
 #include <QPainter>
 #include <algorithm>
 #include <fstream>
+#include <iostream>
 #include <iterator>
 #include <map>
 #include <memory>
@@ -36,52 +37,99 @@ void Game_editor::setupUi() {
 }
 
 void Game_editor::setupBlockList() {
+    QLayout* oldLayout = ui->scrollAreaWidgetContents->layout();
+    if (oldLayout) {
+        QLayoutItem* item;
+        while ((item = oldLayout->takeAt(0)) != nullptr) {
+            delete item->widget();
+            delete item;
+        }
+        delete oldLayout;
+    }
+
+    auto* gridLayout = new QGridLayout(ui->scrollAreaWidgetContents);
+    gridLayout->setContentsMargins(0, 0, 0, 0);
+    gridLayout->setHorizontalSpacing(10);
+    gridLayout->setVerticalSpacing(10);
+
+    ui->scrollAreaWidgetContents->setLayout(gridLayout);
+
+    const int columns = 3;
+    int count_blocks = 0;
+
     for (const auto& block: texture_parser.get_blocks_keys()) {
         ClickableLabel* label = new ClickableLabel();
         label->setFixedSize(50, 50);
+
         BlockTextureInfo texture = texture_parser.get_texture_info(block);
         QPixmap tileset(QString::fromStdString(texture.tileset_path));
         QPixmap tile = tileset.copy(texture.x, texture.y, texture.width, texture.height);
         label->setPixmap(tile.scaled(50, 50));
-        ui->block_list->addWidget(label);
+        label->setCursor(Qt::CrossCursor);
+
+        int row = count_blocks / columns;
+        int col = count_blocks % columns;
+        gridLayout->addWidget(label, row, col);
+
         if (texture.collidable) {
             mark_as_collidable(label);
         }
+
         connect(label, &ClickableLabel::clicked, [this, block]() {
             mode = std::make_unique<BlocksSetter>();
             selected_block = block;
             first_click_done = false;
         });
+
+        count_blocks++;
     }
 }
 
+
 void Game_editor::setupToolbar() {
     ClickableLabel* labelTT = new ClickableLabel();
-    labelTT->setFixedSize(40, 40);
-    ui->horizontalLayout_2->addWidget(labelTT);
+    ui->GameAreas->addStretch();
+    labelTT->setFixedSize(60, 80);
     labelTT->setText("TT");
+    labelTT->setCursor(Qt::CrossCursor);
+    labelTT->setStyleSheet("color:white;"
+                           "border-width: 1px;"
+                           "border-style: solid;"
+                           "border-color: white;");
     connect(labelTT, &ClickableLabel::clicked, [this]() {
         first_click_done = false;
         mode = std::make_unique<TTSpawnsSetter>();
     });
 
     ClickableLabel* labelCT = new ClickableLabel();
-    labelCT->setFixedSize(40, 40);
-    ui->horizontalLayout_2->addWidget(labelCT);
+    labelCT->setFixedSize(60, 80);
     labelCT->setText("CT");
+    labelCT->setCursor(Qt::CrossCursor);
+    labelCT->setStyleSheet("color:white;"
+                           "border-width: 1px;"
+                           "border-style: solid;"
+                           "border-color: white;");
     connect(labelCT, &ClickableLabel::clicked, [this]() {
         first_click_done = false;
         mode = std::make_unique<CTSpawnsSetter>();
     });
 
     ClickableLabel* labelBombSites = new ClickableLabel();
-    labelBombSites->setFixedSize(40, 40);
-    ui->horizontalLayout_2->addWidget(labelBombSites);
+    labelBombSites->setFixedSize(60, 80);
     labelBombSites->setText("SITES");
+    labelBombSites->setCursor(Qt::CrossCursor);
+    labelBombSites->setStyleSheet("color:white;"
+                                  "border-width: 1px;"
+                                  "border-style: solid;"
+                                  "border-color: white;");
     connect(labelBombSites, &ClickableLabel::clicked, [this]() {
         first_click_done = false;
         mode = std::make_unique<BombSiteSetter>();
     });
+    ui->GameAreas->addWidget(labelTT, 0, Qt::AlignHCenter);
+    ui->GameAreas->addWidget(labelCT, 0, Qt::AlignHCenter);
+    ui->GameAreas->addWidget(labelBombSites, 0, Qt::AlignHCenter);
+    ui->GameAreas->addStretch();
 }
 
 void Game_editor::setupBackgroundList() {
@@ -92,6 +140,7 @@ void Game_editor::setupBackgroundList() {
         QPixmap background_image(QString::fromStdString(background_path));
         label->setPixmap(background_image.scaled(50, 50));
         ui->backgrounds_list->addWidget(label);
+        label->setCursor(Qt::CrossCursor);
         connect(label, &ClickableLabel::clicked, [this, background, background_path]() {
             ui->scrollAreaGridMap->setStyleSheet("background-image: url(" +
                                                  QString::fromStdString(background_path) +
