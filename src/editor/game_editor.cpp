@@ -169,6 +169,7 @@ void Game_editor::setupGridMap() {
             cell->setPixmap(base);
             connect(cell, &ClickableLabel::clicked, this, [this, cell, i, j]() {
                 first_click = {j, i};
+                mode->handle(first_click, first_click, *this);
                 first_click_done = true;
             });
 
