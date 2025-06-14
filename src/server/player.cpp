@@ -15,6 +15,8 @@ Player::Player(const std::string& name, Vector2D<int>& position):
         making_action(false),
         orientation(0.0),
         life(PLAYER_INITIAL_LIFE),
+        bonifications(0),
+        kills(0),
         loadout() {}
 
 float Player::get_orientation() const { return orientation; }
@@ -85,6 +87,11 @@ void Player::stop_making_action() {
 }
 
 void Player::receive_damage(const int& damage) { life = std::max(life - damage, 0); }
+void Player::count_kill(const int& money_bonification) {
+    kills += 1;
+    bonifications += money_bonification;
+    loadout.add_money(money_bonification);
+}
 
 void Player::equip_primary() { loadout.equip_primary(); }
 void Player::equip_secondary() { loadout.equip_secondary(); }

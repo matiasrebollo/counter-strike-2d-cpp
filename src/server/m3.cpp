@@ -3,8 +3,10 @@
 #include "server/game_world.h"
 
 M_3::M_3(const GunType& type, const int& rate_of_fire, const int& base_damage,
-         const int& falloff_distance, const double& base_precision, uint16_t ammo):
-        Gun(type, rate_of_fire, base_damage, falloff_distance, base_precision, ammo) {
+         const int& falloff_distance, const double& base_precision, uint16_t ammo,
+         const int& kill_bonification):
+        Gun(type, rate_of_fire, base_damage, falloff_distance, base_precision, ammo,
+            kill_bonification) {
     if (type != M3) {
         throw std::runtime_error("Un m3 debe tener tipo M3");
     }
@@ -30,6 +32,8 @@ void M_3::shoot(GameWorld& game, Player& shooter) {
 
         if (Player* hit_player = dynamic_cast<Player*>(shot.hit)) {
             execute_shot(hit_player, shot.distance);
+            if (!hit_player->is_alive())
+                shooter.count_kill(kill_bonification);
         }
     }
 

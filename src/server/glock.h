@@ -7,7 +7,8 @@ class Glock: public Gun {
 
 public:
     Glock(const GunType& type, const int& rate_of_fire, const int& base_damage,
-          const int& falloff_distance, const double& base_precision, uint16_t ammo);
+          const int& falloff_distance, const double& base_precision, uint16_t ammo,
+          const int& kill_bonification);
 
     Glock(const Glock&) = delete;
     Glock& operator=(const Glock&) = delete;

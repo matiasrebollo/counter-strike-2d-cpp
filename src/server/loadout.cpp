@@ -24,9 +24,9 @@ GunType Loadout::primary_gun_type() const {
 }
 GunType Loadout::secondary_gun_type() const { return secondary_gun->get_type(); }
 
-void Loadout::decrease_money_by(const uint16_t& ammount_of_money) {
-    this->money -= ammount_of_money;
-}
+void Loadout::decrease_money_by(const int& ammount_of_money) { this->money -= ammount_of_money; }
+
+void Loadout::add_money(const int& ammount_of_money) { this->money += ammount_of_money; }
 
 std::unique_ptr<Gun> Loadout::new_primary_gun(std::unique_ptr<Gun> gun) {
     std::unique_ptr<Gun> prev = std::move(this->primary_gun);

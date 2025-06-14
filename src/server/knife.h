@@ -11,6 +11,7 @@ private:
     int damage;
     int attack_rate;
     float time_since_last_stab;
+    const int kill_bonification;
 
     bool can_stab();
     void stab(GameWorld& game, Player& owner);

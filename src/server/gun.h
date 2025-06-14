@@ -19,9 +19,11 @@ protected:
     const double base_precision;
     float time_since_last_shot;
     uint16_t ammo;
+    const int kill_bonification;
 
     Gun(const GunType& type, const int& rate_of_fire, const int& base_damage,
-        const int& falloff_distance, const double& base_precision, uint16_t ammo);
+        const int& falloff_distance, const double& base_precision, uint16_t ammo,
+        const int& kill_bonification);
     virtual bool can_shoot() const;
     virtual void shoot(GameWorld& game, Player& owner);
     virtual double calculate_falloff(const double& shot_distance) const;

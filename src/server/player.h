@@ -22,6 +22,8 @@ private:
     bool making_action;
     double orientation;
     uint16_t life;
+    int bonifications;
+    int kills;
     Loadout loadout;
 
 public:
@@ -48,6 +50,7 @@ public:
     void stop_making_action();
     void make_action();
     void receive_damage(const int& damage);
+    void count_kill(const int& money_bonification);
     Loadout& get_loadout();
     const PlayerDTO get_dto() const;
 

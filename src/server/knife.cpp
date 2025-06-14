@@ -1,12 +1,13 @@
 #include "server/knife.h"
 
-#include <iostream>
-
 #include "common/settings.h"
 #include "server/game_world.h"
 
 Knife::Knife():
-        damage(KNIFE_DMG), attack_rate(KNIFE_AR), time_since_last_stab(60.0f / attack_rate) {}
+        damage(KNIFE_DMG),
+        attack_rate(KNIFE_AR),
+        time_since_last_stab(60.0f / attack_rate),
+        kill_bonification(KNIFE_KILL_BONUS) {}
 
 bool Knife::can_stab() {
     return just_triggered_action && time_since_last_stab >= (60.0f / attack_rate);
@@ -37,6 +38,8 @@ void Knife::stab(GameWorld& game, Player& shooter) {
 
     if (Player* hit_player = dynamic_cast<Player*>(shot.hit)) {
         execute_stab(hit_player, shot.distance);
+        if (!hit_player->is_alive())
+            shooter.count_kill(kill_bonification);
     }
     // game.execute_shot() para informar a clientes. shooter y distancia unicamente
 }

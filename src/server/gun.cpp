@@ -12,28 +12,31 @@
 
 
 Gun::Gun(const GunType& type, const int& rate_of_fire, const int& base_damage,
-         const int& falloff_distance, const double& base_precision, uint16_t ammo):
+         const int& falloff_distance, const double& base_precision, uint16_t ammo,
+         const int& kill_bonification):
         type(type),
         rate_of_fire(rate_of_fire),
         base_damage(base_damage),
         falloff_distance(falloff_distance),
         base_precision(base_precision),
         time_since_last_shot(0.0f),
-        ammo(ammo) {}
+        ammo(ammo),
+        kill_bonification(kill_bonification) {}
 
 std::unique_ptr<Gun> Gun::new_gun(const GunType& type) {
     switch (type) {
         case GunType::GLOCK:
             return std::make_unique<Glock>(type, GLOCK_ROF, GLOCK_DMG, GLOCK_FALLOF,
-                                           GLOCK_PRECISION, GLOCK_INITIAL_AMMO);
+                                           GLOCK_PRECISION, GLOCK_INITIAL_AMMO, GLOCK_KILL_BONUS);
         case GunType::AK47:
             return std::make_unique<Ak_47>(type, AK47_ROF, AK47_DMG, AK47_FALLOF, AK47_PRECISION,
-                                           AK47_INITIAL_AMMO);
+                                           AK47_INITIAL_AMMO, AK47_KILL_BONUS);
         case GunType::AWP:
-            return std::make_unique<Awp>(type, AWP_ROF, AWP_DMG, -1, 1.0, AWP_INITIAL_AMMO);
+            return std::make_unique<Awp>(type, AWP_ROF, AWP_DMG, -1, 1.0, AWP_INITIAL_AMMO,
+                                         AWP_KILL_BONUS);
         case GunType::M3:
             return std::make_unique<M_3>(type, M3_ROF, M3_DMG, M3_FALLOF, M3_PRECISION,
-                                         M3_INITIAL_AMMO);
+                                         M3_INITIAL_AMMO, M3_KILL_BONUS);
         default:
             throw std::invalid_argument("not a gun type");
     }
@@ -91,6 +94,8 @@ void Gun::shoot(GameWorld& game, Player& shooter) {
 
     if (Player* hit_player = dynamic_cast<Player*>(shot.hit)) {
         execute_shot(hit_player, shot.distance);
+        if (!hit_player->is_alive())
+            shooter.count_kill(kill_bonification);
     }
     // game.execute_shot() para informar a clientes. shooter y distancia unicamente
     // el impacto se vera reflejado cuando el cliente detecte que baja la vida de un jugador.

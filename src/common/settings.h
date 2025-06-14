@@ -48,11 +48,17 @@
 #define SIZE_M3_CLIP 8
 #define SIZE_AWP_CLIP 4
 
+#define AWP_KILL_BONUS 100
+#define AK47_KILL_BONUS 300
+#define M3_KILL_BONUS 300
+#define GLOCK_KILL_BONUS 500
+#define KNIFE_KILL_BONUS 1500
+
 #define BLOCK_THICKNESS 400
 
 #define PLAYER_SPEED 20       // debe ser un numero par
 #define PLAYER_THICKNESS 320  // debe ser menor a BLOCK_THICKNESS (para spawns)
-#define PLAYER_INITIAL_LIFE 10000
+#define PLAYER_INITIAL_LIFE 1000
 
 #define PATH_FOLDER_MAPS "../maps/"
 #define PATH_CS_FONT "../../../assets/cs_regular.ttf"
