@@ -9,6 +9,7 @@ private:
     SDL2pp::Renderer& renderer;
     std::unordered_map<std::string, SDL2pp::Texture> texture_cache;
     std::unordered_map<std::string, SDL2pp::Font> font_cache;
+    std::unordered_map<std::string, SDL2pp::Chunk> sound_cache;
 
     SDL2pp::Font& get_font(const std::string& path, int size);
 
@@ -19,4 +20,5 @@ public:
     SDL2pp::Texture& get_text_texture(const std::string& text, const std::string& font_path,
                                       int size, const SDL2pp::Color& color);
     SDL2pp::Texture& get_fov_texture(int angle_deg, float opacity, int diagonal);
+    SDL2pp::Chunk& get_sound(const std::string& path);
 };

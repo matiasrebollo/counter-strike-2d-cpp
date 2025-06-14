@@ -13,12 +13,14 @@
 
 SDLManager::SDLManager():
         sdl(SDL_INIT_VIDEO),
+        mix(MIX_INIT_OGG | MIX_INIT_MP3),
+        mixer(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 1024),  // jugar con valor 1024
         window("GAME", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_INITIAL_WIDTH,
                WINDOW_INITIAL_HEIGHT, SDL_WINDOW_RESIZABLE),
         renderer(window, -1, SDL_RENDERER_ACCELERATED),
         texture_manager(renderer),
         camera(CAMERA_WIDTH, CAMERA_HEIGHT),
-        shop(renderer, texture_manager, texture_parser) {
+        shop(renderer, mixer, texture_manager, texture_parser) {
     renderer.SetLogicalSize(CAMERA_WIDTH, CAMERA_HEIGHT);
     SDL_ShowCursor(SDL_DISABLE);
 }
@@ -438,9 +440,9 @@ void SDLManager::render_in_z_order(const Snapshot& snapshot, const LocalInfo& lo
     render_hud_money(local_info.money);
 }
 
-std::optional<ShopButtonType> SDLManager::get_clicked_button(int x, int y, int money,
-                                                             GunType primary) {
-    return shop.clicked_button(x, y, money, primary);
+std::optional<ShopButtonType> SDLManager::interact_button(int x, int y, int money, GunType primary,
+                                                          bool click) {
+    return shop.interact_button(x, y, money, primary, click);
 }
 
 
@@ -456,7 +458,8 @@ Crosshairs SDLManager::get_crosshair_color(int mouse_x, int mouse_y, const Snaps
     int size_player = PLAYER_THICKNESS / GRAPHIC_SCALE;
 
     for (const auto& e: enemies) {
-        SDL2pp::Rect destino_mundo(e.position.x, e.position.y, size_player, size_player);
+        SDL2pp::Rect destino_mundo(e.position.x / GRAPHIC_SCALE, e.position.y / GRAPHIC_SCALE,
+                                   size_player, size_player);
 
         if (!camera.is_visible(destino_mundo)) {
             continue;

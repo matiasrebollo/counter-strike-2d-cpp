@@ -137,3 +137,14 @@ SDL2pp::Texture& TextureManager::get_fov_texture(int angle_deg, float opacity, i
     texture_cache.emplace(key, std::move(texture));
     return texture_cache.at(key);
 }
+
+
+SDL2pp::Chunk& TextureManager::get_sound(const std::string& path) {
+    auto it = sound_cache.find(path);
+    if (it != sound_cache.end()) {
+        return it->second;
+    }
+
+    auto result = sound_cache.emplace(path, SDL2pp::Chunk(path));
+    return result.first->second;
+}

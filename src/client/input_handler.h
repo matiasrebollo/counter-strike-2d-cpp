@@ -27,7 +27,8 @@ private:
     bool handle_quit_event(const SDL_Event& event);
     bool handle_weapon_switch_event(const SDL_Event& event);
 
-    bool handle_shop_event(const SDL_Event& event, int money, GunType primary);
+    bool handle_click_shop_event(const SDL_Event& event, int money, GunType primary);
+    bool handle_move_shop_event(const SDL_Event& event, int money, GunType primary);
 
     bool handle_keydown_event(const SDL_Event& event);
     bool handle_keyup_event(const SDL_Event& event);

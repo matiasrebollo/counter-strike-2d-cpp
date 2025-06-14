@@ -7,6 +7,7 @@
 #include "map_object.h"
 
 BlockTextureParser::BlockTextureParser(): block_textures(), backgrounds_paths() {
+    this->set_sound_paths();
     this->set_backgrounds_paths();
     this->set_blocks_textures();
     this->set_skins_textures();
@@ -72,6 +73,19 @@ const std::vector<Background> BlockTextureParser::get_backgrounds() {
 const std::string& BlockTextureParser::get_background_path(const Background& background) {
     return backgrounds_paths.at(background);
 }
+
+const std::string& BlockTextureParser::get_sound_path(SoundEffect effect) const {
+    return sound_paths.at(effect);
+}
+
+void BlockTextureParser::set_sound_paths() {
+    sound_paths = {{DENY_SELECT, "../assets/sfx/wpn_denyselect.wav"},
+                   {SELECT, "../assets/sfx/wpn_select.wav"},
+                   {MOVE_SELECT, "../assets/sfx/wpn_moveselect.wav"},
+                   {OPEN_SHOP, "../assets/sfx/wpn_hudon.wav"},
+                   {CLOSE_SHOP, "../assets/sfx/wpn_hudoff.wav"}};
+}
+
 
 void BlockTextureParser::set_backgrounds_paths() {
     this->backgrounds_paths = {{AZTEC_BACKGROUND, "../assets/gfx/backgrounds/aztec.png"},

@@ -19,12 +19,14 @@
 
 class SDLManager {
 private:
-    BlockTextureParser texture_parser;
     SDL2pp::SDL sdl;
     SDL2pp::SDLTTF ttf;
+    SDL2pp::SDLMixer mix;
+    SDL2pp::Mixer mixer;
     SDL2pp::Window window;
     SDL2pp::Renderer renderer;
     TextureManager texture_manager;
+    BlockTextureParser texture_parser;
     Camera camera;
     Shop shop;
     std::optional<GameMapDTO> map;
@@ -64,8 +66,11 @@ public:
     /* Renderiza en orden de profundidad el mapa, cada jugador con su arma, y el HUD */
     void render_in_z_order(const Snapshot& snapshot, const LocalInfo& local_info);
 
-    /* Devuelve què boton de la tienda fue clickeado si alguno fue clickeado */
-    std::optional<ShopButtonType> get_clicked_button(int x, int y, int money, GunType primary);
+    /* Devuelve què boton de la tienda fue clickeado si alguno fue clickeado si click es true
+     * o interactua con el boton si es false.
+     */
+    std::optional<ShopButtonType> interact_button(int x, int y, int money, GunType primary,
+                                                  bool click);
 
     /* Renderiza la tienda de la fase de compra */
     void render_shop(int player_money, GunType primary_gun, GunType secondary_gun);

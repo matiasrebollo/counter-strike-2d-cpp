@@ -2,9 +2,10 @@
 
 #include <utility>
 
-Shop::Shop(SDL2pp::Renderer& renderer, TextureManager& texture_manager,
+Shop::Shop(SDL2pp::Renderer& renderer, SDL2pp::Mixer& mixer, TextureManager& texture_manager,
            BlockTextureParser& texture_parser):
         renderer(renderer),
+        mixer(mixer),
         texture_manager(texture_manager),
         texture_parser(texture_parser),
         shop_rect(SDL2pp::Rect(53, 33, 533, 333)),
@@ -199,23 +200,33 @@ void Shop::render(int player_money, GunType primary_gun, GunType secondary_gun) 
 
     // Botones
     for (const ShopButton& btn: buttons) {
-        if (btn.type == Open)
+        if (btn.type == ShopButtonType::Open)
             continue;
+
 
         // Fondo
         renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
         renderer.SetDrawColor(button_color);
-        renderer.FillRect(btn.rect);
+
+        SDL2pp::Rect draw_rect = btn.rect;
+        if (btn.type == touched_button_type) {
+            int expand = 2;
+            draw_rect.x -= expand;
+            draw_rect.y -= expand;
+            draw_rect.w += 2 * expand;
+            draw_rect.h += 2 * expand;
+        }
+        renderer.FillRect(draw_rect);
 
         // Borde
         renderer.SetDrawBlendMode(SDL_BLENDMODE_NONE);
         renderer.SetDrawColor(border_color);
-        renderer.FillRect(SDL2pp::Rect(btn.rect.x, btn.rect.y, btn.rect.w, border_thickness));
-        renderer.FillRect(SDL2pp::Rect(btn.rect.x, btn.rect.y + btn.rect.h - border_thickness,
-                                       btn.rect.w, border_thickness));
-        renderer.FillRect(SDL2pp::Rect(btn.rect.x, btn.rect.y, border_thickness, btn.rect.h));
-        renderer.FillRect(SDL2pp::Rect(btn.rect.x + btn.rect.w - border_thickness, btn.rect.y,
-                                       border_thickness, btn.rect.h));
+        renderer.FillRect(SDL2pp::Rect(draw_rect.x, draw_rect.y, draw_rect.w, border_thickness));
+        renderer.FillRect(SDL2pp::Rect(draw_rect.x, draw_rect.y + draw_rect.h - border_thickness,
+                                       draw_rect.w, border_thickness));
+        renderer.FillRect(SDL2pp::Rect(draw_rect.x, draw_rect.y, border_thickness, draw_rect.h));
+        renderer.FillRect(SDL2pp::Rect(draw_rect.x + draw_rect.w - border_thickness, draw_rect.y,
+                                       border_thickness, draw_rect.h));
 
         // Texto (si tiene)
         if (!btn.text.empty()) {
@@ -232,7 +243,7 @@ void Shop::render(int player_money, GunType primary_gun, GunType secondary_gun) 
 
         // Precio
         int price = 0;
-        if (btn.type == AmmoPrimary || btn.type == AmmoSecondary) {
+        if (btn.type == ShopButtonType::AmmoPrimary || btn.type == ShopButtonType::AmmoSecondary) {
             price = 50;  // hardcodeado por ahora
         } else if (btn.weapon_type != NONE) {
             price = btn.price;
@@ -253,11 +264,11 @@ void Shop::render(int player_money, GunType primary_gun, GunType secondary_gun) 
         }
 
         // Cantidad de balas
-        if ((btn.type == AmmoPrimary && primary_gun != NONE) ||
-            (btn.type == AmmoSecondary && secondary_gun != NONE)) {
+        if ((btn.type == ShopButtonType::AmmoPrimary && primary_gun != NONE) ||
+            (btn.type == ShopButtonType::AmmoSecondary && secondary_gun != NONE)) {
             int ammo = 0;
 
-            if (btn.type == AmmoPrimary) {
+            if (btn.type == ShopButtonType::AmmoPrimary) {
                 ammo = ammo_by_clip.at(primary_gun);
             } else {
                 ammo = ammo_by_clip.at(secondary_gun);
@@ -372,12 +383,18 @@ void Shop::render(int player_money, GunType primary_gun, GunType secondary_gun) 
     highlight_primary = false;
 }
 
-std::optional<ShopButtonType> Shop::clicked_button(int x, int y, int money, GunType primary_gun) {
+std::optional<ShopButtonType> Shop::interact_button(int x, int y, int money, GunType primary_gun,
+                                                    bool click) {
     SDL2pp::Point point(x, y);
+    touched_button_type = ShopButtonType::None;
 
     if (!open) {
-        if (open_button.rect.Contains(point)) {
+        if (open_button.rect.Contains(point) && click) {
             open = true;
+            std::string path = texture_parser.get_sound_path(OPEN_SHOP);
+            SDL2pp::Chunk& sound = texture_manager.get_sound(path);
+            mixer.PlayChannel(-1, sound);
+
             return ShopButtonType::Open;
         }
         return std::nullopt;
@@ -385,8 +402,29 @@ std::optional<ShopButtonType> Shop::clicked_button(int x, int y, int money, GunT
 
     for (const ShopButton& button: buttons) {
         if (button.rect.Contains(point)) {
+
+            touched_button_type = button.type;
+
+            if (!click) {
+                if (button.type == ShopButtonType::Close)
+                    return std::nullopt;
+
+                if (touched_button_type != last_touched_button_type) {
+                    last_touched_button_type = touched_button_type;
+                    std::string path = texture_parser.get_sound_path(MOVE_SELECT);
+                    SDL2pp::Chunk& sound = texture_manager.get_sound(path);
+                    mixer.PlayChannel(-1, sound);
+                }
+                return std::nullopt;
+            }
+
             if (button.type == ShopButtonType::Close) {
                 open = false;
+
+                std::string path = texture_parser.get_sound_path(CLOSE_SHOP);
+                SDL2pp::Chunk& sound = texture_manager.get_sound(path);
+                mixer.PlayChannel(-1, sound);
+
                 return ShopButtonType::Close;
             }
 
@@ -395,6 +433,11 @@ std::optional<ShopButtonType> Shop::clicked_button(int x, int y, int money, GunT
 
             if (money < button.price) {
                 highlight_money = true;
+
+                std::string path = texture_parser.get_sound_path(DENY_SELECT);
+                SDL2pp::Chunk& sound = texture_manager.get_sound(path);
+                mixer.PlayChannel(-1, sound);
+
                 return std::nullopt;
             }
 
@@ -402,8 +445,16 @@ std::optional<ShopButtonType> Shop::clicked_button(int x, int y, int money, GunT
                  button.type == WeaponM3) &&
                 button.weapon_type == primary_gun) {
                 highlight_primary = true;
+
+                std::string path = texture_parser.get_sound_path(DENY_SELECT);
+                SDL2pp::Chunk& sound = texture_manager.get_sound(path);
+                mixer.PlayChannel(-1, sound);
                 return std::nullopt;
             }
+
+            std::string path = texture_parser.get_sound_path(SELECT);
+            SDL2pp::Chunk& sound = texture_manager.get_sound(path);
+            mixer.PlayChannel(-1, sound);
 
             return button.type;
         }

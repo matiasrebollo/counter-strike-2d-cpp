@@ -17,7 +17,16 @@
 #include "texture_manager.h"
 
 
-enum ShopButtonType { WeaponAK47, WeaponAWP, WeaponM3, AmmoPrimary, AmmoSecondary, Close, Open };
+enum ShopButtonType {
+    WeaponAK47,
+    WeaponAWP,
+    WeaponM3,
+    AmmoPrimary,
+    AmmoSecondary,
+    Close,
+    Open,
+    None
+};
 
 struct ShopButton {
     SDL2pp::Rect rect;
@@ -30,6 +39,7 @@ struct ShopButton {
 class Shop {
 private:
     SDL2pp::Renderer& renderer;
+    SDL2pp::Mixer& mixer;
     TextureManager& texture_manager;
     BlockTextureParser& texture_parser;
 
@@ -47,9 +57,11 @@ private:
 
     bool highlight_money = false;
     bool highlight_primary = false;
+    ShopButtonType touched_button_type = None;
+    ShopButtonType last_touched_button_type = None;
 
 public:
-    Shop(SDL2pp::Renderer& renderer, TextureManager& texture_manager,
+    Shop(SDL2pp::Renderer& renderer, SDL2pp::Mixer& mixer, TextureManager& texture_manager,
          BlockTextureParser& texture_parser);
 
     /* Setea los precios y cantidades de cada cosa de la tienda, al comenzar la partida */
@@ -61,7 +73,8 @@ public:
     /* Devuelve el boton clickeado si x e y estan dentro, o nada si no esta dentro
      * o si no alcanza el dinero o si ya se posee esa arma.
      */
-    std::optional<ShopButtonType> clicked_button(int x, int y, int money, GunType primary_gun);
+    std::optional<ShopButtonType> interact_button(int x, int y, int money, GunType primary_gun,
+                                                  bool click);
 };
 
 
