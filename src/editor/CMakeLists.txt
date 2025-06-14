@@ -2,6 +2,7 @@ target_sources(taller_editor
     PRIVATE
     game_editor.ui
     game_editor.cpp
+    clickable_label.cpp
     main.cpp
     resources.qrc
     blocks_setter.cpp

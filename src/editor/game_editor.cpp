@@ -168,13 +168,15 @@ void Game_editor::setupGridMap() {
             QPixmap& base = pixmap_manager.get_block_pixmap(grid[i][j]);
             cell->setPixmap(base);
             connect(cell, &ClickableLabel::clicked, this, [this, cell, i, j]() {
+                first_click = {j, i};
+                first_click_done = true;
+            });
+
+            connect(cell, &ClickableLabel::dropped, this, [this, i, j]() {
                 if (first_click_done) {
                     second_click = {j, i};
                     mode->handle(first_click, second_click, *this);
                     first_click_done = false;
-                } else {
-                    first_click = {j, i};
-                    first_click_done = true;
                 }
             });
             ui->grid_map->addWidget(cell, i, j);
