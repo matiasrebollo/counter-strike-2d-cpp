@@ -85,7 +85,6 @@ void Game_editor::setupBlockList() {
     }
 }
 
-
 void Game_editor::setupToolbar() {
     ClickableLabel* labelTT = new ClickableLabel();
     ui->GameAreas->addStretch();
@@ -180,11 +179,11 @@ void Game_editor::setupGridMap() {
             connect(cell, &ClickableLabel::dropped, this, [this, i, j]() {
                 if (first_left_click_done) {
                     second_left_click = {j, i};
-                    mode->handle(first_left_click, second_left_click, *this);
+                    mode->handle(first_left_click, second_left_click, *this, false);
                     first_left_click_done = false;
                 } else if (first_right_click_done) {
                     second_right_click = {j, i};
-                    mode->handle_delete(first_right_click, second_right_click, *this);
+                    mode->handle(first_right_click, second_right_click, *this, true);
                     first_right_click_done = false;
                 }
             });
@@ -192,7 +191,7 @@ void Game_editor::setupGridMap() {
             connect(cell, &ClickableLabel::double_click_left, this, [this, cell, i, j]() {
                 first_left_click = {j, i};
                 second_left_click = {j, i};
-                mode->handle(first_left_click, second_left_click, *this);
+                mode->handle(first_left_click, second_left_click, *this, false);
                 first_left_click_done = false;
             });
 
@@ -200,7 +199,7 @@ void Game_editor::setupGridMap() {
             connect(cell, &ClickableLabel::double_click_right, this, [this, cell, i, j]() {
                 first_right_click = {j, i};
                 second_right_click = {j, i};
-                mode->handle_delete(first_right_click, second_right_click, *this);
+                mode->handle(first_right_click, second_right_click, *this, true);
                 first_right_click_done = false;
             });
 
@@ -348,7 +347,7 @@ void Game_editor::on_add_columns_button_clicked() {
             connect(cell, &ClickableLabel::left_clicked, this, [this, cell, i, j]() {
                 if (first_left_click_done) {
                     second_left_click = {j, i};
-                    mode->handle(first_left_click, second_left_click, *this);
+                    mode->handle(first_left_click, second_left_click, *this, true);
                     first_left_click_done = false;
                 } else {
                     first_left_click = {j, i};
@@ -377,7 +376,7 @@ void Game_editor::on_add_rows_button_clicked() {
             connect(cell, &ClickableLabel::left_clicked, this, [this, cell, i, j]() {
                 if (first_left_click_done) {
                     second_left_click = {j, i};
-                    mode->handle(first_left_click, second_left_click, *this);
+                    mode->handle(first_left_click, second_left_click, *this, true);
                     first_left_click_done = false;
                 } else {
                     first_left_click = {j, i};
