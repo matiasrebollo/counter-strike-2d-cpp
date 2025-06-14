@@ -19,6 +19,7 @@ Game_editor::Game_editor(QWidget* parent):
         QMainWindow(parent),
         ui(new Ui::Game_editor),
         texture_parser(),
+        pixmap_manager(),
         selected_block(NONE_BLOCK),
         selected_background(AZTEC_BACKGROUND),
         mode(std::make_unique<BlocksSetter>()),
@@ -62,8 +63,7 @@ void Game_editor::setupBlockList() {
         label->setFixedSize(50, 50);
 
         BlockTextureInfo texture = texture_parser.get_texture_info(block);
-        QPixmap tileset(QString::fromStdString(texture.tileset_path));
-        QPixmap tile = tileset.copy(texture.x, texture.y, texture.width, texture.height);
+        QPixmap& tile = pixmap_manager.get_block_pixmap(block);
         label->setPixmap(tile.scaled(50, 50));
         label->setCursor(Qt::CrossCursor);
 
@@ -137,16 +137,18 @@ void Game_editor::setupBackgroundList() {
         ClickableLabel* label = new ClickableLabel();
         label->setFixedSize(60, 60);
         std::string background_path = texture_parser.get_background_path(background);
-        QPixmap background_image(QString::fromStdString(background_path));
+        QPixmap& background_image = pixmap_manager.get_pixmap(background_path);
         label->setPixmap(background_image.scaled(50, 50));
         ui->backgrounds_list->addWidget(label);
         label->setCursor(Qt::CrossCursor);
         connect(label, &ClickableLabel::clicked, [this, background, background_path]() {
-            ui->scrollAreaGridMap->setStyleSheet("background-image: url(" +
-                                                 QString::fromStdString(background_path) +
-                                                 ");"
-                                                 "background-repeat: no-repeat;"
-                                                 "background-position: center;");
+            QString qss = QString("#scrollAreaGridMap {"
+                                  "border-image: url(%1) 0 0 0 0 stretch stretch;"
+                                  "}")
+                                  .arg(QString::fromStdString(background_path));
+
+            ui->scrollAreaGridMap->setStyleSheet(qss);
+            ui->scrollAreaGridMap->setStyleSheet(qss);
             selected_background = background;
             first_click_done = false;
         });
@@ -163,8 +165,7 @@ void Game_editor::setupGridMap() {
         for (int j = 0; j < columns; ++j) {
             ClickableLabel* cell = new ClickableLabel();
             cell->setFixedSize(50, 50);
-            QPixmap base(50, 50);
-            base.fill(Qt::transparent);
+            QPixmap& base = pixmap_manager.get_block_pixmap(grid[i][j]);
             cell->setPixmap(base);
             connect(cell, &ClickableLabel::clicked, this, [this, cell, i, j]() {
                 if (first_click_done) {
@@ -205,11 +206,41 @@ void Game_editor::on_save_button_clicked() {
 GameMap Game_editor::create_map(const std::vector<std::vector<int>>& grid) {
     int height = static_cast<int>(grid.size());
     int width = static_cast<int>(grid[0].size());
-    std::map<int, std::vector<Vector2D<int>>> positions_map;
+
+    int offset_x = width;
+    int right_most = 0;
+    int offset_y = height;
+    int bottom_most = 0;
+
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
             int block = grid[i][j];
-            positions_map[block].push_back(Vector2D<int>(j, i));
+            if (block != NONE_BLOCK) {
+                offset_x = std::min(j, offset_x);
+                right_most = std::max(j, right_most);
+                offset_y = std::min(i, offset_y);
+                bottom_most = std::max(i, bottom_most);
+            }
+        }
+    }
+
+    std::vector<MapObject> blocks = load_blocks(offset_x, offset_y);
+    std::vector<Vector2D<int>> ct_spawns_vector = set_to_vector(ct_spawns, offset_x, offset_y);
+    std::vector<Vector2D<int>> tt_spawns_vector = set_to_vector(tt_spawns, offset_x, offset_x);
+    std::vector<Vector2D<int>> sites_vector = set_to_vector(bomb_sites, offset_x, offset_y);
+
+    return {right_most - offset_x + 1, bottom_most - offset_y + 1, selected_background, blocks,
+            ct_spawns_vector,          tt_spawns_vector,           sites_vector};
+}
+
+std::vector<MapObject> Game_editor::load_blocks(const int& offset_x, const int& offset_y) {
+    std::map<int, std::vector<Vector2D<int>>> positions_map;
+    int height = static_cast<int>(grid.size());
+    int width = static_cast<int>(grid[0].size());
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            int block = grid[i][j];
+            positions_map[block].push_back(Vector2D<int>(j - offset_x, i - offset_y));
         }
     }
 
@@ -220,25 +251,18 @@ GameMap Game_editor::create_map(const std::vector<std::vector<int>>& grid) {
                        return MapObject{pair.second, pair.first,
                                         texture_parser.get_texture_info(pair.first).collidable};
                    });
-
-
-    std::vector<Vector2D<int>> ct_spawns_vector = set_to_vector(ct_spawns);
-    std::vector<Vector2D<int>> tt_spawns_vector = set_to_vector(tt_spawns);
-    std::vector<Vector2D<int>> sites_vector = set_to_vector(bomb_sites);
-
-    GameMap game_map = {width,       height,           selected_background,
-                        blocks,      ct_spawns_vector, tt_spawns_vector,
-                        sites_vector};
-    return game_map;
+    return blocks;
 }
 
-std::vector<Vector2D<int>> Game_editor::set_to_vector(
-        const std::set<std::pair<int, int>>& set_pos) {
+std::vector<Vector2D<int>> Game_editor::set_to_vector(const std::set<std::pair<int, int>>& set_pos,
+                                                      const int& offset_x, const int& offset_y) {
     std::vector<Vector2D<int>> vec;
     vec.reserve(set_pos.size());
 
     std::transform(set_pos.begin(), set_pos.end(), std::back_inserter(vec),
-                   [](const auto& pair) { return Vector2D<int>(pair.first, pair.second); });
+                   [offset_x, offset_y](const auto& pair) {
+                       return Vector2D<int>(pair.first - offset_x, pair.second - offset_y);
+                   });
     return vec;
 }
 
@@ -292,8 +316,7 @@ void Game_editor::on_add_columns_button_clicked() {
         for (int j = collumns_actual; j < collumns_actual + COLLUMNS_TO_ADD; ++j) {
             ClickableLabel* cell = new ClickableLabel();
             cell->setFixedSize(50, 50);
-            QPixmap base(50, 50);
-            base.fill(Qt::transparent);
+            QPixmap& base = pixmap_manager.get_block_pixmap(grid[i][j]);
             cell->setPixmap(base);
             connect(cell, &ClickableLabel::clicked, this, [this, cell, i, j]() {
                 if (first_click_done) {
@@ -322,8 +345,7 @@ void Game_editor::on_add_rows_button_clicked() {
         for (int j = 0; j < collumns_actual; ++j) {
             ClickableLabel* cell = new ClickableLabel();
             cell->setFixedSize(50, 50);
-            QPixmap base(50, 50);
-            base.fill(Qt::transparent);
+            QPixmap& base = pixmap_manager.get_block_pixmap(grid[i][j]);
             cell->setPixmap(base);
             connect(cell, &ClickableLabel::clicked, this, [this, cell, i, j]() {
                 if (first_click_done) {
@@ -363,7 +385,7 @@ void Game_editor::mark_as_collidable(ClickableLabel* label) {
     QPixmap result = label->pixmap(Qt::ReturnByValue);
     QPainter painter(&result);
 
-    QPixmap overlay("../assets/gfx/collidable.png");
+    QPixmap& overlay = pixmap_manager.get_pixmap("../assets/gfx/collidable.png");
     QPixmap scaledOverlay = overlay.scaled(20, 20);
 
     int x = result.width() - scaledOverlay.width();
@@ -375,20 +397,15 @@ void Game_editor::mark_as_collidable(ClickableLabel* label) {
 }
 
 void Game_editor::render_block(ClickableLabel* cell, const int& block) {
-    if (block != NONE_BLOCK) {
-        BlockTextureInfo texture = texture_parser.get_texture_info(block);
-        std::string path = texture.tileset_path;
-        QPixmap tileset(QString::fromStdString(path));
-        QPixmap tile = tileset.copy(texture.x, texture.y, texture.width, texture.height);
-        cell->setPixmap(tile.scaled(50, 50));
-    }
+    QPixmap& tile = pixmap_manager.get_block_pixmap(block);
+    cell->setPixmap(tile.scaled(50, 50));
 }
 
 void Game_editor::mark_as_tt_spawn(ClickableLabel* label) {
     QPixmap result = label->pixmap(Qt::ReturnByValue);
     QPainter painter(&result);
 
-    QPixmap overlay("../assets/gfx/terrorist_logo.png");
+    QPixmap& overlay = pixmap_manager.get_pixmap("../assets/gfx/terrorist_logo.png");
     QPixmap scaledOverlay = overlay.scaled(20, 20);
 
     int x = result.width() - scaledOverlay.width();
@@ -403,7 +420,7 @@ void Game_editor::mark_as_ct_spawn(ClickableLabel* label) {
     QPixmap result = label->pixmap(Qt::ReturnByValue);
     QPainter painter(&result);
 
-    QPixmap overlay("../assets/gfx/counter_terrorist_logo.png");
+    QPixmap& overlay = pixmap_manager.get_pixmap("../assets/gfx/counter_terrorist_logo.png");
     QPixmap scaledOverlay = overlay.scaled(20, 20);
 
     int x = 0;
@@ -418,7 +435,7 @@ void Game_editor::mark_as_bomb_site(ClickableLabel* label) {
     QPixmap result = label->pixmap(Qt::ReturnByValue);
     QPainter painter(&result);
 
-    QPixmap overlay("../assets/gfx/weapons/bomb.bmp");
+    QPixmap& overlay = pixmap_manager.get_pixmap("../assets/gfx/weapons/bomb.bmp");
     QPixmap scaledOverlay = overlay.scaled(20, 20);
 
     int x = 0;
