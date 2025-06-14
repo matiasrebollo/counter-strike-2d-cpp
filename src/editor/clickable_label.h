@@ -19,12 +19,14 @@ public:
 signals:
     void clicked();
     void dropped(int x, int y);
+    void doubleClicked();
 
 protected:
     void mousePressEvent(QMouseEvent*) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void dragEnterEvent(QDragEnterEvent* event) override;
     void dropEvent(QDropEvent* event) override;
+    void mouseDoubleClickEvent(QMouseEvent* event) override;
 
 private:
     QPoint dragStartPosition;

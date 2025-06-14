@@ -179,6 +179,13 @@ void Game_editor::setupGridMap() {
                     first_click_done = false;
                 }
             });
+
+            connect(cell, &ClickableLabel::doubleClicked, this, [this, cell, i, j]() {
+                first_click = {j, i};
+                second_click = {j, i};
+                mode->handle(first_click, second_click, *this);
+                first_click_done = false;
+            });
             ui->grid_map->addWidget(cell, i, j);
         }
     }
