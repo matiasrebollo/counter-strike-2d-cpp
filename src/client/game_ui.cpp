@@ -12,8 +12,13 @@ GameUI::GameUI(Lobby& lobby):
         input_handler(sdl, this->protocol),
         receiver(this->protocol),
         // podria usar move?
-        local_info{lobby.get_username(), lobby.get_gamecode(), lobby.get_ct_skin(),
-                   lobby.get_tt_skin()},
+        local_info{lobby.get_username(),
+                   lobby.get_gamecode(),
+                   lobby.get_ct_skin(),
+                   lobby.get_tt_skin(),
+                   {},
+                   {},
+                   PlayerInfo{}},
         keep_running(true),
         game_snapshot({0, WAITING_PLAYERS, 0, 0, 0, {}, {}}) {
     this->phase = std::make_unique<WaitingForGamePhase>(*this);
@@ -36,24 +41,29 @@ void GameUI::run() {
 }
 
 void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
+    local_info.ct_players = snapshot.ct;
+    local_info.tt_players = snapshot.tt;
+    local_info.time_left = snapshot.time_left;
+    local_info.total_players = snapshot.total_players;
+
     for (const auto& p: snapshot.ct) {
         // cppcheck-suppress useStlAlgorithm
         if (p.username == local_info.username) {
-            local_info.is_ct = true;
-            local_info.life = p.life;
-            local_info.x = p.position.x / GRAPHIC_SCALE;
-            local_info.y = p.position.y / GRAPHIC_SCALE;
-            local_info.orientation = p.orientation + PLAYER_SPRITE_GAP;
-            local_info.money = p.loadout.money;
+            local_info.player.is_ct = true;
+            local_info.player.life = p.life;
+            local_info.player.x = p.position.x / GRAPHIC_SCALE;
+            local_info.player.y = p.position.y / GRAPHIC_SCALE;
+            local_info.player.orientation = p.orientation + PLAYER_SPRITE_GAP;
+            local_info.player.money = p.loadout.money;
             if (p.loadout.equipped == PRIMARY) {
-                local_info.equipped_gun_ammo = p.loadout.primary_ammo;
+                local_info.player.equipped_gun_ammo = p.loadout.primary_ammo;
             } else if (p.loadout.equipped == SECONDARY) {
-                local_info.equipped_gun_ammo = p.loadout.secondary_ammo;
+                local_info.player.equipped_gun_ammo = p.loadout.secondary_ammo;
             } else {
-                local_info.equipped_gun_ammo = 0;
+                local_info.player.equipped_gun_ammo = 0;
             }
-            local_info.primary_gun = p.loadout.primary_gun;
-            local_info.secondary_gun = p.loadout.secondary_gun;
+            local_info.player.primary_gun = p.loadout.primary_gun;
+            local_info.player.secondary_gun = p.loadout.secondary_gun;
             return;
         }
     }
@@ -61,21 +71,21 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
     for (const auto& p: snapshot.tt) {
         // cppcheck-suppress useStlAlgorithm
         if (p.username == local_info.username) {
-            local_info.is_ct = false;
-            local_info.life = p.life;
-            local_info.x = p.position.x / GRAPHIC_SCALE;
-            local_info.y = p.position.y / GRAPHIC_SCALE;
-            local_info.orientation = p.orientation + PLAYER_SPRITE_GAP;
-            local_info.money = p.loadout.money;
+            local_info.player.is_ct = false;
+            local_info.player.life = p.life;
+            local_info.player.x = p.position.x / GRAPHIC_SCALE;
+            local_info.player.y = p.position.y / GRAPHIC_SCALE;
+            local_info.player.orientation = p.orientation + PLAYER_SPRITE_GAP;
+            local_info.player.money = p.loadout.money;
             if (p.loadout.equipped == PRIMARY) {
-                local_info.equipped_gun_ammo = p.loadout.primary_ammo;
+                local_info.player.equipped_gun_ammo = p.loadout.primary_ammo;
             } else if (p.loadout.equipped == SECONDARY) {
-                local_info.equipped_gun_ammo = p.loadout.secondary_ammo;
+                local_info.player.equipped_gun_ammo = p.loadout.secondary_ammo;
             } else {
-                local_info.equipped_gun_ammo = 0;
+                local_info.player.equipped_gun_ammo = 0;
             }
-            local_info.primary_gun = p.loadout.primary_gun;
-            local_info.secondary_gun = p.loadout.secondary_gun;
+            local_info.player.primary_gun = p.loadout.primary_gun;
+            local_info.player.secondary_gun = p.loadout.secondary_gun;
             return;
         }
     }
@@ -114,16 +124,14 @@ bool GameUI::update_waiting() {
 
 void GameUI::show_waiting(const int& it) {
     sdl.clear_display();
-    // el 2 luego tiene que ser la cantidad de personas que va a unirse maxima que se lee del
-    // configurable
-    sdl.render_waiting_screen(this->game_snapshot.ct.size() + this->game_snapshot.tt.size(),
-                              this->game_snapshot.total_players, local_info.gamename, it,
-                              FPS_CLIENT);
+    sdl.render_waiting_screen(local_info.ct_players.size() + local_info.tt_players.size(),
+                              local_info.total_players, local_info.gamename, it, FPS_CLIENT);
     sdl.show_screen();
 }
 
 void GameUI::handle_buy_events() {
-    this->keep_running = input_handler.handle_buy_events(local_info.money, local_info.primary_gun);
+    this->keep_running =
+            input_handler.handle_buy_events(local_info.player.money, local_info.player.primary_gun);
 }
 bool GameUI::update_buy() {
     GameDTO game_dto;
@@ -134,8 +142,6 @@ bool GameUI::update_buy() {
             continue;
         }
         Snapshot snapshot_tmp = std::get<Snapshot>(game_dto);
-        // Identificar en snapshot_tmp cambios de equipamiento en el local_player para animación de
-        // tienda
         this->game_snapshot = std::move(snapshot_tmp);
         update_local_info_from_snapshot(this->game_snapshot);
 
@@ -148,9 +154,10 @@ bool GameUI::update_buy() {
 
 void GameUI::show_buy(const int& /*it*/) {
     sdl.clear_display();
-    sdl.render_in_z_order(this->game_snapshot, local_info);
-    sdl.render_shop(local_info.money, local_info.primary_gun, local_info.secondary_gun);
-    sdl.render_crosshair(this->game_snapshot, local_info);
+    sdl.render_in_z_order(local_info);
+    sdl.render_shop(local_info.player.money, local_info.player.primary_gun,
+                    local_info.player.secondary_gun);
+    sdl.render_crosshair(local_info);
     sdl.show_screen();
 }
 
@@ -182,8 +189,8 @@ bool GameUI::update_attack() {
 }
 void GameUI::show_attack(const int& /*it*/) {
     sdl.clear_display();
-    sdl.render_in_z_order(this->game_snapshot, local_info);
-    sdl.render_crosshair(this->game_snapshot, local_info);
+    sdl.render_in_z_order(local_info);
+    sdl.render_crosshair(local_info);
     sdl.show_screen();
 }
 

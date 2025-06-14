@@ -199,6 +199,8 @@ void SDLManager::render_fov(float orientation) {
 
 /* Renderiza el tiempo restante de la ronda del HUD */
 void SDLManager::render_hud_time(int time_left) {
+    // quizas este calculo procesarlo al recibir la snapshot si no necesito el tiempo para otra
+    // cosa.
     int minutes = time_left / 60;
     int seconds = time_left % 60;
 
@@ -256,7 +258,7 @@ void SDLManager::render_hud_time(int time_left) {
 }
 
 /* Renderiza la vida del HUD */
-void SDLManager::render_hud_life(uint16_t life) {
+void SDLManager::render_hud_life(int life) {
 
     int plus_width = 30, plus_height = 33;
 
@@ -377,10 +379,8 @@ void SDLManager::render_hud_money(int money) {
     }
 }
 
-// quizas eliminar la snapshot y englobar localinfo en un gamestate y solo recibir gamestate
-void SDLManager::render_in_z_order(const Snapshot& snapshot, const LocalInfo& local_info) {
-
-    update_camera(local_info.x, local_info.y);
+void SDLManager::render_in_z_order(const LocalInfo& local_info) {
+    update_camera(local_info.player.x, local_info.player.y);
 
     if (map.has_value()) {
         GameMapDTO game_map = map.value();
@@ -410,34 +410,33 @@ void SDLManager::render_in_z_order(const Snapshot& snapshot, const LocalInfo& lo
         }
     }
 
-    for (const PlayerDTO& p: snapshot.ct) {
+    for (const PlayerDTO& p: local_info.ct_players) {
         Position pos = get_gun_info(p.loadout).first;
         const BlockTextureInfo& skin_info = texture_parser.get_ct_texture(local_info.ct_skin, pos);
         render_player(p, skin_info);
     }
 
-    for (const PlayerDTO& p: snapshot.tt) {
+    for (const PlayerDTO& p: local_info.tt_players) {
         Position pos = get_gun_info(p.loadout).first;
         const BlockTextureInfo& skin_info = texture_parser.get_tt_texture(local_info.tt_skin, pos);
         render_player(p, skin_info);
     }
 
-    // renderizo las armas luego de los players para que las armas siempre aparezcan por encima de
-    // estos, ver si modificar
-    for (const PlayerDTO& p: snapshot.ct) {
+    // Renderizo las armas luego de los players para que aparezcan por encima
+    for (const PlayerDTO& p: local_info.ct_players) {
         render_player_weapon(p);
     }
 
-    for (const PlayerDTO& p: snapshot.tt) {
+    for (const PlayerDTO& p: local_info.tt_players) {
         render_player_weapon(p);
     }
 
-    render_fov(local_info.orientation);
+    render_fov(local_info.player.orientation);
 
-    render_hud_time(snapshot.time_left);
-    render_hud_life(local_info.life);
-    render_hud_ammo(local_info.equipped_gun_ammo);
-    render_hud_money(local_info.money);
+    render_hud_time(local_info.time_left);
+    render_hud_life(local_info.player.life);
+    render_hud_ammo(local_info.player.equipped_gun_ammo);
+    render_hud_money(local_info.player.money);
 }
 
 std::optional<ShopButtonType> SDLManager::interact_button(int x, int y, int money, GunType primary,
@@ -451,10 +450,9 @@ void SDLManager::render_shop(int player_money, GunType primary_gun, GunType seco
 }
 
 /* Devuelve el color de la mira a usar dependiendo donde esta posicionado el mouse */
-Crosshairs SDLManager::get_crosshair_color(int mouse_x, int mouse_y, const Snapshot& snapshot,
-                                           const LocalInfo& local_info) {
+Crosshairs SDLManager::get_crosshair_color(int mouse_x, int mouse_y, const LocalInfo& local_info) {
 
-    const auto& enemies = local_info.is_ct ? snapshot.tt : snapshot.ct;
+    const auto& enemies = local_info.player.is_ct ? local_info.tt_players : local_info.ct_players;
     int size_player = PLAYER_THICKNESS / GRAPHIC_SCALE;
 
     for (const auto& e: enemies) {
@@ -476,7 +474,7 @@ Crosshairs SDLManager::get_crosshair_color(int mouse_x, int mouse_y, const Snaps
 }
 
 
-void SDLManager::render_crosshair(const Snapshot& snapshot, const LocalInfo& local_info) {
+void SDLManager::render_crosshair(const LocalInfo& local_info) {
 
     int mouse_x, mouse_y;
     SDL_GetMouseState(&mouse_x, &mouse_y);  // da coords fisicas
@@ -489,7 +487,7 @@ void SDLManager::render_crosshair(const Snapshot& snapshot, const LocalInfo& loc
     int size = 20;
 
     Crosshairs color = get_crosshair_color(static_cast<int>(logical_mouse_x),
-                                           static_cast<int>(logical_mouse_y), snapshot, local_info);
+                                           static_cast<int>(logical_mouse_y), local_info);
 
     const BlockTextureInfo& crosshair_info = texture_parser.get_crosshair_texture(color);
     SDL2pp::Texture& crosshair_texture = texture_manager.get_texture(crosshair_info.tileset_path);
@@ -499,7 +497,6 @@ void SDLManager::render_crosshair(const Snapshot& snapshot, const LocalInfo& loc
     SDL2pp::Rect dst(logical_mouse_x - size / 2, logical_mouse_y - size / 2, size, size);
 
     renderer.Copy(crosshair_texture, src, dst);
-    // hice cambios hace poco (x si algo falla)
     //  el mouse no se ve arriba de los bordes negros (ver si solucionar)
 }
 

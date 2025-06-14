@@ -37,11 +37,10 @@ private:
     void render_player_weapon(const PlayerDTO& p);
     void render_fov(float orientation_deg);
     void render_hud_time(int time_left);
-    void render_hud_life(uint16_t life);
+    void render_hud_life(int life);
     void render_hud_ammo(int ammo);
     void render_hud_money(int money);
-    Crosshairs get_crosshair_color(int mouse_x, int mouse_y, const Snapshot& snapshot,
-                                   const LocalInfo& local_info);
+    Crosshairs get_crosshair_color(int mouse_x, int mouse_y, const LocalInfo& local_info);
 
 public:
     SDLManager();
@@ -63,8 +62,8 @@ public:
     /* Limpia la pantalla */
     void clear_display();
 
-    /* Renderiza en orden de profundidad el mapa, cada jugador con su arma, y el HUD */
-    void render_in_z_order(const Snapshot& snapshot, const LocalInfo& local_info);
+    /* Renderiza en orden de profundidad el mapa, cada jugador con su arma, el FOV y el HUD */
+    void render_in_z_order(const LocalInfo& local_info);
 
     /* Devuelve què boton de la tienda fue clickeado si alguno fue clickeado si click es true
      * o interactua con el boton si es false.
@@ -76,7 +75,7 @@ public:
     void render_shop(int player_money, GunType primary_gun, GunType secondary_gun);
 
     /* Renderiza la mira en la posicion del mouse */
-    void render_crosshair(const Snapshot& snapshot, const LocalInfo& local_info);
+    void render_crosshair(const LocalInfo& local_info);
 
     /* Muestra lo dibujado en pantalla */
     void show_screen();

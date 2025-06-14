@@ -2,6 +2,8 @@
 
 #include <utility>
 
+#define BUTTON_CHANNEL 3
+
 Shop::Shop(SDL2pp::Renderer& renderer, SDL2pp::Mixer& mixer, TextureManager& texture_manager,
            BlockTextureParser& texture_parser):
         renderer(renderer),
@@ -383,6 +385,7 @@ void Shop::render(int player_money, GunType primary_gun, GunType secondary_gun) 
     highlight_primary = false;
 }
 
+// se puede modificar el volumen del canal o de cada chunk si esta muy fuerta ahora
 std::optional<ShopButtonType> Shop::interact_button(int x, int y, int money, GunType primary_gun,
                                                     bool click) {
     SDL2pp::Point point(x, y);
@@ -393,7 +396,7 @@ std::optional<ShopButtonType> Shop::interact_button(int x, int y, int money, Gun
             open = true;
             std::string path = texture_parser.get_sound_path(OPEN_SHOP);
             SDL2pp::Chunk& sound = texture_manager.get_sound(path);
-            mixer.PlayChannel(-1, sound);
+            mixer.PlayChannel(BUTTON_CHANNEL, sound);
 
             return ShopButtonType::Open;
         }
@@ -413,7 +416,7 @@ std::optional<ShopButtonType> Shop::interact_button(int x, int y, int money, Gun
                     last_touched_button_type = touched_button_type;
                     std::string path = texture_parser.get_sound_path(MOVE_SELECT);
                     SDL2pp::Chunk& sound = texture_manager.get_sound(path);
-                    mixer.PlayChannel(-1, sound);
+                    mixer.PlayChannel(BUTTON_CHANNEL, sound);
                 }
                 return std::nullopt;
             }
@@ -423,7 +426,7 @@ std::optional<ShopButtonType> Shop::interact_button(int x, int y, int money, Gun
 
                 std::string path = texture_parser.get_sound_path(CLOSE_SHOP);
                 SDL2pp::Chunk& sound = texture_manager.get_sound(path);
-                mixer.PlayChannel(-1, sound);
+                mixer.PlayChannel(BUTTON_CHANNEL, sound);
 
                 return ShopButtonType::Close;
             }
@@ -436,7 +439,7 @@ std::optional<ShopButtonType> Shop::interact_button(int x, int y, int money, Gun
 
                 std::string path = texture_parser.get_sound_path(DENY_SELECT);
                 SDL2pp::Chunk& sound = texture_manager.get_sound(path);
-                mixer.PlayChannel(-1, sound);
+                mixer.PlayChannel(BUTTON_CHANNEL, sound);
 
                 return std::nullopt;
             }
@@ -448,13 +451,13 @@ std::optional<ShopButtonType> Shop::interact_button(int x, int y, int money, Gun
 
                 std::string path = texture_parser.get_sound_path(DENY_SELECT);
                 SDL2pp::Chunk& sound = texture_manager.get_sound(path);
-                mixer.PlayChannel(-1, sound);
+                mixer.PlayChannel(BUTTON_CHANNEL, sound);
                 return std::nullopt;
             }
 
             std::string path = texture_parser.get_sound_path(SELECT);
             SDL2pp::Chunk& sound = texture_manager.get_sound(path);
-            mixer.PlayChannel(-1, sound);
+            mixer.PlayChannel(BUTTON_CHANNEL, sound);
 
             return button.type;
         }
