@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Game_editor</string>
+   <string>CS2D Game Editor</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QMainWindow {
