@@ -162,6 +162,7 @@ void Game_editor::setupGunBar() {
             selected_gun = gun;
             // mode = std::make_unique<>();
         });
+        ui->GameAreas->addWidget(label, 0, Qt::AlignHCenter);
     }
 }
 
