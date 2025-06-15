@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>818</width>
-    <height>642</height>
+    <width>824</width>
+    <height>618</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,8 +24,8 @@
 	background-color: rgb(15, 15, 15);
 }</string>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout">
-    <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+   <layout class="QHBoxLayout" name="horizontalLayout_5">
+    <item>
      <widget class="QStackedWidget" name="stack">
       <property name="minimumSize">
        <size>
@@ -35,8 +35,8 @@
       </property>
       <property name="maximumSize">
        <size>
-        <width>800</width>
-        <height>600</height>
+        <width>16777215</width>
+        <height>16777215</height>
        </size>
       </property>
       <property name="styleSheet">
@@ -56,8 +56,8 @@
        </property>
        <property name="maximumSize">
         <size>
-         <width>800</width>
-         <height>600</height>
+         <width>16777215</width>
+         <height>16777215</height>
         </size>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -127,7 +127,7 @@ QPushButton:pressed {
 }</string>
             </property>
             <property name="text">
-             <string>CREAR UN MAPA</string>
+             <string>CREAR MAPA</string>
             </property>
            </widget>
           </item>
@@ -164,7 +164,7 @@ QPushButton:pressed {
 }</string>
             </property>
             <property name="text">
-             <string>CARGAR UN MAPA</string>
+             <string>EDITAR MAPA</string>
             </property>
            </widget>
           </item>
@@ -186,6 +186,12 @@ QPushButton:pressed {
        </layout>
       </widget>
       <widget class="QWidget" name="editMapPage">
+       <property name="minimumSize">
+        <size>
+         <width>800</width>
+         <height>600</height>
+        </size>
+       </property>
        <property name="styleSheet">
         <string notr="true">QWidget {
 	background-color: rgb(15, 15, 15);
@@ -299,7 +305,7 @@ QPushButton:pressed {
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,3,1">
           <item alignment="Qt::AlignLeft">
            <widget class="QScrollArea" name="scrollArea">
             <property name="sizePolicy">
@@ -383,7 +389,7 @@ QPushButton:pressed {
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>454</width>
+               <width>405</width>
                <height>543</height>
               </rect>
              </property>
@@ -430,7 +436,7 @@ QPushButton:pressed {
             </property>
             <property name="maximumSize">
              <size>
-              <width>80</width>
+              <width>16777215</width>
               <height>16777215</height>
              </size>
             </property>
@@ -448,7 +454,7 @@ QPushButton:pressed {
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>78</width>
+               <width>133</width>
                <height>543</height>
               </rect>
              </property>
@@ -482,10 +488,13 @@ QPushButton:pressed {
                 <property name="bottomMargin">
                  <number>1</number>
                 </property>
-                <item>
+                <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                  <widget class="QLabel" name="label">
                   <property name="text">
                    <string/>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
                   </property>
                  </widget>
                 </item>
@@ -503,7 +512,6 @@ QPushButton:pressed {
     </item>
    </layout>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
  <connections/>
