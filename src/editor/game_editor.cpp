@@ -1,8 +1,10 @@
 #include "game_editor.h"
 
 #include <QFileDialog>
+#include <QMessageBox>
 #include <QPainter>
 #include <algorithm>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <iterator>
@@ -15,6 +17,8 @@
 #include "../common/yaml_parser.h"
 #include "./ui_game_editor.h"
 
+#define MAP_PATH "../maps"
+
 Game_editor::Game_editor(QWidget* parent):
         QMainWindow(parent),
         ui(new Ui::Game_editor),
@@ -23,7 +27,9 @@ Game_editor::Game_editor(QWidget* parent):
         selected_block(NONE_BLOCK),
         selected_background(AZTEC_BACKGROUND),
         mode(std::make_unique<BlocksSetter>()),
-        first_left_click_done(false) {
+        first_left_click_done(false),
+        first_right_click_done(false),
+        has_entry_in_create(false) {
     ui->setupUi(this);
     ui->stack->setCurrentIndex(0);
 }
@@ -31,10 +37,13 @@ Game_editor::Game_editor(QWidget* parent):
 Game_editor::~Game_editor() { delete ui; }
 
 void Game_editor::setupUi() {
-    this->setupToolbar();
-    this->setupBlockList();
-    this->setupBackgroundList();
-    this->setupGridMap();
+    if (!has_entry_in_create) {
+        this->setupToolbar();
+        this->setupBlockList();
+        this->setupBackgroundList();
+        this->setupGridMap();
+        this->has_entry_in_create = true;
+    }
 }
 
 void Game_editor::setupBlockList() {
@@ -337,6 +346,46 @@ void Game_editor::on_go_to_create_button_clicked() {
     this->setupUi();
     ui->stack->setCurrentIndex(1);
 }
+
+void Game_editor::on_load_map_clicked() {
+    ui->stack->setCurrentIndex(2);
+
+    ui->maps_list->clear();
+
+    for (const auto& entry: std::filesystem::directory_iterator(MAP_PATH)) {
+        if (entry.is_regular_file()) {
+            std::string name = entry.path().filename().string();
+            this->format_string(name);
+            QListWidgetItem* item = new QListWidgetItem(QString::fromStdString(name));
+            item->setTextAlignment(Qt::AlignCenter);
+            ui->maps_list->addItem(item);
+        }
+    }
+    if (ui->maps_list->count() == 0) {
+        ui->message->setText("Tenes que crear algún mapa para modificarlo");
+    }
+}
+
+void Game_editor::on_back_button_clicked() { ui->stack->setCurrentIndex(0); }
+
+void Game_editor::on_back_button_2_clicked() { ui->stack->setCurrentIndex(0); }
+
+void Game_editor::on_load_map_button_clicked() {
+    if (not(ui->maps_list->currentIndex().isValid())) {
+        QMessageBox::information(this, TITLE_MSG_EDIT, MSG_MAP_NOT_SELECTED);
+        return;
+    }
+
+    std::string map_name = ui->maps_list->currentItem()->text().toStdString();
+    // Add logic for load the map
+
+    // Not very sure if this will work always, it should load the blocks at least
+    this->setupUi(this);
+    ui->stack->setCurrentIndex(1);
+}
+
+
+void Game_editor::format_string(std::string& s) { s.erase(s.length() - 5); }
 
 void Game_editor::on_add_columns_button_clicked() {
     int COLLUMNS_TO_ADD = 1;

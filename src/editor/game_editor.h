@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <memory>
 #include <set>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -17,6 +18,9 @@
 #include "grid_action.h"
 #include "pixmap_manager.h"
 #include "tt_spawns_setter.h"
+
+#define TITLE_MSG_EDIT "Editar una partida"
+#define MSG_MAP_NOT_SELECTED "Debe seleccionar un mapa para crear una partida."
 
 // cppcheck-suppress unknownMacro
 QT_BEGIN_NAMESPACE
@@ -39,6 +43,10 @@ public:
 
 private slots:
     void on_save_button_clicked();
+    void on_load_map_clicked();
+    void on_back_button_clicked();
+    void on_back_button_2_clicked();
+    void on_load_map_button_clicked();
     void on_go_to_create_button_clicked();
     void on_add_columns_button_clicked();
     void on_add_rows_button_clicked();
@@ -56,6 +64,7 @@ private:
     void mark_as_ct_spawn(ClickableLabel* label);
     void mark_as_tt_spawn(ClickableLabel* label);
     void mark_as_bomb_site(ClickableLabel* label);
+    void format_string(std::string& s);
     std::vector<MapObject> load_blocks(const int& offset_x, const int& offset_y);
     std::vector<Vector2D<int>> set_to_vector(const std::set<std::pair<int, int>>& set_pos,
                                              const int& offset_x, const int& offset_y);
@@ -75,5 +84,6 @@ private:
     std::pair<int, int> second_right_click;
     bool first_left_click_done;
     bool first_right_click_done;
+    bool has_entry_in_create;
 };
 #endif  // GAME_EDITOR_H
