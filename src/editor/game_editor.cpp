@@ -139,6 +139,7 @@ void Game_editor::setupBackgroundList() {
         QPixmap& background_image = pixmap_manager.get_pixmap(background_path);
         label->setPixmap(background_image.scaled(50, 50));
         ui->backgrounds_list->addWidget(label);
+        ui->backgrounds_list->addWidget(label, 0, Qt::AlignHCenter);
         label->setCursor(Qt::CrossCursor);
         connect(label, &ClickableLabel::left_clicked, [this, background, background_path]() {
             QString qss = QString("#scrollAreaGridMap {"
@@ -206,6 +207,13 @@ void Game_editor::setupGridMap() {
             ui->grid_map->addWidget(cell, i, j);
         }
     }
+    ui->scrollArea_2->setWidget(ui->scrollAreaGridMap);
+    ui->scrollArea_2->setWidgetResizable(true);
+    ui->scrollAreaGridMap->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->scrollAreaGridMap->setMinimumSize(50 * columns, 50 * rows);
+    ui->editMapPage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->stack->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->centralwidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 
 void Game_editor::on_save_button_clicked() {
@@ -341,7 +349,7 @@ void Game_editor::on_add_columns_button_clicked() {
         this->grid[i].resize(collumns_actual + COLLUMNS_TO_ADD, NONE_BLOCK);
         for (int j = collumns_actual; j < collumns_actual + COLLUMNS_TO_ADD; ++j) {
             ClickableLabel* cell = new ClickableLabel();
-            cell->setFixedSize(50, 50);
+            cell->setMinimumSize(50, 50);
             QPixmap& base = pixmap_manager.get_block_pixmap(grid[i][j]);
             cell->setPixmap(base);
             connect(cell, &ClickableLabel::left_clicked, this, [this, cell, i, j]() {
