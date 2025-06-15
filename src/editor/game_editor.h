@@ -10,6 +10,7 @@
 
 #include "../common/block_texture_parser.h"
 #include "../common/game_map.h"
+#include "../common/weapon_type.h"
 
 #include "blocks_setter.h"
 #include "bomb_sites_setter.h"
@@ -58,6 +59,7 @@ private:
     void setupBlockList();
     void setupBackgroundList();
     void setupGridMap();
+    void setupGunBar();
     void add_grid_map_cell(const int& i, const int& j);
     void clear_grid_map();
     void load_map_from_file(const std::string& map_name);
@@ -87,5 +89,6 @@ private:
     std::pair<int, int> second_right_click;
     bool first_left_click_done;
     bool first_right_click_done;
+    GunType selected_gun;
 };
 #endif  // GAME_EDITOR_H

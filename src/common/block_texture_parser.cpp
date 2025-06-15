@@ -15,6 +15,7 @@ BlockTextureParser::BlockTextureParser(): block_textures(), backgrounds_paths() 
     this->set_crosshairs();
     this->set_font_and_waiting();
     this->set_gun_textures();
+    this->set_editor_gun_textures();
 }
 
 const BlockTextureInfo& BlockTextureParser::get_texture_info(int block) {
@@ -71,6 +72,10 @@ const std::vector<Background> BlockTextureParser::get_backgrounds() {
 
 const std::string& BlockTextureParser::get_background_path(const Background& background) {
     return backgrounds_paths.at(background);
+}
+
+const std::string& BlockTextureParser::get_editor_gun_texture(const GunType& gun) {
+    return editor_gun_textures.at(gun);
 }
 
 void BlockTextureParser::set_backgrounds_paths() {
@@ -208,4 +213,11 @@ void BlockTextureParser::set_gun_textures() {
                     {GLOCK_SHOP, "../assets/gfx/weapons/glock_k.bmp"},
                     {KNIFE_GAME, "../assets/gfx/weapons/knife.bmp"},
                     {KNIFE_SHOP, "../assets/gfx/weapons/knife_k.bmp"}};
+}
+
+void BlockTextureParser::set_editor_gun_textures() {
+    editor_gun_textures = {{AK47, "../assets/gfx/weapons/ak47_d.bmp"},
+                           {GLOCK, "../assets/gfx/weapons/glock_d.bmp"},
+                           {M3, "../assets/gfx/weapons/m3_d.bmp"},
+                           {AWP, "../assets/gfx/weapons/awp_d.bmp"}};
 }

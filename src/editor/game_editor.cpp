@@ -42,7 +42,8 @@ Game_editor::Game_editor(QWidget* parent):
         selected_background(AZTEC_BACKGROUND),
         mode(std::make_unique<BlocksSetter>()),
         first_left_click_done(false),
-        first_right_click_done(false) {
+        first_right_click_done(false),
+        selected_gun(NONE) {
     ui->setupUi(this);
     ui->stack->setCurrentIndex(0);
     this->setupToolbar();
@@ -146,6 +147,22 @@ void Game_editor::setupToolbar() {
     ui->GameAreas->addWidget(labelCT, 0, Qt::AlignHCenter);
     ui->GameAreas->addWidget(labelBombSites, 0, Qt::AlignHCenter);
     ui->GameAreas->addStretch();
+}
+
+void Game_editor::setupGunBar() {
+    std::vector<GunType> guns = {GLOCK, AWP, AK47, M3};
+    for (const auto& gun: guns) {
+        ClickableLabel* label = new ClickableLabel();
+        label->setFixedSize(60, 80);
+        QPixmap& gun_image = pixmap_manager.get_gun_pixmap(gun);
+        label->setPixmap(gun_image.scaled(50, 50));
+        label->setCursor(Qt::CrossCursor);
+        connect(label, &ClickableLabel::left_clicked, [this, gun]() {
+            first_left_click_done = false;
+            selected_gun = gun;
+            // mode = std::make_unique<>();
+        });
+    }
 }
 
 void Game_editor::setupBackgroundList() {
