@@ -166,46 +166,7 @@ void Game_editor::setupGridMap() {
 
     for (int i = 0; i < static_cast<int>(this->grid.size()); ++i) {
         for (int j = 0; j < static_cast<int>(this->grid[i].size()); ++j) {
-            ClickableLabel* cell = new ClickableLabel();
-            cell->setFixedSize(50, 50);
-            ui->grid_map->addWidget(cell, i, j);
-            this->render_block_info(i, j);
-            connect(cell, &ClickableLabel::left_clicked, this, [this, cell, i, j]() {
-                first_left_click = {j, i};
-                first_left_click_done = true;
-            });
-
-            connect(cell, &ClickableLabel::right_clicked, this, [this, cell, i, j]() {
-                first_right_click = {j, i};
-                first_right_click_done = true;
-            });
-
-            connect(cell, &ClickableLabel::dropped, this, [this, i, j]() {
-                if (first_left_click_done) {
-                    second_left_click = {j, i};
-                    mode->handle(first_left_click, second_left_click, *this, false);
-                    first_left_click_done = false;
-                } else if (first_right_click_done) {
-                    second_right_click = {j, i};
-                    mode->handle(first_right_click, second_right_click, *this, true);
-                    first_right_click_done = false;
-                }
-            });
-
-            connect(cell, &ClickableLabel::double_click_left, this, [this, cell, i, j]() {
-                first_left_click = {j, i};
-                second_left_click = {j, i};
-                mode->handle(first_left_click, second_left_click, *this, false);
-                first_left_click_done = false;
-            });
-
-
-            connect(cell, &ClickableLabel::double_click_right, this, [this, cell, i, j]() {
-                first_right_click = {j, i};
-                second_right_click = {j, i};
-                mode->handle(first_right_click, second_right_click, *this, true);
-                first_right_click_done = false;
-            });
+            add_grid_map_cell(i, j);
         }
     }
     ui->scrollArea_2->setWidget(ui->scrollAreaGridMap);
@@ -391,7 +352,7 @@ void Game_editor::on_load_map_button_clicked() {
     ui->stack->setCurrentIndex(1);
 }
 
-void Game_editor::load_map_from_file(std::string map_name) {
+void Game_editor::load_map_from_file(const std::string& map_name) {
     YamlParser parser;
     GameMap map = parser.yaml_to_game_map(std::string(MAP_PATH) + "/" + map_name + ".yaml");
     this->grid.resize(map.height);
@@ -401,7 +362,7 @@ void Game_editor::load_map_from_file(std::string map_name) {
     }
 
     this->selected_background = map.background;
-    for (auto object: map.map_objects) {
+    for (const auto& object: map.map_objects) {
         for (auto vector: object.positions) {
             this->grid[vector.y][vector.x] = object.type;
         }
@@ -434,21 +395,7 @@ void Game_editor::on_add_columns_button_clicked() {
     for (int i = 0; i < rows_actual; ++i) {
         this->grid[i].resize(collumns_actual + COLLUMNS_TO_ADD, NONE_BLOCK);
         for (int j = collumns_actual; j < collumns_actual + COLLUMNS_TO_ADD; ++j) {
-            ClickableLabel* cell = new ClickableLabel();
-            cell->setMinimumSize(50, 50);
-            QPixmap& base = pixmap_manager.get_block_pixmap(grid[i][j]);
-            cell->setPixmap(base);
-            connect(cell, &ClickableLabel::left_clicked, this, [this, cell, i, j]() {
-                if (first_left_click_done) {
-                    second_left_click = {j, i};
-                    mode->handle(first_left_click, second_left_click, *this, true);
-                    first_left_click_done = false;
-                } else {
-                    first_left_click = {j, i};
-                    first_left_click_done = true;
-                }
-            });
-            ui->grid_map->addWidget(cell, i, j);
+            add_grid_map_cell(i, j);
         }
     }
 }
@@ -463,21 +410,7 @@ void Game_editor::on_add_rows_button_clicked() {
 
     for (int i = rows_actual; i < ROWS_TO_ADD + rows_actual; ++i) {
         for (int j = 0; j < collumns_actual; ++j) {
-            ClickableLabel* cell = new ClickableLabel();
-            cell->setFixedSize(50, 50);
-            QPixmap& base = pixmap_manager.get_block_pixmap(grid[i][j]);
-            cell->setPixmap(base);
-            connect(cell, &ClickableLabel::left_clicked, this, [this, cell, i, j]() {
-                if (first_left_click_done) {
-                    second_left_click = {j, i};
-                    mode->handle(first_left_click, second_left_click, *this, true);
-                    first_left_click_done = false;
-                } else {
-                    first_left_click = {j, i};
-                    first_left_click_done = true;
-                }
-            });
-            ui->grid_map->addWidget(cell, i, j);
+            add_grid_map_cell(i, j);
         }
     }
 }
@@ -564,4 +497,47 @@ void Game_editor::mark_as_bomb_site(ClickableLabel* label) {
 
     painter.end();
     label->setPixmap(result.scaled(50, 50));
+}
+
+void Game_editor::add_grid_map_cell(const int& i, const int& j) {
+    ClickableLabel* cell = new ClickableLabel();
+    cell->setFixedSize(50, 50);
+    ui->grid_map->addWidget(cell, i, j);
+    this->render_block_info(i, j);
+
+    connect(cell, &ClickableLabel::left_clicked, this, [this, cell, i, j]() {
+        first_left_click = {j, i};
+        first_left_click_done = true;
+    });
+
+    connect(cell, &ClickableLabel::right_clicked, this, [this, cell, i, j]() {
+        first_right_click = {j, i};
+        first_right_click_done = true;
+    });
+
+    connect(cell, &ClickableLabel::dropped, this, [this, i, j]() {
+        if (first_left_click_done) {
+            second_left_click = {j, i};
+            mode->handle(first_left_click, second_left_click, *this, false);
+            first_left_click_done = false;
+        } else if (first_right_click_done) {
+            second_right_click = {j, i};
+            mode->handle(first_right_click, second_right_click, *this, true);
+            first_right_click_done = false;
+        }
+    });
+
+    connect(cell, &ClickableLabel::double_click_left, this, [this, cell, i, j]() {
+        first_left_click = {j, i};
+        second_left_click = {j, i};
+        mode->handle(first_left_click, second_left_click, *this, false);
+        first_left_click_done = false;
+    });
+
+    connect(cell, &ClickableLabel::double_click_right, this, [this, cell, i, j]() {
+        first_right_click = {j, i};
+        second_right_click = {j, i};
+        mode->handle(first_right_click, second_right_click, *this, true);
+        first_right_click_done = false;
+    });
 }

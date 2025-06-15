@@ -58,8 +58,9 @@ private:
     void setupBlockList();
     void setupBackgroundList();
     void setupGridMap();
+    void add_grid_map_cell(const int& i, const int& j);
     void clear_grid_map();
-    void load_map_from_file(std::string map_name);
+    void load_map_from_file(const std::string& map_name);
     void render_block_info(const int& row, const int& column);
     void render_block(ClickableLabel* cell, const int& block);
     void mark_as_collidable(ClickableLabel* label);
