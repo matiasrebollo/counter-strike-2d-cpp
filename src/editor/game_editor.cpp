@@ -10,6 +10,7 @@
 #include <iterator>
 #include <map>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -20,6 +21,17 @@
 #define MAP_PATH "../maps"
 #define DEFAULT_ROWS 10
 #define DEFAULT_COLUMNS 12
+#define MIN_SIZE_SPAWNS 10
+#define MIN_SIZE_SITES 1
+#define TITLE_MSG_ERROR_SPAWNS "No hay suficientes spawns"
+#define TITLE_MSG_ERROR_SITES "No hay suficientes sites"
+#define MSG_SIZE_CT_SPAWNS \
+    "Debes tener por lo menos " + std::to_string(MIN_SIZE_SPAWNS) + " spawns de CT"
+#define MSG_SIZE_TT_SPAWNS \
+    "Debes tener por lo menos " + std::to_string(MIN_SIZE_SPAWNS) + " spawns de TT"
+#define MSG_SIZE_SITES \
+    "Debes tener por lo menos " + std::to_string(MIN_SIZE_SITES) + " sites para plantar la bomba"
+
 
 Game_editor::Game_editor(QWidget* parent):
         QMainWindow(parent),
@@ -31,12 +43,14 @@ Game_editor::Game_editor(QWidget* parent):
         mode(std::make_unique<BlocksSetter>()),
         first_left_click_done(false),
         first_right_click_done(false),
+        selected_gun(NONE),
         has_entry_create(false) {
     ui->setupUi(this);
     ui->stack->setCurrentIndex(0);
     this->setupToolbar();
     this->setupBlockList();
     this->setupBackgroundList();
+    this->setupGunBar();
 }
 
 Game_editor::~Game_editor() { delete ui; }
@@ -137,6 +151,23 @@ void Game_editor::setupToolbar() {
     ui->GameAreas->addStretch();
 }
 
+void Game_editor::setupGunBar() {
+    std::vector<GunType> guns_vec = {GLOCK, AWP, AK47, M3};
+    for (const auto& gun: guns_vec) {
+        ClickableLabel* label = new ClickableLabel();
+        label->setFixedSize(60, 80);
+        QPixmap& gun_image = pixmap_manager.get_gun_pixmap(gun);
+        label->setPixmap(gun_image.scaled(50, 50));
+        label->setCursor(Qt::CrossCursor);
+        connect(label, &ClickableLabel::left_clicked, [this, gun]() {
+            first_left_click_done = false;
+            selected_gun = gun;
+            mode = std::make_unique<GunsSetter>();
+        });
+        ui->gunsArea->addWidget(label, 0, Qt::AlignHCenter);
+    }
+}
+
 void Game_editor::setupBackgroundList() {
     for (const auto& background: texture_parser.get_backgrounds()) {
         ClickableLabel* label = new ClickableLabel();
@@ -171,46 +202,7 @@ void Game_editor::setupGridMap() {
 
     for (int i = 0; i < static_cast<int>(this->grid.size()); ++i) {
         for (int j = 0; j < static_cast<int>(this->grid[i].size()); ++j) {
-            ClickableLabel* cell = new ClickableLabel();
-            cell->setFixedSize(50, 50);
-            ui->grid_map->addWidget(cell, i, j);
-            this->render_block_info(i, j);
-            connect(cell, &ClickableLabel::left_clicked, this, [this, cell, i, j]() {
-                first_left_click = {j, i};
-                first_left_click_done = true;
-            });
-
-            connect(cell, &ClickableLabel::right_clicked, this, [this, cell, i, j]() {
-                first_right_click = {j, i};
-                first_right_click_done = true;
-            });
-
-            connect(cell, &ClickableLabel::dropped, this, [this, i, j]() {
-                if (first_left_click_done) {
-                    second_left_click = {j, i};
-                    mode->handle(first_left_click, second_left_click, *this, false);
-                    first_left_click_done = false;
-                } else if (first_right_click_done) {
-                    second_right_click = {j, i};
-                    mode->handle(first_right_click, second_right_click, *this, true);
-                    first_right_click_done = false;
-                }
-            });
-
-            connect(cell, &ClickableLabel::double_click_left, this, [this, cell, i, j]() {
-                first_left_click = {j, i};
-                second_left_click = {j, i};
-                mode->handle(first_left_click, second_left_click, *this, false);
-                first_left_click_done = false;
-            });
-
-
-            connect(cell, &ClickableLabel::double_click_right, this, [this, cell, i, j]() {
-                first_right_click = {j, i};
-                second_right_click = {j, i};
-                mode->handle(first_right_click, second_right_click, *this, true);
-                first_right_click_done = false;
-            });
+            add_grid_map_cell(i, j);
         }
     }
     ui->scrollArea_2->setWidget(ui->scrollAreaGridMap);
@@ -245,24 +237,28 @@ void Game_editor::clear_grid() {
 }
 
 void Game_editor::on_save_button_clicked() {
-    GameMap map = create_map(grid);
-    YamlParser parser;
-    YAML::Node yaml = parser.game_map_to_Yaml(map);
+    try {
+        GameMap map = create_map(grid);
+        YamlParser parser;
+        YAML::Node yaml = parser.game_map_to_Yaml(map);
 
-    QString fileName = QFileDialog::getSaveFileName(
-            this, "Guardar Mapa", "", "Archivos YAML (*.yaml);;Todos los archivos (*)");
+        QString fileName = QFileDialog::getSaveFileName(
+                this, "Guardar Mapa", "", "Archivos YAML (*.yaml);;Todos los archivos (*)");
 
-    if (fileName.isEmpty()) {
+        if (fileName.isEmpty()) {
+            return;
+        }
+
+        if (!fileName.endsWith(".yaml", Qt::CaseInsensitive)) {
+            fileName += ".yaml";
+        }
+
+        std::ofstream fout(fileName.toStdString());
+        fout << yaml;
+        close();
+    } catch (const std::runtime_error&) {
         return;
     }
-
-    if (!fileName.endsWith(".yaml", Qt::CaseInsensitive)) {
-        fileName += ".yaml";
-    }
-
-    std::ofstream fout(fileName.toStdString());
-    fout << yaml;
-    close();
 }
 
 GameMap Game_editor::create_map(const std::vector<std::vector<int>>& grid) {
@@ -287,12 +283,30 @@ GameMap Game_editor::create_map(const std::vector<std::vector<int>>& grid) {
     }
 
     std::vector<MapObject> blocks = load_blocks(offset_x, offset_y);
+    std::map<GunType, std::vector<Vector2D<int>>> guns_map = save_guns(offset_x, offset_y);
+
     std::vector<Vector2D<int>> ct_spawns_vector = set_to_vector(ct_spawns, offset_x, offset_y);
+    if (ct_spawns_vector.size() < MIN_SIZE_SPAWNS) {
+        QMessageBox::information(this, TITLE_MSG_ERROR_SPAWNS,
+                                 QString::fromStdString(MSG_SIZE_CT_SPAWNS));
+        throw std::runtime_error(MSG_SIZE_CT_SPAWNS);
+    }
+
     std::vector<Vector2D<int>> tt_spawns_vector = set_to_vector(tt_spawns, offset_x, offset_x);
+    if (tt_spawns_vector.size() < MIN_SIZE_SPAWNS) {
+        QMessageBox::information(this, TITLE_MSG_ERROR_SPAWNS,
+                                 QString::fromStdString(MSG_SIZE_TT_SPAWNS));
+        throw std::runtime_error(MSG_SIZE_TT_SPAWNS);
+    }
     std::vector<Vector2D<int>> sites_vector = set_to_vector(bomb_sites, offset_x, offset_y);
+    if (bomb_sites.size() < MIN_SIZE_SITES) {
+        QMessageBox::information(this, TITLE_MSG_ERROR_SITES,
+                                 QString::fromStdString(MSG_SIZE_SITES));
+        throw std::runtime_error(MSG_SIZE_SITES);
+    }
 
     return {right_most - offset_x + 1, bottom_most - offset_y + 1, selected_background, blocks,
-            ct_spawns_vector,          tt_spawns_vector,           sites_vector};
+            ct_spawns_vector,          tt_spawns_vector,           sites_vector,        guns_map};
 }
 
 std::vector<MapObject> Game_editor::load_blocks(const int& offset_x, const int& offset_y) {
@@ -316,6 +330,17 @@ std::vector<MapObject> Game_editor::load_blocks(const int& offset_x, const int& 
     return blocks;
 }
 
+std::map<GunType, std::vector<Vector2D<int>>> Game_editor::save_guns(const int& offset_x,
+                                                                     const int& offset_y) {
+    std::map<GunType, std::vector<Vector2D<int>>> positions_guns;
+    for (const auto& gun: this->guns) {
+        auto pos = gun.first;
+        GunType type = gun.second;
+        positions_guns[type].push_back(Vector2D<int>(pos.first - offset_x, pos.second - offset_y));
+    }
+    return positions_guns;
+}
+
 std::vector<Vector2D<int>> Game_editor::set_to_vector(const std::set<std::pair<int, int>>& set_pos,
                                                       const int& offset_x, const int& offset_y) {
     std::vector<Vector2D<int>> vec;
@@ -329,7 +354,15 @@ std::vector<Vector2D<int>> Game_editor::set_to_vector(const std::set<std::pair<i
 }
 
 void Game_editor::setBlock(const int& row, const int& column, const bool& to_delete) {
-    this->grid[row][column] = to_delete ? NONE_BLOCK : selected_block;
+    int block = to_delete ? NONE_BLOCK : selected_block;
+    this->grid[row][column] = block;
+    if (texture_parser.get_texture_info(block).collidable) {
+        setCtSpawn(row, column, true);
+        setTTSpawn(row, column, true);
+        setBombSite(row, column, true);
+        setGun(row, column, true);
+    }
+
     this->render_block_info(row, column);
 }
 
@@ -337,6 +370,9 @@ void Game_editor::setCtSpawn(const int& row, const int& column, const bool& to_d
     if (to_delete) {
         ct_spawns.erase({column, row});
     } else {
+        if (texture_parser.get_texture_info(grid[row][column]).collidable) {
+            return;
+        }
         ct_spawns.insert({column, row});
     }
     this->render_block_info(row, column);
@@ -346,6 +382,9 @@ void Game_editor::setTTSpawn(const int& row, const int& column, const bool& to_d
     if (to_delete) {
         tt_spawns.erase({column, row});
     } else {
+        if (texture_parser.get_texture_info(grid[row][column]).collidable) {
+            return;
+        }
         tt_spawns.insert({column, row});
     }
     this->render_block_info(row, column);
@@ -355,6 +394,9 @@ void Game_editor::setBombSite(const int& row, const int& column, const bool& to_
     if (to_delete) {
         bomb_sites.erase({column, row});
     } else {
+        if (texture_parser.get_texture_info(grid[row][column]).collidable) {
+            return;
+        }
         bomb_sites.insert({column, row});
     }
     this->render_block_info(row, column);
@@ -412,7 +454,7 @@ void Game_editor::on_load_map_button_clicked() {
     ui->stack->setCurrentIndex(1);
 }
 
-void Game_editor::load_map_from_file(std::string map_name) {
+void Game_editor::load_map_from_file(const std::string& map_name) {
     YamlParser parser;
     GameMap map = parser.yaml_to_game_map(std::string(MAP_PATH) + "/" + map_name + ".yaml");
     this->grid.resize(map.height);
@@ -433,6 +475,7 @@ void Game_editor::load_map_from_file(std::string map_name) {
     this->tt_spawns.clear();
     this->ct_spawns.clear();
     this->bomb_sites.clear();
+    this->guns.clear();
     for (auto vector: map.ct_spawns) {
         this->ct_spawns.emplace(std::make_pair(vector.x, vector.y));
     }
@@ -441,6 +484,11 @@ void Game_editor::load_map_from_file(std::string map_name) {
     }
     for (auto vector: map.sites) {
         this->bomb_sites.emplace(std::make_pair(vector.x, vector.y));
+    }
+    for (const auto& gun: map.guns) {
+        for (const auto& vector: gun.second) {
+            this->guns[{vector.x, vector.y}] = gun.first;
+        }
     }
 }
 
@@ -456,21 +504,7 @@ void Game_editor::on_add_columns_button_clicked() {
     for (int i = 0; i < rows_actual; ++i) {
         this->grid[i].resize(collumns_actual + COLLUMNS_TO_ADD, NONE_BLOCK);
         for (int j = collumns_actual; j < collumns_actual + COLLUMNS_TO_ADD; ++j) {
-            ClickableLabel* cell = new ClickableLabel();
-            cell->setMinimumSize(50, 50);
-            QPixmap& base = pixmap_manager.get_block_pixmap(grid[i][j]);
-            cell->setPixmap(base);
-            connect(cell, &ClickableLabel::left_clicked, this, [this, cell, i, j]() {
-                if (first_left_click_done) {
-                    second_left_click = {j, i};
-                    mode->handle(first_left_click, second_left_click, *this, true);
-                    first_left_click_done = false;
-                } else {
-                    first_left_click = {j, i};
-                    first_left_click_done = true;
-                }
-            });
-            ui->grid_map->addWidget(cell, i, j);
+            add_grid_map_cell(i, j);
         }
     }
 }
@@ -485,21 +519,7 @@ void Game_editor::on_add_rows_button_clicked() {
 
     for (int i = rows_actual; i < ROWS_TO_ADD + rows_actual; ++i) {
         for (int j = 0; j < collumns_actual; ++j) {
-            ClickableLabel* cell = new ClickableLabel();
-            cell->setFixedSize(50, 50);
-            QPixmap& base = pixmap_manager.get_block_pixmap(grid[i][j]);
-            cell->setPixmap(base);
-            connect(cell, &ClickableLabel::left_clicked, this, [this, cell, i, j]() {
-                if (first_left_click_done) {
-                    second_left_click = {j, i};
-                    mode->handle(first_left_click, second_left_click, *this, true);
-                    first_left_click_done = false;
-                } else {
-                    first_left_click = {j, i};
-                    first_left_click_done = true;
-                }
-            });
-            ui->grid_map->addWidget(cell, i, j);
+            add_grid_map_cell(i, j);
         }
     }
 }
@@ -518,6 +538,9 @@ void Game_editor::render_block_info(const int& row, const int& column) {
             }
             if (bomb_sites.find({column, row}) != bomb_sites.end()) {
                 mark_as_bomb_site(cell);
+            }
+            if (guns.find({column, row}) != guns.end()) {
+                mark_with_gun(cell, row, column);
             }
         }
     }
@@ -586,4 +609,74 @@ void Game_editor::mark_as_bomb_site(ClickableLabel* label) {
 
     painter.end();
     label->setPixmap(result.scaled(50, 50));
+}
+
+void Game_editor::mark_with_gun(ClickableLabel* label, const int& row, const int& column) {
+    QPixmap result = label->pixmap(Qt::ReturnByValue);
+    QPainter painter(&result);
+
+    QPixmap& overlay = pixmap_manager.get_gun_pixmap(guns[{column, row}]);
+    QPixmap scaledOverlay = overlay.scaled(20, 20);
+
+    int x = result.width() - scaledOverlay.width();
+    int y = 0;
+    painter.drawPixmap(x, y, scaledOverlay);
+
+    painter.end();
+    label->setPixmap(result.scaled(50, 50));
+}
+
+void Game_editor::setGun(const int& row, const int& column, const bool& to_delete) {
+    if (to_delete) {
+        guns.erase({column, row});
+    } else {
+        if (texture_parser.get_texture_info(grid[row][column]).collidable) {
+            return;
+        }
+        guns[std::make_pair(column, row)] = selected_gun;
+    }
+    this->render_block_info(row, column);
+}
+
+void Game_editor::add_grid_map_cell(const int& i, const int& j) {
+    ClickableLabel* cell = new ClickableLabel();
+    cell->setFixedSize(50, 50);
+    ui->grid_map->addWidget(cell, i, j);
+    this->render_block_info(i, j);
+
+    connect(cell, &ClickableLabel::left_clicked, this, [this, cell, i, j]() {
+        first_left_click = {j, i};
+        first_left_click_done = true;
+    });
+
+    connect(cell, &ClickableLabel::right_clicked, this, [this, cell, i, j]() {
+        first_right_click = {j, i};
+        first_right_click_done = true;
+    });
+
+    connect(cell, &ClickableLabel::dropped, this, [this, i, j]() {
+        if (first_left_click_done) {
+            second_left_click = {j, i};
+            mode->handle(first_left_click, second_left_click, *this, false);
+            first_left_click_done = false;
+        } else if (first_right_click_done) {
+            second_right_click = {j, i};
+            mode->handle(first_right_click, second_right_click, *this, true);
+            first_right_click_done = false;
+        }
+    });
+
+    connect(cell, &ClickableLabel::double_click_left, this, [this, cell, i, j]() {
+        first_left_click = {j, i};
+        second_left_click = {j, i};
+        mode->handle(first_left_click, second_left_click, *this, false);
+        first_left_click_done = false;
+    });
+
+    connect(cell, &ClickableLabel::double_click_right, this, [this, cell, i, j]() {
+        first_right_click = {j, i};
+        second_right_click = {j, i};
+        mode->handle(first_right_click, second_right_click, *this, true);
+        first_right_click_done = false;
+    });
 }

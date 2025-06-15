@@ -1,6 +1,7 @@
 #ifndef YAML_PARSER_h
 #define YAML_PARSER_h
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -17,8 +18,10 @@ public:
 private:
     YAML::Node map_object_to_yaml(const MapObject& map_obj);
     YAML::Node vector2d_to_yaml(const Vector2D<int>& vector);
+    YAML::Node guns_to_yaml(const std::map<GunType, std::vector<Vector2D<int>>>& guns);
     MapObject yaml_to_map_object(const YAML::Node& node);
     Vector2D<int> yaml_to_vector2d(const YAML::Node& node);
+    std::map<GunType, std::vector<Vector2D<int>>> yaml_to_guns(const YAML::Node& node);
 };
 
 #endif

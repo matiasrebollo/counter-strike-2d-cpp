@@ -27,3 +27,14 @@ QPixmap& PixmapManager::get_pixmap(const std::string& path) {
     pixmap_cache[path] = tileset;
     return pixmap_cache[path];
 }
+
+QPixmap& PixmapManager::get_gun_pixmap(const GunType& gun) {
+    auto it = gun_pixmap_cache.find(gun);
+    if (it != gun_pixmap_cache.end()) {
+        return it->second;
+    }
+    std::string texture_path = texture_parser.get_editor_gun_texture(gun);
+    QPixmap tileset(QString::fromStdString(texture_path));
+    gun_pixmap_cache[gun] = tileset;
+    return gun_pixmap_cache[gun];
+}

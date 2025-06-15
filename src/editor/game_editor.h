@@ -2,6 +2,7 @@
 #define GAME_EDITOR_H
 
 #include <QMainWindow>
+#include <map>
 #include <memory>
 #include <set>
 #include <string>
@@ -10,12 +11,14 @@
 
 #include "../common/block_texture_parser.h"
 #include "../common/game_map.h"
+#include "../common/weapon_type.h"
 
 #include "blocks_setter.h"
 #include "bomb_sites_setter.h"
 #include "clickable_label.h"
 #include "ct_spawns_setter.h"
 #include "grid_action.h"
+#include "guns_setter.h"
 #include "pixmap_manager.h"
 #include "tt_spawns_setter.h"
 
@@ -40,6 +43,7 @@ public:
     void setCtSpawn(const int& row, const int& column, const bool& to_delete);
     void setTTSpawn(const int& row, const int& column, const bool& to_delete);
     void setBombSite(const int& row, const int& column, const bool& to_delete);
+    void setGun(const int& row, const int& column, const bool& to_delete);
 
 private slots:
     void on_save_button_clicked();
@@ -58,7 +62,10 @@ private:
     void setupBlockList();
     void setupBackgroundList();
     void setupGridMap();
+    void setupGunBar();
+    void add_grid_map_cell(const int& i, const int& j);
     void clear_grid_map();
+    void load_map_from_file(const std::string& map_name);
     void clear_grid();
     void onBackgroundLabelClicked(const Background& background, const std::string& background_path);
     void load_map_from_file(std::string map_name);
@@ -68,11 +75,13 @@ private:
     void mark_as_ct_spawn(ClickableLabel* label);
     void mark_as_tt_spawn(ClickableLabel* label);
     void mark_as_bomb_site(ClickableLabel* label);
+    void mark_with_gun(ClickableLabel* label, const int& row, const int& column);
     void format_string(std::string& s);
     std::vector<MapObject> load_blocks(const int& offset_x, const int& offset_y);
     std::vector<Vector2D<int>> set_to_vector(const std::set<std::pair<int, int>>& set_pos,
                                              const int& offset_x, const int& offset_y);
-
+    std::map<GunType, std::vector<Vector2D<int>>> save_guns(const int& offset_x,
+                                                            const int& offset_y);
     BlockTextureParser texture_parser;
     PixmapManager pixmap_manager;
     int selected_block;
@@ -82,12 +91,14 @@ private:
     std::set<std::pair<int, int>> tt_spawns;
     std::set<std::pair<int, int>> ct_spawns;
     std::set<std::pair<int, int>> bomb_sites;
+    std::map<std::pair<int, int>, GunType> guns;
     std::pair<int, int> first_left_click;
     std::pair<int, int> second_left_click;
     std::pair<int, int> first_right_click;
     std::pair<int, int> second_right_click;
     bool first_left_click_done;
     bool first_right_click_done;
+    GunType selected_gun;
     bool has_entry_create;
 };
 
