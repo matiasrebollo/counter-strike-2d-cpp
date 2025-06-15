@@ -49,6 +49,7 @@ Game_editor::Game_editor(QWidget* parent):
     this->setupToolbar();
     this->setupBlockList();
     this->setupBackgroundList();
+    this->setupGunBar();
 }
 
 Game_editor::~Game_editor() { delete ui; }
@@ -160,9 +161,9 @@ void Game_editor::setupGunBar() {
         connect(label, &ClickableLabel::left_clicked, [this, gun]() {
             first_left_click_done = false;
             selected_gun = gun;
-            // mode = std::make_unique<>();
+            mode = std::make_unique<GunsSetter>();
         });
-        ui->GameAreas->addWidget(label, 0, Qt::AlignHCenter);
+        ui->gunsArea->addWidget(label, 0, Qt::AlignHCenter);
     }
 }
 
@@ -332,6 +333,7 @@ void Game_editor::setBlock(const int& row, const int& column, const bool& to_del
         setCtSpawn(row, column, true);
         setTTSpawn(row, column, true);
         setBombSite(row, column, true);
+        setGun(row, column, true);
     }
 
     this->render_block_info(row, column);
@@ -497,6 +499,9 @@ void Game_editor::render_block_info(const int& row, const int& column) {
             if (bomb_sites.find({column, row}) != bomb_sites.end()) {
                 mark_as_bomb_site(cell);
             }
+            if (guns.find({column, row}) != guns.end()) {
+                mark_with_gun(cell, row, column);
+            }
         }
     }
 }
@@ -564,6 +569,33 @@ void Game_editor::mark_as_bomb_site(ClickableLabel* label) {
 
     painter.end();
     label->setPixmap(result.scaled(50, 50));
+}
+
+void Game_editor::mark_with_gun(ClickableLabel* label, const int& row, const int& column) {
+    QPixmap result = label->pixmap(Qt::ReturnByValue);
+    QPainter painter(&result);
+
+    QPixmap& overlay = pixmap_manager.get_gun_pixmap(guns[{column, row}]);
+    QPixmap scaledOverlay = overlay.scaled(20, 20);
+
+    int x = result.width() - scaledOverlay.width();
+    int y = 0;
+    painter.drawPixmap(x, y, scaledOverlay);
+
+    painter.end();
+    label->setPixmap(result.scaled(50, 50));
+}
+
+void Game_editor::setGun(const int& row, const int& column, const bool& to_delete) {
+    if (to_delete) {
+        guns.erase({column, row});
+    } else {
+        if (texture_parser.get_texture_info(grid[row][column]).collidable) {
+            return;
+        }
+        guns[std::make_pair(column, row)] = selected_gun;
+    }
+    this->render_block_info(row, column);
 }
 
 void Game_editor::add_grid_map_cell(const int& i, const int& j) {

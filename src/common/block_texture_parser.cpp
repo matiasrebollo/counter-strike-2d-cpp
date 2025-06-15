@@ -216,8 +216,8 @@ void BlockTextureParser::set_gun_textures() {
 }
 
 void BlockTextureParser::set_editor_gun_textures() {
-    editor_gun_textures = {{AK47, "../assets/gfx/weapons/ak47_d.bmp"},
-                           {GLOCK, "../assets/gfx/weapons/glock_d.bmp"},
-                           {M3, "../assets/gfx/weapons/m3_d.bmp"},
-                           {AWP, "../assets/gfx/weapons/awp_d.bmp"}};
+    editor_gun_textures = {{AK47, "../assets/gfx/weapons/ak47_k.bmp"},
+                           {GLOCK, "../assets/gfx/weapons/glock_k.bmp"},
+                           {M3, "../assets/gfx/weapons/m3_k.bmp"},
+                           {AWP, "../assets/gfx/weapons/awp_k.bmp"}};
 }

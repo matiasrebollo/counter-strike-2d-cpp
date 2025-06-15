@@ -2,6 +2,7 @@
 #define GAME_EDITOR_H
 
 #include <QMainWindow>
+#include <map>
 #include <memory>
 #include <set>
 #include <string>
@@ -17,6 +18,7 @@
 #include "clickable_label.h"
 #include "ct_spawns_setter.h"
 #include "grid_action.h"
+#include "guns_setter.h"
 #include "pixmap_manager.h"
 #include "tt_spawns_setter.h"
 
@@ -41,6 +43,7 @@ public:
     void setCtSpawn(const int& row, const int& column, const bool& to_delete);
     void setTTSpawn(const int& row, const int& column, const bool& to_delete);
     void setBombSite(const int& row, const int& column, const bool& to_delete);
+    void setGun(const int& row, const int& column, const bool& to_delete);
 
 private slots:
     void on_save_button_clicked();
@@ -69,6 +72,7 @@ private:
     void mark_as_ct_spawn(ClickableLabel* label);
     void mark_as_tt_spawn(ClickableLabel* label);
     void mark_as_bomb_site(ClickableLabel* label);
+    void mark_with_gun(ClickableLabel* label, const int& row, const int& column);
     void format_string(std::string& s);
     std::vector<MapObject> load_blocks(const int& offset_x, const int& offset_y);
     std::vector<Vector2D<int>> set_to_vector(const std::set<std::pair<int, int>>& set_pos,
@@ -83,6 +87,7 @@ private:
     std::set<std::pair<int, int>> tt_spawns;
     std::set<std::pair<int, int>> ct_spawns;
     std::set<std::pair<int, int>> bomb_sites;
+    std::map<std::pair<int, int>, GunType> guns;
     std::pair<int, int> first_left_click;
     std::pair<int, int> second_left_click;
     std::pair<int, int> first_right_click;
