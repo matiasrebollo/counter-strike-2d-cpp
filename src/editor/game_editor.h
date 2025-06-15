@@ -59,6 +59,7 @@ private:
     void setupBackgroundList();
     void setupGridMap();
     void clear_grid_map();
+    void onBackgroundLabelClicked(const Background& background, const std::string& background_path);
     void load_map_from_file(std::string map_name);
     void render_block_info(const int& row, const int& column);
     void render_block(ClickableLabel* cell, const int& block);

@@ -147,17 +147,21 @@ void Game_editor::setupBackgroundList() {
         ui->backgrounds_list->addWidget(label, 0, Qt::AlignHCenter);
         label->setCursor(Qt::CrossCursor);
         connect(label, &ClickableLabel::left_clicked, [this, background, background_path]() {
-            QString qss = QString("#scrollAreaGridMap {"
-                                  "border-image: url(%1) 0 0 0 0 stretch stretch;"
-                                  "}")
-                                  .arg(QString::fromStdString(background_path));
-
-            ui->scrollAreaGridMap->setStyleSheet(qss);
-            ui->scrollAreaGridMap->setStyleSheet(qss);
-            selected_background = background;
-            first_left_click_done = false;
+            this->onBackgroundLabelClicked(background, background_path);
         });
     }
+}
+
+void Game_editor::onBackgroundLabelClicked(const Background& background,
+                                           const std::string& background_path) {
+    QString qss = QString("#scrollAreaGridMap {"
+                          "border-image: url(%1) 0 0 0 0 stretch stretch;"
+                          "}")
+                          .arg(QString::fromStdString(background_path));
+
+    ui->scrollAreaGridMap->setStyleSheet(qss);
+    selected_background = background;
+    first_left_click_done = false;
 }
 
 void Game_editor::setupGridMap() {
@@ -401,6 +405,8 @@ void Game_editor::load_map_from_file(std::string map_name) {
     }
 
     this->selected_background = map.background;
+    std::string background_path = texture_parser.get_background_path(this->selected_background);
+    this->onBackgroundLabelClicked(this->selected_background, background_path);
     for (auto object: map.map_objects) {
         for (auto vector: object.positions) {
             this->grid[vector.y][vector.x] = object.type;
