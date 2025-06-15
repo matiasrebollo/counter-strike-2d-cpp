@@ -59,6 +59,7 @@ private:
     void setupBackgroundList();
     void setupGridMap();
     void clear_grid_map();
+    void clear_grid();
     void onBackgroundLabelClicked(const Background& background, const std::string& background_path);
     void load_map_from_file(std::string map_name);
     void render_block_info(const int& row, const int& column);
@@ -87,5 +88,7 @@ private:
     std::pair<int, int> second_right_click;
     bool first_left_click_done;
     bool first_right_click_done;
+    bool has_entry_create;
 };
+
 #endif  // GAME_EDITOR_H

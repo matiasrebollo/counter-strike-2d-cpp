@@ -30,7 +30,8 @@ Game_editor::Game_editor(QWidget* parent):
         selected_background(AZTEC_BACKGROUND),
         mode(std::make_unique<BlocksSetter>()),
         first_left_click_done(false),
-        first_right_click_done(false) {
+        first_right_click_done(false),
+        has_entry_create(false) {
     ui->setupUi(this);
     ui->stack->setCurrentIndex(0);
     this->setupToolbar();
@@ -233,6 +234,16 @@ void Game_editor::clear_grid_map() {
     }
 }
 
+void Game_editor::clear_grid() {
+    this->grid = {};
+    for (int i = 0; i < DEFAULT_ROWS; i++) {
+        this->grid.push_back({});
+        for (int j = 0; j < DEFAULT_COLUMNS; j++) {
+            this->grid[i].push_back(NONE_BLOCK);
+        }
+    }
+}
+
 void Game_editor::on_save_button_clicked() {
     GameMap map = create_map(grid);
     YamlParser parser;
@@ -350,11 +361,17 @@ void Game_editor::setBombSite(const int& row, const int& column, const bool& to_
 }
 
 void Game_editor::on_go_to_create_button_clicked() {
-    this->grid.resize(DEFAULT_ROWS, std::vector<int>(DEFAULT_COLUMNS, NONE_BLOCK));
-    this->tt_spawns.clear();
-    this->ct_spawns.clear();
-    this->bomb_sites.clear();
-    this->setupEditorUi();
+    if (!this->has_entry_create) {
+        this->clear_grid();
+        this->tt_spawns.clear();
+        this->ct_spawns.clear();
+        this->bomb_sites.clear();
+        this->selected_background = AZTEC_BACKGROUND;
+        std::string background_path = texture_parser.get_background_path(this->selected_background);
+        this->onBackgroundLabelClicked(this->selected_background, background_path);
+        this->setupEditorUi();
+        this->has_entry_create = true;
+    }
     ui->stack->setCurrentIndex(1);
 }
 
@@ -390,7 +407,7 @@ void Game_editor::on_load_map_button_clicked() {
     std::string map_name = ui->maps_list->currentItem()->text().toStdString();
     this->load_map_from_file(map_name);
     this->setupEditorUi();
-
+    this->has_entry_create = false;
     // Not very sure if this will work always, it should load the blocks at least
     ui->stack->setCurrentIndex(1);
 }
@@ -426,7 +443,6 @@ void Game_editor::load_map_from_file(std::string map_name) {
         this->bomb_sites.emplace(std::make_pair(vector.x, vector.y));
     }
 }
-
 
 void Game_editor::format_string(std::string& s) { s.erase(s.length() - 5); }
 
