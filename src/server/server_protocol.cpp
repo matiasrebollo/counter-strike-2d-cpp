@@ -125,7 +125,7 @@ void ServerProtocol::send_shot(const PlayerDTO& player) {
         this->send_angle(player.shot.value().distance);
     } else {
         this->send_byte(CODE_FALSE);
-        this->send_angle(0.0d);
+        this->send_angle(0.0);
     }
 }
 
