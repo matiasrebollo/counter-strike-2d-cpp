@@ -341,7 +341,7 @@ void GameWorld::calculate_shot(Shot& shot, const Player& shooter) const {
             continue;
         if (const Player* player = dynamic_cast<const Player*>(coll_ptr)) {
             if (!player->is_alive()) {
-                continue;  // O return 0.0 si lo estás usando en `impacts`
+                continue;
             }
         }
 

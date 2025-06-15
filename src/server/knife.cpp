@@ -41,5 +41,4 @@ void Knife::stab(GameWorld& game, Player& shooter) {
         if (!hit_player->is_alive())
             shooter.count_kill(kill_bonification);
     }
-    // game.execute_shot() para informar a clientes. shooter y distancia unicamente
 }

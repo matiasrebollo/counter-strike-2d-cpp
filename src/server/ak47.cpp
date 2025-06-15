@@ -36,5 +36,4 @@ void Ak_47::shoot(GameWorld& game, Player& shooter) {
         if (!hit_player->is_alive())
             shooter.count_kill(kill_bonification);
     }
-    // game.execute_shot(...)
 }

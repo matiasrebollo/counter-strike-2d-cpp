@@ -36,6 +36,4 @@ void M_3::shoot(GameWorld& game, Player& shooter) {
                 shooter.count_kill(kill_bonification);
         }
     }
-
-    // game.execute_shot(...)
 }

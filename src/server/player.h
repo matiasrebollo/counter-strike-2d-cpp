@@ -3,6 +3,7 @@
 
 #include <list>
 #include <memory>
+#include <optional>
 #include <string>
 
 class GameWorld;  // forward declaration
@@ -22,8 +23,10 @@ private:
     bool making_action;
     double orientation;
     uint16_t life;
+    std::optional<ShotDTO> shot;
     int bonifications;
     int kills;
+    int deaths;
     Loadout loadout;
 
 public:
@@ -49,6 +52,7 @@ public:
     void equip_knife();
     void stop_making_action();
     void make_action();
+    void shoot(const Shot& a_shot);
     void receive_damage(const int& damage);
     void count_kill(const int& money_bonification);
     Loadout& get_loadout();
