@@ -275,7 +275,14 @@ std::vector<Vector2D<int>> Game_editor::set_to_vector(const std::set<std::pair<i
 }
 
 void Game_editor::setBlock(const int& row, const int& column, const bool& to_delete) {
-    this->grid[row][column] = to_delete ? NONE_BLOCK : selected_block;
+    int block = to_delete ? NONE_BLOCK : selected_block;
+    this->grid[row][column] = block;
+    if (texture_parser.get_texture_info(block).collidable) {
+        setCtSpawn(row, column, true);
+        setTTSpawn(row, column, true);
+        setBombSite(row, column, true);
+    }
+
     this->render_block_info(row, column);
 }
 
@@ -283,6 +290,9 @@ void Game_editor::setCtSpawn(const int& row, const int& column, const bool& to_d
     if (to_delete) {
         ct_spawns.erase({column, row});
     } else {
+        if (texture_parser.get_texture_info(grid[row][column]).collidable) {
+            return;
+        }
         ct_spawns.insert({column, row});
     }
     this->render_block_info(row, column);
@@ -292,6 +302,9 @@ void Game_editor::setTTSpawn(const int& row, const int& column, const bool& to_d
     if (to_delete) {
         tt_spawns.erase({column, row});
     } else {
+        if (texture_parser.get_texture_info(grid[row][column]).collidable) {
+            return;
+        }
         tt_spawns.insert({column, row});
     }
     this->render_block_info(row, column);
@@ -301,6 +314,9 @@ void Game_editor::setBombSite(const int& row, const int& column, const bool& to_
     if (to_delete) {
         bomb_sites.erase({column, row});
     } else {
+        if (texture_parser.get_texture_info(grid[row][column]).collidable) {
+            return;
+        }
         bomb_sites.insert({column, row});
     }
     this->render_block_info(row, column);
