@@ -10,6 +10,7 @@
 #include <iterator>
 #include <map>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -20,6 +21,17 @@
 #define MAP_PATH "../maps"
 #define DEFAULT_ROWS 10
 #define DEFAULT_COLUMNS 12
+#define MIN_SIZE_SPAWNS 10
+#define MIN_SIZE_SITES 1
+#define TITLE_MSG_ERROR_SPAWNS "No hay suficientes spawns"
+#define TITLE_MSG_ERROR_SITES "No hay suficientes sites"
+#define MSG_SIZE_CT_SPAWNS \
+    "Debes tener por lo menos " + std::to_string(MIN_SIZE_SPAWNS) + " spawns de CT"
+#define MSG_SIZE_TT_SPAWNS \
+    "Debes tener por lo menos " + std::to_string(MIN_SIZE_SPAWNS) + " spawns de TT"
+#define MSG_SIZE_SITES \
+    "Debes tener por lo menos " + std::to_string(MIN_SIZE_SITES) + " sites para plantar la bomba"
+
 
 Game_editor::Game_editor(QWidget* parent):
         QMainWindow(parent),
@@ -191,24 +203,28 @@ void Game_editor::clear_grid_map() {
 }
 
 void Game_editor::on_save_button_clicked() {
-    GameMap map = create_map(grid);
-    YamlParser parser;
-    YAML::Node yaml = parser.game_map_to_Yaml(map);
+    try {
+        GameMap map = create_map(grid);
+        YamlParser parser;
+        YAML::Node yaml = parser.game_map_to_Yaml(map);
 
-    QString fileName = QFileDialog::getSaveFileName(
-            this, "Guardar Mapa", "", "Archivos YAML (*.yaml);;Todos los archivos (*)");
+        QString fileName = QFileDialog::getSaveFileName(
+                this, "Guardar Mapa", "", "Archivos YAML (*.yaml);;Todos los archivos (*)");
 
-    if (fileName.isEmpty()) {
+        if (fileName.isEmpty()) {
+            return;
+        }
+
+        if (!fileName.endsWith(".yaml", Qt::CaseInsensitive)) {
+            fileName += ".yaml";
+        }
+
+        std::ofstream fout(fileName.toStdString());
+        fout << yaml;
+        close();
+    } catch (const std::runtime_error&) {
         return;
     }
-
-    if (!fileName.endsWith(".yaml", Qt::CaseInsensitive)) {
-        fileName += ".yaml";
-    }
-
-    std::ofstream fout(fileName.toStdString());
-    fout << yaml;
-    close();
 }
 
 GameMap Game_editor::create_map(const std::vector<std::vector<int>>& grid) {
@@ -233,9 +249,26 @@ GameMap Game_editor::create_map(const std::vector<std::vector<int>>& grid) {
     }
 
     std::vector<MapObject> blocks = load_blocks(offset_x, offset_y);
+
     std::vector<Vector2D<int>> ct_spawns_vector = set_to_vector(ct_spawns, offset_x, offset_y);
+    if (ct_spawns_vector.size() < MIN_SIZE_SPAWNS) {
+        QMessageBox::information(this, TITLE_MSG_ERROR_SPAWNS,
+                                 QString::fromStdString(MSG_SIZE_CT_SPAWNS));
+        throw std::runtime_error(MSG_SIZE_CT_SPAWNS);
+    }
+
     std::vector<Vector2D<int>> tt_spawns_vector = set_to_vector(tt_spawns, offset_x, offset_x);
+    if (tt_spawns_vector.size() < MIN_SIZE_SPAWNS) {
+        QMessageBox::information(this, TITLE_MSG_ERROR_SPAWNS,
+                                 QString::fromStdString(MSG_SIZE_TT_SPAWNS));
+        throw std::runtime_error(MSG_SIZE_TT_SPAWNS);
+    }
     std::vector<Vector2D<int>> sites_vector = set_to_vector(bomb_sites, offset_x, offset_y);
+    if (bomb_sites.size() < MIN_SIZE_SITES) {
+        QMessageBox::information(this, TITLE_MSG_ERROR_SITES,
+                                 QString::fromStdString(MSG_SIZE_SITES));
+        throw std::runtime_error(MSG_SIZE_SITES);
+    }
 
     return {right_most - offset_x + 1, bottom_most - offset_y + 1, selected_background, blocks,
             ct_spawns_vector,          tt_spawns_vector,           sites_vector};
