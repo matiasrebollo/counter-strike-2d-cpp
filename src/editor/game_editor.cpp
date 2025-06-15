@@ -43,7 +43,8 @@ Game_editor::Game_editor(QWidget* parent):
         mode(std::make_unique<BlocksSetter>()),
         first_left_click_done(false),
         first_right_click_done(false),
-        selected_gun(NONE) {
+        selected_gun(NONE),
+        has_entry_create(false) {
     ui->setupUi(this);
     ui->stack->setCurrentIndex(0);
     this->setupToolbar();
@@ -178,17 +179,21 @@ void Game_editor::setupBackgroundList() {
         ui->backgrounds_list->addWidget(label, 0, Qt::AlignHCenter);
         label->setCursor(Qt::CrossCursor);
         connect(label, &ClickableLabel::left_clicked, [this, background, background_path]() {
-            QString qss = QString("#scrollAreaGridMap {"
-                                  "border-image: url(%1) 0 0 0 0 stretch stretch;"
-                                  "}")
-                                  .arg(QString::fromStdString(background_path));
-
-            ui->scrollAreaGridMap->setStyleSheet(qss);
-            ui->scrollAreaGridMap->setStyleSheet(qss);
-            selected_background = background;
-            first_left_click_done = false;
+            this->onBackgroundLabelClicked(background, background_path);
         });
     }
+}
+
+void Game_editor::onBackgroundLabelClicked(const Background& background,
+                                           const std::string& background_path) {
+    QString qss = QString("#scrollAreaGridMap {"
+                          "border-image: url(%1) 0 0 0 0 stretch stretch;"
+                          "}")
+                          .arg(QString::fromStdString(background_path));
+
+    ui->scrollAreaGridMap->setStyleSheet(qss);
+    selected_background = background;
+    first_left_click_done = false;
 }
 
 void Game_editor::setupGridMap() {
@@ -218,6 +223,16 @@ void Game_editor::clear_grid_map() {
             widget->deleteLater();
         }
         delete item;
+    }
+}
+
+void Game_editor::clear_grid() {
+    this->grid = {};
+    for (int i = 0; i < DEFAULT_ROWS; i++) {
+        this->grid.push_back({});
+        for (int j = 0; j < DEFAULT_COLUMNS; j++) {
+            this->grid[i].push_back(NONE_BLOCK);
+        }
     }
 }
 
@@ -388,11 +403,17 @@ void Game_editor::setBombSite(const int& row, const int& column, const bool& to_
 }
 
 void Game_editor::on_go_to_create_button_clicked() {
-    this->grid.resize(DEFAULT_ROWS, std::vector<int>(DEFAULT_COLUMNS, NONE_BLOCK));
-    this->tt_spawns.clear();
-    this->ct_spawns.clear();
-    this->bomb_sites.clear();
-    this->setupEditorUi();
+    if (!this->has_entry_create) {
+        this->clear_grid();
+        this->tt_spawns.clear();
+        this->ct_spawns.clear();
+        this->bomb_sites.clear();
+        this->selected_background = AZTEC_BACKGROUND;
+        std::string background_path = texture_parser.get_background_path(this->selected_background);
+        this->onBackgroundLabelClicked(this->selected_background, background_path);
+        this->setupEditorUi();
+        this->has_entry_create = true;
+    }
     ui->stack->setCurrentIndex(1);
 }
 
@@ -428,7 +449,7 @@ void Game_editor::on_load_map_button_clicked() {
     std::string map_name = ui->maps_list->currentItem()->text().toStdString();
     this->load_map_from_file(map_name);
     this->setupEditorUi();
-
+    this->has_entry_create = false;
     // Not very sure if this will work always, it should load the blocks at least
     ui->stack->setCurrentIndex(1);
 }
@@ -443,7 +464,9 @@ void Game_editor::load_map_from_file(const std::string& map_name) {
     }
 
     this->selected_background = map.background;
-    for (const auto& object: map.map_objects) {
+    std::string background_path = texture_parser.get_background_path(this->selected_background);
+    this->onBackgroundLabelClicked(this->selected_background, background_path);
+    for (auto object: map.map_objects) {
         for (auto vector: object.positions) {
             this->grid[vector.y][vector.x] = object.type;
         }
@@ -468,7 +491,6 @@ void Game_editor::load_map_from_file(const std::string& map_name) {
         }
     }
 }
-
 
 void Game_editor::format_string(std::string& s) { s.erase(s.length() - 5); }
 
