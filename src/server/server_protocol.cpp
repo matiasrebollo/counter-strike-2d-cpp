@@ -111,7 +111,21 @@ void ServerProtocol::send_players(const std::vector<PlayerDTO>& players) {
         this->send_big_endian_number(player.position.y);
         this->send_angle(player.orientation);
         this->send_big_endian_number(player.life);
+        this->send_shot(player);
+        this->send_byte(player.bonifications);
+        this->send_byte(player.kills);
+        this->send_byte(player.deaths);
         this->send_loadout(player.loadout);
+    }
+}
+
+void ServerProtocol::send_shot(const PlayerDTO& player) {
+    if (player.shot.has_value()) {
+        this->send_byte(CODE_TRUE);
+        this->send_angle(player.shot.value().distance);
+    } else {
+        this->send_byte(CODE_FALSE);
+        this->send_angle(0.0d);
     }
 }
 

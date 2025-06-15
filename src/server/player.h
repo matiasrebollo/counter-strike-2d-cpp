@@ -12,6 +12,7 @@ class GameWorld;  // forward declaration
 #include "common/settings.h"
 #include "server/collidable.h"
 #include "server/loadout.h"
+#include "server/shot.h"
 
 class Player: public Collidable {
 private:
