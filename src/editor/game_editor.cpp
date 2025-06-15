@@ -151,8 +151,8 @@ void Game_editor::setupToolbar() {
 }
 
 void Game_editor::setupGunBar() {
-    std::vector<GunType> guns = {GLOCK, AWP, AK47, M3};
-    for (const auto& gun: guns) {
+    std::vector<GunType> guns_vec = {GLOCK, AWP, AK47, M3};
+    for (const auto& gun: guns_vec) {
         ClickableLabel* label = new ClickableLabel();
         label->setFixedSize(60, 80);
         QPixmap& gun_image = pixmap_manager.get_gun_pixmap(gun);
@@ -268,6 +268,7 @@ GameMap Game_editor::create_map(const std::vector<std::vector<int>>& grid) {
     }
 
     std::vector<MapObject> blocks = load_blocks(offset_x, offset_y);
+    std::map<GunType, std::vector<Vector2D<int>>> guns_map = save_guns(offset_x, offset_y);
 
     std::vector<Vector2D<int>> ct_spawns_vector = set_to_vector(ct_spawns, offset_x, offset_y);
     if (ct_spawns_vector.size() < MIN_SIZE_SPAWNS) {
@@ -290,7 +291,7 @@ GameMap Game_editor::create_map(const std::vector<std::vector<int>>& grid) {
     }
 
     return {right_most - offset_x + 1, bottom_most - offset_y + 1, selected_background, blocks,
-            ct_spawns_vector,          tt_spawns_vector,           sites_vector};
+            ct_spawns_vector,          tt_spawns_vector,           sites_vector,        guns_map};
 }
 
 std::vector<MapObject> Game_editor::load_blocks(const int& offset_x, const int& offset_y) {
@@ -312,6 +313,17 @@ std::vector<MapObject> Game_editor::load_blocks(const int& offset_x, const int& 
                                         texture_parser.get_texture_info(pair.first).collidable};
                    });
     return blocks;
+}
+
+std::map<GunType, std::vector<Vector2D<int>>> Game_editor::save_guns(const int& offset_x,
+                                                                     const int& offset_y) {
+    std::map<GunType, std::vector<Vector2D<int>>> positions_guns;
+    for (const auto& gun: this->guns) {
+        auto pos = gun.first;
+        GunType type = gun.second;
+        positions_guns[type].push_back(Vector2D<int>(pos.first - offset_x, pos.second - offset_y));
+    }
+    return positions_guns;
 }
 
 std::vector<Vector2D<int>> Game_editor::set_to_vector(const std::set<std::pair<int, int>>& set_pos,
@@ -440,6 +452,7 @@ void Game_editor::load_map_from_file(const std::string& map_name) {
     this->tt_spawns.clear();
     this->ct_spawns.clear();
     this->bomb_sites.clear();
+    this->guns.clear();
     for (auto vector: map.ct_spawns) {
         this->ct_spawns.emplace(std::make_pair(vector.x, vector.y));
     }
@@ -448,6 +461,11 @@ void Game_editor::load_map_from_file(const std::string& map_name) {
     }
     for (auto vector: map.sites) {
         this->bomb_sites.emplace(std::make_pair(vector.x, vector.y));
+    }
+    for (const auto& gun: map.guns) {
+        for (const auto& vector: gun.second) {
+            this->guns[{vector.x, vector.y}] = gun.first;
+        }
     }
 }
 

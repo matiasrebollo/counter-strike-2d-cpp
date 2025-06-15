@@ -77,7 +77,8 @@ private:
     std::vector<MapObject> load_blocks(const int& offset_x, const int& offset_y);
     std::vector<Vector2D<int>> set_to_vector(const std::set<std::pair<int, int>>& set_pos,
                                              const int& offset_x, const int& offset_y);
-
+    std::map<GunType, std::vector<Vector2D<int>>> save_guns(const int& offset_x,
+                                                            const int& offset_y);
     BlockTextureParser texture_parser;
     PixmapManager pixmap_manager;
     int selected_block;
