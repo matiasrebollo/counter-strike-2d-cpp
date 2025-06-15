@@ -68,7 +68,6 @@ private:
     void load_map_from_file(const std::string& map_name);
     void clear_grid();
     void onBackgroundLabelClicked(const Background& background, const std::string& background_path);
-    void load_map_from_file(std::string map_name);
     void render_block_info(const int& row, const int& column);
     void render_block(ClickableLabel* cell, const int& block);
     void mark_as_collidable(ClickableLabel* label);
