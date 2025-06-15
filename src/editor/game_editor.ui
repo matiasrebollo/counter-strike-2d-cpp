@@ -24,7 +24,7 @@
 	background-color: rgb(15, 15, 15);
 }</string>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_3">
     <item>
      <widget class="QStackedWidget" name="stack">
       <property name="minimumSize">
@@ -536,17 +536,136 @@ QPushButton:pressed {
        </layout>
       </widget>
       <widget class="QWidget" name="page">
-       <widget class="QListWidget" name="maps_list">
-        <property name="geometry">
-         <rect>
-          <x>210</x>
-          <y>110</y>
-          <width>421</width>
-          <height>381</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QListWidget {
+       <layout class="QVBoxLayout" name="verticalLayout_6">
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_12">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <widget class="QPushButton" name="back_button">
+              <property name="minimumSize">
+               <size>
+                <width>100</width>
+                <height>35</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>300</width>
+                <height>35</height>
+               </size>
+              </property>
+              <property name="cursor">
+               <cursorShape>CrossCursor</cursorShape>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+	color: white;
+	border-radius: 10px;
+	border-width: 1px;
+	border-color: white;
+	border-style: solid;
+}
+QPushButton:hover {
+	qproperty-cursor: PointingHandCursor;
+}
+QPushButton:pressed {
+    background-color: gray;
+}</string>
+              </property>
+              <property name="text">
+               <string>ATRAS</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QLabel" name="message">
+              <property name="minimumSize">
+               <size>
+                <width>300</width>
+                <height>35</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>400</width>
+                <height>35</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QLabel {
+    color: white;
+}</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
+           <spacer name="horizontalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="0" column="1">
+           <widget class="QListWidget" name="maps_list">
+            <property name="minimumSize">
+             <size>
+              <width>400</width>
+              <height>200</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QListWidget {
     background-color: rgba(0, 0, 0, 150); 
 	alternate-background-color: rgba(50, 50, 50, 150);
     border: none;
@@ -563,28 +682,28 @@ QListWidget::item {
 QListWidget::item:selected {
     background-color: rgba(255, 255, 255, 40);
 }</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="back_button">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>30</y>
-          <width>100</width>
-          <height>35</height>
-         </rect>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>35</height>
-         </size>
-        </property>
-        <property name="cursor">
-         <cursorShape>CrossCursor</cursorShape>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QPushButton {
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QPushButton" name="load_map_button">
+            <property name="minimumSize">
+             <size>
+              <width>140</width>
+              <height>35</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>35</height>
+             </size>
+            </property>
+            <property name="cursor">
+             <cursorShape>CrossCursor</cursorShape>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton {
 	color: white;
 	border-radius: 10px;
 	border-width: 1px;
@@ -597,81 +716,28 @@ QPushButton:hover {
 QPushButton:pressed {
     background-color: gray;
 }</string>
-        </property>
-        <property name="text">
-         <string>ATRAS</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="load_map_button">
-        <property name="geometry">
-         <rect>
-          <x>350</x>
-          <y>550</y>
-          <width>140</width>
-          <height>35</height>
-         </rect>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>140</width>
-          <height>35</height>
-         </size>
-        </property>
-        <property name="cursor">
-         <cursorShape>CrossCursor</cursorShape>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QPushButton {
-	color: white;
-	border-radius: 10px;
-	border-width: 1px;
-	border-color: white;
-	border-style: solid;
-}
-QPushButton:hover {
-	qproperty-cursor: PointingHandCursor;
-}
-QPushButton:pressed {
-    background-color: gray;
-}</string>
-        </property>
-        <property name="text">
-         <string>CARGAR MAPA</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="message">
-        <property name="geometry">
-         <rect>
-          <x>130</x>
-          <y>70</y>
-          <width>600</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>600</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>600</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QLabel {
-    color: white;
-}</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
+            </property>
+            <property name="text">
+             <string>CARGAR MAPA</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <spacer name="horizontalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>

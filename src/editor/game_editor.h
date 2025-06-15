@@ -53,11 +53,13 @@ private slots:
 
 private:
     Ui::Game_editor* ui;
-    void setupUi();
+    void setupEditorUi();
     GameMap create_map(const std::vector<std::vector<int>>& grid);
     void setupBlockList();
     void setupBackgroundList();
     void setupGridMap();
+    void clear_grid_map();
+    void load_map_from_file(std::string map_name);
     void render_block_info(const int& row, const int& column);
     void render_block(ClickableLabel* cell, const int& block);
     void mark_as_collidable(ClickableLabel* label);
@@ -84,6 +86,5 @@ private:
     std::pair<int, int> second_right_click;
     bool first_left_click_done;
     bool first_right_click_done;
-    bool has_entry_in_create;
 };
 #endif  // GAME_EDITOR_H

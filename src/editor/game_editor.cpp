@@ -18,6 +18,8 @@
 #include "./ui_game_editor.h"
 
 #define MAP_PATH "../maps"
+#define DEFAULT_ROWS 10
+#define DEFAULT_COLUMNS 12
 
 Game_editor::Game_editor(QWidget* parent):
         QMainWindow(parent),
@@ -28,23 +30,17 @@ Game_editor::Game_editor(QWidget* parent):
         selected_background(AZTEC_BACKGROUND),
         mode(std::make_unique<BlocksSetter>()),
         first_left_click_done(false),
-        first_right_click_done(false),
-        has_entry_in_create(false) {
+        first_right_click_done(false) {
     ui->setupUi(this);
     ui->stack->setCurrentIndex(0);
+    this->setupToolbar();
+    this->setupBlockList();
+    this->setupBackgroundList();
 }
 
 Game_editor::~Game_editor() { delete ui; }
 
-void Game_editor::setupUi() {
-    if (!has_entry_in_create) {
-        this->setupToolbar();
-        this->setupBlockList();
-        this->setupBackgroundList();
-        this->setupGridMap();
-        this->has_entry_in_create = true;
-    }
-}
+void Game_editor::setupEditorUi() { this->setupGridMap(); }
 
 void Game_editor::setupBlockList() {
     QLayout* oldLayout = ui->scrollAreaWidgetContents->layout();
@@ -165,17 +161,15 @@ void Game_editor::setupBackgroundList() {
 }
 
 void Game_editor::setupGridMap() {
-    int rows = 10;
-    int columns = 10;
+    this->clear_grid_map();
+    ui->scrollAreaGridMap->setMinimumSize(50 * this->grid[0].size(), 50 * this->grid.size());
 
-    ui->scrollAreaGridMap->setMinimumSize(50 * columns, 50 * rows);
-    this->grid.resize(rows, std::vector<int>(columns, NONE_BLOCK));
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < columns; ++j) {
+    for (int i = 0; i < static_cast<int>(this->grid.size()); ++i) {
+        for (int j = 0; j < static_cast<int>(this->grid[i].size()); ++j) {
             ClickableLabel* cell = new ClickableLabel();
             cell->setFixedSize(50, 50);
-            QPixmap& base = pixmap_manager.get_block_pixmap(grid[i][j]);
-            cell->setPixmap(base);
+            ui->grid_map->addWidget(cell, i, j);
+            this->render_block_info(i, j);
             connect(cell, &ClickableLabel::left_clicked, this, [this, cell, i, j]() {
                 first_left_click = {j, i};
                 first_left_click_done = true;
@@ -212,17 +206,27 @@ void Game_editor::setupGridMap() {
                 mode->handle(first_right_click, second_right_click, *this, true);
                 first_right_click_done = false;
             });
-
-            ui->grid_map->addWidget(cell, i, j);
         }
     }
     ui->scrollArea_2->setWidget(ui->scrollAreaGridMap);
     ui->scrollArea_2->setWidgetResizable(true);
     ui->scrollAreaGridMap->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    ui->scrollAreaGridMap->setMinimumSize(50 * columns, 50 * rows);
+    ui->scrollAreaGridMap->setMinimumSize(50 * this->grid[0].size(), 50 * this->grid.size());
     ui->editMapPage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->stack->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->page->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->centralwidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+}
+
+void Game_editor::clear_grid_map() {
+    QLayoutItem* item;
+    while ((item = ui->grid_map->takeAt(0)) != nullptr) {
+        if (QWidget* widget = item->widget()) {
+            ui->grid_map->removeWidget(widget);
+            widget->deleteLater();
+        }
+        delete item;
+    }
 }
 
 void Game_editor::on_save_button_clicked() {
@@ -323,7 +327,6 @@ void Game_editor::setCtSpawn(const int& row, const int& column, const bool& to_d
     this->render_block_info(row, column);
 }
 
-
 void Game_editor::setTTSpawn(const int& row, const int& column, const bool& to_delete) {
     if (to_delete) {
         tt_spawns.erase({column, row});
@@ -343,7 +346,11 @@ void Game_editor::setBombSite(const int& row, const int& column, const bool& to_
 }
 
 void Game_editor::on_go_to_create_button_clicked() {
-    this->setupUi();
+    this->grid.resize(DEFAULT_ROWS, std::vector<int>(DEFAULT_COLUMNS, NONE_BLOCK));
+    this->tt_spawns.clear();
+    this->ct_spawns.clear();
+    this->bomb_sites.clear();
+    this->setupEditorUi();
     ui->stack->setCurrentIndex(1);
 }
 
@@ -377,11 +384,41 @@ void Game_editor::on_load_map_button_clicked() {
     }
 
     std::string map_name = ui->maps_list->currentItem()->text().toStdString();
-    // Add logic for load the map
+    this->load_map_from_file(map_name);
+    this->setupEditorUi();
 
     // Not very sure if this will work always, it should load the blocks at least
-    this->setupUi(this);
     ui->stack->setCurrentIndex(1);
+}
+
+void Game_editor::load_map_from_file(std::string map_name) {
+    YamlParser parser;
+    GameMap map = parser.yaml_to_game_map(std::string(MAP_PATH) + "/" + map_name + ".yaml");
+    this->grid.resize(map.height);
+
+    for (auto& row: grid) {
+        row.resize(map.width, NONE_BLOCK);
+    }
+
+    this->selected_background = map.background;
+    for (auto object: map.map_objects) {
+        for (auto vector: object.positions) {
+            this->grid[vector.y][vector.x] = object.type;
+        }
+    }
+
+    this->tt_spawns.clear();
+    this->ct_spawns.clear();
+    this->bomb_sites.clear();
+    for (auto vector: map.ct_spawns) {
+        this->ct_spawns.emplace(std::make_pair(vector.x, vector.y));
+    }
+    for (auto vector: map.tt_spawns) {
+        this->tt_spawns.emplace(std::make_pair(vector.x, vector.y));
+    }
+    for (auto vector: map.sites) {
+        this->bomb_sites.emplace(std::make_pair(vector.x, vector.y));
+    }
 }
 
 
