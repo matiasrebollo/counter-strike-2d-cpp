@@ -1,0 +1,58 @@
+server_fps: 60
+rounds: 10
+buy_phase_duration: 5
+attack_phase_duration: 60
+waiting_players_phase_duration: 300
+between_rounds_phase_duration: 5
+player_speed: 20
+terrorists: 1
+counter_terrorists: 1
+block_thickness: 400
+player_thickness: 320
+player_initial_life: 100
+guns_settings:
+  glock:
+    initial_ammo: 20
+    damage_variation_factor: 0.1
+    precision: 0.87
+    fallof: 6400
+    dmg: 30
+    rof: 200
+    price: 400
+    clip_size: 20
+    kill_bonus: 500
+  awp:
+    initial_ammo: 5
+    damage_variation_factor: 0.1
+    precision: 0.95
+    fallof: 10000
+    dmg: 130
+    rof: 40
+    price: 4750
+    clip_size: 10
+    kill_bonus: 100
+  ak-47:
+    initial_ammo: 30
+    damage_variation_factor: 0.1
+    precision: 0.92
+    fallof: 8000
+    dmg: 25
+    rof: 150
+    price: 2700
+    clip_size: 30
+    kill_bonus: 300
+  m3:
+    initial_ammo: 8
+    damage_variation_factor: 0.1
+    precision: 0.90
+    fallof: 3200
+    dmg: 10
+    rof: 60
+    price: 1700
+    clip_size: 8
+    kill_bonus: 300
+knife_settings:
+  knife_distance: 50
+  knife_dmg: 25
+  knife_ar: 120
+  knife_kill_bonus: 1500

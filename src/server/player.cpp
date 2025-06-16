@@ -26,6 +26,10 @@ float Player::get_orientation() const { return orientation; }
 bool Player::is_alive() const { return this->life > 0; }
 
 void Player::update(GameWorld& game, const float& delta_t) {
+    Settings& settings = Settings::getInstance();
+    int FPS_SERVER = settings.get_fps_server();
+    std::cout << FPS_SERVER << std::endl;
+
     shot = std::nullopt;
     int delta_it = static_cast<int>(std::round(delta_t * FPS_SERVER));
     int stepped = delta_it * PLAYER_SPEED;

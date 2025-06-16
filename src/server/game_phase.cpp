@@ -14,6 +14,10 @@ void GamePhase::run() {
     size_t it = 0;
     float time = 0.0f;
 
+    Settings& settings = Settings::getInstance();
+    int FPS_SERVER = settings.get_fps_server();
+    std::cout << FPS_SERVER << std::endl;
+
     while (should_continue() && time < duration) {
         size_t delta_it = it - last_it;
         float delta_seconds = static_cast<float>(delta_it) / FPS_SERVER;
