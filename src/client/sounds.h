@@ -10,8 +10,10 @@
 
 #include "../common/block_texture_parser.h"
 #include "../common/settings.h"
-
+#include "../common/sdl_helpers.h"
 #include "texture_manager.h"
+
+#define BUTTON_CHANNEL 1
 
 
 class Sounds {
@@ -37,8 +39,12 @@ public:
 
     void set_total_players(int total_players);
 
+    void play_shop_sound(SoundEffect effect);
+
     void play_step(const std::string& username, const SDL2pp::Point& destino_camera,
                    bool is_moving);
+
+    
 };
 
 

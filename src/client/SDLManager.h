@@ -29,8 +29,8 @@ private:
     TextureManager texture_manager;
     BlockTextureParser texture_parser;
     Camera camera;
-    Shop shop;
     Sounds sounds;
+    Shop shop;
     std::optional<GameMapDTO> map;
 
     void update_camera(int player_x, int player_y);

@@ -8,6 +8,13 @@ Sounds::Sounds(SDL2pp::Mixer& mixer, TextureManager& texture_manager,
 
 void Sounds::set_total_players(int total_players) { this->total_players = total_players; }
 
+void Sounds::play_shop_sound(SoundEffect effect) {
+    std::string path = texture_parser.get_sound_path(effect);
+    SDL2pp::Chunk& sound = texture_manager.get_sound(path);
+    mixer.PlayChannel(BUTTON_CHANNEL, sound);
+}
+
+
 void Sounds::play_step(const std::string& username, const SDL2pp::Point& destino_camera,
                        bool is_moving) {
     if (!is_moving)

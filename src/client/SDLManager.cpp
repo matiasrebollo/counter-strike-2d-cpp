@@ -20,8 +20,8 @@ SDLManager::SDLManager():
         renderer(window, -1, SDL_RENDERER_ACCELERATED),
         texture_manager(renderer),
         camera(CAMERA_WIDTH, CAMERA_HEIGHT),
-        shop(renderer, mixer, texture_manager, texture_parser),
-        sounds(mixer, texture_manager, texture_parser) {
+        sounds(mixer, texture_manager, texture_parser),
+        shop(renderer, mixer, texture_manager, texture_parser, sounds) {
     renderer.SetLogicalSize(CAMERA_WIDTH, CAMERA_HEIGHT);
     SDL_ShowCursor(SDL_DISABLE);
     mixer.AllocateChannels(30);
@@ -422,11 +422,14 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
     }
 
     // render de mi player
-    Position pos_player =
-            get_gun_info(local_info.player.equipped, local_info.player.primary_gun).first;
-    const BlockTextureInfo& skin_player =
-            texture_parser.get_ct_texture(local_info.ct_skin, pos_player);
+    Position pos_player = get_gun_info(local_info.player.equipped, local_info.player.primary_gun).first;
+
+    const BlockTextureInfo& skin_player = local_info.player.is_ct
+        ? texture_parser.get_ct_texture(local_info.ct_skin, pos_player)
+        : texture_parser.get_tt_texture(local_info.tt_skin, pos_player);
+
     render_player(local_info.player, skin_player);
+
 
     for (const PlayerInfo& p: local_info.ct_players) {
         Position pos = get_gun_info(p.equipped, p.primary_gun).first;
