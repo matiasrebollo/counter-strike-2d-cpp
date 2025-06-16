@@ -19,9 +19,4 @@ struct GameMap {
     std::map<GunType, std::vector<Vector2D<int>>> guns;
 };
 
-struct GameMapDTO {
-    Background background;
-    std::vector<MapObject> map_objects;
-};
-
 #endif

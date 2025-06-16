@@ -9,7 +9,7 @@
 #include <SDL2pp/SDL2pp.hh>
 
 #include "../common/block_texture_parser.h"
-#include "../common/game_map.h"
+#include "../common/game_info_dto.h"
 #include "../common/game_snapshot.h"
 #include "common/settings.h"
 
@@ -45,6 +45,10 @@ public:
 
     /* Se asigna el mapa una vez que es recibido cuando comienza la partida */
     void set_map(GameMapDTO game_map);
+
+
+    /* Se asigna los valores de la shop una vez que es recibido cuando comienza la partida*/
+    void set_shop(const ShopInfoDTO& shop_info);
 
     /* Renderiza la fase de waiting */
     void render_waiting_screen(int players_connected, int players_required,

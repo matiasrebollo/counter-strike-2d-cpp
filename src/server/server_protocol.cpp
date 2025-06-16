@@ -37,7 +37,7 @@ ServerProtocol& ServerProtocol::operator=(ServerProtocol&& other) noexcept {
 
 void ServerProtocol::send_lobby_message(const ServerResponseLobby& msg) {
     this->send_byte(this->commandsToCode.find(msg.commandType)->second);
-    this->send_byte(this->bools_to_code.find(msg.success)->second);
+    this->send_byte(msg.status);
     if (msg.commandType == CommandType::CREATE_GAME) {
         this->send_string(msg.game_name);
     }
@@ -51,8 +51,8 @@ void ServerProtocol::send_game_dto(const GameDTO& response) {
     std::visit(
             [this](const auto& response) {
                 using T = std::decay_t<decltype(response)>;
-                if constexpr (std::is_same_v<T, GameMapDTO>) {
-                    this->send_map(response);
+                if constexpr (std::is_same_v<T, GameInitialInfoDTO>) {
+                    this->send_game_init_info(response);
                 } else if constexpr (std::is_same_v<T, Snapshot>) {
                     this->send_snapshot(response);
                 } else if constexpr (std::is_same_v<T, GameEnded>) {
@@ -64,11 +64,11 @@ void ServerProtocol::send_game_dto(const GameDTO& response) {
             response);
 }
 
-void ServerProtocol::send_map(const GameMapDTO& map) {
-    this->send_byte(CODE_SEND_MAP);
-    this->send_byte(static_cast<int>(map.background));
-    this->send_big_endian_number(map.map_objects.size());
-    for (auto object: map.map_objects) {
+void ServerProtocol::send_game_init_info(const GameInitialInfoDTO& dto) {
+    this->send_byte(CODE_SEND_GAME_INIT_INFO);
+    this->send_byte(static_cast<int>(dto.game_map.background));
+    this->send_big_endian_number(dto.game_map.map_objects.size());
+    for (auto object: dto.game_map.map_objects) {
         this->send_big_endian_number(object.type);
         this->send_byte(this->bools_to_code.find(object.collidable)->second);
         this->send_byte(object.positions.size());
@@ -77,11 +77,23 @@ void ServerProtocol::send_map(const GameMapDTO& map) {
             this->send_big_endian_number(vec.y);
         }
     }
+    this->send_byte(dto.shop_info.prices.size());
+    for (const auto& [gun, price]: dto.shop_info.prices) {
+        this->send_byte(this->weaponParser.getWeaponToByte(gun));
+        this->send_big_endian_number(price);
+    }
+    this->send_byte(dto.shop_info.ammo_by_clip.size());
+    for (const auto& [gun, price]: dto.shop_info.ammo_by_clip) {
+        this->send_byte(this->weaponParser.getWeaponToByte(gun));
+        this->send_big_endian_number(price);
+    }
+    this->send_byte(dto.shop_info.price_clips);
 }
 
 
 void ServerProtocol::send_snapshot(const Snapshot& snapshot) {
     this->send_byte(CODE_SNAPSHOT);
+    this->send_byte(snapshot.total_players);
     this->send_byte(snapshot.phase);
     this->send_byte(snapshot.current_round_number);
     this->send_byte(snapshot.total_rounds);
@@ -99,8 +111,22 @@ void ServerProtocol::send_players(const std::vector<PlayerDTO>& players) {
         this->send_big_endian_number(player.position.x);
         this->send_big_endian_number(player.position.y);
         this->send_angle(player.orientation);
-        this->send_byte(player.life);
+        this->send_big_endian_number(player.life);
+        this->send_shot(player);
+        this->send_byte(player.bonifications);
+        this->send_byte(player.kills);
+        this->send_byte(player.deaths);
         this->send_loadout(player.loadout);
+    }
+}
+
+void ServerProtocol::send_shot(const PlayerDTO& player) {
+    if (player.shot.has_value()) {
+        this->send_byte(CODE_TRUE);
+        this->send_angle(player.shot->distance);
+    } else {
+        this->send_byte(CODE_FALSE);
+        this->send_angle(0.0);
     }
 }
 

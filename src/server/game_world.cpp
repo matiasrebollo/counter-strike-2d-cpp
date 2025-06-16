@@ -9,34 +9,62 @@
 #include "common/yaml_parser.h"
 #include "server/static_map_object.h"
 
-GameWorld::GameWorld():
-        spawn_zone(Vector2D<int>(60, 60), 400, 200),
-        game_map(YamlParser().yaml_to_game_map("../maps/mapa.yaml")) {
-    const int wallThickness = 40;
-
-    // agregar paredes invisibles segun tamanio mapa
-    // 0-wallthick, 0-wallthick, game_map width, height
-    // Agregar spawns zones segun spawns de game_map
-
+void GameWorld::add_collidables() {
     for (const auto& block: game_map.map_objects) {
         if (block.collidable) {
             for (const auto& vec: block.positions) {
                 collidables.emplace_back(std::make_shared<StaticMapObject>(
-                        Vector2D<int>(vec.x * wallThickness, vec.y * wallThickness), wallThickness,
-                        wallThickness));
+                        Vector2D<int>(vec.x * BLOCK_THICKNESS, vec.y * BLOCK_THICKNESS),
+                        BLOCK_THICKNESS, BLOCK_THICKNESS));
             }
         }
     }
+
+    // paredes invisibles al borde del mapa
+    collidables.emplace_back(std::make_shared<StaticMapObject>(
+            Vector2D<int>(0, -BLOCK_THICKNESS), game_map.width * BLOCK_THICKNESS, BLOCK_THICKNESS));
+    collidables.emplace_back(
+            std::make_shared<StaticMapObject>(Vector2D<int>(game_map.width * BLOCK_THICKNESS, 0),
+                                              BLOCK_THICKNESS, game_map.height * BLOCK_THICKNESS));
+    collidables.emplace_back(
+            std::make_shared<StaticMapObject>(Vector2D<int>(0, game_map.height * BLOCK_THICKNESS),
+                                              game_map.width * BLOCK_THICKNESS, BLOCK_THICKNESS));
+    collidables.emplace_back(std::make_shared<StaticMapObject>(Vector2D<int>(-BLOCK_THICKNESS, 0),
+                                                               BLOCK_THICKNESS,
+                                                               game_map.height * BLOCK_THICKNESS));
 }
 
-Vector2D<int> GameWorld::random_spawn_position() const {
+GameWorld::GameWorld(const std::string& map_filename):
+        shop(), game_map(YamlParser().yaml_to_game_map(PATH_FOLDER_MAPS + map_filename + ".yaml")) {
+    add_collidables();
+}
+
+// spawn_points deben ser suficientes como para que eventualmente se pueda spawnear a un jugador y
+// no quedarse buscando.
+Vector2D<int> GameWorld::random_spawn_position(
+        const std::vector<Vector2D<int>>& spawn_points) const {
     static std::random_device rd;
     static std::mt19937 gen(rd());
-    std::uniform_int_distribution<> disX(spawn_zone.position.x,
-                                         spawn_zone.position.x + spawn_zone.width);
-    std::uniform_int_distribution<> disY(spawn_zone.position.y,
-                                         spawn_zone.position.y + spawn_zone.height);
-    return Vector2D<int>(disX(gen), disY(gen));
+
+    std::uniform_int_distribution<> dis(0, spawn_points.size() - 1);
+    Vector2D<int> grid_pos = spawn_points[dis(gen)];
+
+    int x = grid_pos.x * BLOCK_THICKNESS;
+    int y = grid_pos.y * BLOCK_THICKNESS;
+
+    if (BLOCK_THICKNESS > PLAYER_THICKNESS) {
+        x += (BLOCK_THICKNESS - PLAYER_THICKNESS) / 2;
+        y += (BLOCK_THICKNESS - PLAYER_THICKNESS) / 2;
+    }
+
+    return Vector2D<int>(x, y);
+}
+
+Vector2D<int> GameWorld::random_ct_spawn_position() const {
+    return random_spawn_position(game_map.ct_spawns);
+}
+Vector2D<int> GameWorld::random_tt_spawn_position() const {
+    return random_spawn_position(game_map.tt_spawns);
 }
 
 void GameWorld::add_player(const std::string& username) {
@@ -46,9 +74,16 @@ void GameWorld::add_player(const std::string& username) {
 
     size_t cts = counter_terrorists.size();
     size_t tts = terrorists.size();
-    if (cts > tts && tts < TERRORISTS) {
+
+    if (cts + tts >= COUNTER_TERRORISTS + TERRORISTS) {
+        throw std::runtime_error("No hay lugar para más jugadores");
+    }
+
+    if (cts <= tts && cts < COUNTER_TERRORISTS) {
+        counter_terrorists[username] = player;
+    } else if (tts < TERRORISTS) {
         terrorists[username] = player;
-    } else if (cts < COUNTER_TERRORISTS) {
+    } else {
         counter_terrorists[username] = player;
     }
 }
@@ -64,27 +99,29 @@ void GameWorld::restart_players() {
 
 void GameWorld::spawn_players() {
     for (auto& [_, player]: terrorists) {
-        Vector2D<int> position = random_spawn_position();
+        Vector2D<int> position = random_tt_spawn_position();
         player->rect.position = position;
 
         while (colliding_object_with(*player)) {
-            position = random_spawn_position();
+            position = random_tt_spawn_position();
             player->rect.position = position;
         }
     }
 
     for (auto& [_, player]: counter_terrorists) {
-        Vector2D<int> position = random_spawn_position();
+        Vector2D<int> position = random_ct_spawn_position();
         player->rect.position = position;
 
         while (colliding_object_with(*player)) {
-            position = random_spawn_position();
+            position = random_ct_spawn_position();
             player->rect.position = position;
         }
     }
 }
 
 const GameMap GameWorld::get_map() const { return this->game_map; }
+
+const ShopInfoDTO GameWorld::get_shop_info() const { return this->shop.get_shop_info(); }
 
 const GameWorldSnapshot GameWorld::get_snapshot() const {
     std::vector<PlayerDTO> ct;
@@ -158,45 +195,64 @@ void GameWorld::equip_knife_for(const std::string& username) {
 }
 
 void GameWorld::buy_gun_for(const std::string& username, const GunType& gun) {
-    with_player(username, [&gun](Player& p) { p.buy_gun(gun); });
+    with_player(username, [this, &gun](Player& p) {
+        Loadout& loadout = p.get_loadout();
+
+        this->shop.buy_gun(gun, loadout);
+        // std::unique_ptr<Gun> old_gun = this->shop.buy_gun(gun, loadout);
+
+        /*if (old_gun) {
+            this->drop_gun(p.get_position(), old_gun); // o similar
+        }*/
+    });
 }
 
 void GameWorld::buy_ammo_for(const std::string& username, const bool& for_primary) {
-    with_player(username, [&for_primary](Player& p) { p.buy_ammo(for_primary); });
+    with_player(username, [this, &for_primary](Player& p) {
+        Loadout& loadout = p.get_loadout();
+
+        this->shop.buy_clip(for_primary, loadout);
+    });
 }
 
 const Collidable* GameWorld::colliding_object_with(const Collidable& coll) const {
     for (const auto& collidable: collidables) {
         if (collidable.get() == &coll)
             continue;
-        if (coll.collides_with(*collidable))
+        if (collidable->collides_with(coll))
             return collidable.get();
     }
     return nullptr;
 }
 
 void GameWorld::make_step_player(Player& player, const Vector2D<int>& step) {
-    Vector2D<int> origin = player.rect.position;
-    Vector2D<int> target = origin + step;
-    player.rect.position = target;
-    const Collidable* colliding_obj = colliding_object_with(player);
-    if (colliding_obj != nullptr) {
-        const Rect& c = colliding_obj->rect;
-        const Rect& p = player.rect;
-        Vector2D<int> adjusted_pos = origin;
-        if (step.x > 0) {
-            adjusted_pos.x = c.position.x - 1 - p.width;
+
+    if (step.x != 0) {
+        player.rect.position.x += step.x;
+        const Collidable* colliding_obj_x = colliding_object_with(player);
+        if (colliding_obj_x != nullptr) {
+            const Rect& c = colliding_obj_x->rect;
+            const Rect& p = player.rect;
+            if (step.x > 0) {
+                player.rect.position.x = c.position.x - p.width;
+            } else if (step.x < 0) {
+                player.rect.position.x = c.position.x + c.width;
+            }
         }
-        if (step.x < 0) {
-            adjusted_pos.x = c.position.x + c.width + 1;
+    }
+
+    if (step.y != 0) {
+        player.rect.position.y += step.y;
+        const Collidable* colliding_obj_y = colliding_object_with(player);
+        if (colliding_obj_y != nullptr) {
+            const Rect& c = colliding_obj_y->rect;
+            const Rect& p = player.rect;
+            if (step.y > 0) {
+                player.rect.position.y = c.position.y - p.height;
+            } else if (step.y < 0) {
+                player.rect.position.y = c.position.y + c.height;
+            }
         }
-        if (step.y > 0) {
-            adjusted_pos.y = c.position.y - 1 - p.height;
-        }
-        if (step.y < 0) {
-            adjusted_pos.y = c.position.y + c.height + 1;
-        }
-        player.rect.position = adjusted_pos;
     }
 }
 
@@ -285,8 +341,15 @@ void GameWorld::calculate_shot(Shot& shot, const Player& shooter) const {
     double closest = std::numeric_limits<double>::max();
 
     for (const auto& collidable: collidables) {
-        if (collidable.get() == &shooter)
+        const Collidable* coll_ptr = collidable.get();
+        if (coll_ptr == &shooter)
             continue;
+        if (const Player* player = dynamic_cast<const Player*>(coll_ptr)) {
+            if (!player->is_alive()) {
+                continue;
+            }
+        }
+
         double dist = impacts(shot, *collidable);
         if (dist != 0.0) {
             if (dist < closest) {
@@ -297,5 +360,5 @@ void GameWorld::calculate_shot(Shot& shot, const Player& shooter) const {
     }
 
     shot.hit = hit;
-    shot.distance = closest;
+    shot.distance = closest - PLAYER_THICKNESS / 2;
 }

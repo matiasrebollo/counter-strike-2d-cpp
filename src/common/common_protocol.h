@@ -39,11 +39,12 @@ inline constexpr bool always_false_v = false;
 #define CODE_ACTION 0x10
 #define CODE_CHANGE_WEAPON 0x11
 #define CODE_PLANT_BOMB 0x12
-#define CODE_SEND_MAP 0x25
+#define CODE_SEND_GAME_INIT_INFO 0x25
 #define CODE_GAME_STARTED 0x30
 #define CODE_SNAPSHOT 0x35
 #define CODE_PLAYERS 0x40
 #define CODE_BULLETS 0x50
+#define CODE_SHOT 0x55
 #define CODE_ENDGAME 0x60
 
 #define CODE_CHOOSE_KNIFE 0x00

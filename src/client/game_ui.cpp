@@ -15,7 +15,7 @@ GameUI::GameUI(Lobby& lobby):
         local_info{lobby.get_username(), lobby.get_gamecode(), lobby.get_ct_skin(),
                    lobby.get_tt_skin()},
         keep_running(true),
-        game_snapshot({WAITING_PLAYERS, 0, 0, 0, {}, {}}) {
+        game_snapshot({0, WAITING_PLAYERS, 0, 0, 0, {}, {}}) {
     this->phase = std::make_unique<WaitingForGamePhase>(*this);
 }
 
@@ -41,8 +41,8 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
         if (p.username == local_info.username) {
             local_info.is_ct = true;
             local_info.life = p.life;
-            local_info.x = p.position.x;
-            local_info.y = p.position.y;
+            local_info.x = p.position.x / GRAPHIC_SCALE;
+            local_info.y = p.position.y / GRAPHIC_SCALE;
             local_info.money = p.loadout.money;
             if (p.loadout.equipped == PRIMARY) {
                 local_info.equipped_gun_ammo = p.loadout.primary_ammo;
@@ -62,8 +62,8 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
         if (p.username == local_info.username) {
             local_info.is_ct = false;
             local_info.life = p.life;
-            local_info.x = p.position.x;
-            local_info.y = p.position.y;
+            local_info.x = p.position.x / GRAPHIC_SCALE;
+            local_info.y = p.position.y / GRAPHIC_SCALE;
             local_info.money = p.loadout.money;
             if (p.loadout.equipped == PRIMARY) {
                 local_info.equipped_gun_ammo = p.loadout.primary_ammo;
@@ -94,8 +94,9 @@ bool GameUI::update_waiting() {
                     if constexpr (std::is_same_v<T, Snapshot>) {
                         this->game_snapshot = std::move(game_dto);
                         update_local_info_from_snapshot(this->game_snapshot);
-                    } else if constexpr (std::is_same_v<T, GameMapDTO>) {
-                        this->sdl.set_map(std::move(game_dto));
+                    } else if constexpr (std::is_same_v<T, GameInitialInfoDTO>) {
+                        this->sdl.set_map(std::move(game_dto.game_map));
+                        this->sdl.set_shop(std::move(game_dto.shop_info));
                     } else if constexpr (std::is_same_v<T, GameEnded>) {
                         // guardar estadisticas
                         // estado ended?
@@ -113,8 +114,9 @@ void GameUI::show_waiting(const int& it) {
     sdl.clear_display();
     // el 2 luego tiene que ser la cantidad de personas que va a unirse maxima que se lee del
     // configurable
-    sdl.render_waiting_screen(this->game_snapshot.ct.size() + this->game_snapshot.tt.size(), 2,
-                              local_info.gamename, it, FPS_CLIENT);
+    sdl.render_waiting_screen(this->game_snapshot.ct.size() + this->game_snapshot.tt.size(),
+                              this->game_snapshot.total_players, local_info.gamename, it,
+                              FPS_CLIENT);
     sdl.show_screen();
 }
 

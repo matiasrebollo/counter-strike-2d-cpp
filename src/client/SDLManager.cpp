@@ -25,6 +25,18 @@ SDLManager::SDLManager():
 
 void SDLManager::set_map(GameMapDTO game_map) { map = std::move(game_map); }
 
+void SDLManager::set_shop(const ShopInfoDTO& shop_info) {
+    for (const auto& [gun, price]: shop_info.prices) {
+        std::cout << gun << std::endl;
+        std::cout << price << std::endl;
+    }
+    for (const auto& [gun, amount]: shop_info.ammo_by_clip) {
+        std::cout << gun << std::endl;
+        std::cout << amount << std::endl;
+    }
+    std::cout << shop_info.price_clips << std::endl;
+}
+
 void SDLManager::render_waiting_screen(int players_connected, int players_required,
                                        const std::string& gamename, int iteration, int FPS) {
 
@@ -83,7 +95,8 @@ void SDLManager::clear_display() { renderer.Clear(); }
 
 /* Centra la camara en el player */
 void SDLManager::update_camera(int player_x, int player_y) {
-    camera.follow(player_x + SIZE_PLAYER / 2, player_y + SIZE_PLAYER / 2);
+    camera.follow(player_x + PLAYER_THICKNESS / (GRAPHIC_SCALE * 2),
+                  player_y + PLAYER_THICKNESS / (GRAPHIC_SCALE * 2));
 }
 
 /* Devuelve un pair de la posicion del player segun el arma equipada y el sprite del arma a usar */
@@ -120,7 +133,8 @@ void SDLManager::render_player(const PlayerDTO& p, const BlockTextureInfo& sprit
     int y_pos = p.position.y;
 
     SDL2pp::Rect rect_origen(sprite_info.x, sprite_info.y, sprite_info.width, sprite_info.height);
-    SDL2pp::Rect destino_mundo(x_pos, y_pos, SIZE_PLAYER, SIZE_PLAYER);
+    SDL2pp::Rect destino_mundo(x_pos / GRAPHIC_SCALE, y_pos / GRAPHIC_SCALE,
+                               PLAYER_THICKNESS / GRAPHIC_SCALE, PLAYER_THICKNESS / GRAPHIC_SCALE);
 
     if (!camera.is_visible(destino_mundo))
         return;
@@ -141,7 +155,9 @@ void SDLManager::render_player_weapon(const PlayerDTO& p) {
     int x_pos = p.position.x;
     int y_pos = p.position.y;
 
-    SDL2pp::Rect destino_mundo(x_pos, y_pos, SIZE_PLAYER, SIZE_PLAYER);
+    int player_size = PLAYER_THICKNESS / GRAPHIC_SCALE;
+    SDL2pp::Rect destino_mundo(x_pos / GRAPHIC_SCALE, y_pos / GRAPHIC_SCALE, player_size,
+                               player_size);
     if (!camera.is_visible(destino_mundo))
         return;
 
@@ -166,7 +182,8 @@ void SDLManager::render_player_weapon(const PlayerDTO& p) {
     SDL2pp::Rect gun_dst(destino_camera.GetX() + offset_x, destino_camera.GetY() + offset_y,
                          gun_width, gun_height);
 
-    SDL2pp::Point rotate(-offset_x + SIZE_PLAYER / 2, -offset_y + SIZE_PLAYER / 2);
+    SDL2pp::Point rotate(-offset_x + PLAYER_THICKNESS / (GRAPHIC_SCALE * 2),
+                         -offset_y + PLAYER_THICKNESS / (GRAPHIC_SCALE * 2));
     SDL2pp::Texture& weapon_texture = texture_manager.get_texture(weapon_path);
 
     renderer.Copy(weapon_texture, SDL2pp::NullOpt, gun_dst, angulo, rotate);
@@ -358,14 +375,15 @@ void SDLManager::render_in_z_order(const Snapshot& snapshot, const LocalInfo& lo
     update_camera(local_info.x, local_info.y);
 
     if (map.has_value()) {
-        GameMapDTO gamemap = map.value();
+        GameMapDTO game_map = map.value();
 
-        const std::string& background_path = texture_parser.get_background_path(gamemap.background);
+        const std::string& background_path =
+                texture_parser.get_background_path(game_map.background);
         SDL2pp::Texture& background = texture_manager.get_texture(background_path);
         SDL2pp::Rect backgroundRect(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
         renderer.Copy(background, SDL2pp::NullOpt, backgroundRect);
 
-        for (const MapObject& obj: gamemap.map_objects) {
+        for (const MapObject& obj: game_map.map_objects) {
             const BlockTextureInfo& obj_info = texture_parser.get_texture_info(obj.type);
             std::string path = obj_info.tileset_path;
 
@@ -373,7 +391,9 @@ void SDLManager::render_in_z_order(const Snapshot& snapshot, const LocalInfo& lo
 
             SDL2pp::Rect rect_origen(obj_info.x, obj_info.y, obj_info.width, obj_info.height);
             for (const auto& vec: obj.positions) {
-                SDL2pp::Rect destino_mundo(vec.x * 40, vec.y * 40, 40, 40);
+                int block_size = BLOCK_THICKNESS / GRAPHIC_SCALE;
+                SDL2pp::Rect destino_mundo(vec.x * block_size, vec.y * block_size, block_size,
+                                           block_size);
                 if (!camera.is_visible(destino_mundo))
                     continue;
                 SDL2pp::Rect destino_camera = camera.world_to_screen(destino_mundo);
@@ -426,7 +446,8 @@ Crosshairs SDLManager::get_crosshair_color(int mouse_x, int mouse_y, const Snaps
     const auto& enemies = local_info.is_ct ? snapshot.tt : snapshot.ct;
 
     for (const auto& e: enemies) {
-        SDL2pp::Rect destino_mundo(e.position.x, e.position.y, SIZE_PLAYER, SIZE_PLAYER);
+        SDL2pp::Rect destino_mundo(e.position.x, e.position.y, PLAYER_THICKNESS / GRAPHIC_SCALE,
+                                   PLAYER_THICKNESS / GRAPHIC_SCALE);
 
         if (!camera.is_visible(destino_mundo)) {
             continue;

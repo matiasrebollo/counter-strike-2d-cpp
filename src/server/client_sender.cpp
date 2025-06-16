@@ -10,7 +10,12 @@ void ClientSender::send_response() {
     if (std::holds_alternative<GameEnded>(msg)) {
         this->game_ended();
     }
-    this->protocol.send_game_dto(msg);
+    try {
+        this->protocol.send_game_dto(msg);
+    } catch (const CommunicationEnded& e) {
+        this->game_ended();
+        throw;
+    }
 }
 
 bool ClientSender::run() {

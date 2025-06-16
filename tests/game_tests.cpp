@@ -51,13 +51,18 @@ TEST(ClientProtocolTest, SendRotate) {
 TEST(ClientProtocolTest, SendPlayerAction) {
     auto [client, server] = create_connected_protocols();
 
-    PlayerActionDTO dto{};
 
-    client->send_command(dto);
+    std::vector<bool> values = {false, true};
 
-    CommandDTO request = server->receive_client_request();
-    auto PlayerActionDTOPtr = std::get_if<PlayerActionDTO>(&request);
-    ASSERT_NE(PlayerActionDTOPtr, nullptr) << "Expected PlayerActionDTO but got another";
+    for (bool v: values) {
+        PlayerActionDTO dto{v};
+        client->send_command(dto);
+
+        CommandDTO request = server->receive_client_request();
+        auto PlayerActionDTOPtr = std::get_if<PlayerActionDTO>(&request);
+        ASSERT_NE(PlayerActionDTOPtr, nullptr) << "Expected PlayerActionDTO but got another";
+        ASSERT_EQ(v, PlayerActionDTOPtr->make);
+    }
 }
 
 TEST(ClientProtocolTest, SendEquipPrimary) {
@@ -146,6 +151,7 @@ TEST(ClientProtocolTest, SendBuyAmmo) {
 
 void validate_map(const GameMapDTO& expected_gamemap, const GameMapDTO& actual_gamemap) {
     ASSERT_EQ(expected_gamemap.background, actual_gamemap.background);
+    ASSERT_EQ(expected_gamemap.map_objects.size(), actual_gamemap.map_objects.size());
     for (size_t i = 0; i < expected_gamemap.map_objects.size(); i++) {
         ASSERT_EQ(expected_gamemap.map_objects[i].collidable,
                   actual_gamemap.map_objects[i].collidable);
@@ -157,7 +163,22 @@ void validate_map(const GameMapDTO& expected_gamemap, const GameMapDTO& actual_g
     }
 }
 
-TEST(ServerProtocolTest, SendMap) {
+void validate_shop_info(const ShopInfoDTO& expected_shop_info,
+                        const ShopInfoDTO& actual_shop_info) {
+    ASSERT_EQ(expected_shop_info.prices.size(), actual_shop_info.prices.size());
+    ASSERT_EQ(expected_shop_info.ammo_by_clip.size(), actual_shop_info.ammo_by_clip.size());
+    ASSERT_EQ(expected_shop_info.price_clips, actual_shop_info.price_clips);
+    for (const auto& [gun, price]: expected_shop_info.prices) {
+        EXPECT_NE(actual_shop_info.prices.find(gun), actual_shop_info.prices.end());
+        ASSERT_EQ(price, actual_shop_info.prices.find(gun)->second);
+    }
+    for (const auto& [gun, price]: expected_shop_info.ammo_by_clip) {
+        EXPECT_NE(actual_shop_info.ammo_by_clip.find(gun), actual_shop_info.prices.end());
+        ASSERT_EQ(price, actual_shop_info.ammo_by_clip.find(gun)->second);
+    }
+}
+
+TEST(ServerProtocolTest, SendGameInitialInfo) {
     auto [client, server] = create_connected_protocols();
 
     std::vector<MapObject> objects = {};
@@ -170,13 +191,30 @@ TEST(ServerProtocolTest, SendMap) {
 
     GameMapDTO game_map = GameMapDTO{Background::AZTEC_BACKGROUND, objects};
 
-    server->send_game_dto(game_map);
+    std::unordered_map<GunType, int> prices = {
+            {GunType::AK47, 2700},
+            {GunType::M3, 3000},
+            {GunType::AWP, 4750},
+    };
+
+    std::unordered_map<GunType, int> ammo_by_clip = {
+            {GunType::GLOCK, 30},
+            {GunType::AK47, 25},
+            {GunType::M3, 8},
+            {GunType::AWP, 4},
+    };
+
+    ShopInfoDTO shop_info = ShopInfoDTO{prices, ammo_by_clip, 100};
+
+    GameInitialInfoDTO dto = GameInitialInfoDTO{game_map, shop_info};
+
+    server->send_game_dto(dto);
 
     GameDTO response = client->receive_game_dto();
 
-    auto game_map_ptr = std::get_if<GameMapDTO>(&response);
-    ASSERT_NE(game_map_ptr, nullptr) << "Expected GameMapDTO but got another";
-    validate_map(game_map, *game_map_ptr);
+    auto game_map_ptr = std::get_if<GameInitialInfoDTO>(&response);
+    ASSERT_NE(game_map_ptr, nullptr) << "Expected GameInitialInfoDTO but got another";
+    validate_map(dto.game_map, game_map_ptr->game_map);
 }
 
 std::vector<LoadoutDTO> get_loadouts() {
@@ -203,11 +241,19 @@ std::vector<LoadoutDTO> get_loadouts() {
 void validate_player(const PlayerDTO& expected_player, const PlayerDTO& actual_player) {
     ASSERT_EQ(expected_player.username, actual_player.username);
     ASSERT_EQ(expected_player.life, actual_player.life);
+    ASSERT_EQ(expected_player.bonifications, actual_player.bonifications);
+    ASSERT_EQ(expected_player.kills, actual_player.kills);
+    ASSERT_EQ(expected_player.deaths, actual_player.deaths);
     ASSERT_EQ(expected_player.loadout.primary_gun, actual_player.loadout.primary_gun);
     ASSERT_EQ(expected_player.loadout.secondary_gun, actual_player.loadout.secondary_gun);
     ASSERT_EQ(expected_player.loadout.primary_ammo, actual_player.loadout.primary_ammo);
     ASSERT_EQ(expected_player.loadout.secondary_ammo, actual_player.loadout.secondary_ammo);
     ASSERT_EQ(expected_player.loadout.equipped, actual_player.loadout.equipped);
+    ASSERT_EQ(expected_player.shot.has_value(), actual_player.shot.has_value());
+    if (expected_player.shot.has_value()) {
+        ASSERT_LE(expected_player.shot->distance, actual_player.shot->distance - 0.1);
+        ASSERT_GE(expected_player.shot->distance, actual_player.shot->distance + 0.1);
+    }
 }
 
 TEST(ServerProtocolTest, SendSnapshot) {
@@ -226,15 +272,19 @@ TEST(ServerProtocolTest, SendSnapshot) {
     for (auto phase: phases) {
         for (auto current_round: current_rounds) {
             for (auto loadout: loadouts) {
-                std::vector<PlayerDTO> ct = {PlayerDTO{"Mati", Vector2D(0, 0), 0, 100, loadout}};
-                std::vector<PlayerDTO> tt = {
-                        PlayerDTO{"Facu", Vector2D(10, 10), 100, 100, loadout}};
-                Snapshot snapshot{phase, current_round, total_rounds, 20, ct, tt};
+                std::vector<PlayerDTO> ct = {
+                        PlayerDTO{"Mati", Vector2D(0, 0), 0, 100, std::nullopt, 0, 0, 0, loadout}};
+                std::vector<PlayerDTO> tt = {PlayerDTO{"Facu", Vector2D(10, 10), 100, 100,
+                                                       std::optional<ShotDTO>(100.20), 10, 10, 10,
+                                                       loadout}};
+                Snapshot snapshot{2, phase, current_round, total_rounds, 20, ct, tt};
 
                 server->send_game_dto(snapshot);
                 GameDTO response = client->receive_game_dto();
                 auto snapshotPtr = std::get_if<Snapshot>(&response);
                 ASSERT_NE(snapshotPtr, nullptr) << "Expected SnapshotDTO but got another";
+                ASSERT_EQ(snapshotPtr->phase, phase);
+                ASSERT_EQ(snapshotPtr->total_players, 2);
                 ASSERT_EQ(snapshotPtr->phase, phase);
                 ASSERT_EQ(snapshotPtr->current_round_number, current_round);
                 ASSERT_EQ(snapshotPtr->total_rounds, total_rounds);

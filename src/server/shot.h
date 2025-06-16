@@ -19,7 +19,7 @@ public:
 
     Shot(const Vector2D<int>& origin, const float& orientation);
 
-    void shoot(const GameWorld& game, const Player& shooter);
+    void shoot(const GameWorld& game, Player& shooter);
 
     Shot(const Shot&) = delete;
     Shot& operator=(const Shot&) = delete;

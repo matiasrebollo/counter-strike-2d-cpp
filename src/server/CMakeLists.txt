@@ -4,19 +4,24 @@ target_sources(taller_server
         client_handler.cpp
         client_receiver.cpp
         client_sender.cpp
-        collidable.cpp
         cs2d_game.cpp
         game_phase.cpp
         game_world.cpp
         rect.cpp
         main.cpp
+        static_map_object.cpp
         command.cpp
         player.cpp
         loadout.cpp
+        shop.cpp
         weapon.cpp
         shot.cpp
         gun.cpp
         knife.cpp
+        glock.cpp
+        awp.cpp
+        m3.cpp
+        ak47.cpp
         server.cpp
         server_monitor.cpp
         server_protocol.cpp
@@ -35,9 +40,14 @@ target_sources(taller_server
         rect.h
         player.h
         loadout.h
+        shop.h
         weapon.h
         gun.h
         knife.h
+        glock.h
+        awp.h
+        m3.h
+        ak47.cpp
         shot.h
         server.h
         server_monitor.h

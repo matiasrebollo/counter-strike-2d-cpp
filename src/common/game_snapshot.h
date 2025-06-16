@@ -13,6 +13,7 @@ enum Team {
 };  // para el protocolo se puede crear otro enum y reemplazar este por ese
 
 struct Snapshot {
+    int total_players;
     Phase phase;
     size_t current_round_number;
     size_t total_rounds;

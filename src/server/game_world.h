@@ -1,10 +1,12 @@
 #ifndef GAME_WORLD_H
 #define GAME_WORLD_H
 
+#include <iostream>
 #include <list>
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "common/game_map.h"
 #include "common/game_snapshot.h"
@@ -12,6 +14,7 @@
 #include "server/collidable.h"
 #include "server/game_world_snapshot.h"
 #include "server/player.h"
+#include "server/shop.h"
 #include "server/shot.h"
 
 class GameWorld {
@@ -19,15 +22,20 @@ private:
     std::map<std::string, std::shared_ptr<Player>> terrorists;
     std::map<std::string, std::shared_ptr<Player>> counter_terrorists;
     std::list<std::shared_ptr<Collidable>> collidables;
-    const Rect spawn_zone;
+    Shop shop;
     const GameMap game_map;
 
-    Vector2D<int> random_spawn_position() const;
+    void add_collidables();
+
+    Vector2D<int> random_spawn_position(const std::vector<Vector2D<int>>& spawn_points) const;
+    Vector2D<int> random_ct_spawn_position() const;
+    Vector2D<int> random_tt_spawn_position() const;
 
     bool team_is_dead(const std::map<std::string, std::shared_ptr<Player>>& team) const;
 
-    template <typename PlayerAction>
-    void with_player(const std::string& username, PlayerAction action) {
+    template <typename PlayerMethod>
+    void with_player(const std::string& username, PlayerMethod action) {
+
         auto ct_it = counter_terrorists.find(username);
         auto tt_it = terrorists.find(username);
         if (ct_it != counter_terrorists.end()) {
@@ -49,11 +57,12 @@ private:
 public:
     const std::string id;
 
-    GameWorld();
+    explicit GameWorld(const std::string& map_filename);
     void add_player(const std::string& username);
     void restart_players();
     void spawn_players();
     const GameMap get_map() const;
+    const ShopInfoDTO get_shop_info() const;
     const GameWorldSnapshot get_snapshot() const;
     void update(const float& delta_t);
     bool tt_are_all_dead() const;

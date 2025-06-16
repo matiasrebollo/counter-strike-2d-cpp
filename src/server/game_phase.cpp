@@ -19,6 +19,8 @@ void GamePhase::run() {
         float delta_seconds = static_cast<float>(delta_it) / FPS_SERVER;
         time += delta_seconds;
         game.broadcast_snapshot(duration - std::trunc(time));
+        if (!game.should_keep_running())
+            return;
         std::unique_ptr<Command> cmd;
         while (game.command_queue.try_pop(cmd)) {
             execute(std::move(cmd));
@@ -41,10 +43,10 @@ bool WaitingPlayersPhase::should_continue() {
 }
 void WaitingPlayersPhase::execute(std::unique_ptr<Command>) {}
 void WaitingPlayersPhase::end() {
-    game.broadcast_map();
+    game.broadcast_game_initial_info();
     game.begin_new_round();
     game.change_phase(std::make_unique<BuyPhase>(game));
-    // y si salió porque terminó la partida???
+    // y si salió porque terminó la partida??? -> AGREGAR
 }
 
 

@@ -5,6 +5,7 @@
 #include <functional>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <string>
 #include <type_traits>
 #include <unordered_map>
@@ -34,8 +35,9 @@ private:
     CommandDTO receive_buy_ammo_request();
 
     void send_snapshot(const Snapshot& snapshot);
-    void send_map(const GameMapDTO& map);
+    void send_game_init_info(const GameInitialInfoDTO& dto);
     void send_players(const std::vector<PlayerDTO>& players);
+    void send_shot(const PlayerDTO& player);
     void send_loadout(const LoadoutDTO& loadout);
     void send_end_game(const GameEnded& message);
 

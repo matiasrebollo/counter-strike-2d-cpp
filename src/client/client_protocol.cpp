@@ -18,10 +18,10 @@ ClientProtocol::ClientProtocol(std::unique_ptr<Socket> socket):
 
 ServerResponseLobby ClientProtocol::receive_command() {
     uint8_t code = this->receive_byte();
-    ServerResponseLobby response =
-            ServerResponseLobby{this->codeToCommands.find(code)->second, false, ""};
+    ServerResponseLobby response = ServerResponseLobby{this->codeToCommands.find(code)->second,
+                                                       ResponseStatus::SUCCESS, ""};
     if (this->codeToCommands.find(code)->second != CommandType::GAME_STARTED) {
-        response.success = this->receive_byte();
+        response.status = static_cast<ResponseStatus>(this->receive_byte());
         if (response.commandType == CommandType::CREATE_GAME) {
             response.game_name = this->receive_string();
             // recibo el nombre de la partida que el server me generó automáticamente
@@ -91,13 +91,6 @@ void ClientProtocol::send_join_game_request(const JoinGameDTO& dto) {
     this->send_string(dto.gamename);
 }
 
-/*
-void ClientProtocol::send_select_map_request(const InternalMessage& request) {
-    this->send_byte(request.map_id);
-}
-
-*/
-
 void ClientProtocol::handle_move(const MoveDTO& dto) {
     this->send_byte(CODE_MOVE);
     this->send_byte(dto.dir + 1);
@@ -151,8 +144,8 @@ void ClientProtocol::handle_buy_ammo(const BuyAmmoDTO& dto) {
 
 GameDTO ClientProtocol::receive_game_dto() {
     uint8_t code = this->receive_byte();
-    if (code == CODE_SEND_MAP) {
-        return this->receive_map();
+    if (code == CODE_SEND_GAME_INIT_INFO) {
+        return this->receive_game_initial_info();
     } else if (code == CODE_SNAPSHOT) {
         return this->receive_snapshot();
     } else {
@@ -162,6 +155,7 @@ GameDTO ClientProtocol::receive_game_dto() {
 
 Snapshot ClientProtocol::receive_snapshot() {
     // snasphot.bomb_status = BombStatus(this->receive_byte());
+    int total_players = this->receive_byte();
     int phase = this->receive_byte();
     size_t current_round_number = this->receive_byte();
     size_t total_rounds = this->receive_byte();
@@ -170,8 +164,8 @@ Snapshot ClientProtocol::receive_snapshot() {
     std::vector<PlayerDTO> cts = this->receive_players(size_ct);
     int size_tt = this->receive_byte();
     std::vector<PlayerDTO> tts = this->receive_players(size_tt);
-    Snapshot snapshot =
-            Snapshot{Phase(phase), current_round_number, total_rounds, time_left, cts, tts};
+    Snapshot snapshot = Snapshot{
+            total_players, Phase(phase), current_round_number, total_rounds, time_left, cts, tts};
     return snapshot;
 }
 
@@ -182,13 +176,26 @@ std::vector<PlayerDTO> ClientProtocol::receive_players(const int& size_players) 
         int position_x = this->receive_big_endian_number();
         int position_y = this->receive_big_endian_number();
         double angle = this->receive_angle();
-        int life = this->receive_byte();
-        uint16_t life16 = static_cast<uint16_t>(life);
+        uint16_t life = this->receive_big_endian_number();
+        std::optional<ShotDTO> shot = this->receive_shot();
+        int bonifications = this->receive_byte();
+        int kills = this->receive_byte();
+        int deaths = this->receive_byte();
         LoadoutDTO loadout = this->receive_loadout();
-        players.push_back(
-                PlayerDTO{username, Vector2D<int>(position_x, position_y), angle, life16, loadout});
+        players.push_back(PlayerDTO{username, Vector2D<int>(position_x, position_y), angle, life,
+                                    shot, bonifications, kills, deaths, loadout});
     }
     return players;
+}
+
+std::optional<ShotDTO> ClientProtocol::receive_shot() {
+    bool has_value = this->code_to_bools.find(this->receive_byte())->second;
+    double distance = this->receive_angle();
+    if (has_value) {
+        return ShotDTO{distance};
+    } else {
+        return std::nullopt;
+    }
 }
 
 LoadoutDTO ClientProtocol::receive_loadout() {
@@ -204,11 +211,40 @@ LoadoutDTO ClientProtocol::receive_loadout() {
     return LoadoutDTO{money, primary_gun, primary_ammo, secondary_gun, secondary_ammo, equipped};
 }
 
-GameMapDTO ClientProtocol::receive_map() {
+GameInitialInfoDTO ClientProtocol::receive_game_initial_info() {
     Background background = static_cast<Background>(this->receive_byte());
     uint16_t size = this->receive_big_endian_number();
-    return GameMapDTO{background, this->receive_map_objects(size)};
+    std::vector<MapObject> map_objects = this->receive_map_objects(size);
+    GameMapDTO game_map = GameMapDTO{background, map_objects};
+    uint8_t shop_gun_prices_size = this->receive_byte();
+    std::unordered_map<GunType, int> gun_prices = this->receive_gun_prices(shop_gun_prices_size);
+    uint8_t shop_gun_clips_size = this->receive_byte();
+    std::unordered_map<GunType, int> gun_clips = this->receive_gun_clips_size(shop_gun_clips_size);
+    int price_clips = this->receive_byte();
+    ShopInfoDTO shop_info = ShopInfoDTO{gun_prices, gun_clips, price_clips};
+    return GameInitialInfoDTO{game_map, shop_info};
 }
+
+std::unordered_map<GunType, int> ClientProtocol::receive_gun_prices(const uint8_t& size) {
+    std::unordered_map<GunType, int> response = {};
+    for (int i = 0; i < size; i++) {
+        GunType gun = this->weaponParser.getWeaponFromByte(this->receive_byte());
+        int price_gun = this->receive_big_endian_number();
+        response[gun] = price_gun;
+    }
+    return response;
+}
+
+std::unordered_map<GunType, int> ClientProtocol::receive_gun_clips_size(const uint8_t& size) {
+    std::unordered_map<GunType, int> response = {};
+    for (int i = 0; i < size; i++) {
+        GunType gun = this->weaponParser.getWeaponFromByte(this->receive_byte());
+        int clip_size = this->receive_big_endian_number();
+        response[gun] = clip_size;
+    }
+    return response;
+}
+
 
 std::vector<MapObject> ClientProtocol::receive_map_objects(const uint8_t& size) {
     std::vector<MapObject> objects = {};
