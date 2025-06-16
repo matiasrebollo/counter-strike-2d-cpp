@@ -248,6 +248,11 @@ void validate_player(const PlayerDTO& expected_player, const PlayerDTO& actual_p
     ASSERT_EQ(expected_player.loadout.primary_ammo, actual_player.loadout.primary_ammo);
     ASSERT_EQ(expected_player.loadout.secondary_ammo, actual_player.loadout.secondary_ammo);
     ASSERT_EQ(expected_player.loadout.equipped, actual_player.loadout.equipped);
+    ASSERT_EQ(expected_player.shot.has_value(), actual_player.shot.has_value());
+    if (expected_player.shot.has_value()) {
+        ASSERT_LE(expected_player.shot->distance, actual_player.shot->distance - 0.1);
+        ASSERT_GE(expected_player.shot->distance, actual_player.shot->distance + 0.1);
+    }
 }
 
 TEST(ServerProtocolTest, SendSnapshot) {
