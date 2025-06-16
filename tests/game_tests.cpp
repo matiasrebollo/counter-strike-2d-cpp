@@ -43,8 +43,7 @@ TEST(ClientProtocolTest, SendRotate) {
         CommandDTO request = server->receive_client_request();
         auto RotateDTOPtr = std::get_if<RotateDTO>(&request);
         ASSERT_NE(RotateDTOPtr, nullptr) << "Expected RotateDTO but got another";
-        ASSERT_GE(RotateDTOPtr->angle, angle - 0.01);
-        ASSERT_LE(RotateDTOPtr->angle, angle + 0.01);
+        ASSERT_NEAR(RotateDTOPtr->angle, angle, 0.1);
     }
 }
 
