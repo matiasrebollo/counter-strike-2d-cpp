@@ -14,12 +14,12 @@ protected:
     bool just_triggered_action;
     float time_since_last_action;
 
-public:
     Weapon();
 
+public:
     virtual void action();
-    void stop_action();
-    virtual void update(const float& delta_t, Player& owner, GameWorld& game) = 0;
+    virtual void stop_action();
+    virtual void update(const float& delta_t, Player& owner, GameWorld& game);
 
     Weapon(const Weapon&) = delete;
     Weapon& operator=(const Weapon&) = delete;

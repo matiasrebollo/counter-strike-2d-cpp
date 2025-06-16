@@ -58,7 +58,11 @@
 
 #define PLAYER_SPEED 20       // debe ser un numero par
 #define PLAYER_THICKNESS 320  // debe ser menor a BLOCK_THICKNESS (para spawns)
-#define PLAYER_INITIAL_LIFE 1000
+#define PLAYER_INITIAL_LIFE 100
+
+#define DETONATION_TIME 30
+#define PLANTATION_TIME 4
+#define DEFUSE_TIME 4
 
 #define PATH_FOLDER_MAPS "../maps/"
 #define PATH_CS_FONT "../../../assets/cs_regular.ttf"

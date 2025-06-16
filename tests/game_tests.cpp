@@ -160,6 +160,11 @@ void validate_map(const GameMapDTO& expected_gamemap, const GameMapDTO& actual_g
                       actual_gamemap.map_objects[i].positions[j]);
         }
     }
+    ASSERT_EQ(expected_gamemap.sites.size(), actual_gamemap.sites.size());
+    for (size_t i = 0; i < expected_gamemap.sites.size(); i++) {
+        ASSERT_EQ(expected_gamemap.sites[i].x, actual_gamemap.sites[i].x);
+        ASSERT_EQ(expected_gamemap.sites[i].y, actual_gamemap.sites[i].y);
+    }
 }
 
 void validate_shop_info(const ShopInfoDTO& expected_shop_info,
@@ -187,8 +192,13 @@ TEST(ServerProtocolTest, SendGameInitialInfo) {
         MapObject object = {positions, 19, true};
         objects.push_back(object);
     }
+    std::vector<Vector2D<int>> sites = {};
+    for (int i = 0; i < 100; i++) {
+        Vector2D<int> site = Vector2D(i, i + 1);
+        sites.push_back(site);
+    }
 
-    GameMapDTO game_map = GameMapDTO{Background::AZTEC_BACKGROUND, objects};
+    GameMapDTO game_map = GameMapDTO{Background::AZTEC_BACKGROUND, objects, sites};
 
     std::unordered_map<GunType, int> prices = {
             {GunType::AK47, 2700},
@@ -223,13 +233,16 @@ std::vector<LoadoutDTO> get_loadouts() {
     std::vector<uint16_t> ammos = {300, 400};
     std::vector<WeaponType> equippeds = {WeaponType::KNIFE, WeaponType::PRIMARY,
                                          WeaponType::SECONDARY, WeaponType::BOMB};
+    std::vector<bool> values = {false, true};
     for (auto money: moneys) {
         for (auto gun: guns) {
             for (auto ammo: ammos) {
                 for (auto equipped: equippeds) {
-                    // cppcheck-suppress useStlAlgorithm
-                    loadouts.push_back(
-                            LoadoutDTO{money, gun, ammo, GunType::GLOCK, ammo, equipped});
+                    for (auto value: values) {
+                        // cppcheck-suppress useStlAlgorithm
+                        loadouts.push_back(LoadoutDTO{money, gun, ammo, GunType::GLOCK, ammo,
+                                                      equipped, value});
+                    }
                 }
             }
         }
@@ -237,21 +250,28 @@ std::vector<LoadoutDTO> get_loadouts() {
     return loadouts;
 }
 
+void validate_loadouts(const LoadoutDTO& expected_loadout, const LoadoutDTO& actual_loadout) {
+    ASSERT_EQ(expected_loadout.primary_gun, actual_loadout.primary_gun);
+    ASSERT_EQ(expected_loadout.secondary_gun, actual_loadout.secondary_gun);
+    ASSERT_EQ(expected_loadout.primary_ammo, actual_loadout.primary_ammo);
+    ASSERT_EQ(expected_loadout.secondary_ammo, actual_loadout.secondary_ammo);
+    ASSERT_EQ(expected_loadout.equipped, actual_loadout.equipped);
+    ASSERT_EQ(expected_loadout.has_bomb, actual_loadout.has_bomb);
+}
+
 void validate_player(const PlayerDTO& expected_player, const PlayerDTO& actual_player) {
     ASSERT_EQ(expected_player.username, actual_player.username);
     ASSERT_EQ(expected_player.life, actual_player.life);
-    ASSERT_EQ(expected_player.bonifications, actual_player.bonifications);
-    ASSERT_EQ(expected_player.kills, actual_player.kills);
-    ASSERT_EQ(expected_player.deaths, actual_player.deaths);
-    ASSERT_EQ(expected_player.loadout.primary_gun, actual_player.loadout.primary_gun);
-    ASSERT_EQ(expected_player.loadout.secondary_gun, actual_player.loadout.secondary_gun);
-    ASSERT_EQ(expected_player.loadout.primary_ammo, actual_player.loadout.primary_ammo);
-    ASSERT_EQ(expected_player.loadout.secondary_ammo, actual_player.loadout.secondary_ammo);
-    ASSERT_EQ(expected_player.loadout.equipped, actual_player.loadout.equipped);
     ASSERT_EQ(expected_player.shot.has_value(), actual_player.shot.has_value());
     if (expected_player.shot.has_value()) {
         ASSERT_NEAR(expected_player.shot->distance, actual_player.shot->distance, 0.1);
     }
+    ASSERT_EQ(expected_player.planting_bomb, actual_player.planting_bomb);
+    ASSERT_EQ(expected_player.on_site, actual_player.on_site);
+    ASSERT_EQ(expected_player.bonifications, actual_player.bonifications);
+    ASSERT_EQ(expected_player.kills, actual_player.kills);
+    ASSERT_EQ(expected_player.deaths, actual_player.deaths);
+    validate_loadouts(expected_player.loadout, actual_player.loadout);
 }
 
 TEST(ServerProtocolTest, SendSnapshot) {
@@ -263,19 +283,27 @@ TEST(ServerProtocolTest, SendSnapshot) {
         current_rounds.push_back(i);
     }
 
+    int total_players = 2;
     size_t total_rounds = 10;
+    int time_left = 20;
+    BombStatus status = BombStatus::EXPLODED;
+    Vector2D<int> bomb_pos{100, 200};
+    Team winner = Team::TT;
 
     std::vector<LoadoutDTO> loadouts = get_loadouts();
 
     for (auto phase: phases) {
         for (auto current_round: current_rounds) {
             for (auto loadout: loadouts) {
-                std::vector<PlayerDTO> ct = {
-                        PlayerDTO{"Mati", Vector2D(0, 0), 0, 100, std::nullopt, 0, 0, 0, loadout}};
+                std::vector<PlayerDTO> ct = {PlayerDTO{"Mati", Vector2D(0, 0), 0, 100, std::nullopt,
+                                                       false, false, 0, 0, 0, loadout}};
                 std::vector<PlayerDTO> tt = {PlayerDTO{"Facu", Vector2D(10, 10), 100, 100,
-                                                       std::optional<ShotDTO>(100.20), 10, 10, 10,
-                                                       loadout}};
-                Snapshot snapshot{2, phase, current_round, total_rounds, 20, ct, tt};
+                                                       std::optional<ShotDTO>(100.20), true, true,
+                                                       10, 10, 10, loadout}};
+                Snapshot snapshot{total_players, phase,     current_round,
+                                  total_rounds,  time_left, status,
+                                  bomb_pos,      ct,        tt,
+                                  winner};
 
                 server->send_game_dto(snapshot);
                 GameDTO response = client->receive_game_dto();
@@ -286,13 +314,18 @@ TEST(ServerProtocolTest, SendSnapshot) {
                 ASSERT_EQ(snapshotPtr->phase, phase);
                 ASSERT_EQ(snapshotPtr->current_round_number, current_round);
                 ASSERT_EQ(snapshotPtr->total_rounds, total_rounds);
-                ASSERT_EQ(snapshotPtr->time_left, 20);
+                ASSERT_EQ(snapshotPtr->time_left, time_left);
+                ASSERT_EQ(snapshotPtr->bomb_status, status);
+                EXPECT_TRUE(snapshot.bomb_position.has_value());
+                ASSERT_EQ(snapshotPtr->bomb_position, bomb_pos);
                 for (size_t i = 0; i < ct.size(); i++) {
                     validate_player(ct[i], snapshotPtr->ct[i]);
                 }
                 for (size_t i = 0; i < ct.size(); i++) {
                     validate_player(tt[i], snapshotPtr->tt[i]);
                 }
+                EXPECT_TRUE(snapshot.current_round_winner.has_value());
+                ASSERT_EQ(snapshotPtr->current_round_winner, winner);
             }
         }
     }

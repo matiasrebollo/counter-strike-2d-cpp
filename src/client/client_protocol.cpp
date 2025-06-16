@@ -154,18 +154,22 @@ GameDTO ClientProtocol::receive_game_dto() {
 }
 
 Snapshot ClientProtocol::receive_snapshot() {
-    // snasphot.bomb_status = BombStatus(this->receive_byte());
     int total_players = this->receive_byte();
     int phase = this->receive_byte();
     size_t current_round_number = this->receive_byte();
     size_t total_rounds = this->receive_byte();
     int time_left = this->receive_byte();
+    BombStatus status = static_cast<BombStatus>(this->receive_byte());
+    std::optional<Vector2D<int>> bomb_position = this->receive_bomb_position();
     int size_ct = this->receive_byte();
     std::vector<PlayerDTO> cts = this->receive_players(size_ct);
     int size_tt = this->receive_byte();
     std::vector<PlayerDTO> tts = this->receive_players(size_tt);
-    Snapshot snapshot = Snapshot{
-            total_players, Phase(phase), current_round_number, total_rounds, time_left, cts, tts};
+    std::optional<Team> current_round_winner = this->receive_current_round_winner();
+    Snapshot snapshot = Snapshot{total_players,       Phase(phase), current_round_number,
+                                 total_rounds,        time_left,    status,
+                                 bomb_position,       cts,          tts,
+                                 current_round_winner};
     return snapshot;
 }
 
@@ -178,12 +182,15 @@ std::vector<PlayerDTO> ClientProtocol::receive_players(const int& size_players) 
         double angle = this->receive_angle();
         uint16_t life = this->receive_big_endian_number();
         std::optional<ShotDTO> shot = this->receive_shot();
+        bool planting_bomb = this->code_to_bools.find(this->receive_byte())->second;
+        bool on_site = this->code_to_bools.find(this->receive_byte())->second;
         int bonifications = this->receive_byte();
         int kills = this->receive_byte();
         int deaths = this->receive_byte();
         LoadoutDTO loadout = this->receive_loadout();
         players.push_back(PlayerDTO{username, Vector2D<int>(position_x, position_y), angle, life,
-                                    shot, bonifications, kills, deaths, loadout});
+                                    shot, planting_bomb, on_site, bonifications, kills, deaths,
+                                    loadout});
     }
     return players;
 }
@@ -193,6 +200,27 @@ std::optional<ShotDTO> ClientProtocol::receive_shot() {
     double distance = this->receive_angle();
     if (has_value) {
         return ShotDTO{distance};
+    } else {
+        return std::nullopt;
+    }
+}
+
+std::optional<Vector2D<int>> ClientProtocol::receive_bomb_position() {
+    bool has_value = this->code_to_bools.find(this->receive_byte())->second;
+    int x = this->receive_byte();
+    int y = this->receive_byte();
+    if (has_value) {
+        return Vector2D{x, y};
+    } else {
+        return std::nullopt;
+    }
+}
+
+std::optional<Team> ClientProtocol::receive_current_round_winner() {
+    bool has_value = this->code_to_bools.find(this->receive_byte())->second;
+    Team team = static_cast<Team>(this->receive_byte());
+    if (has_value) {
+        return team;
     } else {
         return std::nullopt;
     }
@@ -208,14 +236,18 @@ LoadoutDTO ClientProtocol::receive_loadout() {
     uint16_t secondary_ammo = this->receive_big_endian_number();
     uint8_t equipped_code = this->receive_byte();
     WeaponType equipped = this->weaponParser.getWeaponTypeFromByte(equipped_code);
-    return LoadoutDTO{money, primary_gun, primary_ammo, secondary_gun, secondary_ammo, equipped};
+    bool has_bomb = this->code_to_bools.find(this->receive_byte())->second;
+    return LoadoutDTO{money,          primary_gun, primary_ammo, secondary_gun,
+                      secondary_ammo, equipped,    has_bomb};
 }
 
 GameInitialInfoDTO ClientProtocol::receive_game_initial_info() {
     Background background = static_cast<Background>(this->receive_byte());
     uint16_t size = this->receive_big_endian_number();
     std::vector<MapObject> map_objects = this->receive_map_objects(size);
-    GameMapDTO game_map = GameMapDTO{background, map_objects};
+    uint16_t size_sites = this->receive_big_endian_number();
+    std::vector<Vector2D<int>> sites = this->receive_sites(size_sites);
+    GameMapDTO game_map = GameMapDTO{background, map_objects, sites};
     uint8_t shop_gun_prices_size = this->receive_byte();
     std::unordered_map<GunType, int> gun_prices = this->receive_gun_prices(shop_gun_prices_size);
     uint8_t shop_gun_clips_size = this->receive_byte();
@@ -224,6 +256,18 @@ GameInitialInfoDTO ClientProtocol::receive_game_initial_info() {
     ShopInfoDTO shop_info = ShopInfoDTO{gun_prices, gun_clips, price_clips};
     return GameInitialInfoDTO{game_map, shop_info};
 }
+
+std::vector<Vector2D<int>> ClientProtocol::receive_sites(const uint16_t& size) {
+    std::vector<Vector2D<int>> sites = {};
+    for (int i = 0; i < size; i++) {
+        int x = static_cast<int>(this->receive_big_endian_number());
+        int y = static_cast<int>(this->receive_big_endian_number());
+        Vector2D<int> actual = Vector2D(x, y);
+        sites.push_back(actual);
+    }
+    return sites;
+}
+
 
 std::unordered_map<GunType, int> ClientProtocol::receive_gun_prices(const uint8_t& size) {
     std::unordered_map<GunType, int> response = {};

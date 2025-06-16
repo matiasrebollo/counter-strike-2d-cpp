@@ -38,6 +38,12 @@ bool InputHandler::handle_weapon_switch_event(const SDL_Event& event) {
                     three = true;
                 }
                 return true;
+            case SDLK_4:
+                if (!four) {
+                    sender.add_command_to_queue(EquipBombDTO());
+                    four = true;
+                }
+                return true;
         }
     }
 
@@ -51,6 +57,9 @@ bool InputHandler::handle_weapon_switch_event(const SDL_Event& event) {
                 return true;
             case SDLK_3:
                 three = false;
+                return true;
+            case SDLK_4:
+                four = false;
                 return true;
         }
     }

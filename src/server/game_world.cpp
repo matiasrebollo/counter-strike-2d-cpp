@@ -34,9 +34,21 @@ void GameWorld::add_collidables() {
                                                                game_map.height * BLOCK_THICKNESS));
 }
 
+void GameWorld::set_sites() {
+    for (const auto& site: game_map.sites) {
+        Vector2D<int> new_site_pos(site.x * BLOCK_THICKNESS, site.y * BLOCK_THICKNESS);
+        Rect new_site(new_site_pos, BLOCK_THICKNESS, BLOCK_THICKNESS);
+        this->sites.push_back(new_site);
+    }
+}
+
 GameWorld::GameWorld(const std::string& map_filename):
-        shop(), game_map(YamlParser().yaml_to_game_map(PATH_FOLDER_MAPS + map_filename + ".yaml")) {
+        bomb(std::make_shared<Bomb>()),
+        bomb_position(std::nullopt),
+        shop(),
+        game_map(YamlParser().yaml_to_game_map(PATH_FOLDER_MAPS + map_filename + ".yaml")) {
     add_collidables();
+    set_sites();
 }
 
 // spawn_points deben ser suficientes como para que eventualmente se pueda spawnear a un jugador y
@@ -75,18 +87,16 @@ void GameWorld::add_player(const std::string& username) {
     size_t cts = counter_terrorists.size();
     size_t tts = terrorists.size();
 
-    if (cts + tts >= COUNTER_TERRORISTS + TERRORISTS) {
-        throw std::runtime_error("No hay lugar para más jugadores");
-    }
-
-    if (cts <= tts && cts < COUNTER_TERRORISTS) {
+    if (cts < COUNTER_TERRORISTS && (cts <= tts || tts >= TERRORISTS)) {
         counter_terrorists[username] = player;
     } else if (tts < TERRORISTS) {
         terrorists[username] = player;
     } else {
-        counter_terrorists[username] = player;
+        throw std::runtime_error("No hay lugar para más jugadores");
     }
 }
+
+void GameWorld::swap_teams() {}
 
 void GameWorld::restart_players() {
     for (auto& [_, player]: terrorists) {
@@ -95,6 +105,15 @@ void GameWorld::restart_players() {
     for (auto& [_, player]: counter_terrorists) {
         player->restart();
     }
+
+    bomb->restart();
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dist(0, terrorists.size() - 1);
+    size_t index = dist(gen);
+    auto it = terrorists.begin();
+    std::advance(it, index);
+    it->second->receive_bomb(bomb);
 }
 
 void GameWorld::spawn_players() {
@@ -135,7 +154,7 @@ const GameWorldSnapshot GameWorld::get_snapshot() const {
         tt.push_back(player.second->get_dto());
     }
 
-    return GameWorldSnapshot{ct, tt};
+    return GameWorldSnapshot{bomb->get_status(), bomb_position, ct, tt};
 }
 
 void GameWorld::rotate_player(const std::string& username, const double& angle) {
@@ -175,11 +194,19 @@ void GameWorld::stop_moving_player_right(const std::string& username) {
 }
 
 void GameWorld::make_player_action(const std::string& username) {
-    with_player(username, [](Player& p) { p.make_action(); });
+    with_player(username, [](Player& p) {
+        if (p.equipped() == BOMB && !p.is_on_site())
+            return;
+        p.make_action();
+    });
 }
 
 void GameWorld::stop_making_player_action(const std::string& username) {
-    with_player(username, [](Player& p) { p.stop_making_action(); });
+    with_player(username, [](Player& p) {
+        if (p.equipped() == BOMB && !p.is_on_site())
+            return;
+        p.stop_making_action();
+    });
 }
 
 void GameWorld::equip_primary_for(const std::string& username) {
@@ -192,6 +219,10 @@ void GameWorld::equip_secondary_for(const std::string& username) {
 
 void GameWorld::equip_knife_for(const std::string& username) {
     with_player(username, [](Player& p) { p.equip_knife(); });
+}
+
+void GameWorld::equip_bomb_for(const std::string& username) {
+    with_player(username, [](Player& p) { p.equip_bomb(); });
 }
 
 void GameWorld::buy_gun_for(const std::string& username, const GunType& gun) {
@@ -223,6 +254,16 @@ const Collidable* GameWorld::colliding_object_with(const Collidable& coll) const
             return collidable.get();
     }
     return nullptr;
+}
+
+bool GameWorld::on_site(const Player& p) const {
+    int center_x = p.rect.position.x + p.rect.width / 2;
+    int center_y = p.rect.position.y + p.rect.height / 2;
+
+    return std::any_of(sites.begin(), sites.end(), [&](const Rect& site) {
+        return center_x >= site.position.x && center_x < site.position.x + site.width &&
+               center_y >= site.position.y && center_y < site.position.y + site.height;
+    });
 }
 
 void GameWorld::make_step_player(Player& player, const Vector2D<int>& step) {
@@ -257,12 +298,37 @@ void GameWorld::make_step_player(Player& player, const Vector2D<int>& step) {
 }
 
 void GameWorld::update(const float& delta_t) {
+    if (bomb->get_status() == PLANTED) {
+        bomb->update_planted(delta_t);
+    }
     for (const auto& [_, c_terrorist]: counter_terrorists) {
         c_terrorist->update(*this, delta_t);
     }
     for (const auto& [_, terrorist]: terrorists) {
         terrorist->update(*this, delta_t);
     }
+}
+
+void GameWorld::plant_bomb(Player& terrorist) {
+    terrorist.leave_bomb();
+    bomb_position = terrorist.rect.position;
+}
+
+bool GameWorld::bomb_just_planted() const { return bomb->just_planted(); }
+int GameWorld::bomb_detonation_time() const { return bomb->detonation_time(); }
+
+bool GameWorld::bomb_exploded() const { return bomb->get_status() == EXPLODED; }
+bool GameWorld::bomb_defused() const { return bomb->get_status() == DEFUSED; }
+bool GameWorld::bomb_not_planted() const { return bomb->get_status() == NOT_PLANTED; }
+
+void GameWorld::defuse_bomb() {
+    for (auto& [_, player]: terrorists) {
+        if (player->has_bomb()) {
+            player->leave_bomb();
+            break;
+        }
+    }
+    bomb->defuse();
 }
 
 bool GameWorld::team_is_dead(const std::map<std::string, std::shared_ptr<Player>>& team) const {
