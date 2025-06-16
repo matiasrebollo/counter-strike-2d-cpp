@@ -31,10 +31,16 @@ private:
     Shop shop;
     std::optional<GameMapDTO> map;
 
+    // quizas separarlo en una clase Sounds
+    Uint32 last_step_time = 0;
+    Uint32 step_delay = 500;
+    bool next_step_left = true;
+
     void update_camera(int player_x, int player_y);
-    std::pair<Position, GunSprites> get_gun_info(const LoadoutDTO& loadout);
-    void render_player(const PlayerDTO& p, const BlockTextureInfo& sprite_info);
-    void render_player_weapon(const PlayerDTO& p);
+    std::pair<Position, GunSprites> get_gun_info(const WeaponType& equipped,
+                                                 const GunType& primary_gun);
+    void render_player(const PlayerInfo& p, const BlockTextureInfo& sprite_info);
+    void render_player_weapon(const PlayerInfo& p);
     void render_fov(float orientation_deg);
     void render_hud_time(int time_left);
     void render_hud_life(int life);
@@ -63,7 +69,7 @@ public:
     void clear_display();
 
     /* Renderiza en orden de profundidad el mapa, cada jugador con su arma, el FOV y el HUD */
-    void render_in_z_order(const LocalInfo& local_info);
+    void render_in_z_order(const LocalInfo& local_info, int it);
 
     /* Devuelve què boton de la tienda fue clickeado si alguno fue clickeado si click es true
      * o interactua con el boton si es false.

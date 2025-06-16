@@ -462,6 +462,9 @@ std::optional<ShopButtonType> Shop::interact_button(int x, int y, int money, Gun
             return button.type;
         }
     }
+    if (touched_button_type == ShopButtonType::None) {
+        last_touched_button_type = ShopButtonType::None;
+    }
 
     return std::nullopt;
 }

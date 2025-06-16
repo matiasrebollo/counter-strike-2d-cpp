@@ -83,7 +83,9 @@ void BlockTextureParser::set_sound_paths() {
                    {SELECT, "../assets/sfx/wpn_select.wav"},
                    {MOVE_SELECT, "../assets/sfx/wpn_moveselect.wav"},
                    {OPEN_SHOP, "../assets/sfx/wpn_hudon.wav"},
-                   {CLOSE_SHOP, "../assets/sfx/wpn_hudoff.wav"}};
+                   {CLOSE_SHOP, "../assets/sfx/wpn_hudoff.wav"},
+                   {DIRT_STEP_ONE, "../assets/sfx/player/pl_dirt1.wav"},
+                   {DIRT_STEP_TWO, "../assets/sfx/player/pl_dirt2.wav"}};
 }
 
 

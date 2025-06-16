@@ -30,7 +30,6 @@ private:
     LocalInfo local_info;
     std::unique_ptr<GameUIPhase> phase;
     bool keep_running;
-    Snapshot game_snapshot;  // guarda la ultima snapshot por si no llega una nueva, graficar esta
 
     friend class GameUIPhase;
     friend class WaitingForGamePhase;
@@ -41,7 +40,14 @@ private:
     bool validate_qt_results(Lobby& lobby);
     void print_message(const std::string& s);
 
-    /* Actualiza la informacion local del estado del juego en base a una snapshot */
+    /* Setea en false todos los eventos de cada player */
+    void reset_player_events();
+
+    /* Detecta eventos para cada player en una snapshot*/
+    void detect_player_events(const Snapshot& snapshot);
+
+    /* Actualiza la informacion local del estado del juego en base a una snapshot
+     */
     void update_local_info_from_snapshot(const Snapshot& snapshot);
 
     /* Maneja eventos de usuario en la fase waiting */

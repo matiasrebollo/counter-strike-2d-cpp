@@ -35,7 +35,15 @@ enum GunSprites {
     KNIFE_SHOP
 };
 
-enum SoundEffect { DENY_SELECT, SELECT, MOVE_SELECT, OPEN_SHOP, CLOSE_SHOP };
+enum SoundEffect {
+    DENY_SELECT,
+    SELECT,
+    MOVE_SELECT,
+    OPEN_SHOP,
+    CLOSE_SHOP,
+    DIRT_STEP_ONE,
+    DIRT_STEP_TWO
+};
 
 
 #endif

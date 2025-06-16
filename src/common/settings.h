@@ -35,7 +35,7 @@
 
 #define BLOCK_THICKNESS 400
 
-#define PLAYER_SPEED 20       // debe ser un numero par
+#define PLAYER_SPEED 10       // debe ser un numero par
 #define PLAYER_THICKNESS 320  // debe ser menor a BLOCK_THICKNESS (para spawns)
 #define PLAYER_INITIAL_LIFE 100
 

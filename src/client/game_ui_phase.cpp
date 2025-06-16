@@ -29,11 +29,11 @@ void GameUIPhase::run() {
 }
 
 void GameUIPhase::change_phase() {
-    if (game_ui.game_snapshot.phase == WAITING_PLAYERS) {
+    if (game_ui.local_info.phase == WAITING_PLAYERS) {
         game_ui.change_phase(std::make_unique<WaitingForGamePhase>(game_ui));
-    } else if (game_ui.game_snapshot.phase == BUY) {
+    } else if (game_ui.local_info.phase == BUY) {
         game_ui.change_phase(std::make_unique<UIBuyPhase>(game_ui));
-    } else if (game_ui.game_snapshot.phase == ATTACK) {
+    } else if (game_ui.local_info.phase == ATTACK) {
         game_ui.change_phase(std::make_unique<UIAttackPhase>(game_ui));
     }
     // ended ?
