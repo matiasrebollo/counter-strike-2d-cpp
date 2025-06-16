@@ -144,14 +144,30 @@ void Lobby::on_JoinGameButton_clicked() {
 
     protocol.value().send_lobby_request(request);
     ServerResponseLobby response = protocol.value().receive_command();
-    if (response.status == ResponseStatus::SUCCESS) {
-        this->gamecode = game_name;
-        close();
-    } else if (response.status == ResponseStatus::GAME_IS_FULL) {
-        QMessageBox::information(this, TITLE_MSG_JOIN, MSG_GAME_ALREADY_STARTED);
-    } else if (response.status == ResponseStatus::USERNAME_ALREADY_IN_GAME) {
-        this->can_change_name = true;
-        QMessageBox::information(this, TITLE_MSG_JOIN, MSG_USERNAME_ALREADY_USED_IN_GAME);
+    switch (response.status) {
+        case ResponseStatus::GAME_NOT_EXIST:
+            QMessageBox::information(this, TITLE_MSG_JOIN,
+                                     QString::fromStdString(MSG_GAME_NOT_EXIST(game_name)));
+            break;
+
+        case ResponseStatus::SUCCESS:
+            this->gamecode = game_name;
+            close();
+            break;
+
+        case ResponseStatus::GAME_IS_FULL:
+            QMessageBox::information(this, TITLE_MSG_JOIN,
+                                     QString::fromStdString(MSG_GAME_IS_FULL(game_name)));
+            break;
+
+        case ResponseStatus::USERNAME_ALREADY_IN_GAME:
+            this->can_change_name = true;
+            QMessageBox::information(this, TITLE_MSG_JOIN, MSG_USERNAME_ALREADY_USED_IN_GAME);
+            break;
+
+        default:
+            QMessageBox::information(this, TITLE_MSG_JOIN, MSG_UNEXPECTED_SERVER_RESPONSE);
+            break;
     }
 }
 
