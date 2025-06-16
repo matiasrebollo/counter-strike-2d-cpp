@@ -16,6 +16,7 @@ Player::Player(const std::string& name, Vector2D<int>& position):
         orientation(0.0),
         life(PLAYER_INITIAL_LIFE),
         shot(std::nullopt),
+        planting_bomb(false),
         bonifications(0),
         kills(0),
         deaths(0),
@@ -29,12 +30,13 @@ WeaponType Player::equipped() const { return loadout.get_equipped(); }
 
 void Player::update(GameWorld& game, const float& delta_t) {
     shot = std::nullopt;
+    planting_bomb = false;
     int delta_it = static_cast<int>(std::round(delta_t * FPS_SERVER));
 
     Weapon* weapon = loadout.equipped_weapon();
 
     if (making_action && dynamic_cast<Bomb*>(weapon)) {
-        std::cout << "player plantando bomba" << std::endl;
+        planting_bomb = true;
         weapon->update(delta_t, *this, game);
         return;
     }
@@ -148,8 +150,8 @@ void Player::equip_bomb() {
 Loadout& Player::get_loadout() { return loadout; }
 
 const PlayerDTO Player::get_dto() const {
-    return PlayerDTO{name,  rect.position, orientation,      life, shot, bonifications,
-                     kills, deaths,        loadout.get_dto()};
+    return PlayerDTO{name,          rect.position, orientation, life,   shot,
+                     planting_bomb, bonifications, kills,       deaths, loadout.get_dto()};
 }
 
 

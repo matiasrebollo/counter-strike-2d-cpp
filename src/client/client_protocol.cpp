@@ -182,12 +182,13 @@ std::vector<PlayerDTO> ClientProtocol::receive_players(const int& size_players) 
         double angle = this->receive_angle();
         uint16_t life = this->receive_big_endian_number();
         std::optional<ShotDTO> shot = this->receive_shot();
+        // recibir planting
         int bonifications = this->receive_byte();
         int kills = this->receive_byte();
         int deaths = this->receive_byte();
         LoadoutDTO loadout = this->receive_loadout();
         players.push_back(PlayerDTO{username, Vector2D<int>(position_x, position_y), angle, life,
-                                    shot, bonifications, kills, deaths, loadout});
+                                    shot, planting_bomb, bonifications, kills, deaths, loadout});
     }
     return players;
 }
@@ -233,7 +234,9 @@ LoadoutDTO ClientProtocol::receive_loadout() {
     uint16_t secondary_ammo = this->receive_big_endian_number();
     uint8_t equipped_code = this->receive_byte();
     WeaponType equipped = this->weaponParser.getWeaponTypeFromByte(equipped_code);
-    return LoadoutDTO{money, primary_gun, primary_ammo, secondary_gun, secondary_ammo, equipped};
+    // recibir has_bomb
+    return LoadoutDTO{money,          primary_gun, primary_ammo, secondary_gun,
+                      secondary_ammo, equipped,    has_bomb};
 }
 
 GameInitialInfoDTO ClientProtocol::receive_game_initial_info() {
