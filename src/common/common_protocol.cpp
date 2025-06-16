@@ -152,3 +152,13 @@ double CommonProtocol::receive_angle() {
 
     return (static_cast<double>(encoded) / 65535.0f) * 360.0f;
 }
+
+void CommonProtocol::send_double(const double& number) {
+    uint16_t encoded = static_cast<uint16_t>(number * 65535.0f);
+    this->send_big_endian_number(encoded);
+}
+
+double CommonProtocol::receive_double() {
+    uint16_t encoded = this->receive_big_endian_number();
+    return static_cast<double>(encoded) / 65535.0f;
+}

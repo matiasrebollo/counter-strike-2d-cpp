@@ -154,10 +154,10 @@ void ServerProtocol::send_players(const std::vector<PlayerDTO>& players) {
 void ServerProtocol::send_shot(const PlayerDTO& player) {
     if (player.shot.has_value()) {
         this->send_byte(CODE_TRUE);
-        this->send_angle(player.shot->distance);
+        this->send_double(player.shot->distance);
     } else {
         this->send_byte(CODE_FALSE);
-        this->send_angle(0.0);
+        this->send_double(0.0);
     }
 }
 
