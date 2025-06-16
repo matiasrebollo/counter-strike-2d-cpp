@@ -61,7 +61,7 @@ void CS2DGame::broadcast_game_dto(const GameDTO& game_dto) {
 
 void CS2DGame::broadcast_game_initial_info() {
     const GameMap map = game_world.get_map();
-    const GameMapDTO gamemap_dto = GameMapDTO{map.background, map.map_objects};
+    const GameMapDTO gamemap_dto = GameMapDTO{map.background, map.map_objects, map.sites};
     const ShopInfoDTO shop_info = game_world.get_shop_info();
     const GameInitialInfoDTO dto = GameInitialInfoDTO{gamemap_dto, shop_info};
     broadcast_game_dto(dto);
