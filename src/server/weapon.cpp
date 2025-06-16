@@ -11,9 +11,13 @@ void Weapon::action() {
     making_action = true;
     just_triggered_action = true;
     time_since_last_action = 0.0f;
+    std::cout << "plantando bomba" << std::endl;
 }
 
-void Weapon::stop_action() { making_action = false; }
+void Weapon::stop_action() {
+    making_action = false;
+    std::cout << "parando de plantar Bomba" << std::endl;
+}
 
 void Weapon::update(const float& delta_t, Player& /*owner*/, GameWorld& /*game*/) {
     if (just_triggered_action) {

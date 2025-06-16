@@ -29,8 +29,14 @@ bool Player::has_bomb() const { return loadout.has_bomb(); }
 void Player::update(GameWorld& game, const float& delta_t) {
     shot = std::nullopt;
     int delta_it = static_cast<int>(std::round(delta_t * FPS_SERVER));
-    if (making_action && dynamic_cast<Bomb*>(loadout.equipped_weapon()))
-        return;  // no hacer nada si está activando bomba. agregar lo mismo si la esta defuseando!
+
+    Weapon* weapon = loadout.equipped_weapon();
+
+    if (making_action && dynamic_cast<Bomb*>(weapon)) {
+        weapon->update(delta_t, *this, game);
+        return;
+    }
+
     int stepped = delta_it * PLAYER_SPEED;
     Vector2D<int> step(0, 0);
     if (moving_up) {
@@ -49,8 +55,10 @@ void Player::update(GameWorld& game, const float& delta_t) {
         step.x = static_cast<int>(step.x / std::sqrt(2));
         step.y = static_cast<int>(step.y / std::sqrt(2));
     }
+
     game.make_step_player(*this, step);
-    if (Weapon* weapon = loadout.equipped_weapon())
+
+    if (weapon)
         weapon->update(delta_t, *this, game);
 }
 
@@ -111,7 +119,10 @@ void Player::count_kill(const int& money_bonification) {
 void Player::equip_primary() { loadout.equip_primary(); }
 void Player::equip_secondary() { loadout.equip_secondary(); }
 void Player::equip_knife() { loadout.equip_knife(); }
-void Player::equip_bomb() { loadout.equip_bomb(); }
+void Player::equip_bomb() {
+    loadout.equip_bomb();
+    std::cout << "equipando bomba..." << std::endl;
+}
 
 Loadout& Player::get_loadout() { return loadout; }
 

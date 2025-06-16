@@ -271,14 +271,14 @@ void GameWorld::make_step_player(Player& player, const Vector2D<int>& step) {
 }
 
 void GameWorld::update(const float& delta_t) {
+    if (bomb->get_status() == PLANTED) {
+        bomb->update_planted(delta_t);
+    }
     for (const auto& [_, c_terrorist]: counter_terrorists) {
         c_terrorist->update(*this, delta_t);
     }
     for (const auto& [_, terrorist]: terrorists) {
         terrorist->update(*this, delta_t);
-    }
-    if (bomb->get_status() == PLANTED) {
-        bomb->update_planted(delta_t);
     }
 }
 
@@ -292,6 +292,7 @@ int GameWorld::bomb_detonation_time() const { return bomb->detonation_time(); }
 
 bool GameWorld::bomb_exploded() const { return bomb->get_status() == EXPLODED; }
 bool GameWorld::bomb_defused() const { return bomb->get_status() == DEFUSED; }
+bool GameWorld::bomb_not_planted() const { return bomb->get_status() == NOT_PLANTED; }
 
 bool GameWorld::team_is_dead(const std::map<std::string, std::shared_ptr<Player>>& team) const {
     return std::all_of(team.begin(), team.end(),

@@ -68,6 +68,7 @@ public:
     void update(const float& delta_t);
     bool bomb_just_planted() const;
     int bomb_detonation_time() const;
+    bool bomb_not_planted() const;
     bool bomb_exploded() const;
     bool bomb_defused() const;
     void plant_bomb(Player& terrorist);

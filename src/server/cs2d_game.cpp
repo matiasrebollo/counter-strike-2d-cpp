@@ -92,16 +92,21 @@ void CS2DGame::execute_in_buy_phase(std::unique_ptr<Command> cmd) {
 }
 
 bool CS2DGame::current_round_has_a_winner() const {
-    return game_world.tt_are_all_dead() || game_world.ct_are_all_dead() ||
-           game_world.bomb_exploded() || game_world.bomb_defused();
+    return (game_world.tt_are_all_dead() && game_world.bomb_not_planted()) ||
+           game_world.ct_are_all_dead() || game_world.bomb_exploded() || game_world.bomb_defused();
 }
 
 void CS2DGame::decide_winner() {
-    if (!current_round_has_a_winner() or game_world.tt_are_all_dead() or
+    if (game_world.bomb_exploded()) {
+        std::cout << "Exploto la bomba" << std::endl;
+    }
+    if (!current_round_has_a_winner() or
+        (game_world.tt_are_all_dead() && game_world.bomb_not_planted()) or
         game_world.bomb_defused()) {
         this->current_round_winner = CT;
         this->ct_wins++;
     } else if (game_world.ct_are_all_dead() or game_world.bomb_exploded()) {
+        std::cout << "ganan los terroristas" << std::endl;
         this->current_round_winner = TT;
         this->tt_wins++;
     }

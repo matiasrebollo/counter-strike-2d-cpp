@@ -5,11 +5,9 @@
 #include <unordered_map>
 
 #include "common/bomb_status.h"
+#include "common/settings.h"
 #include "server/weapon.h"
 
-#define DETONATION_TIME 60
-#define PLANTATION_TIME 5
-#define DEFUSE_TIME 5
 
 class Bomb: public Weapon {
 private:

@@ -27,9 +27,12 @@ void GamePhase::run() {
         }
         if (type() != WAITING_PLAYERS) {
             game.update(delta_seconds);
-            if (game.bomb_just_planted()) {
+            if (dynamic_cast<AttackPhase*>(this) && game.bomb_just_planted()) {
                 duration = game.bomb_detonation_time();
                 time = 0.0f;
+                std::cout << "bomba fue plantada." << std::endl;
+                std::cout << "empiezo a contar de nuevo el tiempo: " << time << std::endl;
+                std::cout << "la bomba explotara en: " << duration << std::endl;
             }
         }
 
@@ -72,6 +75,7 @@ void AttackPhase::execute(std::unique_ptr<Command> cmd) {
 void AttackPhase::end() {
     game.decide_winner();
     game.change_phase(std::make_unique<BetweenRoundsPhase>(game));
+    std::cout << "terminando fase combate..." << std::endl;
     // si termina la partida???
 }
 
