@@ -194,16 +194,16 @@ void GameWorld::stop_moving_player_right(const std::string& username) {
 }
 
 void GameWorld::make_player_action(const std::string& username) {
-    with_player(username, [this](Player& p) {
-        if (p.equipped() == BOMB && !this->on_site(p))
+    with_player(username, [](Player& p) {
+        if (p.equipped() == BOMB && !p.is_on_site())
             return;
         p.make_action();
     });
 }
 
 void GameWorld::stop_making_player_action(const std::string& username) {
-    with_player(username, [this](Player& p) {
-        if (p.equipped() == BOMB && !this->on_site(p))
+    with_player(username, [](Player& p) {
+        if (p.equipped() == BOMB && !p.is_on_site())
             return;
         p.stop_making_action();
     });

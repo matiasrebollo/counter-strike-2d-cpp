@@ -51,8 +51,6 @@ private:
         }
     }
 
-    bool on_site(const Player& player) const;
-
     // devuelve la distancia del objeto con el que impactó o 0 si no impactó.
     double impacts(const Shot& shot, const Collidable& collidable) const;
     double intersects_segment(const Shot& shot, const Vector2D<float>& seg_start,
@@ -80,6 +78,7 @@ public:
     bool tt_are_all_dead() const;
     bool ct_are_all_dead() const;
     void rotate_player(const std::string& username, const double& angle);
+    bool on_site(const Player& player) const;
     void move_player_up(const std::string& username);
     void move_player_down(const std::string& username);
     void move_player_left(const std::string& username);

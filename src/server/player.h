@@ -26,6 +26,7 @@ private:
     uint16_t life;
     std::optional<ShotDTO> shot;
     bool planting_bomb;
+    bool on_site;
     int bonifications;
     int kills;
     int deaths;
@@ -36,6 +37,7 @@ public:
 
     float get_orientation() const;
     bool is_alive() const;
+    bool is_on_site() const;
     bool has_bomb() const;
     WeaponType equipped() const;
     void update(GameWorld& game, const float& delta_t);

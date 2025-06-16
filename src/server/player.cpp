@@ -17,6 +17,7 @@ Player::Player(const std::string& name, Vector2D<int>& position):
         life(PLAYER_INITIAL_LIFE),
         shot(std::nullopt),
         planting_bomb(false),
+        on_site(false),
         bonifications(0),
         kills(0),
         deaths(0),
@@ -26,6 +27,7 @@ float Player::get_orientation() const { return orientation; }
 
 bool Player::is_alive() const { return this->life > 0; }
 bool Player::has_bomb() const { return loadout.has_bomb(); }
+bool Player::is_on_site() const { return this->on_site; }
 WeaponType Player::equipped() const { return loadout.get_equipped(); }
 
 void Player::update(GameWorld& game, const float& delta_t) {
@@ -61,6 +63,7 @@ void Player::update(GameWorld& game, const float& delta_t) {
     }
 
     game.make_step_player(*this, step);
+    on_site = game.on_site(*this);
 
     if (weapon)
         weapon->update(delta_t, *this, game);
@@ -150,8 +153,15 @@ void Player::equip_bomb() {
 Loadout& Player::get_loadout() { return loadout; }
 
 const PlayerDTO Player::get_dto() const {
-    return PlayerDTO{name,          rect.position, orientation, life,   shot,
-                     planting_bomb, bonifications, kills,       deaths, loadout.get_dto()};
+    return PlayerDTO{name,
+                     rect.position,
+                     orientation,
+                     life,
+                     shot,
+                     /*planting_bomb, on_site*/ bonifications,
+                     kills,
+                     deaths,
+                     loadout.get_dto()};
 }
 
 
