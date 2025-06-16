@@ -11,11 +11,12 @@
 #include "../common/block_texture_parser.h"
 #include "../common/game_info_dto.h"
 #include "../common/game_snapshot.h"
-#include "common/settings.h"
+#include "../common/settings.h"
 
 #include "camera.h"
 #include "local_info.h"
 #include "shop.h"
+#include "sounds.h"
 
 class SDLManager {
 private:
@@ -29,12 +30,8 @@ private:
     BlockTextureParser texture_parser;
     Camera camera;
     Shop shop;
+    Sounds sounds;
     std::optional<GameMapDTO> map;
-
-    // quizas separarlo en una clase Sounds
-    Uint32 last_step_time = 0;
-    Uint32 step_delay = 500;
-    bool next_step_left = true;
 
     void update_camera(int player_x, int player_y);
     std::pair<Position, GunSprites> get_gun_info(const WeaponType& equipped,
@@ -57,6 +54,9 @@ public:
 
     /* Se asigna los valores de la shop una vez que es recibido cuando comienza la partida*/
     void set_shop(const ShopInfoDTO& shop_info);
+
+    /* Se asigna la cantidad total de players para manejar la cantidad de canales de sonido */
+    void set_total_players(int total_players);
 
     /* Renderiza la fase de waiting */
     void render_waiting_screen(int players_connected, int players_required,

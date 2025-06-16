@@ -1,3 +1,6 @@
+#ifndef TEXTURE_MANAGER_H
+#define TEXTURE_MANAGER_H
+
 #include <string>
 #include <unordered_map>
 
@@ -22,3 +25,5 @@ public:
     SDL2pp::Texture& get_fov_texture(int angle_deg, float opacity, int diagonal);
     SDL2pp::Chunk& get_sound(const std::string& path);
 };
+
+#endif

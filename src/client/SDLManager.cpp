@@ -20,14 +20,18 @@ SDLManager::SDLManager():
         renderer(window, -1, SDL_RENDERER_ACCELERATED),
         texture_manager(renderer),
         camera(CAMERA_WIDTH, CAMERA_HEIGHT),
-        shop(renderer, mixer, texture_manager, texture_parser) {
+        shop(renderer, mixer, texture_manager, texture_parser),
+        sounds(mixer, texture_manager, texture_parser) {
     renderer.SetLogicalSize(CAMERA_WIDTH, CAMERA_HEIGHT);
     SDL_ShowCursor(SDL_DISABLE);
+    mixer.AllocateChannels(30);
 }
 
 void SDLManager::set_map(GameMapDTO game_map) { map = std::move(game_map); }
 
 void SDLManager::set_shop(const ShopInfoDTO& shop_info) { shop.set_shop_info(shop_info); }
+
+void SDLManager::set_total_players(int total_players) { sounds.set_total_players(total_players); }
 
 void SDLManager::render_waiting_screen(int players_connected, int players_required,
                                        const std::string& gamename, int iteration, int FPS) {
@@ -139,6 +143,10 @@ void SDLManager::render_player(const PlayerInfo& p, const BlockTextureInfo& spri
 
     SDL2pp::Texture& skin_texture = texture_manager.get_texture(path);
     renderer.Copy(skin_texture, rect_origen, destino_camera, angulo, SDL2pp::NullOpt);
+
+    SDL2pp::Point centro(destino_camera.GetX() + destino_camera.GetW() / 2,
+                         destino_camera.GetY() + destino_camera.GetH() / 2);
+    sounds.play_step(p.username, centro, p.movement);
 }
 
 // falta hacer que quizas podes no ver el player pero si el arma (x la camera)
@@ -419,17 +427,6 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
     const BlockTextureInfo& skin_player =
             texture_parser.get_ct_texture(local_info.ct_skin, pos_player);
     render_player(local_info.player, skin_player);
-    if (local_info.player.movement) {
-        Uint32 now = SDL_GetTicks();
-        if (now - last_step_time >= step_delay) {
-            std::string path =
-                    texture_parser.get_sound_path(next_step_left ? DIRT_STEP_ONE : DIRT_STEP_TWO);
-            SDL2pp::Chunk& sound = texture_manager.get_sound(path);
-            mixer.PlayChannel(1, sound);
-            last_step_time = now;
-            next_step_left = !next_step_left;
-        }
-    }
 
     for (const PlayerInfo& p: local_info.ct_players) {
         Position pos = get_gun_info(p.equipped, p.primary_gun).first;

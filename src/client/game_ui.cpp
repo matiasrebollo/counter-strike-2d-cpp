@@ -92,6 +92,7 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
     for (const PlayerDTO& p: snapshot.ct) {
         bool found = false;
         if (p.username == local_info.username) {
+            local_info.player.username = p.username;
             local_info.player.x = p.position.x;
             local_info.player.y = p.position.y;
             local_info.player.orientation = p.orientation;
@@ -112,6 +113,7 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
             // Busco el jugador en ct_players y actualizo
             for (auto& info: local_info.ct_players) {
                 if (info.username == p.username) {
+                    info.username = p.username;
                     info.x = p.position.x;
                     info.y = p.position.y;
                     info.orientation = p.orientation;
@@ -162,6 +164,7 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
     for (const PlayerDTO& p: snapshot.tt) {
         bool found = false;
         if (p.username == local_info.username) {
+            local_info.player.username = p.username;
             local_info.player.x = p.position.x;
             local_info.player.y = p.position.y;
             local_info.player.orientation = p.orientation;
@@ -181,6 +184,7 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
         } else {
             for (auto& info: local_info.tt_players) {
                 if (info.username == p.username) {
+                    info.username = p.username;
                     info.x = p.position.x;
                     info.y = p.position.y;
                     info.orientation = p.orientation;
@@ -256,6 +260,7 @@ bool GameUI::update_waiting() {
         if (!pop)
             continue;
         if (local_info.phase != WAITING_PLAYERS) {
+            this->sdl.set_total_players(local_info.total_players);
             return false;
         }
     }
