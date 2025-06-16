@@ -34,7 +34,7 @@ int Shop::clip_ammo(const GunType& gun_type) {
     }
 }
 
-int Shop::clip_price() { return CLIP_PRICE; }
+int Shop::clip_price() const { return CLIP_PRICE; }
 
 std::unique_ptr<Gun> Shop::buy_gun(const GunType& gun_type, Loadout& buyer_loadout) {
     int price = gun_price(gun_type);
@@ -42,7 +42,7 @@ std::unique_ptr<Gun> Shop::buy_gun(const GunType& gun_type, Loadout& buyer_loado
         return nullptr;
 
     buyer_loadout.decrease_money_by(price);
-    std::unique_ptr<Gun> new_gun = std::make_unique<Gun>(gun_type);
+    std::unique_ptr<Gun> new_gun = Gun::new_gun(gun_type);
     return buyer_loadout.new_primary_gun(std::move(new_gun));
 }
 void Shop::buy_clip(const bool& for_primary, Loadout& buyer_loadout) {
@@ -62,6 +62,9 @@ void Shop::buy_clip(const bool& for_primary, Loadout& buyer_loadout) {
     }
 }
 
-const ShopInfoDTO Shop::get_shop_info() const { return ShopInfoDTO{prices, ammo_by_clip}; }
+const ShopInfoDTO Shop::get_shop_info() const {
+    int price = clip_price();
+    return ShopInfoDTO{prices, ammo_by_clip, price};
+}
 
 Shop::~Shop() {}

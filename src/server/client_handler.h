@@ -9,6 +9,7 @@
 
 #include "../common/socket.h"
 #include "../common/thread.h"
+#include "common/message.h"
 
 #include "server_monitor.h"
 #include "server_protocol.h"
@@ -25,7 +26,7 @@ private:
     bool game_ended;
     bool is_dead;
 
-    void send_lobby_response(const CommandType& command, const bool& success,
+    void send_lobby_response(const CommandType& command, const ResponseStatus& status,
                              const std::string& game_name);
     void manage_lobby_request(const LobbyRequestDTO& dto);
     void manage_create_username(const CreateUsernameDTO& dto);

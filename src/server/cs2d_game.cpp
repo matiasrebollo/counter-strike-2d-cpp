@@ -15,6 +15,9 @@
 #include "common/game_snapshot.h"
 #include "common/yaml_parser.h"
 
+#include "game_full_exception.h"
+#include "player_in_game_exception.h"
+
 CS2DGame::CS2DGame(const std::string& id, const std::string& map_filename):
         players_senders(),
         command_queue(),
@@ -27,20 +30,16 @@ CS2DGame::CS2DGame(const std::string& id, const std::string& map_filename):
     phase = std::make_unique<WaitingPlayersPhase>(*this);
 }
 
-bool CS2DGame::can_add_player(const std::string& username) const {
-    return players_senders.size() < COUNTER_TERRORISTS + TERRORISTS &&
-           players_senders.find(username) == players_senders.end();
-}
-
 bool CS2DGame::should_start() const {
     return players_senders.size() >= COUNTER_TERRORISTS + TERRORISTS;
 }
 
 void CS2DGame::add_player(const std::string& username, std::shared_ptr<ClientSender> sender) {
-    if (players_senders.contains(username)) {
-        throw std::runtime_error("Username '" + username + "' is already in the game.");
+    if (players_senders.size() == COUNTER_TERRORISTS + TERRORISTS) {
+        throw GameFullException();
+    } else if (players_senders.contains(username)) {
+        throw PlayerAlreadyInGameException();
     }
-
     game_world.add_player(username);
     players_senders[username] = sender;
 }
@@ -61,7 +60,7 @@ void CS2DGame::broadcast_game_dto(const GameDTO& game_dto) {
 
 void CS2DGame::broadcast_game_initial_info() {
     const GameMap map = game_world.get_map();
-    const GameMapDTO gamemap_dto = GameMapDTO{map.background, map.map_objects};
+    const GameMapDTO gamemap_dto = GameMapDTO{map.background, map.map_objects, map.sites};
     const ShopInfoDTO shop_info = game_world.get_shop_info();
     const GameInitialInfoDTO dto = GameInitialInfoDTO{gamemap_dto, shop_info};
     broadcast_game_dto(dto);
@@ -69,20 +68,23 @@ void CS2DGame::broadcast_game_initial_info() {
 
 void CS2DGame::broadcast_snapshot(const int time_left) {
     const GameWorldSnapshot game_world_snapshot = game_world.get_snapshot();
-    const Snapshot snapshot{
-            COUNTER_TERRORISTS + TERRORISTS,
-            this->phase->type(),
-            this->current_round,
-            ROUNDS,
-            time_left,
-            game_world_snapshot.ct,
-            game_world_snapshot.tt,
-            // this->current_round_winner
-    };
+    const Snapshot snapshot{COUNTER_TERRORISTS + TERRORISTS,
+                            this->phase->type(),
+                            this->current_round,
+                            ROUNDS,
+                            time_left,
+                            game_world_snapshot.bomb_status,
+                            game_world_snapshot.bomb_position,
+                            game_world_snapshot.ct,
+                            game_world_snapshot.tt,
+                            this->current_round_winner};
     broadcast_game_dto(snapshot);
 }
 
 void CS2DGame::update(const float& delta_t) { game_world.update(delta_t); }
+
+bool CS2DGame::bomb_just_planted() { return game_world.bomb_just_planted(); }
+int CS2DGame::bomb_detonation_time() { return game_world.bomb_detonation_time(); }
 
 void CS2DGame::execute_in_attack_phase(std::unique_ptr<Command> cmd) {
     cmd->execute_in_attack_phase(this->game_world);
@@ -93,16 +95,24 @@ void CS2DGame::execute_in_buy_phase(std::unique_ptr<Command> cmd) {
 }
 
 bool CS2DGame::current_round_has_a_winner() const {
-    return game_world.tt_are_all_dead() ||
-           game_world.ct_are_all_dead();  // agregar detonacion de bomba
+    return (game_world.tt_are_all_dead() && game_world.bomb_not_planted()) ||
+           game_world.ct_are_all_dead() || game_world.bomb_exploded() || game_world.bomb_defused();
 }
 
 void CS2DGame::decide_winner() {
-    if (!current_round_has_a_winner() or
-        game_world.tt_are_all_dead()) {  // agregar desactivacion de bomba
+    if (!current_round_has_a_winner()) {
+        std::cout << "defuse forzado de bomba" << std::endl;
+        game_world.defuse_bomb();
+    }
+    if (game_world.bomb_exploded()) {
+        std::cout << "Exploto la bomba" << std::endl;
+    }
+    if ((game_world.tt_are_all_dead() && game_world.bomb_not_planted()) or
+        game_world.bomb_defused()) {
         this->current_round_winner = CT;
         this->ct_wins++;
-    } else if (game_world.ct_are_all_dead()) {  // agregar detonacion de bomba
+    } else if (game_world.ct_are_all_dead() or game_world.bomb_exploded()) {
+        std::cout << "ganan los terroristas" << std::endl;
         this->current_round_winner = TT;
         this->tt_wins++;
     }
@@ -112,7 +122,7 @@ void CS2DGame::begin_new_round() {
     this->current_round_winner = std::nullopt;
     this->current_round++;
     if (this->current_round == (ROUNDS / 2) + 1)
-        swap_teams();
+        game_world.swap_teams();
     game_world.restart_players();
     game_world.spawn_players();
     // limpiar items del mapa (dejar algunos, random)
@@ -121,8 +131,6 @@ void CS2DGame::begin_new_round() {
 void CS2DGame::change_phase(std::unique_ptr<GamePhase> new_phase) {
     this->phase = std::move(new_phase);
 }
-
-void CS2DGame::swap_teams() {}
 
 void CS2DGame::end() {
     this->command_queue.close();

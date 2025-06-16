@@ -9,6 +9,7 @@
 #include "map_object.h"
 #include "sdl_helpers.h"
 #include "skins.h"
+#include "weapon_type.h"
 
 struct BlockTextureInfo {
     std::string tileset_path;
@@ -41,6 +42,7 @@ private:
     void set_crosshairs();
     void set_font_and_waiting();
     void set_gun_textures();
+    void set_editor_gun_textures();
 
 protected:
     std::unordered_map<int, BlockTextureInfo> block_textures;
@@ -53,6 +55,7 @@ protected:
     std::unordered_map<GunSprites, std::string> gun_textures;
     std::unordered_map<Background, std::string> backgrounds_paths;  // juntar el waiting Background
     std::unordered_map<SoundEffect, std::string> sound_paths;
+    std::unordered_map<GunType, std::string> editor_gun_textures;
 
 public:
     BlockTextureParser();
@@ -68,6 +71,7 @@ public:
     const std::vector<Background> get_backgrounds();
     const std::string& get_background_path(const Background& background);
     const std::string& get_sound_path(SoundEffect effect) const;
+    const std::string& get_editor_gun_texture(const GunType& gun);
 };
 
 #endif

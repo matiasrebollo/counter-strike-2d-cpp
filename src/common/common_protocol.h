@@ -44,6 +44,7 @@ inline constexpr bool always_false_v = false;
 #define CODE_SNAPSHOT 0x35
 #define CODE_PLAYERS 0x40
 #define CODE_BULLETS 0x50
+#define CODE_SHOT 0x55
 #define CODE_ENDGAME 0x60
 
 #define CODE_CHOOSE_KNIFE 0x00

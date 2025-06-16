@@ -37,7 +37,7 @@ ServerProtocol& ServerProtocol::operator=(ServerProtocol&& other) noexcept {
 
 void ServerProtocol::send_lobby_message(const ServerResponseLobby& msg) {
     this->send_byte(this->commandsToCode.find(msg.commandType)->second);
-    this->send_byte(this->bools_to_code.find(msg.success)->second);
+    this->send_byte(msg.status);
     if (msg.commandType == CommandType::CREATE_GAME) {
         this->send_string(msg.game_name);
     }
@@ -77,6 +77,11 @@ void ServerProtocol::send_game_init_info(const GameInitialInfoDTO& dto) {
             this->send_big_endian_number(vec.y);
         }
     }
+    this->send_big_endian_number(dto.game_map.sites.size());
+    for (auto pos_site: dto.game_map.sites) {
+        this->send_big_endian_number(pos_site.x);
+        this->send_big_endian_number(pos_site.y);
+    }
     this->send_byte(dto.shop_info.prices.size());
     for (const auto& [gun, price]: dto.shop_info.prices) {
         this->send_byte(this->weaponParser.getWeaponToByte(gun));
@@ -87,6 +92,7 @@ void ServerProtocol::send_game_init_info(const GameInitialInfoDTO& dto) {
         this->send_byte(this->weaponParser.getWeaponToByte(gun));
         this->send_big_endian_number(price);
     }
+    this->send_byte(dto.shop_info.price_clips);
 }
 
 
@@ -96,12 +102,36 @@ void ServerProtocol::send_snapshot(const Snapshot& snapshot) {
     this->send_byte(snapshot.phase);
     this->send_byte(snapshot.current_round_number);
     this->send_byte(snapshot.total_rounds);
-    // this->send_byte(snapshot.bomb_status);
     this->send_byte(snapshot.time_left);
+    this->send_byte(snapshot.bomb_status);
+    this->send_bomb_position(snapshot.bomb_position);
     this->send_byte(snapshot.ct.size());
     this->send_players(snapshot.ct);
     this->send_byte(snapshot.tt.size());
     this->send_players(snapshot.tt);
+    this->send_current_round_winner(snapshot.current_round_winner);
+}
+
+void ServerProtocol::send_bomb_position(const std::optional<Vector2D<int>>& bomb_position) {
+    if (bomb_position.has_value()) {
+        this->send_byte(CODE_TRUE);
+        this->send_byte(bomb_position->x);
+        this->send_byte(bomb_position->y);
+    } else {
+        this->send_byte(CODE_FALSE);
+        this->send_byte(0);
+        this->send_byte(0);
+    }
+}
+
+void ServerProtocol::send_current_round_winner(const std::optional<Team>& current_round_winner) {
+    if (current_round_winner.has_value()) {
+        this->send_byte(CODE_TRUE);
+        this->send_byte(current_round_winner.value());
+    } else {
+        this->send_byte(CODE_FALSE);
+        this->send_byte(0);
+    }
 }
 
 void ServerProtocol::send_players(const std::vector<PlayerDTO>& players) {
@@ -110,8 +140,24 @@ void ServerProtocol::send_players(const std::vector<PlayerDTO>& players) {
         this->send_big_endian_number(player.position.x);
         this->send_big_endian_number(player.position.y);
         this->send_angle(player.orientation);
-        this->send_byte(player.life);
+        this->send_big_endian_number(player.life);
+        this->send_shot(player);
+        this->send_byte(this->bools_to_code.find(player.planting_bomb)->second);
+        this->send_byte(this->bools_to_code.find(player.on_site)->second);
+        this->send_byte(player.bonifications);
+        this->send_byte(player.kills);
+        this->send_byte(player.deaths);
         this->send_loadout(player.loadout);
+    }
+}
+
+void ServerProtocol::send_shot(const PlayerDTO& player) {
+    if (player.shot.has_value()) {
+        this->send_byte(CODE_TRUE);
+        this->send_angle(player.shot->distance);
+    } else {
+        this->send_byte(CODE_FALSE);
+        this->send_angle(0.0);
     }
 }
 
@@ -122,6 +168,7 @@ void ServerProtocol::send_loadout(const LoadoutDTO& loadout) {
     this->send_byte(this->weaponParser.getWeaponToByte(loadout.secondary_gun));
     this->send_big_endian_number(loadout.secondary_ammo);
     this->send_byte(this->weaponParser.getWeaponTypeToByte(loadout.equipped));
+    this->send_byte(this->bools_to_code.find(loadout.has_bomb)->second);
 }
 
 void ServerProtocol::send_end_game(const GameEnded&) { this->send_byte(CODE_ENDGAME); }

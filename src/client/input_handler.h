@@ -20,6 +20,7 @@ private:
     bool one = false;
     bool two = false;
     bool three = false;
+    bool four = false;
 
     bool click_buy = false;
     bool click_attack = false;

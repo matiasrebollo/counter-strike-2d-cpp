@@ -3,6 +3,7 @@
 
 #include <list>
 #include <memory>
+#include <optional>
 #include <string>
 
 class GameWorld;  // forward declaration
@@ -11,6 +12,7 @@ class GameWorld;  // forward declaration
 #include "common/settings.h"
 #include "server/collidable.h"
 #include "server/loadout.h"
+#include "server/shot.h"
 
 class Player: public Collidable {
 private:
@@ -22,6 +24,12 @@ private:
     bool making_action;
     double orientation;
     uint16_t life;
+    std::optional<ShotDTO> shot;
+    bool planting_bomb;
+    bool on_site;
+    int bonifications;
+    int kills;
+    int deaths;
     Loadout loadout;
 
 public:
@@ -29,24 +37,33 @@ public:
 
     float get_orientation() const;
     bool is_alive() const;
-
+    bool is_on_site() const;
+    bool has_bomb() const;
+    WeaponType equipped() const;
     void update(GameWorld& game, const float& delta_t);
     void rotate(const double& new_orientation);
     void move_up();
     void move_down();
     void move_left();
     void move_right();
+    bool collides_with(const Collidable& other_collidable) const override;
+    void receive_bomb(std::shared_ptr<Bomb> bomb);
+    void leave_bomb();
     void restart();
     void stop_moving_up();
     void stop_moving_down();
     void stop_moving_left();
     void stop_moving_right();
+    void unequip_weapon();
     void equip_primary();
     void equip_secondary();
     void equip_knife();
+    void equip_bomb();
     void stop_making_action();
     void make_action();
-    void receive_damage(const int& damage) override;
+    void shoot(const Shot& a_shot);
+    void receive_damage(const int& damage);
+    void count_kill(const int& money_bonification);
     Loadout& get_loadout();
     const PlayerDTO get_dto() const;
 

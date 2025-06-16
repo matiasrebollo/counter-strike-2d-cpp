@@ -1,5 +1,6 @@
 #include "game_ui.h"
 
+#include <optional>
 #include <variant>
 
 #include <unistd.h>

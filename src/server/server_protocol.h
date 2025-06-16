@@ -5,6 +5,7 @@
 #include <functional>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <string>
 #include <type_traits>
 #include <unordered_map>
@@ -36,7 +37,10 @@ private:
     void send_snapshot(const Snapshot& snapshot);
     void send_game_init_info(const GameInitialInfoDTO& dto);
     void send_players(const std::vector<PlayerDTO>& players);
+    void send_shot(const PlayerDTO& player);
     void send_loadout(const LoadoutDTO& loadout);
+    void send_bomb_position(const std::optional<Vector2D<int>>& bomb_position);
+    void send_current_round_winner(const std::optional<Team>& current_round_winner);
     void send_end_game(const GameEnded& message);
 
 public:

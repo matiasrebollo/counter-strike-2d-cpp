@@ -9,7 +9,7 @@ class GridAction {
 public:
     virtual ~GridAction() {}
     virtual void handle(std::pair<int, int> click_on, std::pair<int, int> click_drop,
-                        Game_editor& editor) = 0;
+                        Game_editor& editor, const bool& to_delete) = 0;
 };
 
 #endif
