@@ -14,8 +14,8 @@
 #include "../common/weapon_type.h"
 
 #include "camera.h"
-#include "texture_manager.h"
 #include "sounds.h"
+#include "texture_manager.h"
 
 
 enum ShopButtonType {

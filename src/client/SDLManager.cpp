@@ -21,6 +21,7 @@ SDLManager::SDLManager():
         texture_manager(renderer),
         camera(CAMERA_WIDTH, CAMERA_HEIGHT),
         sounds(mixer, texture_manager, texture_parser),
+        animation(renderer),
         shop(renderer, mixer, texture_manager, texture_parser, sounds) {
     renderer.SetLogicalSize(CAMERA_WIDTH, CAMERA_HEIGHT);
     SDL_ShowCursor(SDL_DISABLE);
@@ -189,6 +190,33 @@ void SDLManager::render_player_weapon(const PlayerInfo& p) {
     SDL2pp::Texture& weapon_texture = texture_manager.get_texture(weapon_path);
 
     renderer.Copy(weapon_texture, SDL2pp::NullOpt, gun_dst, angulo, rotate);
+
+    if (p.shoot && p.equipped == SECONDARY && p.secondary_gun == GLOCK) {
+
+        // Centro del jugador en cámara
+        int cx = destino_camera.GetX() + size_player / 2;
+        int cy = destino_camera.GetY() + size_player / 2;
+
+        // Vector desde el centro del jugador hasta la punta del arma (sin rotar aún)
+        SDL2pp::Point local_offset(offset_x + gun_width / 2 - size_player / 2,
+                                   offset_y + gun_height / 2 - size_player / 2);
+
+        double rad = angulo * M_PI / 180.0;
+
+        double rotated_x =
+                local_offset.GetX() * std::cos(rad) - local_offset.GetY() * std::sin(rad);
+        double rotated_y =
+                local_offset.GetX() * std::sin(rad) + local_offset.GetY() * std::cos(rad);
+
+        // Obtener el punto real de salida del disparo
+        SDL2pp::Point origin(static_cast<int>(cx + rotated_x), static_cast<int>(cy + rotated_y));
+        animation.render_shot(origin, angulo - 90, p.shot_distance / GRAPHIC_SCALE);
+        // despues cambiar sonido, un canal de disparo por player.
+        std::string path = texture_parser.get_sound_path(GLOCK_SHOT);
+        SDL2pp::Chunk& sound = texture_manager.get_sound(path);
+        sound.SetVolume(64);
+        mixer.PlayChannel(2, sound);
+    }
 }
 
 void SDLManager::render_fov(float orientation) {
@@ -422,11 +450,13 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
     }
 
     // render de mi player
-    Position pos_player = get_gun_info(local_info.player.equipped, local_info.player.primary_gun).first;
+    Position pos_player =
+            get_gun_info(local_info.player.equipped, local_info.player.primary_gun).first;
 
-    const BlockTextureInfo& skin_player = local_info.player.is_ct
-        ? texture_parser.get_ct_texture(local_info.ct_skin, pos_player)
-        : texture_parser.get_tt_texture(local_info.tt_skin, pos_player);
+    const BlockTextureInfo& skin_player =
+            local_info.player.is_ct ?
+                    texture_parser.get_ct_texture(local_info.ct_skin, pos_player) :
+                    texture_parser.get_tt_texture(local_info.tt_skin, pos_player);
 
     render_player(local_info.player, skin_player);
 

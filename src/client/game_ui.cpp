@@ -41,9 +41,19 @@ void GameUI::run() {
 }
 
 void GameUI::reset_player_events() {
-    for (auto& p: local_info.ct_players) p.movement = false;
-    for (auto& p: local_info.tt_players) p.movement = false;
+    for (auto& p: local_info.ct_players) {
+        p.movement = false;
+        p.shoot = false;
+        p.shot_distance = 0;
+    }
+    for (auto& p: local_info.tt_players) {
+        p.movement = false;
+        p.shoot = false;
+        p.shot_distance = 0;
+    }
     local_info.player.movement = false;
+    local_info.player.shoot = false;
+    local_info.player.shot_distance = 0;
 }
 
 void GameUI::detect_player_events(const Snapshot& snapshot) {
@@ -51,7 +61,11 @@ void GameUI::detect_player_events(const Snapshot& snapshot) {
         if (info.x != dto.position.x || info.y != dto.position.y) {
             info.movement = true;
         }
-        // if (dto.shot) info.shot = true;
+        if (dto.shot.has_value()) {
+            info.shoot = true;
+            info.shot_distance = dto.shot->distance;
+            std::cout << "distancia protocolo: " << info.shot_distance << std::endl;
+        }
     };
 
     for (const auto& dto: snapshot.ct) {

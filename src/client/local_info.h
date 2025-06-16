@@ -19,6 +19,8 @@ struct PlayerInfo {
     GunType secondary_gun = NONE;
     WeaponType equipped = SECONDARY;
     bool movement = false;
+    bool shoot = false;
+    int shot_distance = 0;
 };
 
 struct LocalInfo {

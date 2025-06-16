@@ -42,7 +42,8 @@ enum SoundEffect {
     OPEN_SHOP,
     CLOSE_SHOP,
     DIRT_STEP_ONE,
-    DIRT_STEP_TWO
+    DIRT_STEP_TWO,
+    GLOCK_SHOT
 };
 
 

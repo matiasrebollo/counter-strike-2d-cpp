@@ -13,6 +13,7 @@
 #include "../common/game_snapshot.h"
 #include "../common/settings.h"
 
+#include "animation.h"
 #include "camera.h"
 #include "local_info.h"
 #include "shop.h"
@@ -30,6 +31,7 @@ private:
     BlockTextureParser texture_parser;
     Camera camera;
     Sounds sounds;
+    Animation animation;
     Shop shop;
     std::optional<GameMapDTO> map;
 

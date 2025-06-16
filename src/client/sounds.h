@@ -9,8 +9,9 @@
 #include <SDL2pp/SDL2pp.hh>
 
 #include "../common/block_texture_parser.h"
-#include "../common/settings.h"
 #include "../common/sdl_helpers.h"
+#include "../common/settings.h"
+
 #include "texture_manager.h"
 
 #define BUTTON_CHANNEL 1
@@ -43,8 +44,6 @@ public:
 
     void play_step(const std::string& username, const SDL2pp::Point& destino_camera,
                    bool is_moving);
-
-    
 };
 
 
