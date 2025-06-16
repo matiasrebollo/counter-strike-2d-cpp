@@ -251,8 +251,7 @@ void validate_player(const PlayerDTO& expected_player, const PlayerDTO& actual_p
     ASSERT_EQ(expected_player.loadout.equipped, actual_player.loadout.equipped);
     ASSERT_EQ(expected_player.shot.has_value(), actual_player.shot.has_value());
     if (expected_player.shot.has_value()) {
-        ASSERT_LE(expected_player.shot->distance, actual_player.shot->distance - 0.1);
-        ASSERT_GE(expected_player.shot->distance, actual_player.shot->distance + 0.1);
+        ASSERT_NEAR(expected_player.shot->distance, actual_player.shot->distance, 0.1);
     }
 }
 
@@ -265,7 +264,12 @@ TEST(ServerProtocolTest, SendSnapshot) {
         current_rounds.push_back(i);
     }
 
+    int total_players = 2;
     size_t total_rounds = 10;
+    int time_left = 20;
+    BombStatus status = BombStatus::EXPLODED;
+    Vector2D<int> bomb_pos{100, 200};
+    Team winner = Team::TT;
 
     std::vector<LoadoutDTO> loadouts = get_loadouts();
 
@@ -277,7 +281,10 @@ TEST(ServerProtocolTest, SendSnapshot) {
                 std::vector<PlayerDTO> tt = {PlayerDTO{"Facu", Vector2D(10, 10), 100, 100,
                                                        std::optional<ShotDTO>(100.20), 10, 10, 10,
                                                        loadout}};
-                Snapshot snapshot{2, phase, current_round, total_rounds, 20, ct, tt};
+                Snapshot snapshot{total_players, phase,     current_round,
+                                  total_rounds,  time_left, status,
+                                  bomb_pos,      ct,        tt,
+                                  winner};
 
                 server->send_game_dto(snapshot);
                 GameDTO response = client->receive_game_dto();
@@ -288,13 +295,18 @@ TEST(ServerProtocolTest, SendSnapshot) {
                 ASSERT_EQ(snapshotPtr->phase, phase);
                 ASSERT_EQ(snapshotPtr->current_round_number, current_round);
                 ASSERT_EQ(snapshotPtr->total_rounds, total_rounds);
-                ASSERT_EQ(snapshotPtr->time_left, 20);
+                ASSERT_EQ(snapshotPtr->time_left, time_left);
+                ASSERT_EQ(snapshotPtr->bomb_status, status);
+                EXPECT_TRUE(snapshot.bomb_position.has_value());
+                ASSERT_EQ(snapshotPtr->bomb_position, bomb_pos);
                 for (size_t i = 0; i < ct.size(); i++) {
                     validate_player(ct[i], snapshotPtr->ct[i]);
                 }
                 for (size_t i = 0; i < ct.size(); i++) {
                     validate_player(tt[i], snapshotPtr->tt[i]);
                 }
+                EXPECT_TRUE(snapshot.current_round_winner.has_value());
+                ASSERT_EQ(snapshotPtr->current_round_winner, winner);
             }
         }
     }

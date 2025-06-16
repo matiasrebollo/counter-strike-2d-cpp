@@ -154,18 +154,22 @@ GameDTO ClientProtocol::receive_game_dto() {
 }
 
 Snapshot ClientProtocol::receive_snapshot() {
-    // snasphot.bomb_status = BombStatus(this->receive_byte());
     int total_players = this->receive_byte();
     int phase = this->receive_byte();
     size_t current_round_number = this->receive_byte();
     size_t total_rounds = this->receive_byte();
     int time_left = this->receive_byte();
+    BombStatus status = static_cast<BombStatus>(this->receive_byte());
+    std::optional<Vector2D<int>> bomb_position = this->receive_bomb_position();
     int size_ct = this->receive_byte();
     std::vector<PlayerDTO> cts = this->receive_players(size_ct);
     int size_tt = this->receive_byte();
     std::vector<PlayerDTO> tts = this->receive_players(size_tt);
-    Snapshot snapshot = Snapshot{
-            total_players, Phase(phase), current_round_number, total_rounds, time_left, cts, tts};
+    std::optional<Team> current_round_winner = this->receive_current_round_winner();
+    Snapshot snapshot = Snapshot{total_players,       Phase(phase), current_round_number,
+                                 total_rounds,        time_left,    status,
+                                 bomb_position,       cts,          tts,
+                                 current_round_winner};
     return snapshot;
 }
 
@@ -193,6 +197,27 @@ std::optional<ShotDTO> ClientProtocol::receive_shot() {
     double distance = this->receive_angle();
     if (has_value) {
         return ShotDTO{distance};
+    } else {
+        return std::nullopt;
+    }
+}
+
+std::optional<Vector2D<int>> ClientProtocol::receive_bomb_position() {
+    bool has_value = this->code_to_bools.find(this->receive_byte())->second;
+    int x = this->receive_byte();
+    int y = this->receive_byte();
+    if (has_value) {
+        return Vector2D{x, y};
+    } else {
+        return std::nullopt;
+    }
+}
+
+std::optional<Team> ClientProtocol::receive_current_round_winner() {
+    bool has_value = this->code_to_bools.find(this->receive_byte())->second;
+    Team team = static_cast<Team>(this->receive_byte());
+    if (has_value) {
+        return team;
     } else {
         return std::nullopt;
     }

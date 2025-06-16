@@ -1,5 +1,6 @@
 #include "game_ui.h"
 
+#include <optional>
 #include <variant>
 
 #include <unistd.h>
@@ -15,7 +16,16 @@ GameUI::GameUI(Lobby& lobby):
         local_info{lobby.get_username(), lobby.get_gamecode(), lobby.get_ct_skin(),
                    lobby.get_tt_skin()},
         keep_running(true),
-        game_snapshot({0, WAITING_PLAYERS, 0, 0, 0, {}, {}}) {
+        game_snapshot({0,
+                       WAITING_PLAYERS,
+                       0,
+                       0,
+                       0,
+                       BombStatus::NOT_PLANTED,
+                       std::nullopt,
+                       {},
+                       {},
+                       std::nullopt}) {
     this->phase = std::make_unique<WaitingForGamePhase>(*this);
 }
 

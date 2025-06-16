@@ -97,12 +97,36 @@ void ServerProtocol::send_snapshot(const Snapshot& snapshot) {
     this->send_byte(snapshot.phase);
     this->send_byte(snapshot.current_round_number);
     this->send_byte(snapshot.total_rounds);
-    // this->send_byte(snapshot.bomb_status);
     this->send_byte(snapshot.time_left);
+    this->send_byte(snapshot.bomb_status);
+    this->send_bomb_position(snapshot.bomb_position);
     this->send_byte(snapshot.ct.size());
     this->send_players(snapshot.ct);
     this->send_byte(snapshot.tt.size());
     this->send_players(snapshot.tt);
+    this->send_current_round_winner(snapshot.current_round_winner);
+}
+
+void ServerProtocol::send_bomb_position(const std::optional<Vector2D<int>>& bomb_position) {
+    if (bomb_position.has_value()) {
+        this->send_byte(CODE_TRUE);
+        this->send_byte(bomb_position->x);
+        this->send_byte(bomb_position->y);
+    } else {
+        this->send_byte(CODE_FALSE);
+        this->send_byte(0);
+        this->send_byte(0);
+    }
+}
+
+void ServerProtocol::send_current_round_winner(const std::optional<Team>& current_round_winner) {
+    if (current_round_winner.has_value()) {
+        this->send_byte(CODE_TRUE);
+        this->send_byte(current_round_winner.value());
+    } else {
+        this->send_byte(CODE_FALSE);
+        this->send_byte(0);
+    }
 }
 
 void ServerProtocol::send_players(const std::vector<PlayerDTO>& players) {

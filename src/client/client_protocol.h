@@ -52,6 +52,8 @@ private:
     std::vector<PlayerDTO> receive_players(const int& size_players);
     std::optional<ShotDTO> receive_shot();
     LoadoutDTO receive_loadout();
+    std::optional<Vector2D<int>> receive_bomb_position();
+    std::optional<Team> receive_current_round_winner();
 
     Snapshot receive_snapshot();
     GameInitialInfoDTO receive_game_initial_info();

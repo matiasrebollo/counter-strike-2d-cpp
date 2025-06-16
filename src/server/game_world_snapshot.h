@@ -6,8 +6,8 @@
 #include "common/player_dto.h"
 
 struct GameWorldSnapshot {
-    // BombStatus bomb_status;
-    // std::optional<Vector2D<int>> bomb_position;
+    BombStatus bomb_status;
+    std::optional<Vector2D<int>> bomb_position;
     const std::vector<PlayerDTO> ct;
     const std::vector<PlayerDTO> tt;
     // std::vector<itemDTO> items;

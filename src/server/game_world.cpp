@@ -145,7 +145,7 @@ const GameWorldSnapshot GameWorld::get_snapshot() const {
         tt.push_back(player.second->get_dto());
     }
 
-    return GameWorldSnapshot{/*bomb->get_status(), bomb_position,*/ ct, tt};
+    return GameWorldSnapshot{bomb->get_status(), bomb_position, ct, tt};
 }
 
 void GameWorld::rotate_player(const std::string& username, const double& angle) {

@@ -19,12 +19,12 @@ struct Snapshot {
     size_t current_round_number;
     size_t total_rounds;
     int time_left;
-    // BombStatus bomb_status;
-    // std::optional<Vector2D<int>> bomb_position;
+    BombStatus bomb_status;
+    std::optional<Vector2D<int>> bomb_position;
     std::vector<PlayerDTO> ct;
     std::vector<PlayerDTO> tt;
-    // std::optional<Team> current_round_winner;
-    //  std::vector<itemDTO> items;
+    std::optional<Team> current_round_winner;
+    // std::vector<itemDTO> items;
 };
 
 
