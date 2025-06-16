@@ -74,12 +74,17 @@ void GameWorld::add_player(const std::string& username) {
 
     size_t cts = counter_terrorists.size();
     size_t tts = terrorists.size();
-    if (cts < COUNTER_TERRORISTS) {
+
+    if (cts + tts >= COUNTER_TERRORISTS + TERRORISTS) {
+        throw std::runtime_error("No hay lugar para más jugadores");
+    }
+
+    if (cts <= tts && cts < COUNTER_TERRORISTS) {
         counter_terrorists[username] = player;
     } else if (tts < TERRORISTS) {
         terrorists[username] = player;
     } else {
-        throw std::runtime_error("No hay lugar para más jugadores");
+        counter_terrorists[username] = player;
     }
 }
 
