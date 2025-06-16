@@ -1,6 +1,7 @@
 #ifndef GAME_WORLD_H
 #define GAME_WORLD_H
 
+#include <iostream>
 #include <list>
 #include <map>
 #include <memory>
@@ -34,6 +35,7 @@ private:
 
     template <typename PlayerMethod>
     void with_player(const std::string& username, PlayerMethod action) {
+
         auto ct_it = counter_terrorists.find(username);
         auto tt_it = terrorists.find(username);
         if (ct_it != counter_terrorists.end()) {

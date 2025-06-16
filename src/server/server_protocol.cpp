@@ -37,7 +37,7 @@ ServerProtocol& ServerProtocol::operator=(ServerProtocol&& other) noexcept {
 
 void ServerProtocol::send_lobby_message(const ServerResponseLobby& msg) {
     this->send_byte(this->commandsToCode.find(msg.commandType)->second);
-    this->send_byte(this->bools_to_code.find(msg.success)->second);
+    this->send_byte(msg.status);
     if (msg.commandType == CommandType::CREATE_GAME) {
         this->send_string(msg.game_name);
     }
