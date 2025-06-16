@@ -75,4 +75,6 @@ public:
     void send_big_endian_number(const uint16_t& number);
     void send_string(const std::string& s);
     std::string receive_string();
+    void send_double(const double& number);
+    double receive_double();
 };
