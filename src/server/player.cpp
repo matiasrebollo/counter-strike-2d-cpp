@@ -24,10 +24,13 @@ Player::Player(const std::string& name, Vector2D<int>& position):
 float Player::get_orientation() const { return orientation; }
 
 bool Player::is_alive() const { return this->life > 0; }
+bool Player::has_bomb() const { return loadout.has_bomb(); }
 
 void Player::update(GameWorld& game, const float& delta_t) {
     shot = std::nullopt;
     int delta_it = static_cast<int>(std::round(delta_t * FPS_SERVER));
+    if (making_action && dynamic_cast<Bomb*>(loadout.equipped_weapon()))
+        return;  // no hacer nada si está activando bomba. agregar lo mismo si la esta defuseando!
     int stepped = delta_it * PLAYER_SPEED;
     Vector2D<int> step(0, 0);
     if (moving_up) {
@@ -49,7 +52,6 @@ void Player::update(GameWorld& game, const float& delta_t) {
     game.make_step_player(*this, step);
     if (Weapon* weapon = loadout.equipped_weapon())
         weapon->update(delta_t, *this, game);
-    // si mato, reconocerlo y aumentar dinero
 }
 
 void Player::move_up() { moving_up = true; }
@@ -63,6 +65,8 @@ bool Player::collides_with(const Collidable& other_collidable) const {
     return rect.intersects_with(other_collidable.rect);
 }
 
+void Player::receive_bomb(std::shared_ptr<Bomb> bomb) { loadout.receive_bomb(bomb); }
+void Player::leave_bomb() { loadout.leave_bomb(); }
 
 void Player::stop_moving_up() { moving_up = false; }
 void Player::stop_moving_down() { moving_down = false; }
@@ -76,7 +80,9 @@ void Player::restart() {
     moving_left = false;
     moving_right = false;
     making_action = false;
+    shot = std::nullopt;
     orientation = 0.0;
+    loadout.leave_bomb();
 }
 void Player::make_action() {
     if (Weapon* weapon = loadout.equipped_weapon())
@@ -105,6 +111,7 @@ void Player::count_kill(const int& money_bonification) {
 void Player::equip_primary() { loadout.equip_primary(); }
 void Player::equip_secondary() { loadout.equip_secondary(); }
 void Player::equip_knife() { loadout.equip_knife(); }
+void Player::equip_bomb() { loadout.equip_bomb(); }
 
 Loadout& Player::get_loadout() { return loadout; }
 

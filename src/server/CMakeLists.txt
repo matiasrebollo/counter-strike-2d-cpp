@@ -15,6 +15,7 @@ target_sources(taller_server
         loadout.cpp
         shop.cpp
         weapon.cpp
+        bomb.cpp
         shot.cpp
         gun.cpp
         knife.cpp
@@ -42,6 +43,7 @@ target_sources(taller_server
         loadout.h
         shop.h
         weapon.h
+        bomb.h
         gun.h
         knife.h
         glock.h

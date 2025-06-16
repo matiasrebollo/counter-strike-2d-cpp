@@ -106,6 +106,4 @@ EquipKnifeCommand::EquipKnifeCommand(const std::string& username): EquipCommand(
 void EquipKnifeCommand::execute(GameWorld& game) const { game.equip_knife_for(username); }
 
 EquipBombCommand::EquipBombCommand(const std::string& username): EquipCommand(username) {}
-void EquipBombCommand::execute(GameWorld& /*game*/) const {
-    // game.equip_bomb_for(username);
-}
+void EquipBombCommand::execute(GameWorld& game) const { game.equip_bomb_for(username); }

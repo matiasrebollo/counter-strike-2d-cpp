@@ -12,7 +12,7 @@ class CS2DGame;  // Forward declaration
 class GamePhase {
 protected:
     CS2DGame& game;
-    const size_t duration;
+    size_t duration;
 
 public:
     explicit GamePhase(CS2DGame& game, const size_t& duration);

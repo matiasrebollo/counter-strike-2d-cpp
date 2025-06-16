@@ -35,7 +35,7 @@ public:
 
     float get_orientation() const;
     bool is_alive() const;
-
+    bool has_bomb() const;
     void update(GameWorld& game, const float& delta_t);
     void rotate(const double& new_orientation);
     void move_up();
@@ -43,6 +43,8 @@ public:
     void move_left();
     void move_right();
     bool collides_with(const Collidable& other_collidable) const override;
+    void receive_bomb(std::shared_ptr<Bomb> bomb);
+    void leave_bomb();
     void restart();
     void stop_moving_up();
     void stop_moving_down();
@@ -51,6 +53,7 @@ public:
     void equip_primary();
     void equip_secondary();
     void equip_knife();
+    void equip_bomb();
     void stop_making_action();
     void make_action();
     void shoot(const Shot& a_shot);

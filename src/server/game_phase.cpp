@@ -25,8 +25,13 @@ void GamePhase::run() {
         while (game.command_queue.try_pop(cmd)) {
             execute(std::move(cmd));
         }
-        if (type() != WAITING_PLAYERS)
+        if (type() != WAITING_PLAYERS) {
             game.update(delta_seconds);
+            if (game.bomb_just_planted()) {
+                duration = game.bomb_detonation_time();
+                time = 0.0f;
+            }
+        }
 
         last_it = it;
         it = clock.sleep_and_calc_next_it(FPS_SERVER, it);

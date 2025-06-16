@@ -13,8 +13,6 @@ struct LoadoutDTO {
     GunType secondary_gun;
     uint16_t secondary_ammo;
     WeaponType equipped;
-    // bool is_shooting;
-    // bool is_getting_hit;
     // bool has_bomb;
 };
 

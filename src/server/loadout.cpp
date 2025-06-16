@@ -11,11 +11,13 @@ Loadout::Loadout():
         knife(),
         primary_gun(nullptr),
         secondary_gun(Gun::new_gun(GLOCK)),
+        bomb(nullptr),
         equipped(SECONDARY) {}
 
 int Loadout::get_money() const { return money; }
 
 bool Loadout::has_primary_gun() const { return primary_gun != nullptr; }
+bool Loadout::has_bomb() const { return bomb != nullptr; }
 
 GunType Loadout::primary_gun_type() const {
     if (primary_gun == nullptr)
@@ -27,6 +29,10 @@ GunType Loadout::secondary_gun_type() const { return secondary_gun->get_type(); 
 void Loadout::decrease_money_by(const int& ammount_of_money) { this->money -= ammount_of_money; }
 
 void Loadout::add_money(const int& ammount_of_money) { this->money += ammount_of_money; }
+
+void Loadout::receive_bomb(std::shared_ptr<Bomb> bomb) { this->bomb = bomb; }
+
+void Loadout::leave_bomb() { this->bomb = nullptr; }
 
 std::unique_ptr<Gun> Loadout::new_primary_gun(std::unique_ptr<Gun> gun) {
     std::unique_ptr<Gun> prev = std::move(this->primary_gun);
@@ -43,6 +49,10 @@ void Loadout::equip_primary() {
 }
 void Loadout::equip_secondary() { this->equipped = SECONDARY; }
 void Loadout::equip_knife() { this->equipped = KNIFE; }
+void Loadout::equip_bomb() {
+    if (bomb)
+        this->equipped = BOMB;
+}
 Weapon* Loadout::equipped_weapon() {
     switch (equipped) {
         case PRIMARY:
@@ -51,10 +61,13 @@ Weapon* Loadout::equipped_weapon() {
             return secondary_gun.get();
         case KNIFE:
             return &knife;
+        case BOMB:
+            return bomb ? bomb.get() : nullptr;
         default:
             return nullptr;
     }
 }
+
 
 const LoadoutDTO Loadout::get_dto() const {
     return LoadoutDTO{money,
@@ -62,8 +75,8 @@ const LoadoutDTO Loadout::get_dto() const {
                       (primary_gun != nullptr) ? primary_gun->get_ammo() : static_cast<uint16_t>(0),
                       GLOCK,
                       secondary_gun->get_ammo(),
-                      equipped};
-    // agregar bomba
+                      equipped,
+                      /*(bomb != nullptr)*/};
 }
 
 Loadout::~Loadout() {}
