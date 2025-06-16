@@ -214,7 +214,7 @@ const Collidable* GameWorld::colliding_object_with(const Collidable& coll) const
     for (const auto& collidable: collidables) {
         if (collidable.get() == &coll)
             continue;
-        if (coll.collides_with(*collidable))
+        if (collidable->collides_with(coll))
             return collidable.get();
     }
     return nullptr;
@@ -336,8 +336,15 @@ void GameWorld::calculate_shot(Shot& shot, const Player& shooter) const {
     double closest = std::numeric_limits<double>::max();
 
     for (const auto& collidable: collidables) {
-        if (collidable.get() == &shooter)
+        const Collidable* coll_ptr = collidable.get();
+        if (coll_ptr == &shooter)
             continue;
+        if (const Player* player = dynamic_cast<const Player*>(coll_ptr)) {
+            if (!player->is_alive()) {
+                continue;
+            }
+        }
+
         double dist = impacts(shot, *collidable);
         if (dist != 0.0) {
             if (dist < closest) {
@@ -348,5 +355,5 @@ void GameWorld::calculate_shot(Shot& shot, const Player& shooter) const {
     }
 
     shot.hit = hit;
-    shot.distance = closest;
+    shot.distance = closest - PLAYER_THICKNESS / 2;
 }

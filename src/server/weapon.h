@@ -11,9 +11,8 @@ class Player;     // forward declaration
 class Weapon {
 protected:
     bool making_action;
+    bool just_triggered_action;
     float time_since_last_action;
-
-    bool just_triggered_action();
 
 public:
     Weapon();

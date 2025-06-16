@@ -17,6 +17,7 @@ enum CommandType {
     PLANT_BOMB,
     DEFUSE_BOMB,
     GAME_STARTED,
+    SHOT,
     GAME_ENDED
 };
 

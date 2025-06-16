@@ -42,7 +42,7 @@ std::unique_ptr<Gun> Shop::buy_gun(const GunType& gun_type, Loadout& buyer_loado
         return nullptr;
 
     buyer_loadout.decrease_money_by(price);
-    std::unique_ptr<Gun> new_gun = std::make_unique<Gun>(gun_type);
+    std::unique_ptr<Gun> new_gun = Gun::new_gun(gun_type);
     return buyer_loadout.new_primary_gun(std::move(new_gun));
 }
 void Shop::buy_clip(const bool& for_primary, Loadout& buyer_loadout) {

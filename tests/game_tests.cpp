@@ -241,11 +241,19 @@ std::vector<LoadoutDTO> get_loadouts() {
 void validate_player(const PlayerDTO& expected_player, const PlayerDTO& actual_player) {
     ASSERT_EQ(expected_player.username, actual_player.username);
     ASSERT_EQ(expected_player.life, actual_player.life);
+    ASSERT_EQ(expected_player.bonifications, actual_player.bonifications);
+    ASSERT_EQ(expected_player.kills, actual_player.kills);
+    ASSERT_EQ(expected_player.deaths, actual_player.deaths);
     ASSERT_EQ(expected_player.loadout.primary_gun, actual_player.loadout.primary_gun);
     ASSERT_EQ(expected_player.loadout.secondary_gun, actual_player.loadout.secondary_gun);
     ASSERT_EQ(expected_player.loadout.primary_ammo, actual_player.loadout.primary_ammo);
     ASSERT_EQ(expected_player.loadout.secondary_ammo, actual_player.loadout.secondary_ammo);
     ASSERT_EQ(expected_player.loadout.equipped, actual_player.loadout.equipped);
+    ASSERT_EQ(expected_player.shot.has_value(), actual_player.shot.has_value());
+    if (expected_player.shot.has_value()) {
+        ASSERT_LE(expected_player.shot->distance, actual_player.shot->distance - 0.1);
+        ASSERT_GE(expected_player.shot->distance, actual_player.shot->distance + 0.1);
+    }
 }
 
 TEST(ServerProtocolTest, SendSnapshot) {
@@ -264,9 +272,11 @@ TEST(ServerProtocolTest, SendSnapshot) {
     for (auto phase: phases) {
         for (auto current_round: current_rounds) {
             for (auto loadout: loadouts) {
-                std::vector<PlayerDTO> ct = {PlayerDTO{"Mati", Vector2D(0, 0), 0, 100, loadout}};
-                std::vector<PlayerDTO> tt = {
-                        PlayerDTO{"Facu", Vector2D(10, 10), 100, 100, loadout}};
+                std::vector<PlayerDTO> ct = {
+                        PlayerDTO{"Mati", Vector2D(0, 0), 0, 100, std::nullopt, 0, 0, 0, loadout}};
+                std::vector<PlayerDTO> tt = {PlayerDTO{"Facu", Vector2D(10, 10), 100, 100,
+                                                       std::optional<ShotDTO>(100.20), 10, 10, 10,
+                                                       loadout}};
                 Snapshot snapshot{2, phase, current_round, total_rounds, 20, ct, tt};
 
                 server->send_game_dto(snapshot);

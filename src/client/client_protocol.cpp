@@ -176,13 +176,26 @@ std::vector<PlayerDTO> ClientProtocol::receive_players(const int& size_players) 
         int position_x = this->receive_big_endian_number();
         int position_y = this->receive_big_endian_number();
         double angle = this->receive_angle();
-        int life = this->receive_byte();
-        uint16_t life16 = static_cast<uint16_t>(life);
+        uint16_t life = this->receive_big_endian_number();
+        std::optional<ShotDTO> shot = this->receive_shot();
+        int bonifications = this->receive_byte();
+        int kills = this->receive_byte();
+        int deaths = this->receive_byte();
         LoadoutDTO loadout = this->receive_loadout();
-        players.push_back(
-                PlayerDTO{username, Vector2D<int>(position_x, position_y), angle, life16, loadout});
+        players.push_back(PlayerDTO{username, Vector2D<int>(position_x, position_y), angle, life,
+                                    shot, bonifications, kills, deaths, loadout});
     }
     return players;
+}
+
+std::optional<ShotDTO> ClientProtocol::receive_shot() {
+    bool has_value = this->code_to_bools.find(this->receive_byte())->second;
+    double distance = this->receive_angle();
+    if (has_value) {
+        return ShotDTO{distance};
+    } else {
+        return std::nullopt;
+    }
 }
 
 LoadoutDTO ClientProtocol::receive_loadout() {

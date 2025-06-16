@@ -3,6 +3,7 @@
 
 #include <list>
 #include <memory>
+#include <optional>
 #include <string>
 
 class GameWorld;  // forward declaration
@@ -11,6 +12,7 @@ class GameWorld;  // forward declaration
 #include "common/settings.h"
 #include "server/collidable.h"
 #include "server/loadout.h"
+#include "server/shot.h"
 
 class Player: public Collidable {
 private:
@@ -22,6 +24,10 @@ private:
     bool making_action;
     double orientation;
     uint16_t life;
+    std::optional<ShotDTO> shot;
+    int bonifications;
+    int kills;
+    int deaths;
     Loadout loadout;
 
 public:
@@ -36,6 +42,7 @@ public:
     void move_down();
     void move_left();
     void move_right();
+    bool collides_with(const Collidable& other_collidable) const override;
     void restart();
     void stop_moving_up();
     void stop_moving_down();
@@ -46,7 +53,9 @@ public:
     void equip_knife();
     void stop_making_action();
     void make_action();
-    void receive_damage(const int& damage) override;
+    void shoot(const Shot& a_shot);
+    void receive_damage(const int& damage);
+    void count_kill(const int& money_bonification);
     Loadout& get_loadout();
     const PlayerDTO get_dto() const;
 

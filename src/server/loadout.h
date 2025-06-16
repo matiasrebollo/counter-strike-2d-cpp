@@ -15,7 +15,7 @@ private:
     uint16_t money;
     Knife knife;
     std::unique_ptr<Gun> primary_gun;
-    Gun secondary_gun;
+    std::unique_ptr<Gun> secondary_gun;
     WeaponType equipped;
 
 
@@ -26,7 +26,8 @@ public:
     bool has_primary_gun() const;
     GunType primary_gun_type() const;
     GunType secondary_gun_type() const;
-    void decrease_money_by(const uint16_t& amount_of_money);
+    void decrease_money_by(const int& amount_of_money);
+    void add_money(const int& ammount_of_money);
     // devuelve el arma poseída anteriormente.
     std::unique_ptr<Gun> new_primary_gun(std::unique_ptr<Gun> gun);
     void add_ammo_to_primary(const int& ammo_count);
@@ -34,7 +35,7 @@ public:
     void equip_primary();
     void equip_secondary();
     void equip_knife();
-    Gun* equipped_gun();
+    Weapon* equipped_weapon();
     const LoadoutDTO get_dto() const;
 
     Loadout(const Loadout&) = delete;

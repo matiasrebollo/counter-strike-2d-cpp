@@ -5,6 +5,7 @@
 #include <functional>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <string>
 #include <type_traits>
 #include <unordered_map>
@@ -49,6 +50,7 @@ private:
     void handle_buy_ammo(const BuyAmmoDTO& dto);
 
     std::vector<PlayerDTO> receive_players(const int& size_players);
+    std::optional<ShotDTO> receive_shot();
     LoadoutDTO receive_loadout();
 
     Snapshot receive_snapshot();
