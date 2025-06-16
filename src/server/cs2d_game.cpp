@@ -28,12 +28,16 @@ CS2DGame::CS2DGame(const std::string& id, const std::string& map_filename):
 }
 
 bool CS2DGame::can_add_player(const std::string& username) const {
-    return players_senders.size() < COUNTER_TERRORISTS + TERRORISTS &&
+    Settings& settings = Settings::getInstance();
+    return players_senders.size() <
+                   settings.get_counter_terrorists_number() + settings.get_terrorists_number() &&
            players_senders.find(username) == players_senders.end();
 }
 
 bool CS2DGame::should_start() const {
-    return players_senders.size() >= COUNTER_TERRORISTS + TERRORISTS;
+    Settings& settings = Settings::getInstance();
+    return players_senders.size() >=
+           settings.get_counter_terrorists_number() + settings.get_terrorists_number();
 }
 
 void CS2DGame::add_player(const std::string& username, std::shared_ptr<ClientSender> sender) {
@@ -68,6 +72,11 @@ void CS2DGame::broadcast_game_initial_info() {
 }
 
 void CS2DGame::broadcast_snapshot(const int time_left) {
+    Settings& settings = Settings::getInstance();
+    size_t ROUNDS = settings.get_rounds_server();
+    int COUNTER_TERRORISTS = settings.get_counter_terrorists_number();
+    int TERRORISTS = settings.get_terrorists_number();
+
     const GameWorldSnapshot game_world_snapshot = game_world.get_snapshot();
     const Snapshot snapshot{
             COUNTER_TERRORISTS + TERRORISTS,
@@ -109,6 +118,7 @@ void CS2DGame::decide_winner() {
 }
 
 void CS2DGame::begin_new_round() {
+    size_t ROUNDS = Settings::getInstance().get_rounds_server();
     this->current_round_winner = std::nullopt;
     this->current_round++;
     if (this->current_round == (ROUNDS / 2) + 1)
@@ -136,6 +146,7 @@ void CS2DGame::end_game() {
 }
 
 void CS2DGame::run() {
+    size_t ROUNDS = Settings::getInstance().get_rounds_server();
     while (should_keep_running()) {
         if (this->current_round > ROUNDS) {
             end_game();

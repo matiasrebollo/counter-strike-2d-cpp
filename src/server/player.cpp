@@ -6,7 +6,8 @@
 #include "server/game_world.h"
 
 Player::Player(const std::string& name, Vector2D<int>& position):
-        Collidable(position, PLAYER_THICKNESS, PLAYER_THICKNESS),
+        Collidable(position, Settings::getInstance().get_player_thickness(),
+                   Settings::getInstance().get_player_thickness()),
         name(name),
         moving_up(false),
         moving_down(false),
@@ -14,7 +15,7 @@ Player::Player(const std::string& name, Vector2D<int>& position):
         moving_right(false),
         making_action(false),
         orientation(0.0),
-        life(PLAYER_INITIAL_LIFE),
+        life(Settings::getInstance().get_player_initial_life()),
         shot(std::nullopt),
         bonifications(0),
         kills(0),
@@ -28,11 +29,10 @@ bool Player::is_alive() const { return this->life > 0; }
 void Player::update(GameWorld& game, const float& delta_t) {
     Settings& settings = Settings::getInstance();
     int FPS_SERVER = settings.get_fps_server();
-    std::cout << FPS_SERVER << std::endl;
 
     shot = std::nullopt;
     int delta_it = static_cast<int>(std::round(delta_t * FPS_SERVER));
-    int stepped = delta_it * PLAYER_SPEED;
+    int stepped = delta_it * Settings::getInstance().get_player_speed();
     Vector2D<int> step(0, 0);
     if (moving_up) {
         step = step + Vector2D<int>(0, -stepped);
@@ -74,7 +74,7 @@ void Player::stop_moving_left() { moving_left = false; }
 void Player::stop_moving_right() { moving_right = false; }
 void Player::rotate(const double& new_orientation) { this->orientation = new_orientation; }
 void Player::restart() {
-    life = PLAYER_INITIAL_LIFE;
+    life = Settings::getInstance().get_player_initial_life();
     moving_up = false;
     moving_down = false;
     moving_left = false;

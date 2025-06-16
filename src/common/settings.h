@@ -6,20 +6,20 @@
 
 // server
 //#define FPS_SERVER 60
-#define ROUNDS 10
+//#define ROUNDS 10
 
-#define BUY_PHASE_DURATION 5
-#define ATTACK_PHASE_DURATION 60
-#define WAITING_PLAYERS_PHASE_DURATION 300
-#define BETWEEN_ROUNDS_PHASE_DURATION 5
+//#define BUY_PHASE_DURATION 5
+//#define ATTACK_PHASE_DURATION 60
+//#define WAITING_PLAYERS_PHASE_DURATION 300
+//#define BETWEEN_ROUNDS_PHASE_DURATION 5
 
-#define PLAYER_SPEED 20  // debe ser un numero par
-#define TERRORISTS 1
-#define COUNTER_TERRORISTS 1
+//#define PLAYER_SPEED 20  // debe ser un numero par
+//#define TERRORISTS 1
+//#define COUNTER_TERRORISTS 1
 
-#define BLOCK_THICKNESS 400
-#define PLAYER_THICKNESS 320  // debe ser menor a BLOCK_THICKNESS (para spawns)
-#define PLAYER_INITIAL_LIFE 1000
+//#define BLOCK_THICKNESS 400
+//#define PLAYER_THICKNESS 320  // debe ser menor a BLOCK_THICKNESS (para spawns)
+//#define PLAYER_INITIAL_LIFE 1000
 
 #define GLOCK_INITIAL_AMMO 30
 #define AWP_INITIAL_AMMO 10
@@ -84,7 +84,7 @@ struct KnifeSettings {
 
 struct ServerSettings {
     int fps;
-    int rounds;
+    size_t rounds;
 
     int buy_phase_duration;
     int attack_phase_duration;
@@ -92,8 +92,8 @@ struct ServerSettings {
     int between_rounds_phase_duration;
 
     int player_speed;  // debe ser un numero par
-    int terrorists;
-    int counter_terrorists;
+    size_t terrorists;
+    size_t counter_terrorists;
 
     int block_thickness;
     int player_thickness;  // debe ser menor a BLOCK_THICKNESS (para spawns)
@@ -142,6 +142,17 @@ public:
     static Settings& getInstance();
 
     int get_fps_server();
+    size_t get_rounds_server();
+    int get_buy_phase_duration();
+    int get_attack_phase_duration();
+    int get_between_rounds_phase_duration();
+    int get_waiting_phase_duration();
+    int get_player_speed();
+    size_t get_terrorists_number();
+    size_t get_counter_terrorists_number();
+    int get_block_thickness();
+    int get_player_thickness();
+    int get_player_initial_life();
 
     Settings(const Settings&) = delete;
     Settings& operator=(const Settings&) = delete;
