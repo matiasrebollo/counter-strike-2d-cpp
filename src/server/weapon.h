@@ -18,7 +18,7 @@ protected:
 
 public:
     virtual void action();
-    void stop_action();
+    virtual void stop_action();
     virtual void update(const float& delta_t, Player& owner, GameWorld& game);
 
     Weapon(const Weapon&) = delete;

@@ -20,8 +20,11 @@ public:
 
     BombStatus get_status();
     void restart();
+    void defuse();
     bool just_planted();
     int detonation_time();
+    void action() override;
+    void stop_action() override;
     void update(const float& delta_t, Player& owner, GameWorld& game) override;
     void update_planted(const float& delta_t);
 

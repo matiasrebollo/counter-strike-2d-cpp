@@ -33,6 +33,7 @@ void Player::update(GameWorld& game, const float& delta_t) {
     Weapon* weapon = loadout.equipped_weapon();
 
     if (making_action && dynamic_cast<Bomb*>(weapon)) {
+        std::cout << "player plantando bomba" << std::endl;
         weapon->update(delta_t, *this, game);
         return;
     }
@@ -74,7 +75,12 @@ bool Player::collides_with(const Collidable& other_collidable) const {
 }
 
 void Player::receive_bomb(std::shared_ptr<Bomb> bomb) { loadout.receive_bomb(bomb); }
-void Player::leave_bomb() { loadout.leave_bomb(); }
+void Player::leave_bomb() {
+    if (dynamic_cast<Bomb*>(loadout.equipped_weapon())) {
+        equip_secondary();
+    }
+    loadout.leave_bomb();
+}
 
 void Player::stop_moving_up() { moving_up = false; }
 void Player::stop_moving_down() { moving_down = false; }
@@ -90,14 +96,16 @@ void Player::restart() {
     making_action = false;
     shot = std::nullopt;
     orientation = 0.0;
-    loadout.leave_bomb();
+    leave_bomb();
 }
 void Player::make_action() {
+    std::cout << "click player" << name << std::endl;
     if (Weapon* weapon = loadout.equipped_weapon())
         weapon->action();
     making_action = true;
 }
 void Player::stop_making_action() {
+    std::cout << "stop click player" << name << std::endl;
     if (Weapon* weapon = loadout.equipped_weapon())
         weapon->stop_action();
     making_action = false;

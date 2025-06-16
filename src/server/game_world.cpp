@@ -294,6 +294,16 @@ bool GameWorld::bomb_exploded() const { return bomb->get_status() == EXPLODED; }
 bool GameWorld::bomb_defused() const { return bomb->get_status() == DEFUSED; }
 bool GameWorld::bomb_not_planted() const { return bomb->get_status() == NOT_PLANTED; }
 
+void GameWorld::defuse_bomb() {
+    for (auto& [_, player]: terrorists) {
+        if (player->has_bomb()) {
+            player->leave_bomb();
+            break;
+        }
+    }
+    bomb->defuse();
+}
+
 bool GameWorld::team_is_dead(const std::map<std::string, std::shared_ptr<Player>>& team) const {
     return std::all_of(team.begin(), team.end(),
                        [](const auto& player) { return !player.second->is_alive(); });

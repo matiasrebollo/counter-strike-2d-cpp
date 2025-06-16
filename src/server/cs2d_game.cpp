@@ -101,11 +101,14 @@ bool CS2DGame::current_round_has_a_winner() const {
 }
 
 void CS2DGame::decide_winner() {
+    if (!current_round_has_a_winner()) {
+        std::cout << "defuse forzado de bomba" << std::endl;
+        game_world.defuse_bomb();
+    }
     if (game_world.bomb_exploded()) {
         std::cout << "Exploto la bomba" << std::endl;
     }
-    if (!current_round_has_a_winner() or
-        (game_world.tt_are_all_dead() && game_world.bomb_not_planted()) or
+    if ((game_world.tt_are_all_dead() && game_world.bomb_not_planted()) or
         game_world.bomb_defused()) {
         this->current_round_winner = CT;
         this->ct_wins++;
