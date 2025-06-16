@@ -77,6 +77,11 @@ void ServerProtocol::send_game_init_info(const GameInitialInfoDTO& dto) {
             this->send_big_endian_number(vec.y);
         }
     }
+    this->send_big_endian_number(dto.game_map.sites.size());
+    for (auto pos_site: dto.game_map.sites) {
+        this->send_big_endian_number(pos_site.x);
+        this->send_big_endian_number(pos_site.y);
+    }
     this->send_byte(dto.shop_info.prices.size());
     for (const auto& [gun, price]: dto.shop_info.prices) {
         this->send_byte(this->weaponParser.getWeaponToByte(gun));
@@ -137,6 +142,8 @@ void ServerProtocol::send_players(const std::vector<PlayerDTO>& players) {
         this->send_angle(player.orientation);
         this->send_big_endian_number(player.life);
         this->send_shot(player);
+        this->send_byte(this->bools_to_code.find(player.planting_bomb)->second);
+        this->send_byte(this->bools_to_code.find(player.on_site)->second);
         this->send_byte(player.bonifications);
         this->send_byte(player.kills);
         this->send_byte(player.deaths);
@@ -161,6 +168,7 @@ void ServerProtocol::send_loadout(const LoadoutDTO& loadout) {
     this->send_byte(this->weaponParser.getWeaponToByte(loadout.secondary_gun));
     this->send_big_endian_number(loadout.secondary_ammo);
     this->send_byte(this->weaponParser.getWeaponTypeToByte(loadout.equipped));
+    this->send_byte(this->bools_to_code.find(loadout.has_bomb)->second);
 }
 
 void ServerProtocol::send_end_game(const GameEnded&) { this->send_byte(CODE_ENDGAME); }

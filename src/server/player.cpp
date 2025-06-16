@@ -153,15 +153,9 @@ void Player::equip_bomb() {
 Loadout& Player::get_loadout() { return loadout; }
 
 const PlayerDTO Player::get_dto() const {
-    return PlayerDTO{name,
-                     rect.position,
-                     orientation,
-                     life,
-                     shot,
-                     /*planting_bomb, on_site*/ bonifications,
-                     kills,
-                     deaths,
-                     loadout.get_dto()};
+    return PlayerDTO{name,  rect.position, orientation,      life,
+                     shot,  planting_bomb, on_site,          bonifications,
+                     kills, deaths,        loadout.get_dto()};
 }
 
 

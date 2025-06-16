@@ -18,8 +18,8 @@ struct PlayerDTO {
     double orientation;
     uint16_t life;
     std::optional<ShotDTO> shot;
-    // bool planting_bomb;
-    // bool on_site;
+    bool planting_bomb;
+    bool on_site;
     int bonifications;
     int kills;
     int deaths;

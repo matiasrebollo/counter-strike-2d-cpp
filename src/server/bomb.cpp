@@ -15,14 +15,12 @@ void Bomb::action() {
     if (status == DEFUSED) {
         return;
     }
-    std::cout << "empezaron a plantar bomba" << std::endl;
     Weapon::action();
 }
 void Bomb::stop_action() {
     if (status == DEFUSED) {
         return;
     }
-    std::cout << "dejaron de plantar bomba" << std::endl;
     Weapon::stop_action();
 }
 
@@ -31,14 +29,12 @@ void Bomb::update(const float& delta_t, Player& owner, GameWorld& game) {
         return;
     }
     Weapon::update(delta_t, owner, game);
-    std::cout << "tiempo: " << time_since_last_action << std::endl;
     if (making_action && time_since_last_action >= PLANTATION_TIME) {
         just_been_planted = true;
         status = PLANTED;
         time_since_last_action = 0.0f;
         making_action = false;
         game.plant_bomb(owner);
-        std::cout << "PLANTADA!!" << std::endl;
     }
 }
 
@@ -50,10 +46,8 @@ void Bomb::update_planted(const float& delta_t) {
     }
     time_since_last_action += delta_t;
     time_since_planted += delta_t;
-    std::cout << "Desde que se plantó: " << time_since_planted << std::endl;
     if (time_since_planted >= DETONATION_TIME) {
         status = EXPLODED;
-        std::cout << "EXPLOTA!!" << std::endl;
         return;
     }
     if (making_action && time_since_last_action >= DEFUSE_TIME) {

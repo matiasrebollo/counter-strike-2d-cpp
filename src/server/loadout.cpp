@@ -79,7 +79,7 @@ const LoadoutDTO Loadout::get_dto() const {
                       GLOCK,
                       secondary_gun->get_ammo(),
                       equipped,
-                      /*(bomb != nullptr)*/};
+                      bomb != nullptr};
 }
 
 Loadout::~Loadout() {}

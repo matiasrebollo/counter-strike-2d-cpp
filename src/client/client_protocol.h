@@ -58,6 +58,7 @@ private:
     Snapshot receive_snapshot();
     GameInitialInfoDTO receive_game_initial_info();
     std::vector<MapObject> receive_map_objects(const uint8_t& size);
+    std::vector<Vector2D<int>> receive_sites(const uint16_t& size);
     std::unordered_map<GunType, int> receive_gun_prices(const uint8_t& size);
     std::unordered_map<GunType, int> receive_gun_clips_size(const uint8_t& size);
 
