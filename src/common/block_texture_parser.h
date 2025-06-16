@@ -33,6 +33,7 @@ struct TilesetInfo {
 
 class BlockTextureParser {
 private:
+    void set_sound_paths();
     void set_backgrounds_paths();
     void set_blocks_textures();
     void set_skins_textures();
@@ -52,12 +53,12 @@ protected:
     std::unordered_map<FontsAndBackground, std::string> font_and_waiting_textures;
     std::unordered_map<Crosshairs, BlockTextureInfo> crosshair_textures;
     std::unordered_map<GunSprites, std::string> gun_textures;
-    std::unordered_map<Background, std::string> backgrounds_paths;
+    std::unordered_map<Background, std::string> backgrounds_paths;  // juntar el waiting Background
+    std::unordered_map<SoundEffect, std::string> sound_paths;
     std::unordered_map<GunType, std::string> editor_gun_textures;
 
 public:
     BlockTextureParser();
-    // deberia ser const&
     const BlockTextureInfo& get_texture_info(int block);
     const BlockTextureInfo& get_ct_texture(CounterTerroristSkin skin, Position sprite_index) const;
     const BlockTextureInfo& get_tt_texture(TerroristSkin skin, Position sprite_index) const;
@@ -69,6 +70,7 @@ public:
     const std::vector<int> get_blocks_keys();
     const std::vector<Background> get_backgrounds();
     const std::string& get_background_path(const Background& background);
+    const std::string& get_sound_path(SoundEffect effect) const;
     const std::string& get_editor_gun_texture(const GunType& gun);
 };
 

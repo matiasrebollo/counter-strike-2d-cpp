@@ -13,19 +13,14 @@ GameUI::GameUI(Lobby& lobby):
         input_handler(sdl, this->protocol),
         receiver(this->protocol),
         // podria usar move?
-        local_info{lobby.get_username(), lobby.get_gamecode(), lobby.get_ct_skin(),
-                   lobby.get_tt_skin()},
-        keep_running(true),
-        game_snapshot({0,
-                       WAITING_PLAYERS,
-                       0,
-                       0,
-                       0,
-                       BombStatus::NOT_PLANTED,
-                       std::nullopt,
-                       {},
-                       {},
-                       std::nullopt}) {
+        local_info{lobby.get_username(),
+                   lobby.get_gamecode(),
+                   lobby.get_ct_skin(),
+                   lobby.get_tt_skin(),
+                   {},
+                   {},
+                   PlayerInfo{}},
+        keep_running(true) {
     this->phase = std::make_unique<WaitingForGamePhase>(*this);
 }
 
@@ -45,46 +40,194 @@ void GameUI::run() {
     this->close_client();
 }
 
-void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
-    for (const auto& p: snapshot.ct) {
-        // cppcheck-suppress useStlAlgorithm
-        if (p.username == local_info.username) {
-            local_info.is_ct = true;
-            local_info.life = p.life;
-            local_info.x = p.position.x / GRAPHIC_SCALE;
-            local_info.y = p.position.y / GRAPHIC_SCALE;
-            local_info.money = p.loadout.money;
-            if (p.loadout.equipped == PRIMARY) {
-                local_info.equipped_gun_ammo = p.loadout.primary_ammo;
-            } else if (p.loadout.equipped == SECONDARY) {
-                local_info.equipped_gun_ammo = p.loadout.secondary_ammo;
-            } else {
-                local_info.equipped_gun_ammo = 0;
+void GameUI::reset_player_events() {
+    for (auto& p: local_info.ct_players) p.movement = false;
+    for (auto& p: local_info.tt_players) p.movement = false;
+    local_info.player.movement = false;
+}
+
+void GameUI::detect_player_events(const Snapshot& snapshot) {
+    auto check_and_flag = [](PlayerInfo& info, const PlayerDTO& dto) {
+        if (info.x != dto.position.x || info.y != dto.position.y) {
+            info.movement = true;
+        }
+        // if (dto.shot) info.shot = true;
+    };
+
+    for (const auto& dto: snapshot.ct) {
+        if (dto.username == local_info.username) {
+            check_and_flag(local_info.player, dto);
+            continue;
+        }
+
+        for (auto& info: local_info.ct_players) {
+            if (dto.username == info.username) {
+                check_and_flag(info, dto);
+                break;
             }
-            local_info.primary_gun = p.loadout.primary_gun;
-            local_info.secondary_gun = p.loadout.secondary_gun;
-            return;
         }
     }
 
-    for (const auto& p: snapshot.tt) {
-        // cppcheck-suppress useStlAlgorithm
-        if (p.username == local_info.username) {
-            local_info.is_ct = false;
-            local_info.life = p.life;
-            local_info.x = p.position.x / GRAPHIC_SCALE;
-            local_info.y = p.position.y / GRAPHIC_SCALE;
-            local_info.money = p.loadout.money;
-            if (p.loadout.equipped == PRIMARY) {
-                local_info.equipped_gun_ammo = p.loadout.primary_ammo;
-            } else if (p.loadout.equipped == SECONDARY) {
-                local_info.equipped_gun_ammo = p.loadout.secondary_ammo;
-            } else {
-                local_info.equipped_gun_ammo = 0;
+    for (const auto& dto: snapshot.tt) {
+        if (dto.username == local_info.username) {
+            check_and_flag(local_info.player, dto);
+            continue;
+        }
+
+        for (auto& info: local_info.tt_players) {
+            if (dto.username == info.username) {
+                check_and_flag(info, dto);
+                break;
             }
-            local_info.primary_gun = p.loadout.primary_gun;
-            local_info.secondary_gun = p.loadout.secondary_gun;
-            return;
+        }
+    }
+}
+
+
+void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
+    local_info.time_left = snapshot.time_left;
+    local_info.total_players = snapshot.total_players;
+    local_info.phase = snapshot.phase;
+
+    // Actualizo jugadores CT
+    for (const PlayerDTO& p: snapshot.ct) {
+        bool found = false;
+        if (p.username == local_info.username) {
+            local_info.player.username = p.username;
+            local_info.player.x = p.position.x;
+            local_info.player.y = p.position.y;
+            local_info.player.orientation = p.orientation;
+            local_info.player.life = p.life;
+            local_info.player.money = p.loadout.money;
+            local_info.player.primary_gun = p.loadout.primary_gun;
+            local_info.player.secondary_gun = p.loadout.secondary_gun;
+            local_info.player.equipped = p.loadout.equipped;
+
+            if (local_info.player.equipped == PRIMARY)
+                local_info.player.equipped_gun_ammo = p.loadout.primary_ammo;
+            else if (local_info.player.equipped == SECONDARY)
+                local_info.player.equipped_gun_ammo = p.loadout.secondary_ammo;
+            else
+                local_info.player.equipped_gun_ammo = 0;
+            found = true;
+        } else {
+            // Busco el jugador en ct_players y actualizo
+            for (auto& info: local_info.ct_players) {
+                if (info.username == p.username) {
+                    info.username = p.username;
+                    info.x = p.position.x;
+                    info.y = p.position.y;
+                    info.orientation = p.orientation;
+                    info.life = p.life;
+                    info.money = p.loadout.money;
+                    info.primary_gun = p.loadout.primary_gun;
+                    info.secondary_gun = p.loadout.secondary_gun;
+                    info.equipped = p.loadout.equipped;
+
+                    if (info.equipped == PRIMARY)
+                        info.equipped_gun_ammo = p.loadout.primary_ammo;
+                    else if (info.equipped == SECONDARY)
+                        info.equipped_gun_ammo = p.loadout.secondary_ammo;
+                    else
+                        info.equipped_gun_ammo = 0;
+                    found = true;
+                    break;
+                }
+            }
+        }
+
+        if (!found) {
+            // No lo encontré ni en local ni en ct_players → agrego nuevo
+            PlayerInfo info;
+            info.username = p.username;
+            info.is_ct = true;
+            info.x = p.position.x;
+            info.y = p.position.y;
+            info.orientation = p.orientation;
+            info.life = p.life;
+            info.money = p.loadout.money;
+            info.primary_gun = p.loadout.primary_gun;
+            info.secondary_gun = p.loadout.secondary_gun;
+            info.equipped = p.loadout.equipped;
+
+            if (p.loadout.equipped == PRIMARY)
+                info.equipped_gun_ammo = p.loadout.primary_ammo;
+            else if (p.loadout.equipped == SECONDARY)
+                info.equipped_gun_ammo = p.loadout.secondary_ammo;
+            else
+                info.equipped_gun_ammo = 0;
+
+            local_info.ct_players.push_back(std::move(info));
+        }
+    }
+
+    // Actualizo jugadores TT (igual que CT)
+    for (const PlayerDTO& p: snapshot.tt) {
+        bool found = false;
+        if (p.username == local_info.username) {
+            local_info.player.username = p.username;
+            local_info.player.x = p.position.x;
+            local_info.player.y = p.position.y;
+            local_info.player.orientation = p.orientation;
+            local_info.player.life = p.life;
+            local_info.player.money = p.loadout.money;
+            local_info.player.primary_gun = p.loadout.primary_gun;
+            local_info.player.secondary_gun = p.loadout.secondary_gun;
+            local_info.player.equipped = p.loadout.equipped;
+
+            if (local_info.player.equipped == PRIMARY)
+                local_info.player.equipped_gun_ammo = p.loadout.primary_ammo;
+            else if (local_info.player.equipped == SECONDARY)
+                local_info.player.equipped_gun_ammo = p.loadout.secondary_ammo;
+            else
+                local_info.player.equipped_gun_ammo = 0;
+            found = true;
+        } else {
+            for (auto& info: local_info.tt_players) {
+                if (info.username == p.username) {
+                    info.username = p.username;
+                    info.x = p.position.x;
+                    info.y = p.position.y;
+                    info.orientation = p.orientation;
+                    info.life = p.life;
+                    info.money = p.loadout.money;
+                    info.primary_gun = p.loadout.primary_gun;
+                    info.secondary_gun = p.loadout.secondary_gun;
+                    info.equipped = p.loadout.equipped;
+
+                    if (info.equipped == PRIMARY)
+                        info.equipped_gun_ammo = p.loadout.primary_ammo;
+                    else if (info.equipped == SECONDARY)
+                        info.equipped_gun_ammo = p.loadout.secondary_ammo;
+                    else
+                        info.equipped_gun_ammo = 0;
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if (!found) {
+            // No lo encontré ni en local ni en ct_players → agrego nuevo
+            PlayerInfo info;
+            info.username = p.username;
+            info.is_ct = false;
+            info.x = p.position.x;
+            info.y = p.position.y;
+            info.orientation = p.orientation;
+            info.life = p.life;
+            info.money = p.loadout.money;
+            info.primary_gun = p.loadout.primary_gun;
+            info.secondary_gun = p.loadout.secondary_gun;
+            info.equipped = p.loadout.equipped;
+
+            if (p.loadout.equipped == PRIMARY)
+                info.equipped_gun_ammo = p.loadout.primary_ammo;
+            else if (p.loadout.equipped == SECONDARY)
+                info.equipped_gun_ammo = p.loadout.secondary_ammo;
+            else
+                info.equipped_gun_ammo = 0;
+
+            local_info.tt_players.push_back(std::move(info));
         }
     }
 }
@@ -102,35 +245,42 @@ bool GameUI::update_waiting() {
                 [this, &pop](const auto& game_dto) {
                     using T = std::decay_t<decltype(game_dto)>;
                     if constexpr (std::is_same_v<T, Snapshot>) {
-                        this->game_snapshot = std::move(game_dto);
-                        update_local_info_from_snapshot(this->game_snapshot);
+                        update_local_info_from_snapshot(std::move(game_dto));
                     } else if constexpr (std::is_same_v<T, GameInitialInfoDTO>) {
                         this->sdl.set_map(std::move(game_dto.game_map));
                         this->sdl.set_shop(std::move(game_dto.shop_info));
+                        pop = false;
                     } else if constexpr (std::is_same_v<T, GameEnded>) {
                         // guardar estadisticas
                         // estado ended?
                         this->keep_running = false;
+                        pop = false;
                     }
                 },
                 game_dto);
-        if (this->game_snapshot.phase != WAITING_PLAYERS)
+        if (!pop)
+            continue;
+        if (local_info.phase != WAITING_PLAYERS) {
+            this->sdl.set_total_players(local_info.total_players);
             return false;
+        }
     }
     return true;
 }
 
 void GameUI::show_waiting(const int& it) {
     sdl.clear_display();
-    // el 2 luego tiene que ser la cantidad de personas que va a unirse maxima que se lee del
-    // configurable
-    sdl.render_waiting_screen(this->game_snapshot.ct.size() + this->game_snapshot.tt.size(),
-                              this->game_snapshot.total_players, local_info.gamename, it,
-                              FPS_CLIENT);
+    sdl.render_waiting_screen(
+            local_info.ct_players.size() + local_info.tt_players.size() +
+                    1,  // 1 porque si veo esta pantalla quiere decir estoy conectado
+            local_info.total_players, local_info.gamename, it, FPS_CLIENT);
     sdl.show_screen();
 }
 
-void GameUI::handle_buy_events() { this->keep_running = input_handler.handle_buy_events(); }
+void GameUI::handle_buy_events() {
+    this->keep_running =
+            input_handler.handle_buy_events(local_info.player.money, local_info.player.primary_gun);
+}
 bool GameUI::update_buy() {
     GameDTO game_dto;
     bool pop = true;
@@ -139,31 +289,32 @@ bool GameUI::update_buy() {
             pop = false;
             continue;
         }
-        Snapshot snapshot_tmp = std::get<Snapshot>(game_dto);
-        // Identificar en snapshot_tmp cambios de equipamiento en el local_player para animación de
-        // tienda
-        this->game_snapshot = std::move(snapshot_tmp);
-        update_local_info_from_snapshot(this->game_snapshot);
+        update_local_info_from_snapshot(std::get<Snapshot>(game_dto));
 
-        if (this->game_snapshot.phase != BUY) {
+        if (local_info.phase != BUY) {
             return false;
         }
     }
     return true;
 }
 
-void GameUI::show_buy(const int& /*it*/) {
+void GameUI::show_buy(const int& it) {
     sdl.clear_display();
-    sdl.render_in_z_order(this->game_snapshot, local_info);
-    sdl.render_shop(local_info.money, local_info.primary_gun, local_info.secondary_gun);
-    sdl.render_crosshair(this->game_snapshot, local_info);
+    sdl.render_in_z_order(local_info, it);
+    sdl.render_shop(local_info.player.money, local_info.player.primary_gun,
+                    local_info.player.secondary_gun);
+    sdl.render_crosshair(local_info);
     sdl.show_screen();
 }
 
 void GameUI::handle_attack_events() { this->keep_running = input_handler.handle_attack_events(); }
 bool GameUI::update_attack() {
     GameDTO game_dto;
+    Snapshot last_snapshot;
+    bool got_snapshot = false;
     bool pop = true;
+
+    reset_player_events();
     while (pop) {
         if (!this->receiver.try_pop_game_dto(game_dto)) {
             pop = false;
@@ -175,21 +326,25 @@ bool GameUI::update_attack() {
             continue;
         }
 
-        Snapshot snapshot_tmp = std::get<Snapshot>(game_dto);
         // Identificar en snapshot_tmp cambios/eventos para activar animaciones
-        this->game_snapshot = std::move(snapshot_tmp);
-        update_local_info_from_snapshot(this->game_snapshot);
+        Snapshot snapshot = std::get<Snapshot>(game_dto);
+        detect_player_events(snapshot);
+        last_snapshot = std::move(snapshot);
+        got_snapshot = true;
 
-        if (snapshot_tmp.phase != ATTACK) {
+        if (local_info.phase != ATTACK) {
             return false;
         }
     }
+    if (got_snapshot)
+        update_local_info_from_snapshot(last_snapshot);
     return true;
 }
-void GameUI::show_attack(const int& /*it*/) {
+
+void GameUI::show_attack(const int& it) {
     sdl.clear_display();
-    sdl.render_in_z_order(this->game_snapshot, local_info);
-    sdl.render_crosshair(this->game_snapshot, local_info);
+    sdl.render_in_z_order(local_info, it);
+    sdl.render_crosshair(local_info);
     sdl.show_screen();
 }
 

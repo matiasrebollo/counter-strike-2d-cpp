@@ -68,7 +68,7 @@ bool InputHandler::handle_weapon_switch_event(const SDL_Event& event) {
 }
 
 
-bool InputHandler::handle_shop_event(const SDL_Event& event) {
+bool InputHandler::handle_click_shop_event(const SDL_Event& event, int money, GunType primary) {
     if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT && !click_buy) {
 
         click_buy = true;
@@ -76,7 +76,7 @@ bool InputHandler::handle_shop_event(const SDL_Event& event) {
         int mouse_x = event.button.x;
         int mouse_y = event.button.y;
 
-        auto opt_button = sdl.get_clicked_button(mouse_x, mouse_y);
+        auto opt_button = sdl.interact_button(mouse_x, mouse_y, money, primary, true);
         if (opt_button.has_value()) {
             ShopButtonType button = opt_button.value();
             switch (button) {
@@ -115,14 +115,28 @@ bool InputHandler::handle_shop_event(const SDL_Event& event) {
     return false;
 }
 
-bool InputHandler::handle_buy_events() {
+bool InputHandler::handle_move_shop_event(const SDL_Event& event, int money, GunType primary) {
+    if (event.type == SDL_MOUSEMOTION) {
+        int mouse_x = event.motion.x;
+        int mouse_y = event.motion.y;
+
+        sdl.interact_button(mouse_x, mouse_y, money, primary, false);
+        return true;
+    }
+    return false;
+}
+
+
+bool InputHandler::handle_buy_events(int money, GunType primary) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (handle_quit_event(event))
             return false;
         if (handle_weapon_switch_event(event))
             continue;
-        if (handle_shop_event(event))
+        if (handle_click_shop_event(event, money, primary))
+            continue;
+        if (handle_move_shop_event(event, money, primary))
             continue;
     }
     return true;
@@ -194,7 +208,7 @@ double InputHandler::calculate_angle_to_mouse(int mouse_x, int mouse_y) const {
     float dx = mouse_x - center_x;
     float dy = mouse_y - center_y;
     float ang_radianes = atan2(dy, dx);
-    return (ang_radianes * 180.0f / M_PI) + 90;
+    return (ang_radianes * 180.0f / M_PI);
 }
 
 /* Maneja evento de disparo */

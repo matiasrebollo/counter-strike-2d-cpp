@@ -56,7 +56,7 @@
 
 #define BLOCK_THICKNESS 400
 
-#define PLAYER_SPEED 20       // debe ser un numero par
+#define PLAYER_SPEED 10       // debe ser un numero par
 #define PLAYER_THICKNESS 320  // debe ser menor a BLOCK_THICKNESS (para spawns)
 #define PLAYER_INITIAL_LIFE 100
 
@@ -79,7 +79,8 @@
 #define HUD_IDEAL_HEIGHT 400
 #define FONT_IDEAL_WIDTH 480
 #define FONT_IDEAL_HEIGHT 300
-#define GRAPHIC_SCALE 10
+#define GRAPHIC_SCALE 10  // despues habria que sacarlo
+#define PLAYER_SPRITE_GAP 90
 
 struct ServerSettings {
     int fps;
