@@ -53,6 +53,9 @@ void Loadout::equip_bomb() {
     if (bomb)
         this->equipped = BOMB;
 }
+
+WeaponType Loadout::get_equipped() const { return equipped; }
+
 Weapon* Loadout::equipped_weapon() {
     switch (equipped) {
         case PRIMARY:

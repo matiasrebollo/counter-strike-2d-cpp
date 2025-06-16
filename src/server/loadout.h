@@ -26,6 +26,7 @@ public:
     int get_money() const;
     bool has_primary_gun() const;
     bool has_bomb() const;
+    WeaponType get_equipped() const;
     GunType primary_gun_type() const;
     GunType secondary_gun_type() const;
     void decrease_money_by(const int& amount_of_money);

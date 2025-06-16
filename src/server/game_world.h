@@ -21,12 +21,14 @@ private:
     std::map<std::string, std::shared_ptr<Player>> terrorists;
     std::map<std::string, std::shared_ptr<Player>> counter_terrorists;
     std::list<std::shared_ptr<Collidable>> collidables;
+    std::vector<Rect> sites;
     std::shared_ptr<Bomb> bomb;
     std::optional<Vector2D<int>> bomb_position;
     Shop shop;
     const GameMap game_map;
 
     void add_collidables();
+    void set_sites();
 
     Vector2D<int> random_spawn_position(const std::vector<Vector2D<int>>& spawn_points) const;
     Vector2D<int> random_ct_spawn_position() const;
@@ -48,6 +50,8 @@ private:
             throw std::invalid_argument("Username does not correspond to a player in this game.");
         }
     }
+
+    bool on_site(const Player& player) const;
 
     // devuelve la distancia del objeto con el que impactó o 0 si no impactó.
     double impacts(const Shot& shot, const Collidable& collidable) const;

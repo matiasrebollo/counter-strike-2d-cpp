@@ -34,12 +34,21 @@ void GameWorld::add_collidables() {
                                                                game_map.height * BLOCK_THICKNESS));
 }
 
+void GameWorld::set_sites() {
+    for (const auto& site: game_map.sites) {
+        Vector2D<int> new_site_pos(site.x * BLOCK_THICKNESS, site.y * BLOCK_THICKNESS);
+        Rect new_site(new_site_pos, BLOCK_THICKNESS, BLOCK_THICKNESS);
+        this->sites.push_back(new_site);
+    }
+}
+
 GameWorld::GameWorld(const std::string& map_filename):
         bomb(std::make_shared<Bomb>()),
         bomb_position(std::nullopt),
         shop(),
         game_map(YamlParser().yaml_to_game_map(PATH_FOLDER_MAPS + map_filename + ".yaml")) {
     add_collidables();
+    set_sites();
 }
 
 // spawn_points deben ser suficientes como para que eventualmente se pueda spawnear a un jugador y
@@ -185,11 +194,19 @@ void GameWorld::stop_moving_player_right(const std::string& username) {
 }
 
 void GameWorld::make_player_action(const std::string& username) {
-    with_player(username, [](Player& p) { p.make_action(); });
+    with_player(username, [this](Player& p) {
+        if (p.equipped() == BOMB && !this->on_site(p))
+            return;
+        p.make_action();
+    });
 }
 
 void GameWorld::stop_making_player_action(const std::string& username) {
-    with_player(username, [](Player& p) { p.stop_making_action(); });
+    with_player(username, [this](Player& p) {
+        if (p.equipped() == BOMB && !this->on_site(p))
+            return;
+        p.stop_making_action();
+    });
 }
 
 void GameWorld::equip_primary_for(const std::string& username) {
@@ -237,6 +254,16 @@ const Collidable* GameWorld::colliding_object_with(const Collidable& coll) const
             return collidable.get();
     }
     return nullptr;
+}
+
+bool GameWorld::on_site(const Player& p) const {
+    int center_x = p.rect.position.x + p.rect.width / 2;
+    int center_y = p.rect.position.y + p.rect.height / 2;
+
+    return std::any_of(sites.begin(), sites.end(), [&](const Rect& site) {
+        return center_x >= site.position.x && center_x < site.position.x + site.width &&
+               center_y >= site.position.y && center_y < site.position.y + site.height;
+    });
 }
 
 void GameWorld::make_step_player(Player& player, const Vector2D<int>& step) {

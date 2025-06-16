@@ -25,6 +25,7 @@ float Player::get_orientation() const { return orientation; }
 
 bool Player::is_alive() const { return this->life > 0; }
 bool Player::has_bomb() const { return loadout.has_bomb(); }
+WeaponType Player::equipped() const { return loadout.get_equipped(); }
 
 void Player::update(GameWorld& game, const float& delta_t) {
     shot = std::nullopt;
@@ -99,13 +100,11 @@ void Player::restart() {
     leave_bomb();
 }
 void Player::make_action() {
-    std::cout << "click player" << name << std::endl;
     if (Weapon* weapon = loadout.equipped_weapon())
         weapon->action();
     making_action = true;
 }
 void Player::stop_making_action() {
-    std::cout << "stop click player" << name << std::endl;
     if (Weapon* weapon = loadout.equipped_weapon())
         weapon->stop_action();
     making_action = false;
@@ -124,12 +123,26 @@ void Player::count_kill(const int& money_bonification) {
     loadout.add_money(money_bonification);
 }
 
-void Player::equip_primary() { loadout.equip_primary(); }
-void Player::equip_secondary() { loadout.equip_secondary(); }
-void Player::equip_knife() { loadout.equip_knife(); }
+void Player::unequip_weapon() {
+    if (Weapon* weapon = loadout.equipped_weapon())
+        weapon->stop_action();
+}
+
+void Player::equip_primary() {
+    unequip_weapon();
+    loadout.equip_primary();
+}
+void Player::equip_secondary() {
+    unequip_weapon();
+    loadout.equip_secondary();
+}
+void Player::equip_knife() {
+    unequip_weapon();
+    loadout.equip_knife();
+}
 void Player::equip_bomb() {
+    unequip_weapon();
     loadout.equip_bomb();
-    std::cout << "equipando bomba..." << std::endl;
 }
 
 Loadout& Player::get_loadout() { return loadout; }
