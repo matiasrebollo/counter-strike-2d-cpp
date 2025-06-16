@@ -1,5 +1,5 @@
-#ifndef TT_SPAWNS_H
-#define TT_SPAWNS_H
+#ifndef GUNS_SETTER_H
+#define GUNS_SETTER_H
 
 #include <utility>
 
@@ -8,7 +8,7 @@
 
 class Game_editor;
 
-class TTSpawnsSetter: public GridAction {
+class GunsSetter: public GridAction {
     void handle(std::pair<int, int> click_on, std::pair<int, int> click_drop, Game_editor& editor,
                 const bool& to_delete) override;
 };

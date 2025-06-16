@@ -2,19 +2,24 @@ target_sources(taller_editor
     PRIVATE
     game_editor.ui
     game_editor.cpp
+    clickable_label.cpp
     main.cpp
     resources.qrc
     blocks_setter.cpp
     ct_spawns_setter.cpp
     tt_spawns_setter.cpp
     bomb_sites_setter.cpp
+    pixmap_manager.cpp
+    guns_setter.cpp
     PUBLIC
     # .h files
     game_editor.h
-    clickablelabel.h
+    clickable_label.h
     grid_action.h
     blocks_setter.h
     ct_spawns_setter.h
     tt_spawns_setter.h
     bomb_sites_setter.h
+    pixmap_manager.h
+    guns_setter.h
     )

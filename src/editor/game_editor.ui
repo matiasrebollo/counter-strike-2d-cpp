@@ -6,60 +6,197 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>818</width>
+    <height>618</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Game_editor</string>
+   <string>CS2D Game Editor</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QMainWindow {
+	background-color: rgb(15, 15, 15);
+}</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="styleSheet">
+    <string notr="true">QWidget {
+	background-color: rgb(15, 15, 15);
+}</string>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_3">
     <item>
      <widget class="QStackedWidget" name="stack">
+      <property name="minimumSize">
+       <size>
+        <width>800</width>
+        <height>600</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QStackedWidget {
+	background-color: rgb(18, 24, 30);
+}</string>
+      </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="mainPage">
+       <property name="minimumSize">
+        <size>
+         <width>800</width>
+         <height>600</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
         <item>
-         <widget class="QPushButton" name="go_to_create_button">
-          <property name="text">
-           <string>CREAR UN MAPA</string>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <property name="spacing">
+           <number>30</number>
           </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="load_map">
-          <property name="text">
-           <string>CARGAR UN MAPA</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="createMapPage">
-       <layout class="QVBoxLayout" name="verticalLayout_3">
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_6">
           <item>
-           <widget class="QLineEdit" name="rows_input"/>
+           <spacer name="verticalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+           <widget class="QPushButton" name="go_to_create_button">
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>35</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>200</width>
+              <height>35</height>
+             </size>
+            </property>
+            <property name="cursor">
+             <cursorShape>CrossCursor</cursorShape>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton {
+	color: white;
+	border-radius: 10px;
+	border-width: 1px;
+	border-color: white;
+	border-style: solid;
+}
+QPushButton:hover {
+	qproperty-cursor: PointingHandCursor;
+}
+QPushButton:pressed {
+    background-color: gray;
+}</string>
+            </property>
+            <property name="text">
+             <string>CREAR MAPA</string>
+            </property>
+           </widget>
+          </item>
+          <item alignment="Qt::AlignHCenter|Qt::AlignBottom">
+           <widget class="QPushButton" name="load_map">
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>35</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>200</width>
+              <height>35</height>
+             </size>
+            </property>
+            <property name="cursor">
+             <cursorShape>CrossCursor</cursorShape>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton {
+	color: white;
+	border-radius: 10px;
+	border-width: 1px;
+	border-color: white;
+	border-style: solid;
+}
+QPushButton:hover {
+	qproperty-cursor: PointingHandCursor;
+}
+QPushButton:pressed {
+    background-color: gray;
+}</string>
+            </property>
+            <property name="text">
+             <string>EDITAR MAPA</string>
+            </property>
+           </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="columns_input"/>
+           <spacer name="verticalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
-        </item>
-        <item>
-         <widget class="QPushButton" name="create_map_button">
-          <property name="text">
-           <string>CREAR MAPA</string>
-          </property>
-         </widget>
         </item>
        </layout>
       </widget>
       <widget class="QWidget" name="editMapPage">
+       <property name="minimumSize">
+        <size>
+         <width>800</width>
+         <height>600</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QWidget {
+	background-color: rgb(15, 15, 15);
+}</string>
+       </property>
        <layout class="QVBoxLayout" name="verticalLayout">
         <property name="spacing">
          <number>0</number>
@@ -79,7 +216,114 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
+           <widget class="QPushButton" name="back_button_2">
+            <property name="cursor">
+             <cursorShape>CrossCursor</cursorShape>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton {
+	color: white;
+	padding: 10px 0;
+	margin: 5px 10px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: white;
+	border-radius: 10px;
+}	
+QPushButton:hover {
+	qproperty-cursor: PointingHandCursor;
+}
+QPushButton:pressed {
+    background-color: gray;
+}</string>
+            </property>
+            <property name="text">
+             <string>ATRAS</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="add_rows_button">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="cursor">
+             <cursorShape>CrossCursor</cursorShape>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton {
+	color: white;
+	padding: 10px 0;
+	margin: 5px 10px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: white;
+	border-radius: 10px;
+}	
+QPushButton:hover {
+	qproperty-cursor: PointingHandCursor;
+}
+QPushButton:pressed {
+    background-color: gray;
+}</string>
+            </property>
+            <property name="text">
+             <string>AGREGAR FILAS</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="add_columns_button">
+            <property name="cursor">
+             <cursorShape>CrossCursor</cursorShape>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton {
+	color: white;
+	padding: 10px 0;
+	margin: 5px 10px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: white;
+	border-radius: 10px;
+}	
+QPushButton:hover {
+	qproperty-cursor: PointingHandCursor;
+}
+QPushButton:pressed {
+    background-color: gray;
+}</string>
+            </property>
+            <property name="text">
+             <string>AGREGAR COLUMNAS</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="save_button">
+            <property name="cursor">
+             <cursorShape>CrossCursor</cursorShape>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton {
+	color: white;
+	padding: 10px 0;
+	margin: 5px 10px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: white;
+	border-radius: 10px;
+}	
+QPushButton:hover {
+	qproperty-cursor: PointingHandCursor;
+}
+QPushButton:pressed {
+    background-color: gray;
+}</string>
+            </property>
             <property name="text">
              <string>GUARDAR</string>
             </property>
@@ -88,8 +332,8 @@
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,3,1">
+          <item alignment="Qt::AlignLeft">
            <widget class="QScrollArea" name="scrollArea">
             <property name="sizePolicy">
              <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
@@ -97,9 +341,15 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="minimumSize">
+             <size>
+              <width>250</width>
+              <height>0</height>
+             </size>
+            </property>
             <property name="maximumSize">
              <size>
-              <width>110</width>
+              <width>16777215</width>
               <height>16777215</height>
              </size>
             </property>
@@ -117,8 +367,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>108</width>
-               <height>504</height>
+               <width>248</width>
+               <height>543</height>
               </rect>
              </property>
              <property name="sizePolicy">
@@ -131,25 +381,15 @@
               <property name="sizeConstraint">
                <enum>QLayout::SetDefaultConstraint</enum>
               </property>
+              <property name="leftMargin">
+               <number>9</number>
+              </property>
               <property name="topMargin">
                <number>1</number>
               </property>
               <property name="bottomMargin">
                <number>1</number>
               </property>
-              <item>
-               <layout class="QVBoxLayout" name="block_list">
-                <property name="leftMargin">
-                 <number>0</number>
-                </property>
-                <property name="topMargin">
-                 <number>1</number>
-                </property>
-                <property name="bottomMargin">
-                 <number>1</number>
-                </property>
-               </layout>
-              </item>
              </layout>
             </widget>
            </widget>
@@ -176,8 +416,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>546</width>
-               <height>504</height>
+               <width>400</width>
+               <height>543</height>
               </rect>
              </property>
              <layout class="QGridLayout" name="gridLayout_2">
@@ -185,6 +425,21 @@
                <layout class="QGridLayout" name="grid_map">
                 <property name="sizeConstraint">
                  <enum>QLayout::SetFixedSize</enum>
+                </property>
+                <property name="leftMargin">
+                 <number>25</number>
+                </property>
+                <property name="topMargin">
+                 <number>25</number>
+                </property>
+                <property name="rightMargin">
+                 <number>25</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>25</number>
+                </property>
+                <property name="spacing">
+                 <number>0</number>
                 </property>
                </layout>
               </item>
@@ -200,9 +455,15 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>80</height>
+             </size>
+            </property>
             <property name="maximumSize">
              <size>
-              <width>110</width>
+              <width>16777215</width>
               <height>16777215</height>
              </size>
             </property>
@@ -220,8 +481,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>108</width>
-               <height>504</height>
+               <width>132</width>
+               <height>543</height>
               </rect>
              </property>
              <property name="sizePolicy">
@@ -241,6 +502,12 @@
                <number>1</number>
               </property>
               <item>
+               <layout class="QVBoxLayout" name="GameAreas"/>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="gunsArea"/>
+              </item>
+              <item>
                <layout class="QVBoxLayout" name="backgrounds_list">
                 <property name="leftMargin">
                  <number>0</number>
@@ -251,10 +518,13 @@
                 <property name="bottomMargin">
                  <number>1</number>
                 </property>
-                <item>
+                <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                  <widget class="QLabel" name="label">
                   <property name="text">
                    <string/>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
                   </property>
                  </widget>
                 </item>
@@ -268,21 +538,214 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="page">
+       <layout class="QVBoxLayout" name="verticalLayout_6">
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_12">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <widget class="QPushButton" name="back_button">
+              <property name="minimumSize">
+               <size>
+                <width>100</width>
+                <height>35</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>300</width>
+                <height>35</height>
+               </size>
+              </property>
+              <property name="cursor">
+               <cursorShape>CrossCursor</cursorShape>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+	color: white;
+	border-radius: 10px;
+	border-width: 1px;
+	border-color: white;
+	border-style: solid;
+}
+QPushButton:hover {
+	qproperty-cursor: PointingHandCursor;
+}
+QPushButton:pressed {
+    background-color: gray;
+}</string>
+              </property>
+              <property name="text">
+               <string>ATRAS</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QLabel" name="message">
+              <property name="minimumSize">
+               <size>
+                <width>300</width>
+                <height>35</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>400</width>
+                <height>35</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QLabel {
+    color: white;
+}</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
+           <spacer name="horizontalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="0" column="1">
+           <widget class="QListWidget" name="maps_list">
+            <property name="minimumSize">
+             <size>
+              <width>400</width>
+              <height>200</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QListWidget {
+    background-color: rgba(0, 0, 0, 150); 
+	alternate-background-color: rgba(50, 50, 50, 150);
+    border: none;
+	border-radius: 5px;
+}
+
+QListWidget::item {
+    padding: 10px 0;
+    qproperty-alignment: AlignCenter;
+	color: white;
+	 font-size: 20px;
+}
+
+QListWidget::item:selected {
+    background-color: rgba(255, 255, 255, 40);
+}</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QPushButton" name="load_map_button">
+            <property name="minimumSize">
+             <size>
+              <width>140</width>
+              <height>35</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>35</height>
+             </size>
+            </property>
+            <property name="cursor">
+             <cursorShape>CrossCursor</cursorShape>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton {
+	color: white;
+	border-radius: 10px;
+	border-width: 1px;
+	border-color: white;
+	border-style: solid;
+}
+QPushButton:hover {
+	qproperty-cursor: PointingHandCursor;
+}
+QPushButton:pressed {
+    background-color: gray;
+}</string>
+            </property>
+            <property name="text">
+             <string>CARGAR MAPA</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <spacer name="horizontalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>800</width>
-     <height>23</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
  <connections/>
