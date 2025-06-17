@@ -10,6 +10,7 @@
 #include "game_map.h"
 #include "map_object.h"
 #include "settings.h"
+#include "weapon_type.h"
 
 class YamlParser {
 public:
@@ -22,7 +23,7 @@ private:
     YAML::Node vector2d_to_yaml(const Vector2D<int>& vector);
     MapObject yaml_to_map_object(const YAML::Node& node);
     Vector2D<int> yaml_to_vector2d(const YAML::Node& node);
-    std::unordered_map<std::string, GunSettings> load_guns_settings(const YAML::Node& node);
+    std::unordered_map<GunType, GunSettings> load_guns_settings(const YAML::Node& node);
     GunSettings load_gun_sett(const YAML::Node& node);
     KnifeSettings load_knife_settings(const YAML::Node& node);
 };

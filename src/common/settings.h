@@ -4,6 +4,8 @@
 #include <string>
 #include <unordered_map>
 
+#include "weapon_type.h"
+
 // server
 //#define FPS_SERVER 60
 //#define ROUNDS 10
@@ -21,6 +23,9 @@
 //#define PLAYER_THICKNESS 320  // debe ser menor a BLOCK_THICKNESS (para spawns)
 //#define PLAYER_INITIAL_LIFE 1000
 
+//#define INITIAL_MONEY 20000
+//#define CLIP_PRICE 50
+/*
 #define GLOCK_INITIAL_AMMO 30
 #define AWP_INITIAL_AMMO 10
 #define M3_INITIAL_AMMO 20
@@ -43,13 +48,11 @@
 #define AK47_FALLOF 8000
 #define AK47_DMG 25
 #define AK47_ROF 150
-#define INITIAL_MONEY 20000
+
 
 #define AK47_PRICE 2500
 #define M3_PRICE 1700
 #define AWP_PRICE 4750
-
-#define CLIP_PRICE 50
 
 #define SIZE_GLOCK_CLIP 50
 #define SIZE_AK47_CLIP 21
@@ -60,14 +63,13 @@
 #define AK47_KILL_BONUS 300
 #define M3_KILL_BONUS 300
 #define GLOCK_KILL_BONUS 500
-#define KNIFE_KILL_BONUS 1500
+#define KNIFE_KILL_BONUS 1500*/
 
 
 struct GunSettings {
     int initial_ammo;
-    float damage_variation_factor;
     float precision;
-    int fallof;
+    int falloff;
     int dmg;
     int rof;
     int price;
@@ -99,7 +101,11 @@ struct ServerSettings {
     int player_thickness;  // debe ser menor a BLOCK_THICKNESS (para spawns)
     int player_initial_life;
 
-    std::unordered_map<std::string, GunSettings> guns_settings;
+    int initial_money;
+    int clip_price;
+    float damage_variation_factor;
+
+    std::unordered_map<GunType, GunSettings> guns_settings;
     KnifeSettings knife_settings;
 };
 
@@ -153,6 +159,24 @@ public:
     int get_block_thickness();
     int get_player_thickness();
     int get_player_initial_life();
+    int get_initial_money();
+    int get_clip_price();
+    GunSettings get_gun(const GunType& gun);
+    float get_damage_variation_factor();
+
+    int get_gun_price(const GunType& gun);
+    int get_clip_size(const GunType& gun);
+    int get_gun_rof(const GunType& gun);
+    int get_gun_dmg(const GunType& gun);
+    int get_gun_falloff(const GunType& gun);
+    int get_gun_precision(const GunType& gun);
+    int get_gun_initial_ammo(const GunType& gun);
+    int get_gun_kill_bonus(const GunType& gun);
+
+    int get_knife_dmg();
+    int get_knife_ar();
+    int get_knife_distance();
+    int get_knife_kill_bonus();
 
     Settings(const Settings&) = delete;
     Settings& operator=(const Settings&) = delete;

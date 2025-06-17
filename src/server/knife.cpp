@@ -4,10 +4,10 @@
 #include "server/game_world.h"
 
 Knife::Knife():
-        damage(KNIFE_DMG),
-        attack_rate(KNIFE_AR),
+        damage(Settings::getInstance().get_knife_dmg()),
+        attack_rate(Settings::getInstance().get_knife_ar()),
         time_since_last_stab(60.0f / attack_rate),
-        kill_bonification(KNIFE_KILL_BONUS) {}
+        kill_bonification(Settings::getInstance().get_knife_kill_bonus()) {}
 
 bool Knife::can_stab() {
     return just_triggered_action && time_since_last_stab >= (60.0f / attack_rate);
@@ -24,7 +24,7 @@ void Knife::update(const float& delta_t, Player& owner, GameWorld& game) {
 }
 
 void Knife::execute_stab(Player* shot_victim, double shot_distance) {
-    if (shot_distance < KNIFE_DISTANCE) {
+    if (shot_distance < Settings::getInstance().get_knife_distance()) {
         shot_victim->receive_damage(damage);
     }
 }

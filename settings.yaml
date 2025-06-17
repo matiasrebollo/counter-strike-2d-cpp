@@ -10,12 +10,14 @@ counter_terrorists: 1
 block_thickness: 400
 player_thickness: 320
 player_initial_life: 100
+initial_money: 800
+clip_price: 50
+damage_variation_factor: 0.1
 guns_settings:
   glock:
     initial_ammo: 20
-    damage_variation_factor: 0.1
     precision: 0.87
-    fallof: 6400
+    falloff: 6400
     dmg: 30
     rof: 200
     price: 400
@@ -23,9 +25,8 @@ guns_settings:
     kill_bonus: 500
   awp:
     initial_ammo: 5
-    damage_variation_factor: 0.1
-    precision: 0.95
-    fallof: 10000
+    precision: 1.0
+    falloff: -1
     dmg: 130
     rof: 40
     price: 4750
@@ -33,9 +34,8 @@ guns_settings:
     kill_bonus: 100
   ak-47:
     initial_ammo: 30
-    damage_variation_factor: 0.1
     precision: 0.92
-    fallof: 8000
+    falloff: 8000
     dmg: 25
     rof: 150
     price: 2700
@@ -43,9 +43,8 @@ guns_settings:
     kill_bonus: 300
   m3:
     initial_ammo: 8
-    damage_variation_factor: 0.1
     precision: 0.90
-    fallof: 3200
+    falloff: 3200
     dmg: 10
     rof: 60
     price: 1700
