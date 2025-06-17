@@ -1,5 +1,5 @@
-#ifndef COMMANDS_DTO_H
-#define COMMANDS_DTO_H
+#ifndef GAME_COMMANDS_DTO_H
+#define GAME_COMMANDS_DTO_H
 
 #include <cstdint>
 #include <variant>
@@ -30,7 +30,7 @@ struct BuyAmmoDTO {
     const bool for_primary;
 };
 
-using CommandDTO =
+using GameCommandDTO =
         std::variant<MoveDTO, RotateDTO, PlayerActionDTO, EquipPrimaryDTO, EquipSecondaryDTO,
                      EquipKnifeDTO, EquipBombDTO, BuyGunDTO, BuyAmmoDTO>;
 

@@ -6,7 +6,7 @@ inline constexpr bool always_false_v = false;
 Command::Command(const std::string& username): username(username) {}
 
 std::unique_ptr<Command> Command::new_command(const std::string& username,
-                                              const CommandDTO& command_data) {
+                                              const GameCommandDTO& command_data) {
     return std::visit(
             [username](const auto& d) -> std::unique_ptr<Command> {
                 using T = std::decay_t<decltype(d)>;

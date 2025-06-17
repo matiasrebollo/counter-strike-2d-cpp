@@ -1,7 +1,7 @@
 #ifndef INPUT_HANDLER_H
 #define INPUT_HANDLER_H
 
-#include "../common/commands_dto.h"
+#include "../common/game_commands_dto.h"
 
 #include "SDLManager.h"
 #include "client_sender.h"

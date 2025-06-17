@@ -10,8 +10,8 @@
 #include <arpa/inet.h>
 
 #include "commands.h"
-#include "commands_dto.h"
 #include "error_codes.h"
+#include "game_commands_dto.h"
 #include "weapon_parser.h"
 
 #ifdef TESTS

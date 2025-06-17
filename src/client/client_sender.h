@@ -12,12 +12,12 @@
 
 class ClientSender: public Thread {
 private:
-    Queue<CommandDTO> queue;
+    Queue<GameCommandDTO> queue;
     ClientProtocol& protocol;
 
 public:
     explicit ClientSender(ClientProtocol& protocol);
-    void add_command_to_queue(const CommandDTO& dto);
+    void add_command_to_queue(const GameCommandDTO& dto);
     void send_command_to_server();
     void close_queue();
     void run() override;

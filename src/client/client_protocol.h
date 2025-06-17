@@ -14,8 +14,8 @@
 #include <vector>
 
 #include "../common/commands.h"
-#include "../common/commands_dto.h"
 #include "../common/common_protocol.h"
+#include "../common/game_commands_dto.h"
 #include "../common/game_dto.h"
 #include "../common/loadout_dto.h"
 #include "../common/lobby_request.h"
@@ -65,7 +65,7 @@ private:
 public:
     explicit ClientProtocol(std::unique_ptr<Socket> socket);
 
-    void send_command(const CommandDTO& command);
+    void send_command(const GameCommandDTO& command);
     GameDTO receive_game_dto();
     ServerResponseLobby receive_server_response_lobby();
     void send_lobby_request(const LobbyRequestDTO& request);

@@ -18,11 +18,11 @@ void ClientSender::run() {
     }
 }
 
-void ClientSender::add_command_to_queue(const CommandDTO& dto) { this->queue.push(dto); }
+void ClientSender::add_command_to_queue(const GameCommandDTO& dto) { this->queue.push(dto); }
 
 void ClientSender::close_queue() { this->queue.close(); }
 
 void ClientSender::send_command_to_server() {
-    CommandDTO dto = this->queue.pop();
+    GameCommandDTO dto = this->queue.pop();
     this->protocol.send_command(dto);
 }

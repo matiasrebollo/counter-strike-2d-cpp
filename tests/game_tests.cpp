@@ -21,7 +21,7 @@ TEST(ClientProtocolTest, SendMoveUp) {
             MoveDTO dto = MoveDTO{movements[i], values[j]};
 
             client->send_command(dto);
-            CommandDTO request = server->receive_client_request();
+            GameCommandDTO request = server->receive_client_game_request();
             auto MoveDTOPtr = std::get_if<MoveDTO>(&request);
             ASSERT_NE(MoveDTOPtr, nullptr) << "Expected MoveDTO but got another";
             ASSERT_EQ(movements[i], MoveDTOPtr->dir)
@@ -40,7 +40,7 @@ TEST(ClientProtocolTest, SendRotate) {
         RotateDTO dto{angle};
         client->send_command(dto);
 
-        CommandDTO request = server->receive_client_request();
+        GameCommandDTO request = server->receive_client_game_request();
         auto RotateDTOPtr = std::get_if<RotateDTO>(&request);
         ASSERT_NE(RotateDTOPtr, nullptr) << "Expected RotateDTO but got another";
         ASSERT_NEAR(RotateDTOPtr->angle, angle, 0.1);
@@ -57,7 +57,7 @@ TEST(ClientProtocolTest, SendPlayerAction) {
         PlayerActionDTO dto{v};
         client->send_command(dto);
 
-        CommandDTO request = server->receive_client_request();
+        GameCommandDTO request = server->receive_client_game_request();
         auto PlayerActionDTOPtr = std::get_if<PlayerActionDTO>(&request);
         ASSERT_NE(PlayerActionDTOPtr, nullptr) << "Expected PlayerActionDTO but got another";
         ASSERT_EQ(v, PlayerActionDTOPtr->make);
@@ -71,7 +71,7 @@ TEST(ClientProtocolTest, SendEquipPrimary) {
 
     client->send_command(dto);
 
-    CommandDTO request = server->receive_client_request();
+    GameCommandDTO request = server->receive_client_game_request();
     auto EquipPrimaryDTOPtr = std::get_if<EquipPrimaryDTO>(&request);
     ASSERT_NE(EquipPrimaryDTOPtr, nullptr) << "Expected EquipPrimaryDTO but got another";
 }
@@ -83,7 +83,7 @@ TEST(ClientProtocolTest, SendEquipSecondary) {
 
     client->send_command(dto);
 
-    CommandDTO request = server->receive_client_request();
+    GameCommandDTO request = server->receive_client_game_request();
     auto EquipSecondaryDTOPtr = std::get_if<EquipSecondaryDTO>(&request);
     ASSERT_NE(EquipSecondaryDTOPtr, nullptr) << "Expected EquipSecondaryDTO but got another";
 }
@@ -95,7 +95,7 @@ TEST(ClientProtocolTest, SendEquipKnife) {
 
     client->send_command(dto);
 
-    CommandDTO request = server->receive_client_request();
+    GameCommandDTO request = server->receive_client_game_request();
     auto EquipKnifeDTOPtr = std::get_if<EquipKnifeDTO>(&request);
     ASSERT_NE(EquipKnifeDTOPtr, nullptr) << "Expected EquipKnifeDTO but got another";
 }
@@ -107,7 +107,7 @@ TEST(ClientProtocolTest, SendEquipBomb) {
 
     client->send_command(dto);
 
-    CommandDTO request = server->receive_client_request();
+    GameCommandDTO request = server->receive_client_game_request();
     auto EquipBombDTOPtr = std::get_if<EquipBombDTO>(&request);
     ASSERT_NE(EquipBombDTOPtr, nullptr) << "Expected EquipBombDTO but got another";
 }
@@ -120,7 +120,7 @@ TEST(ClientProtocolTest, SendBuyGun) {
         BuyGunDTO dto{gun};
         client->send_command(dto);
 
-        CommandDTO request = server->receive_client_request();
+        GameCommandDTO request = server->receive_client_game_request();
         auto BuyGunDTOPtr = std::get_if<BuyGunDTO>(&request);
         ASSERT_NE(BuyGunDTOPtr, nullptr) << "Expected BuyGunDTO but got another";
         ASSERT_EQ(BuyGunDTOPtr->gun, gun);
@@ -137,7 +137,7 @@ TEST(ClientProtocolTest, SendBuyAmmo) {
         BuyAmmoDTO dto{/*static_cast<uint16_t>(i),*/ value};
         client->send_command(dto);
 
-        CommandDTO request = server->receive_client_request();
+        GameCommandDTO request = server->receive_client_game_request();
         auto BuyAmmoDTOPtr = std::get_if<BuyAmmoDTO>(&request);
         ASSERT_NE(BuyAmmoDTOPtr, nullptr) << "Expected BuyAmmoDTO but got another";
         // ASSERT_EQ(BuyAmmoDTOPtr->ammo, static_cast<uint16_t>(i));
