@@ -4,14 +4,18 @@
 #include <cstdint>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #include <SDL2/SDL.h>
 #include <SDL2pp/SDL2pp.hh>
 
 #include "../common/block_texture_parser.h"
+#include "../common/sdl_helpers.h"
 #include "../common/settings.h"
 
 #include "texture_manager.h"
+
+enum SoundType { STEP_TYPE, SHOT_TYPE, SHOP_TYPE };
 
 
 class Sounds {
@@ -23,7 +27,8 @@ private:
 
     std::unordered_map<std::string, StepSoundState> step_states;
     std::unordered_map<std::string, int> player_step_channel;
-    int next_step_channel = 1;
+    std::unordered_map<std::string, int> player_shot_channel;
+    int shop_channel = 0;
     Uint32 step_delay = 500;
 
     SDL2pp::Mixer& mixer;
@@ -32,13 +37,21 @@ private:
     int total_players = 0;
 
 public:
+    // PROBABLEMENTE HAYA QUE BAJARLE EL VOLUMEN A TODOS LOS SONIDOS
     Sounds(SDL2pp::Mixer& mixer, TextureManager& texture_manager,
            BlockTextureParser& texture_parser);
 
-    void set_total_players(int total_players);
+    void initialize_channels(const std::vector<std::string>& usernames);
+
+    int get_channel(const std::string& username, SoundType type) const;
+
+    void play_shop_sound(SoundEffect effect);
 
     void play_step(const std::string& username, const SDL2pp::Point& destino_camera,
                    bool is_moving);
+
+    void play_shot(const std::string& username, GunType gun_type,
+                   const SDL2pp::Point& destino_camera);
 };
 
 

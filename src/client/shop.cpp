@@ -2,14 +2,14 @@
 
 #include <utility>
 
-#define BUTTON_CHANNEL 3
 
 Shop::Shop(SDL2pp::Renderer& renderer, SDL2pp::Mixer& mixer, TextureManager& texture_manager,
-           BlockTextureParser& texture_parser):
+           BlockTextureParser& texture_parser, Sounds& sounds):
         renderer(renderer),
         mixer(mixer),
         texture_manager(texture_manager),
         texture_parser(texture_parser),
+        sounds(sounds),
         shop_rect(SDL2pp::Rect(53, 33, 533, 333)),
         open(false)
 
@@ -394,10 +394,7 @@ std::optional<ShopButtonType> Shop::interact_button(int x, int y, int money, Gun
     if (!open) {
         if (open_button.rect.Contains(point) && click) {
             open = true;
-            std::string path = texture_parser.get_sound_path(OPEN_SHOP);
-            SDL2pp::Chunk& sound = texture_manager.get_sound(path);
-            mixer.PlayChannel(BUTTON_CHANNEL, sound);
-
+            sounds.play_shop_sound(OPEN_SHOP);
             return ShopButtonType::Open;
         }
         return std::nullopt;
@@ -414,9 +411,7 @@ std::optional<ShopButtonType> Shop::interact_button(int x, int y, int money, Gun
 
                 if (touched_button_type != last_touched_button_type) {
                     last_touched_button_type = touched_button_type;
-                    std::string path = texture_parser.get_sound_path(MOVE_SELECT);
-                    SDL2pp::Chunk& sound = texture_manager.get_sound(path);
-                    mixer.PlayChannel(BUTTON_CHANNEL, sound);
+                    sounds.play_shop_sound(MOVE_SELECT);
                 }
                 return std::nullopt;
             }
@@ -424,9 +419,7 @@ std::optional<ShopButtonType> Shop::interact_button(int x, int y, int money, Gun
             if (button.type == ShopButtonType::Close) {
                 open = false;
 
-                std::string path = texture_parser.get_sound_path(CLOSE_SHOP);
-                SDL2pp::Chunk& sound = texture_manager.get_sound(path);
-                mixer.PlayChannel(BUTTON_CHANNEL, sound);
+                sounds.play_shop_sound(CLOSE_SHOP);
 
                 return ShopButtonType::Close;
             }
@@ -437,9 +430,7 @@ std::optional<ShopButtonType> Shop::interact_button(int x, int y, int money, Gun
             if (money < button.price) {
                 highlight_money = true;
 
-                std::string path = texture_parser.get_sound_path(DENY_SELECT);
-                SDL2pp::Chunk& sound = texture_manager.get_sound(path);
-                mixer.PlayChannel(BUTTON_CHANNEL, sound);
+                sounds.play_shop_sound(DENY_SELECT);
 
                 return std::nullopt;
             }
@@ -449,15 +440,11 @@ std::optional<ShopButtonType> Shop::interact_button(int x, int y, int money, Gun
                 button.weapon_type == primary_gun) {
                 highlight_primary = true;
 
-                std::string path = texture_parser.get_sound_path(DENY_SELECT);
-                SDL2pp::Chunk& sound = texture_manager.get_sound(path);
-                mixer.PlayChannel(BUTTON_CHANNEL, sound);
+                sounds.play_shop_sound(DENY_SELECT);
                 return std::nullopt;
             }
 
-            std::string path = texture_parser.get_sound_path(SELECT);
-            SDL2pp::Chunk& sound = texture_manager.get_sound(path);
-            mixer.PlayChannel(BUTTON_CHANNEL, sound);
+            sounds.play_shop_sound(SELECT);
 
             return button.type;
         }

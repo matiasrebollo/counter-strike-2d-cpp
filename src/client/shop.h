@@ -14,6 +14,7 @@
 #include "../common/weapon_type.h"
 
 #include "camera.h"
+#include "sounds.h"
 #include "texture_manager.h"
 
 
@@ -42,6 +43,7 @@ private:
     SDL2pp::Mixer& mixer;
     TextureManager& texture_manager;
     BlockTextureParser& texture_parser;
+    Sounds& sounds;
 
     std::vector<ShopButton> buttons;
     SDL2pp::Rect shop_rect;
@@ -62,7 +64,7 @@ private:
 
 public:
     Shop(SDL2pp::Renderer& renderer, SDL2pp::Mixer& mixer, TextureManager& texture_manager,
-         BlockTextureParser& texture_parser);
+         BlockTextureParser& texture_parser, Sounds& sounds);
 
     /* Setea los precios y cantidades de cada cosa de la tienda, al comenzar la partida */
     void set_shop_info(const ShopInfoDTO& info);

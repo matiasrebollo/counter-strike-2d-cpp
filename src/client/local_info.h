@@ -19,6 +19,8 @@ struct PlayerInfo {
     GunType secondary_gun = NONE;
     WeaponType equipped = SECONDARY;
     bool movement = false;
+    bool shoot = false;
+    int shot_distance = 0;
 };
 
 struct LocalInfo {
@@ -28,9 +30,7 @@ struct LocalInfo {
     CounterTerroristSkin ct_skin;
     TerroristSkin tt_skin;
 
-    // hay cosas de los demas players que para graficar no me importan (como su vida, dinero)
-    // ver si en lugar de tener un vector de PlayerDTO, tener un vector de ..... pero que tenga las
-    // cosas que necesite
+    // podrian ser dos maps, que la key sea el username, y que el valor sea playerinfo(sin username)
     std::vector<PlayerInfo> ct_players;
     std::vector<PlayerInfo> tt_players;
     PlayerInfo player;

@@ -14,6 +14,7 @@ target_sources(taller_client
         texture_manager.h
         shop.h
         sounds.h
+        animation.h
     PRIVATE
         main.cpp
         lobby/lobby.cpp
@@ -31,4 +32,5 @@ target_sources(taller_client
         texture_manager.cpp
         shop.cpp
         sounds.cpp
+        animation.cpp
 )

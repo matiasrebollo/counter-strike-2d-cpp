@@ -41,9 +41,19 @@ void GameUI::run() {
 }
 
 void GameUI::reset_player_events() {
-    for (auto& p: local_info.ct_players) p.movement = false;
-    for (auto& p: local_info.tt_players) p.movement = false;
+    for (auto& p: local_info.ct_players) {
+        p.movement = false;
+        p.shoot = false;
+        p.shot_distance = 0;
+    }
+    for (auto& p: local_info.tt_players) {
+        p.movement = false;
+        p.shoot = false;
+        p.shot_distance = 0;
+    }
     local_info.player.movement = false;
+    local_info.player.shoot = false;
+    local_info.player.shot_distance = 0;
 }
 
 void GameUI::detect_player_events(const Snapshot& snapshot) {
@@ -51,7 +61,11 @@ void GameUI::detect_player_events(const Snapshot& snapshot) {
         if (info.x != dto.position.x || info.y != dto.position.y) {
             info.movement = true;
         }
-        // if (dto.shot) info.shot = true;
+        if (dto.shot.has_value()) {
+            info.shoot = true;
+            info.shot_distance = dto.shot->distance;
+            std::cout << "distancia protocolo: " << info.shot_distance << std::endl;
+        }
     };
 
     for (const auto& dto: snapshot.ct) {
@@ -94,6 +108,7 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
         bool found = false;
         if (p.username == local_info.username) {
             local_info.player.username = p.username;
+            local_info.player.is_ct = true;
             local_info.player.x = p.position.x;
             local_info.player.y = p.position.y;
             local_info.player.orientation = p.orientation;
@@ -115,6 +130,7 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
             for (auto& info: local_info.ct_players) {
                 if (info.username == p.username) {
                     info.username = p.username;
+                    info.is_ct = true;
                     info.x = p.position.x;
                     info.y = p.position.y;
                     info.orientation = p.orientation;
@@ -166,6 +182,7 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
         bool found = false;
         if (p.username == local_info.username) {
             local_info.player.username = p.username;
+            local_info.player.is_ct = false;
             local_info.player.x = p.position.x;
             local_info.player.y = p.position.y;
             local_info.player.orientation = p.orientation;
@@ -186,6 +203,7 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
             for (auto& info: local_info.tt_players) {
                 if (info.username == p.username) {
                     info.username = p.username;
+                    info.is_ct = false;
                     info.x = p.position.x;
                     info.y = p.position.y;
                     info.orientation = p.orientation;
@@ -261,7 +279,12 @@ bool GameUI::update_waiting() {
         if (!pop)
             continue;
         if (local_info.phase != WAITING_PLAYERS) {
-            this->sdl.set_total_players(local_info.total_players);
+            std::vector<std::string> usernames;
+            usernames.push_back(local_info.player.username);
+            for (const auto& player: local_info.ct_players) usernames.push_back(player.username);
+            for (const auto& player: local_info.tt_players) usernames.push_back(player.username);
+
+            this->sdl.set_sound_info(usernames);
             return false;
         }
     }
