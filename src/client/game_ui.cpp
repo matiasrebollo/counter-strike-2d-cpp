@@ -65,7 +65,6 @@ void GameUI::detect_player_events(const Snapshot& snapshot) {
         if (dto.shot.has_value()) {
             info.shoot = true;
             info.shot_distance = dto.shot->distance;
-            std::cout << "distancia protocolo: " << info.shot_distance << std::endl;
         }
     };
 

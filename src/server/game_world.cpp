@@ -87,7 +87,13 @@ void GameWorld::add_player(const std::string& username) {
     size_t cts = counter_terrorists.size();
     size_t tts = terrorists.size();
 
-    if (cts < COUNTER_TERRORISTS && (cts <= tts || tts >= TERRORISTS)) {
+    if (cts < COUNTER_TERRORISTS && tts < TERRORISTS) {
+        if (cts <= tts) {
+            counter_terrorists[username] = player;
+        } else {
+            terrorists[username] = player;
+        }
+    } else if (cts < COUNTER_TERRORISTS) {
         counter_terrorists[username] = player;
     } else if (tts < TERRORISTS) {
         terrorists[username] = player;

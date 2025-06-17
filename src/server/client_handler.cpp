@@ -79,6 +79,7 @@ void ClientHandler::manage_create_game(const CreateGameDTO& dto) {
         std::shared_ptr<ClientSender> sender = std::make_shared<ClientSender>(this->protocol);
         std::shared_ptr<CS2DGame> game =
                 this->server_monitor.create_new_game(this->username, dto.map_file_name, sender);
+        game->start();
         this->my_game = game->id;
         this->send_lobby_response(CommandType::CREATE_GAME, ResponseStatus::SUCCESS, this->my_game);
         this->is_in_game = true;

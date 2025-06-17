@@ -38,9 +38,6 @@ private:
     friend class RoundEndedPhase;
     friend class GameEndedPhase;
 
-    bool validate_qt_results(Lobby& lobby);
-    void print_message(const std::string& s);
-
     /* Setea en false todos los eventos de cada player */
     void reset_player_events();
 
