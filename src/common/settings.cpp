@@ -29,10 +29,6 @@ size_t Settings::get_terrorists_number() { return serverSettings.terrorists; }
 
 size_t Settings::get_counter_terrorists_number() { return serverSettings.counter_terrorists; }
 
-int Settings::get_block_thickness() { return serverSettings.block_thickness; }
-
-int Settings::get_player_thickness() { return serverSettings.player_thickness; }
-
 int Settings::get_player_initial_life() { return serverSettings.player_initial_life; }
 
 int Settings::get_initial_money() { return serverSettings.initial_money; }

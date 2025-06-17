@@ -37,8 +37,6 @@ struct ServerSettings {
     size_t terrorists;
     size_t counter_terrorists;
 
-    int block_thickness;
-    int player_thickness;  // debe ser menor a BLOCK_THICKNESS (para spawns)
     int player_initial_life;
 
     int initial_money;
@@ -48,6 +46,9 @@ struct ServerSettings {
     std::unordered_map<GunType, GunSettings> guns_settings;
     KnifeSettings knife_settings;
 };
+
+#define BLOCK_THICKNESS 400
+#define PLAYER_THICKNESS 320
 
 #define PATH_FOLDER_MAPS "../maps/"
 #define PATH_SETTINGS "../settings.yaml"
@@ -96,8 +97,6 @@ public:
     int get_player_speed();
     size_t get_terrorists_number();
     size_t get_counter_terrorists_number();
-    int get_block_thickness();
-    int get_player_thickness();
     int get_player_initial_life();
     int get_initial_money();
     int get_clip_price();

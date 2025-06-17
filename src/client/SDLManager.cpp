@@ -19,9 +19,7 @@ SDLManager::SDLManager():
         renderer(window, -1, SDL_RENDERER_ACCELERATED),
         texture_manager(renderer),
         camera(CAMERA_WIDTH, CAMERA_HEIGHT),
-        shop(renderer, texture_manager, texture_parser),
-        PLAYER_THICKNESS(Settings::getInstance().get_player_thickness()),
-        BLOCK_THICKNESS(Settings::getInstance().get_block_thickness()) {
+        shop(renderer, texture_manager, texture_parser) {
     renderer.SetLogicalSize(CAMERA_WIDTH, CAMERA_HEIGHT);
     SDL_ShowCursor(SDL_DISABLE);
 }

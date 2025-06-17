@@ -7,8 +7,6 @@ between_rounds_phase_duration: 5
 player_speed: 20
 terrorists: 1
 counter_terrorists: 1
-block_thickness: 400
-player_thickness: 320
 player_initial_life: 100
 initial_money: 800
 clip_price: 50

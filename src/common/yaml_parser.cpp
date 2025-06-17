@@ -95,8 +95,6 @@ ServerSettings YamlParser::load_server_settings(const std::string& path) {
                                file["player_speed"].as<int>(),
                                file["terrorists"].as<size_t>(),
                                file["counter_terrorists"].as<size_t>(),
-                               file["block_thickness"].as<int>(),
-                               file["player_thickness"].as<int>(),
                                file["player_initial_life"].as<int>(),
                                file["initial_money"].as<int>(),
                                file["clip_price"].as<int>(),

@@ -38,9 +38,7 @@ GameWorld::GameWorld(const std::string& map_filename):
         shop(),
         game_map(YamlParser().yaml_to_game_map(PATH_FOLDER_MAPS + map_filename + ".yaml")),
         COUNTER_TERRORISTS(Settings::getInstance().get_counter_terrorists_number()),
-        TERRORISTS(Settings::getInstance().get_terrorists_number()),
-        BLOCK_THICKNESS(Settings::getInstance().get_block_thickness()),
-        PLAYER_THICKNESS(Settings::getInstance().get_player_thickness()) {
+        TERRORISTS(Settings::getInstance().get_terrorists_number()) {
     add_collidables();
 }
 

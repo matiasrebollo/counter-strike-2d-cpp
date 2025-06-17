@@ -6,8 +6,7 @@
 #include "server/game_world.h"
 
 Player::Player(const std::string& name, Vector2D<int>& position):
-        Collidable(position, Settings::getInstance().get_player_thickness(),
-                   Settings::getInstance().get_player_thickness()),
+        Collidable(position, PLAYER_THICKNESS, PLAYER_THICKNESS),
         name(name),
         moving_up(false),
         moving_down(false),
