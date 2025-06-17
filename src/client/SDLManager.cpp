@@ -32,7 +32,9 @@ void SDLManager::set_map(GameMapDTO game_map) { map = std::move(game_map); }
 
 void SDLManager::set_shop(const ShopInfoDTO& shop_info) { shop.set_shop_info(shop_info); }
 
-void SDLManager::set_total_players(int total_players) { sounds.set_total_players(total_players); }
+void SDLManager::set_sound_info(const std::vector<std::string>& usernames) {
+    sounds.initialize_channels(usernames);
+}
 
 void SDLManager::render_waiting_screen(int players_connected, int players_required,
                                        const std::string& gamename, int iteration, int FPS) {
@@ -211,11 +213,9 @@ void SDLManager::render_player_weapon(const PlayerInfo& p) {
         // Obtener el punto real de salida del disparo
         SDL2pp::Point origin(static_cast<int>(cx + rotated_x), static_cast<int>(cy + rotated_y));
         animation.render_shot(origin, angulo - 90, p.shot_distance / GRAPHIC_SCALE);
-        // despues cambiar sonido, un canal de disparo por player.
-        std::string path = texture_parser.get_sound_path(GLOCK_SHOT);
-        SDL2pp::Chunk& sound = texture_manager.get_sound(path);
-        sound.SetVolume(64);
-        mixer.PlayChannel(2, sound);
+        SDL2pp::Point centro(destino_camera.GetX() + destino_camera.GetW() / 2,
+                             destino_camera.GetY() + destino_camera.GetH() / 2);
+        sounds.play_shot(p.username, p.secondary_gun, centro);
     }
 }
 

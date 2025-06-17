@@ -4,6 +4,7 @@
 #include <optional>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include <SDL2/SDL.h>
 #include <SDL2pp/SDL2pp.hh>
@@ -57,8 +58,8 @@ public:
     /* Se asigna los valores de la shop una vez que es recibido cuando comienza la partida*/
     void set_shop(const ShopInfoDTO& shop_info);
 
-    /* Se asigna la cantidad total de players para manejar la cantidad de canales de sonido */
-    void set_total_players(int total_players);
+    /* Se asigna los canales de sonido a usar para cada sonido en la partida */
+    void set_sound_info(const std::vector<std::string>& usernames);
 
     /* Renderiza la fase de waiting */
     void render_waiting_screen(int players_connected, int players_required,

@@ -275,7 +275,12 @@ bool GameUI::update_waiting() {
         if (!pop)
             continue;
         if (local_info.phase != WAITING_PLAYERS) {
-            this->sdl.set_total_players(local_info.total_players);
+            std::vector<std::string> usernames;
+            usernames.push_back(local_info.player.username);
+            for (const auto& player: local_info.ct_players) usernames.push_back(player.username);
+            for (const auto& player: local_info.tt_players) usernames.push_back(player.username);
+
+            this->sdl.set_sound_info(usernames);
             return false;
         }
     }
