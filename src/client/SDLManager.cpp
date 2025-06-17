@@ -258,7 +258,7 @@ void SDLManager::render_if_dead(const int& life) {
     }
 }
 
-void SDLManager::render_hud_bomb_not_planted_time(int minutes, int seconds) {
+void SDLManager::render_hud_bomb_not_planted_time(int minutes, int seconds, Phase phase) {
     std::stringstream ss;
     ss << minutes << ":" << std::setw(2) << std::setfill('0') << seconds;
     std::string time_str = ss.str();
@@ -281,7 +281,17 @@ void SDLManager::render_hud_bomb_not_planted_time(int minutes, int seconds) {
     int y = CAMERA_HEIGHT - char_height;
     const BlockTextureInfo& clock_info = texture_parser.get_symbol_texture(CLOCK);
     SDL2pp::Texture& clock_texture = texture_manager.get_texture(clock_info.tileset_path);
-    clock_texture.SetColorMod(255, 255, 0);
+    int r, g, b;
+    if (phase == Phase::ATTACK && minutes == 0 && seconds <= 10) {
+        r = 255;
+        g = 0;
+        b = 0;
+    } else {
+        r = 255;
+        g = 255;
+        b = 0;
+    }
+    clock_texture.SetColorMod(r, g, b);
     clock_texture.SetAlphaMod(190);
     SDL2pp::Rect clock_src(clock_info.x, clock_info.y, clock_info.width, clock_info.height);
     SDL2pp::Rect clock_dst(start_x, y, clock_width, clock_height);
@@ -292,7 +302,7 @@ void SDLManager::render_hud_bomb_not_planted_time(int minutes, int seconds) {
         HudNumbers num_enum = (c == ':') ? DP : static_cast<HudNumbers>(c - '0');
         const BlockTextureInfo& sprite_info = texture_parser.get_number_texture(num_enum);
         SDL2pp::Texture& texture = texture_manager.get_texture(sprite_info.tileset_path);
-        texture.SetColorMod(255, 255, 0);
+        texture.SetColorMod(r, g, b);
         texture.SetAlphaMod(190);
 
         int width = char_width;
@@ -372,14 +382,14 @@ void SDLManager::render_hud_bomb_explotion_time(int minutes, int seconds) {
 }
 
 /* Renderiza el tiempo restante de la ronda del HUD */
-void SDLManager::render_hud_time(int time_left, BombStatus bomb_status) {
+void SDLManager::render_hud_time(int time_left, BombStatus bomb_status, Phase phase) {
     // quizas este calculo procesarlo al recibir la snapshot si no necesito el tiempo para otra
     // cosa.
     int minutes = time_left / 60;
     int seconds = time_left % 60;
 
     if (bomb_status == BombStatus::NOT_PLANTED) {
-        render_hud_bomb_not_planted_time(minutes, seconds);
+        render_hud_bomb_not_planted_time(minutes, seconds, phase);
     } else if (bomb_status == BombStatus::PLANTED) {
         render_hud_bomb_explotion_time(minutes, seconds);
     }
@@ -614,7 +624,7 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
 
     render_fov(local_info.player.orientation + PLAYER_SPRITE_GAP);
     render_if_dead(local_info.player.life);
-    render_hud_time(local_info.time_left, local_info.bomb_status);
+    render_hud_time(local_info.time_left, local_info.bomb_status, local_info.phase);
     render_hud_life(local_info.player.life);
     render_hud_round(local_info.current_round, local_info.total_rounds);
     render_hud_ammo(local_info.player.equipped_gun_ammo);
