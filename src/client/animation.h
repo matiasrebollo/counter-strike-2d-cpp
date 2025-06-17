@@ -6,6 +6,8 @@
 #include <SDL2/SDL.h>
 #include <SDL2pp/SDL2pp.hh>
 
+#include "camera.h"
+
 class Animation {
 private:
     /*struct Shot {
@@ -15,11 +17,12 @@ private:
     };*/
 
     SDL2pp::Renderer& renderer;
+    Camera& camera;
 
     // std::unordered_map<std::string, Shot> active_shots; // luego quizas el valor debe ser un
     // vector de shots
 public:
-    explicit Animation(SDL2pp::Renderer& renderer);
+    Animation(SDL2pp::Renderer& renderer, Camera& camera);
 
     /*void start_shot(const std::string& username, SDL2pp::Point origin,
                     double angle, double distance);*/

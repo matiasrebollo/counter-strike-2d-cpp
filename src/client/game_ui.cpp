@@ -108,6 +108,7 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
         bool found = false;
         if (p.username == local_info.username) {
             local_info.player.username = p.username;
+            local_info.player.is_ct = true;
             local_info.player.x = p.position.x;
             local_info.player.y = p.position.y;
             local_info.player.orientation = p.orientation;
@@ -129,6 +130,7 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
             for (auto& info: local_info.ct_players) {
                 if (info.username == p.username) {
                     info.username = p.username;
+                    info.is_ct = true;
                     info.x = p.position.x;
                     info.y = p.position.y;
                     info.orientation = p.orientation;
@@ -180,6 +182,7 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
         bool found = false;
         if (p.username == local_info.username) {
             local_info.player.username = p.username;
+            local_info.player.is_ct = false;
             local_info.player.x = p.position.x;
             local_info.player.y = p.position.y;
             local_info.player.orientation = p.orientation;
@@ -200,6 +203,7 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
             for (auto& info: local_info.tt_players) {
                 if (info.username == p.username) {
                     info.username = p.username;
+                    info.is_ct = false;
                     info.x = p.position.x;
                     info.y = p.position.y;
                     info.orientation = p.orientation;

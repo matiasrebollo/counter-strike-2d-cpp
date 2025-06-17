@@ -102,8 +102,8 @@ void Sounds::play_shot(const std::string& username, GunType gun_type,
     int dy = destino_camera.y - cam_center_y;
     double dist = std::sqrt(dx * dx + dy * dy);
 
-    double max_hearing_distance = std::sqrt((CAMERA_WIDTH / 2.0) * (CAMERA_WIDTH / 2.0) +
-                                            (CAMERA_HEIGHT / 2.0) * (CAMERA_HEIGHT / 2.0));
+    double max_hearing_distance = 3 * std::sqrt((CAMERA_WIDTH / 2.0) * (CAMERA_WIDTH / 2.0) +
+                                                (CAMERA_HEIGHT / 2.0) * (CAMERA_HEIGHT / 2.0));
     Uint8 sdl_distance = static_cast<Uint8>(std::min(255.0, (dist / max_hearing_distance) * 255.0));
 
     std::string path = texture_parser.get_sound_path(GLOCK_SHOT);
