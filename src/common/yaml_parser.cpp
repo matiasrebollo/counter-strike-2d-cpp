@@ -120,14 +120,14 @@ std::unordered_map<GunType, GunSettings> YamlParser::load_guns_settings(const YA
 
 GunSettings YamlParser::load_gun_sett(const YAML::Node& node) {
     GunSettings gun{node["initial_ammo"].as<int>(), node["precision"].as<float>(),
-                    node["falloff"].as<int>(),      node["dmg"].as<int>(),
-                    node["rof"].as<int>(),          node["price"].as<int>(),
+                    node["falloff"].as<int>(),      node["damage"].as<int>(),
+                    node["rate_of_fire"].as<int>(), node["price"].as<int>(),
                     node["clip_size"].as<int>(),    node["kill_bonus"].as<int>()};
     return gun;
 }
 
 KnifeSettings YamlParser::load_knife_settings(const YAML::Node& node) {
-    return {node["knife_distance"].as<int>(), node["knife_dmg"].as<int>(),
+    return {node["knife_distance"].as<int>(), node["knife_damage"].as<int>(),
             node["knife_ar"].as<int>(), node["knife_kill_bonus"].as<int>()};
 }
 

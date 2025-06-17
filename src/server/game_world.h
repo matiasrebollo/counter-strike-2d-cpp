@@ -23,6 +23,10 @@ private:
     std::list<std::shared_ptr<Collidable>> collidables;
     Shop shop;
     const GameMap game_map;
+    const size_t COUNTER_TERRORISTS;
+    const size_t TERRORISTS;
+    const int BLOCK_THICKNESS;
+    const int PLAYER_THICKNESS;
 
     void add_collidables();
 

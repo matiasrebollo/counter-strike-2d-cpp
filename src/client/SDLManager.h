@@ -28,6 +28,8 @@ private:
     Camera camera;
     Shop shop;
     std::optional<GameMapDTO> map;
+    const int PLAYER_THICKNESS;
+    const int BLOCK_THICKNESS;
 
     void update_camera(int player_x, int player_y);
     std::pair<Position, GunSprites> get_gun_info(const LoadoutDTO& loadout);

@@ -19,7 +19,9 @@ SDLManager::SDLManager():
         renderer(window, -1, SDL_RENDERER_ACCELERATED),
         texture_manager(renderer),
         camera(CAMERA_WIDTH, CAMERA_HEIGHT),
-        shop(renderer, texture_manager, texture_parser) {
+        shop(renderer, texture_manager, texture_parser),
+        PLAYER_THICKNESS(Settings::getInstance().get_player_thickness()),
+        BLOCK_THICKNESS(Settings::getInstance().get_block_thickness()) {
     renderer.SetLogicalSize(CAMERA_WIDTH, CAMERA_HEIGHT);
     SDL_ShowCursor(SDL_DISABLE);
 }
@@ -96,8 +98,6 @@ void SDLManager::clear_display() { renderer.Clear(); }
 
 /* Centra la camara en el player */
 void SDLManager::update_camera(int player_x, int player_y) {
-    Settings& settings = Settings::getInstance();
-    int PLAYER_THICKNESS = settings.get_player_thickness();
     camera.follow(player_x + PLAYER_THICKNESS / (GRAPHIC_SCALE * 2),
                   player_y + PLAYER_THICKNESS / (GRAPHIC_SCALE * 2));
 }
@@ -134,8 +134,6 @@ void SDLManager::render_player(const PlayerDTO& p, const BlockTextureInfo& sprit
     double angulo = p.orientation;
     int x_pos = p.position.x;
     int y_pos = p.position.y;
-    Settings& settings = Settings::getInstance();
-    int PLAYER_THICKNESS = settings.get_player_thickness();
 
     SDL2pp::Rect rect_origen(sprite_info.x, sprite_info.y, sprite_info.width, sprite_info.height);
     SDL2pp::Rect destino_mundo(x_pos / GRAPHIC_SCALE, y_pos / GRAPHIC_SCALE,
@@ -156,8 +154,6 @@ void SDLManager::render_player(const PlayerDTO& p, const BlockTextureInfo& sprit
 // players (z order)
 /* Renderiza las armas de cada jugador */
 void SDLManager::render_player_weapon(const PlayerDTO& p) {
-    Settings& settings = Settings::getInstance();
-    int PLAYER_THICKNESS = settings.get_player_thickness();
 
     double angulo = p.orientation;
     int x_pos = p.position.x;
@@ -379,9 +375,6 @@ void SDLManager::render_hud_money(int money) {
 
 // quizas eliminar la snapshot y englobar localinfo en un gamestate y solo recibir gamestate
 void SDLManager::render_in_z_order(const Snapshot& snapshot, const LocalInfo& local_info) {
-    Settings& settings = Settings::getInstance();
-    int BLOCK_THICKNESS = settings.get_block_thickness();
-
     update_camera(local_info.x, local_info.y);
 
     if (map.has_value()) {
@@ -454,8 +447,6 @@ Crosshairs SDLManager::get_crosshair_color(int mouse_x, int mouse_y, const Snaps
                                            const LocalInfo& local_info) {
 
     const auto& enemies = local_info.is_ct ? snapshot.tt : snapshot.ct;
-    Settings& settings = Settings::getInstance();
-    int PLAYER_THICKNESS = settings.get_player_thickness();
 
     for (const auto& e: enemies) {
         SDL2pp::Rect destino_mundo(e.position.x, e.position.y, PLAYER_THICKNESS / GRAPHIC_SCALE,

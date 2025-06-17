@@ -20,19 +20,19 @@ Player::Player(const std::string& name, Vector2D<int>& position):
         bonifications(0),
         kills(0),
         deaths(0),
-        loadout() {}
+        loadout(),
+        FPS_SERVER(Settings::getInstance().get_fps_server()),
+        PLAYER_INITIAL_LIFE(Settings::getInstance().get_player_initial_life()),
+        PLAYER_SPEED(Settings::getInstance().get_player_speed()) {}
 
 float Player::get_orientation() const { return orientation; }
 
 bool Player::is_alive() const { return this->life > 0; }
 
 void Player::update(GameWorld& game, const float& delta_t) {
-    Settings& settings = Settings::getInstance();
-    int FPS_SERVER = settings.get_fps_server();
-
     shot = std::nullopt;
     int delta_it = static_cast<int>(std::round(delta_t * FPS_SERVER));
-    int stepped = delta_it * Settings::getInstance().get_player_speed();
+    int stepped = delta_it * PLAYER_SPEED;
     Vector2D<int> step(0, 0);
     if (moving_up) {
         step = step + Vector2D<int>(0, -stepped);
@@ -74,7 +74,7 @@ void Player::stop_moving_left() { moving_left = false; }
 void Player::stop_moving_right() { moving_right = false; }
 void Player::rotate(const double& new_orientation) { this->orientation = new_orientation; }
 void Player::restart() {
-    life = Settings::getInstance().get_player_initial_life();
+    life = PLAYER_INITIAL_LIFE;
     moving_up = false;
     moving_down = false;
     moving_left = false;

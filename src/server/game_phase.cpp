@@ -6,16 +6,14 @@
 #include "common/clock.h"
 #include "server/cs2d_game.h"
 
-GamePhase::GamePhase(CS2DGame& game, const size_t& duration): game(game), duration(duration) {}
+GamePhase::GamePhase(CS2DGame& game, const size_t& duration):
+        game(game), duration(duration), FPS_SERVER(Settings::getInstance().get_fps_server()) {}
 
 void GamePhase::run() {
     Clock clock;
     size_t last_it = 0;
     size_t it = 0;
     float time = 0.0f;
-
-    Settings& settings = Settings::getInstance();
-    int FPS_SERVER = settings.get_fps_server();
 
     while (should_continue() && time < duration) {
         size_t delta_it = it - last_it;

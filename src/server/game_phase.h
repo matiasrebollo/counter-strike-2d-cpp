@@ -13,6 +13,7 @@ class GamePhase {
 protected:
     CS2DGame& game;
     const size_t duration;
+    const int FPS_SERVER;
 
 public:
     explicit GamePhase(CS2DGame& game, const size_t& duration);

@@ -10,8 +10,6 @@
 #include "server/static_map_object.h"
 
 void GameWorld::add_collidables() {
-    Settings& settings = Settings::getInstance();
-    int BLOCK_THICKNESS = settings.get_block_thickness();
     for (const auto& block: game_map.map_objects) {
         if (block.collidable) {
             for (const auto& vec: block.positions) {
@@ -37,7 +35,12 @@ void GameWorld::add_collidables() {
 }
 
 GameWorld::GameWorld(const std::string& map_filename):
-        shop(), game_map(YamlParser().yaml_to_game_map(PATH_FOLDER_MAPS + map_filename + ".yaml")) {
+        shop(),
+        game_map(YamlParser().yaml_to_game_map(PATH_FOLDER_MAPS + map_filename + ".yaml")),
+        COUNTER_TERRORISTS(Settings::getInstance().get_counter_terrorists_number()),
+        TERRORISTS(Settings::getInstance().get_terrorists_number()),
+        BLOCK_THICKNESS(Settings::getInstance().get_block_thickness()),
+        PLAYER_THICKNESS(Settings::getInstance().get_player_thickness()) {
     add_collidables();
 }
 
@@ -47,9 +50,6 @@ Vector2D<int> GameWorld::random_spawn_position(
         const std::vector<Vector2D<int>>& spawn_points) const {
     static std::random_device rd;
     static std::mt19937 gen(rd());
-    Settings& settings = Settings::getInstance();
-    int BLOCK_THICKNESS = settings.get_block_thickness();
-    int PLAYER_THICKNESS = settings.get_player_thickness();
 
     std::uniform_int_distribution<> dis(0, spawn_points.size() - 1);
     Vector2D<int> grid_pos = spawn_points[dis(gen)];
@@ -76,10 +76,6 @@ void GameWorld::add_player(const std::string& username) {
     Vector2D<int> default_position(-100, -100);
     auto player = std::make_shared<Player>(username, default_position);
     collidables.push_back(player);
-
-    Settings& settings = Settings::getInstance();
-    size_t COUNTER_TERRORISTS = settings.get_counter_terrorists_number();
-    size_t TERRORISTS = settings.get_terrorists_number();
 
     size_t cts = counter_terrorists.size();
     size_t tts = terrorists.size();
@@ -369,5 +365,5 @@ void GameWorld::calculate_shot(Shot& shot, const Player& shooter) const {
     }
 
     shot.hit = hit;
-    shot.distance = closest - Settings::getInstance().get_player_thickness() / 2;
+    shot.distance = closest - PLAYER_THICKNESS / 2;
 }

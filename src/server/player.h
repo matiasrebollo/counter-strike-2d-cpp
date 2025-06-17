@@ -29,6 +29,9 @@ private:
     int kills;
     int deaths;
     Loadout loadout;
+    const int FPS_SERVER;
+    const int PLAYER_INITIAL_LIFE;
+    const int PLAYER_SPEED;
 
 public:
     Player(const std::string& name, Vector2D<int>& position);
