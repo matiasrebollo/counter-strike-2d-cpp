@@ -257,13 +257,13 @@ bool InputHandler::handle_shoot_event(const SDL_Event& event) {
 bool InputHandler::handle_defuse_event(const SDL_Event& event) {
     if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_e && !e) {
         e = true;
-        sender.add_command_to_queue(PlayerActionDTO{/*defusing=*/true});
+        sender.add_command_to_queue(DefuseBombDTO{true});
         return true;
     }
 
     if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_e && e) {
         e = false;
-        sender.add_command_to_queue(PlayerActionDTO{/*defusing=*/false});
+        sender.add_command_to_queue(DefuseBombDTO{false});
         return true;
     }
 
