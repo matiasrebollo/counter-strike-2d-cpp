@@ -34,9 +34,12 @@ struct LocalInfo {
     std::vector<PlayerInfo> ct_players;
     std::vector<PlayerInfo> tt_players;
     PlayerInfo player;
+    std::optional<Team> current_round_winner;
     Phase phase = WAITING_PLAYERS;
     int time_left = 0;
     int total_players = 0;
+    size_t total_rounds = 0;
+    size_t current_round = 0;
 };
 
 #endif

@@ -35,6 +35,7 @@ private:
     friend class WaitingForGamePhase;
     friend class UIBuyPhase;
     friend class UIAttackPhase;
+    friend class RoundEndedPhase;
     friend class GameEndedPhase;
 
     bool validate_qt_results(Lobby& lobby);
@@ -70,6 +71,10 @@ private:
     bool update_attack();
     /* Renderiza la fase de juego */
     void show_attack(const int& it);
+
+    void handle_between_rounds_events();
+    bool update_between_rounds();
+    void show_between_rounds(const int& it);
 
     void change_phase(std::unique_ptr<GameUIPhase> new_phase);
 

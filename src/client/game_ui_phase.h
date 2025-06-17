@@ -45,6 +45,14 @@ public:
     void show_game(const int& it) override;
 };
 
+class RoundEndedPhase: public GameUIPhase {
+public:
+    explicit RoundEndedPhase(GameUI& game_ui);
+    void handle_game_events() override;
+    bool update_game_state() override;
+    void show_game(const int& it) override;
+};
+
 /*class GameEndedPhase: public GameUIPhase {
 public:
     explicit GameEndedPhase(GameUI& game_ui);

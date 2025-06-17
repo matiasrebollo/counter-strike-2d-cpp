@@ -417,6 +417,43 @@ void SDLManager::render_hud_money(int money) {
     }
 }
 
+/* Renderiza la ronda actual */
+void SDLManager::render_hud_round(size_t current_round_number, size_t total_rounds) {
+    int font_size = 15;
+    const std::string& font_path = texture_parser.get_fw_texture(FONT_WAITING);
+
+    std::string round_text =
+            "Round " + std::to_string(current_round_number) + "/" + std::to_string(total_rounds);
+
+    SDL2pp::Texture& round_texture = texture_manager.get_text_texture(
+            round_text, font_path, font_size, SDL2pp::Color(255, 255, 0));
+    round_texture.SetAlphaMod(190);
+
+
+    SDL2pp::Rect dstRect((CAMERA_WIDTH - round_texture.GetWidth()) / 2, 10,
+                         round_texture.GetWidth(), round_texture.GetHeight());
+
+    renderer.Copy(round_texture, SDL2pp::NullOpt, dstRect);
+}
+
+void SDLManager::render_current_round_winner(const std::optional<Team>& winner) {
+    int font_size = 15;
+    const std::string& font_path = texture_parser.get_fw_texture(FONT_WAITING);
+    std::string winner_string =
+            winner.value() == CT ? "Counter Terrorists wins!" : "Terrorists wins!";
+
+    SDL2pp::Texture& round_texture = texture_manager.get_text_texture(
+            winner_string, font_path, font_size, SDL2pp::Color(255, 255, 0));
+    round_texture.SetAlphaMod(190);
+
+
+    SDL2pp::Rect dstRect((CAMERA_WIDTH - round_texture.GetWidth()) / 2, 35,
+                         round_texture.GetWidth(), round_texture.GetHeight());
+
+    renderer.Copy(round_texture, SDL2pp::NullOpt, dstRect);
+}
+
+
 void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
     update_camera(local_info.player.x / GRAPHIC_SCALE, local_info.player.y / GRAPHIC_SCALE);
 
@@ -489,8 +526,12 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
 
     render_hud_time(local_info.time_left);
     render_hud_life(local_info.player.life);
+    render_hud_round(local_info.current_round, local_info.total_rounds);
     render_hud_ammo(local_info.player.equipped_gun_ammo);
     render_hud_money(local_info.player.money);
+    if (local_info.phase == ROUND_ENDED) {
+        render_current_round_winner(local_info.current_round_winner);
+    }
 }
 
 std::optional<ShopButtonType> SDLManager::interact_button(int x, int y, int money, GunType primary,

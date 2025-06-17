@@ -17,6 +17,16 @@ bool InputHandler::handle_waiting_events() {
     return true;
 }
 
+bool InputHandler::handle_between_rounds_events() {
+    // To do: modularizar
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        if (handle_quit_event(event))
+            return false;
+    }
+    return true;
+}
+
 bool InputHandler::handle_weapon_switch_event(const SDL_Event& event) {
     if (event.type == SDL_KEYDOWN) {
         switch (event.key.keysym.sym) {
