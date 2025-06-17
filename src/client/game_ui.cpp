@@ -19,7 +19,8 @@ GameUI::GameUI(Lobby& lobby):
                    lobby.get_tt_skin(),
                    {},
                    {},
-                   PlayerInfo{}},
+                   PlayerInfo{},
+                   std::nullopt},
         keep_running(true) {
     this->phase = std::make_unique<WaitingForGamePhase>(*this);
 }
@@ -86,8 +87,11 @@ void GameUI::detect_player_events(const Snapshot& snapshot) {
 
 void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
     local_info.time_left = snapshot.time_left;
+    local_info.total_rounds = snapshot.total_rounds;
+    local_info.current_round = snapshot.current_round_number;
     local_info.total_players = snapshot.total_players;
     local_info.phase = snapshot.phase;
+    local_info.current_round_winner = snapshot.current_round_winner;
 
     // Actualizo jugadores CT
     for (const PlayerDTO& p: snapshot.ct) {
@@ -320,11 +324,6 @@ bool GameUI::update_attack() {
             pop = false;
             continue;
         }
-        if (std::holds_alternative<GameEnded>(game_dto)) {
-            this->keep_running = false;
-            pop = false;
-            continue;
-        }
 
         // Identificar en snapshot_tmp cambios/eventos para activar animaciones
         Snapshot snapshot = std::get<Snapshot>(game_dto);
@@ -342,6 +341,44 @@ bool GameUI::update_attack() {
 }
 
 void GameUI::show_attack(const int& it) {
+    sdl.clear_display();
+    sdl.render_in_z_order(local_info, it);
+    sdl.render_crosshair(local_info);
+    sdl.show_screen();
+}
+
+void GameUI::handle_between_rounds_events() {
+    this->keep_running = input_handler.handle_between_rounds_events();
+}
+bool GameUI::update_between_rounds() {
+    GameDTO game_dto;
+    Snapshot last_snapshot;
+    bool got_snapshot = false;
+    bool pop = true;
+    while (pop) {
+        if (!this->receiver.try_pop_game_dto(game_dto)) {
+            pop = false;
+            continue;
+        }
+        if (std::holds_alternative<GameEnded>(game_dto)) {
+            this->keep_running = false;
+            pop = false;
+            continue;
+        }
+        Snapshot snapshot = std::get<Snapshot>(game_dto);
+        last_snapshot = std::move(snapshot);
+        got_snapshot = true;
+
+        if (local_info.phase != ROUND_ENDED) {
+            return false;
+        }
+    }
+    if (got_snapshot)
+        update_local_info_from_snapshot(last_snapshot);
+    return true;
+}
+
+void GameUI::show_between_rounds(const int& it) {
     sdl.clear_display();
     sdl.render_in_z_order(local_info, it);
     sdl.render_crosshair(local_info);

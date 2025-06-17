@@ -81,7 +81,7 @@ void AttackPhase::end() {
 
 BetweenRoundsPhase::BetweenRoundsPhase(CS2DGame& game):
         GamePhase(game, BETWEEN_ROUNDS_PHASE_DURATION) {}
-Phase BetweenRoundsPhase::type() { return ATTACK; }
+Phase BetweenRoundsPhase::type() { return ROUND_ENDED; }
 bool BetweenRoundsPhase::should_continue() { return game.should_keep_running(); }
 void BetweenRoundsPhase::execute(std::unique_ptr<Command> cmd) {
     game.execute_in_attack_phase(std::move(cmd));
