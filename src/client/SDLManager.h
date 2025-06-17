@@ -43,7 +43,9 @@ private:
     void render_player_weapon(const PlayerInfo& p);
     void render_fov(float orientation_deg);
     void render_if_dead(const int& life);
-    void render_hud_time(int time_left);
+    void render_hud_bomb_not_planted_time(int minutes, int seconds);
+    void render_hud_bomb_explotion_time(int minutes, int seconds);
+    void render_hud_time(int time_left, BombStatus bomb_status);
     void render_hud_round(size_t current_round_number, size_t total_rounds);
     void render_current_round_winner(const std::optional<Team>& winner);
     void render_hud_life(int life);
