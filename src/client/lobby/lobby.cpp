@@ -64,7 +64,7 @@ void Lobby::on_CreateGame_clicked() {
 
     protocol.value().send_lobby_request(request);
 
-    ServerResponseLobby response = protocol.value().receive_command();
+    ServerResponseLobby response = protocol.value().receive_server_response_lobby();
     if (response.status == ResponseStatus::SUCCESS) {
         this->username = ui->username->text().toStdString();
         this->can_change_name = false;
@@ -107,7 +107,7 @@ void Lobby::on_CreateGameButton_clicked() {
     CreateGameDTO second_request = {map_name};
 
     protocol.value().send_lobby_request(second_request);
-    ServerResponseLobby response = protocol.value().receive_command();
+    ServerResponseLobby response = protocol.value().receive_server_response_lobby();
     if (response.status == ResponseStatus::SUCCESS) {
         this->gamecode = response.game_name;
         close();
@@ -129,7 +129,7 @@ void Lobby::on_JoinGame_clicked() {
     }
     protocol.value().send_lobby_request(request);
 
-    ServerResponseLobby response = protocol.value().receive_command();
+    ServerResponseLobby response = protocol.value().receive_server_response_lobby();
     if (response.status == ResponseStatus::SUCCESS) {
         ui->stack->setCurrentIndex(3);
         this->username = ui->username->text().toStdString();
@@ -145,7 +145,7 @@ void Lobby::on_JoinGameButton_clicked() {
     JoinGameDTO request = {game_name};
 
     protocol.value().send_lobby_request(request);
-    ServerResponseLobby response = protocol.value().receive_command();
+    ServerResponseLobby response = protocol.value().receive_server_response_lobby();
     switch (response.status) {
         case ResponseStatus::GAME_NOT_EXIST:
             QMessageBox::information(this, TITLE_MSG_JOIN,

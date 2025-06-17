@@ -16,7 +16,7 @@
 ClientProtocol::ClientProtocol(std::unique_ptr<Socket> socket):
         CommonProtocol(std::move(socket)), isAlive(true) {}
 
-ServerResponseLobby ClientProtocol::receive_command() {
+ServerResponseLobby ClientProtocol::receive_server_response_lobby() {
     uint8_t code = this->receive_byte();
     ServerResponseLobby response = ServerResponseLobby{this->codeToCommands.find(code)->second,
                                                        ResponseStatus::SUCCESS, ""};

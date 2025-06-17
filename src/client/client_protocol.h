@@ -67,7 +67,7 @@ public:
 
     void send_command(const CommandDTO& command);
     GameDTO receive_game_dto();
-    ServerResponseLobby receive_command();
+    ServerResponseLobby receive_server_response_lobby();
     void send_lobby_request(const LobbyRequestDTO& request);
     void close();
     virtual ~ClientProtocol() {}
