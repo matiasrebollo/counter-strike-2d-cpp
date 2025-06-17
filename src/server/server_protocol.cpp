@@ -179,7 +179,7 @@ LobbyRequestDTO ServerProtocol::receive_lobby_request() {
     return this->lobbyCommandManagers.find(command)->second();
 }
 
-CommandDTO ServerProtocol::receive_client_request() {
+GameCommandDTO ServerProtocol::receive_client_game_request() {
     uint8_t code = this->receive_byte();
     switch (code) {
         case CODE_ROTATE:
@@ -199,14 +199,14 @@ CommandDTO ServerProtocol::receive_client_request() {
     }
 }
 
-CommandDTO ServerProtocol::receive_movement_request() {
+GameCommandDTO ServerProtocol::receive_movement_request() {
     uint8_t code_movement = this->receive_byte();
     Movement movement = static_cast<Movement>(code_movement - 1);
     bool move = this->code_to_bools.find(this->receive_byte())->second;
     return MoveDTO{movement, move};
 }
 
-CommandDTO ServerProtocol::receive_change_weapon_request() {
+GameCommandDTO ServerProtocol::receive_change_weapon_request() {
     uint8_t code_to_equip = this->receive_byte();
     switch (code_to_equip) {
         case CODE_CHOOSE_KNIFE:
@@ -222,13 +222,13 @@ CommandDTO ServerProtocol::receive_change_weapon_request() {
     }
 }
 
-CommandDTO ServerProtocol::receive_buy_weapon_request() {
+GameCommandDTO ServerProtocol::receive_buy_weapon_request() {
     uint8_t gun_code = this->receive_byte();
     GunType gun = this->weaponParser.getWeaponFromByte(gun_code);
     return BuyGunDTO{gun};
 }
 
-CommandDTO ServerProtocol::receive_buy_ammo_request() {
+GameCommandDTO ServerProtocol::receive_buy_ammo_request() {
     uint8_t primary_code = this->receive_byte();
     bool primary = false;
     if (primary_code == CODE_CHOOSE_PRIMARY) {

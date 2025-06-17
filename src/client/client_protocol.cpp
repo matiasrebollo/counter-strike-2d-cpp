@@ -16,7 +16,7 @@
 ClientProtocol::ClientProtocol(std::unique_ptr<Socket> socket):
         CommonProtocol(std::move(socket)), isAlive(true) {}
 
-ServerResponseLobby ClientProtocol::receive_command() {
+ServerResponseLobby ClientProtocol::receive_server_response_lobby() {
     uint8_t code = this->receive_byte();
     ServerResponseLobby response = ServerResponseLobby{this->codeToCommands.find(code)->second,
                                                        ResponseStatus::SUCCESS, ""};
@@ -41,13 +41,13 @@ void ClientProtocol::send_lobby_request(const LobbyRequestDTO& request) {
                 } else if constexpr (std::is_same_v<T, JoinGameDTO>) {
                     this->send_join_game_request(request_dto);
                 } else {
-                    static_assert(always_false_v<T>, "Unhandled CommandDTO type");
+                    static_assert(always_false_v<T>, "Unhandled GameCommandDTO type");
                 }
             },
             request);
 }
 
-void ClientProtocol::send_command(const CommandDTO& command) {
+void ClientProtocol::send_command(const GameCommandDTO& command) {
     std::visit(
             [this](const auto& d) {
                 using T = std::decay_t<decltype(d)>;
@@ -70,7 +70,7 @@ void ClientProtocol::send_command(const CommandDTO& command) {
                 } else if constexpr (std::is_same_v<T, BuyAmmoDTO>) {
                     handle_buy_ammo(d);
                 } else {
-                    static_assert(always_false_v<T>, "Unhandled CommandDTO type");
+                    static_assert(always_false_v<T>, "Unhandled GameCommandDTO type");
                 }
             },
             command);

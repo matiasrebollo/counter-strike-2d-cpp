@@ -13,8 +13,8 @@
 #include <vector>
 
 #include "../common/commands.h"
-#include "../common/commands_dto.h"
 #include "../common/common_protocol.h"
+#include "../common/game_commands_dto.h"
 #include "../common/game_dto.h"
 #include "../common/lobby_request.h"
 #include "../common/message.h"
@@ -29,10 +29,10 @@ private:
     JoinGameDTO receive_join_game_request();
 
     RotateDTO receive_rotate();
-    CommandDTO receive_movement_request();
-    CommandDTO receive_change_weapon_request();
-    CommandDTO receive_buy_weapon_request();
-    CommandDTO receive_buy_ammo_request();
+    GameCommandDTO receive_movement_request();
+    GameCommandDTO receive_change_weapon_request();
+    GameCommandDTO receive_buy_weapon_request();
+    GameCommandDTO receive_buy_ammo_request();
 
     void send_snapshot(const Snapshot& snapshot);
     void send_game_init_info(const GameInitialInfoDTO& dto);
@@ -51,7 +51,7 @@ public:
     void send_lobby_message(const ServerResponseLobby& msg);
     void send_start_game(const ServerResponseLobby& msg);
     void send_game_dto(const GameDTO& message);
-    CommandDTO receive_client_request();
+    GameCommandDTO receive_client_game_request();
     LobbyRequestDTO receive_lobby_request();
     void kill();
 

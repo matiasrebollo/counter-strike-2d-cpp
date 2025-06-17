@@ -77,7 +77,7 @@ TEST(ServerProtocolTest, SendLobbyResponse) {
 
                 server->send_lobby_message(dto);
 
-                ServerResponseLobby response = client->receive_command();
+                ServerResponseLobby response = client->receive_server_response_lobby();
 
                 ASSERT_EQ(response.commandType, command);
                 ASSERT_EQ(response.status, value);
