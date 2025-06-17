@@ -235,7 +235,7 @@ bool InputHandler::handle_mouse_motion_event(const SDL_Event& event) {
     return true;
 }
 
-/* Maneja evento de disparo */
+/* Maneja evento de acción del player */
 bool InputHandler::handle_shoot_event(const SDL_Event& event) {
     if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT &&
         !click_attack) {
@@ -253,6 +253,22 @@ bool InputHandler::handle_shoot_event(const SDL_Event& event) {
     return false;
 }
 
+/* Maneja evento de defuseo de bomba */
+bool InputHandler::handle_defuse_event(const SDL_Event& event) {
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_e && !e) {
+        e = true;
+        sender.add_command_to_queue(PlayerActionDTO{/*defusing=*/true});
+        return true;
+    }
+
+    if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_e && e) {
+        e = false;
+        sender.add_command_to_queue(PlayerActionDTO{/*defusing=*/false});
+        return true;
+    }
+
+    return false;
+}
 
 bool InputHandler::handle_attack_events() {
     SDL_Event event;
@@ -268,6 +284,8 @@ bool InputHandler::handle_attack_events() {
         if (handle_mouse_motion_event(event))
             continue;
         if (handle_shoot_event(event))
+            continue;
+        if (handle_defuse_event(event))
             continue;
     }
     return true;

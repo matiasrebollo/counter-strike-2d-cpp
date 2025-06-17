@@ -17,6 +17,8 @@ std::unique_ptr<Command> Command::new_command(const std::string& username,
                     return std::make_unique<RotateCommand>(username, d.angle);
                 } else if constexpr (std::is_same_v<T, PlayerActionDTO>) {
                     return std::make_unique<PlayerActionCommand>(username, d.make);
+                } else if constexpr (std::is_same_v<T, DefuseBombDTO>) {
+                    return std::make_unique<DefuseBombCommand>(username, d.make);
                 } else if constexpr (std::is_same_v<T, EquipPrimaryDTO>) {
                     return std::make_unique<EquipPrimaryCommand>(username);
                 } else if constexpr (std::is_same_v<T, EquipSecondaryDTO>) {
@@ -79,6 +81,16 @@ void PlayerActionCommand::execute_in_attack_phase(GameWorld& game) const {
         game.make_player_action(username);
     } else {
         game.stop_making_player_action(username);
+    }
+}
+
+DefuseBombCommand::DefuseBombCommand(const std::string& username, const bool& make):
+        Command(username), make(make) {}
+void DefuseBombCommand::execute_in_attack_phase(GameWorld& game) const {
+    if (make) {
+        game.make_player_defuse_bomb(username);
+    } else {
+        game.stop_making_player_defuse_bomb(username);
     }
 }
 

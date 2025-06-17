@@ -24,7 +24,6 @@ private:
     std::list<std::shared_ptr<Collidable>> collidables;
     std::vector<Rect> sites;
     std::shared_ptr<Bomb> bomb;
-    std::optional<Vector2D<int>> bomb_position;
     Shop shop;
     const GameMap game_map;
 
@@ -57,6 +56,7 @@ private:
     double impacts(const Shot& shot, const Collidable& collidable) const;
     double intersects_segment(const Shot& shot, const Vector2D<float>& seg_start,
                               const Vector2D<float>& seg_end) const;
+    bool can_defuse_bomb(const Player& player) const;
 
 public:
     const std::string id;
@@ -91,6 +91,8 @@ public:
     void stop_moving_player_right(const std::string& username);
     void make_player_action(const std::string& username);
     void stop_making_player_action(const std::string& username);
+    void make_player_defuse_bomb(const std::string& username);
+    void stop_making_player_defuse_bomb(const std::string& username);
     void equip_primary_for(const std::string& username);
     void equip_secondary_for(const std::string& username);
     void equip_knife_for(const std::string& username);

@@ -44,7 +44,6 @@ void GameWorld::set_sites() {
 
 GameWorld::GameWorld(const std::string& map_filename):
         bomb(std::make_shared<Bomb>()),
-        bomb_position(std::nullopt),
         shop(),
         game_map(YamlParser().yaml_to_game_map(PATH_FOLDER_MAPS + map_filename + ".yaml")) {
     add_collidables();
@@ -160,7 +159,7 @@ const GameWorldSnapshot GameWorld::get_snapshot() const {
         tt.push_back(player.second->get_dto());
     }
 
-    return GameWorldSnapshot{bomb->get_status(), bomb_position, ct, tt};
+    return GameWorldSnapshot{bomb->get_status(), bomb->get_plantation_position(), ct, tt};
 }
 
 void GameWorld::rotate_player(const std::string& username, const double& angle) {
@@ -212,6 +211,24 @@ void GameWorld::stop_making_player_action(const std::string& username) {
         if (p.equipped() == BOMB && !p.is_on_site())
             return;
         p.stop_making_action();
+    });
+}
+
+void GameWorld::make_player_defuse_bomb(const std::string& username) {
+    with_player(username, [this](Player& p) {
+        if (this->can_defuse_bomb(p)) {
+            p.defuse_bomb();
+            this->bomb->action();
+        }
+    });
+}
+
+void GameWorld::stop_making_player_defuse_bomb(const std::string& username) {
+    with_player(username, [this](Player& p) {
+        if (p.defusing_bomb()) {
+            p.stop_defusing_bomb();
+            this->bomb->stop_action();
+        }
     });
 }
 
@@ -272,6 +289,11 @@ bool GameWorld::on_site(const Player& p) const {
     });
 }
 
+bool GameWorld::can_defuse_bomb(const Player& player) const {
+    const auto& plantation = bomb->get_plantation();
+    return plantation && player.rect.intersects_with(*plantation);
+}
+
 void GameWorld::make_step_player(Player& player, const Vector2D<int>& step) {
 
     if (step.x != 0) {
@@ -317,7 +339,7 @@ void GameWorld::update(const float& delta_t) {
 
 void GameWorld::plant_bomb(Player& terrorist) {
     terrorist.leave_bomb();
-    bomb_position = terrorist.rect.position;
+    bomb->plant_in(terrorist.rect.position);
 }
 
 bool GameWorld::bomb_just_planted() const { return bomb->just_planted(); }

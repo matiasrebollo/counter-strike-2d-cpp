@@ -57,6 +57,8 @@ void ClientProtocol::send_command(const GameCommandDTO& command) {
                     handle_rotate(d);
                 } else if constexpr (std::is_same_v<T, PlayerActionDTO>) {
                     handle_player_action(d);
+                } else if constexpr (std::is_same_v<T, DefuseBombDTO>) {
+                    handle_defuse_bomb(d);
                 } else if constexpr (std::is_same_v<T, EquipPrimaryDTO>) {
                     handle_equip_primary();
                 } else if constexpr (std::is_same_v<T, EquipSecondaryDTO>) {
@@ -104,6 +106,11 @@ void ClientProtocol::handle_rotate(const RotateDTO& dto) {
 
 void ClientProtocol::handle_player_action(const PlayerActionDTO& dto) {
     this->send_byte(CODE_ACTION);
+    this->send_byte(this->bools_to_code.find(dto.make)->second);
+}
+
+void ClientProtocol::handle_defuse_bomb(const DefuseBombDTO& dto) {
+    this->send_byte(CODE_DEFUSE_BOMB);
     this->send_byte(this->bools_to_code.find(dto.make)->second);
 }
 
@@ -183,14 +190,15 @@ std::vector<PlayerDTO> ClientProtocol::receive_players(const int& size_players) 
         uint16_t life = this->receive_big_endian_number();
         std::optional<ShotDTO> shot = this->receive_shot();
         bool planting_bomb = this->code_to_bools.find(this->receive_byte())->second;
+        bool defusing_bomb = this->code_to_bools.find(this->receive_byte())->second;
         bool on_site = this->code_to_bools.find(this->receive_byte())->second;
         int bonifications = this->receive_byte();
         int kills = this->receive_byte();
         int deaths = this->receive_byte();
         LoadoutDTO loadout = this->receive_loadout();
         players.push_back(PlayerDTO{username, Vector2D<int>(position_x, position_y), angle, life,
-                                    shot, planting_bomb, on_site, bonifications, kills, deaths,
-                                    loadout});
+                                    shot, planting_bomb, defusing_bomb, on_site, bonifications,
+                                    kills, deaths, loadout});
     }
     return players;
 }

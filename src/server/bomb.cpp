@@ -4,9 +4,20 @@
 
 #include "server/game_world.h"
 
-Bomb::Bomb(): status(NOT_PLANTED), just_been_planted(false), time_since_planted(0.0f) {}
+Bomb::Bomb():
+        status(NOT_PLANTED),
+        just_been_planted(false),
+        time_since_planted(0.0f),
+        plantation(std::nullopt) {}
 
 BombStatus Bomb::get_status() { return status; }
+
+std::optional<Rect>& Bomb::get_plantation() { return plantation; }
+std::optional<Vector2D<int>> Bomb::get_plantation_position() {
+    if (!plantation)
+        return std::nullopt;
+    return plantation->position;
+}
 
 bool Bomb::just_planted() { return just_been_planted; }
 int Bomb::detonation_time() { return DETONATION_TIME; }
@@ -59,6 +70,10 @@ void Bomb::update_planted(const float& delta_t) {
 void Bomb::restart() {
     status = NOT_PLANTED;
     time_since_planted = 0.0f;
+}
+
+void Bomb::plant_in(const Vector2D<int>& plantation_position) {
+    plantation.emplace(plantation_position, BOMB_THICKNESS, BOMB_THICKNESS);
 }
 
 void Bomb::defuse() {
