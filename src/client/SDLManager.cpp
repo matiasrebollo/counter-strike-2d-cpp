@@ -234,6 +234,29 @@ void SDLManager::render_fov(float orientation) {
                   orientation - PLAYER_SPRITE_GAP);  // PLAYER_SPRITE_GAP desfasaje textura cono
 }
 
+void SDLManager::render_if_dead(const int& life) {
+    if (life == 0) {
+        renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
+
+        renderer.SetDrawColor(255, 0, 0, 40);
+
+        SDL2pp::Rect redOverlay(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
+        renderer.FillRect(redOverlay);
+
+        int font_size = 20;
+        const std::string& font_path = texture_parser.get_fw_texture(FONT_WAITING);
+        std::string message_dead = "You are dead!";
+        SDL2pp::Texture& round_texture = texture_manager.get_text_texture(
+                message_dead, font_path, font_size, SDL2pp::Color(255, 255, 0));
+        round_texture.SetAlphaMod(190);
+        SDL2pp::Rect dstRect((CAMERA_WIDTH - round_texture.GetWidth()) / 2, 100,
+                             round_texture.GetWidth(), round_texture.GetHeight());
+        renderer.Copy(round_texture, SDL2pp::NullOpt, dstRect);
+
+        renderer.SetDrawBlendMode(SDL_BLENDMODE_NONE);
+        renderer.SetDrawColor(0, 0, 0, 255);
+    }
+}
 
 /* Renderiza el tiempo restante de la ronda del HUD */
 void SDLManager::render_hud_time(int time_left) {
@@ -437,7 +460,7 @@ void SDLManager::render_hud_round(size_t current_round_number, size_t total_roun
 }
 
 void SDLManager::render_current_round_winner(const std::optional<Team>& winner) {
-    int font_size = 15;
+    int font_size = 25;
     const std::string& font_path = texture_parser.get_fw_texture(FONT_WAITING);
     std::string winner_string =
             winner.value() == CT ? "Counter Terrorists wins!" : "Terrorists wins!";
@@ -523,7 +546,7 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
     }
 
     render_fov(local_info.player.orientation + PLAYER_SPRITE_GAP);
-
+    render_if_dead(local_info.player.life);
     render_hud_time(local_info.time_left);
     render_hud_life(local_info.player.life);
     render_hud_round(local_info.current_round, local_info.total_rounds);
