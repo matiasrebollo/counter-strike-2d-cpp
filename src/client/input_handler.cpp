@@ -3,15 +3,13 @@
 InputHandler::InputHandler(SDLManager& sdl, ClientProtocol& protocol): sdl(sdl), sender(protocol) {}
 
 bool InputHandler::handle_quit_event(const SDL_Event& event) {
-    return (event.type == SDL_QUIT) ||
-           (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE);
+    return event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE;
 }
-
 
 bool InputHandler::handle_waiting_events() {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
-        if (handle_quit_event(event))
+        if (event.type == SDL_QUIT)
             return false;
     }
     return true;
@@ -271,7 +269,7 @@ bool InputHandler::handle_defuse_event(const SDL_Event& event) {
 bool InputHandler::handle_attack_events() {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
-        if (handle_quit_event(event))
+        if (event.type == SDL_QUIT)
             return false;
         if (handle_weapon_switch_event(event))
             continue;
