@@ -43,9 +43,10 @@ void Bomb::update(const float& delta_t, Player& owner, GameWorld& game) {
     if (making_action && time_since_last_action >= PLANTATION_TIME) {
         just_been_planted = true;
         status = PLANTED;
+        plantation.emplace(owner.rect.position, BOMB_THICKNESS, BOMB_THICKNESS);
+        owner.leave_bomb();
         time_since_last_action = 0.0f;
         making_action = false;
-        game.plant_bomb(owner);
     }
 }
 
@@ -66,18 +67,15 @@ void Bomb::update_planted(const float& delta_t) {
     }
 }
 
-
 void Bomb::restart() {
     status = NOT_PLANTED;
     time_since_planted = 0.0f;
-}
-
-void Bomb::plant_in(const Vector2D<int>& plantation_position) {
-    plantation.emplace(plantation_position, BOMB_THICKNESS, BOMB_THICKNESS);
+    plantation = std::nullopt;
 }
 
 void Bomb::defuse() {
     time_since_last_action = 0.0f;
     making_action = false;
     status = DEFUSED;
+    std::cout << "defused!!!" << std::endl;
 }

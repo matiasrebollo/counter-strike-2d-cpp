@@ -326,20 +326,20 @@ void GameWorld::make_step_player(Player& player, const Vector2D<int>& step) {
 }
 
 void GameWorld::update(const float& delta_t) {
-    if (bomb->get_status() == PLANTED) {
+    BombStatus prev_status = bomb->get_status();
+
+    if (prev_status == PLANTED) {
         bomb->update_planted(delta_t);
     }
+
     for (const auto& [_, c_terrorist]: counter_terrorists) {
+        if (prev_status == PLANTED && bomb->get_status() == DEFUSED && c_terrorist->defusing_bomb())
+            c_terrorist->stop_defusing_bomb();
         c_terrorist->update(*this, delta_t);
     }
     for (const auto& [_, terrorist]: terrorists) {
         terrorist->update(*this, delta_t);
     }
-}
-
-void GameWorld::plant_bomb(Player& terrorist) {
-    terrorist.leave_bomb();
-    bomb->plant_in(terrorist.rect.position);
 }
 
 bool GameWorld::bomb_just_planted() const { return bomb->just_planted(); }

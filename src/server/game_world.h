@@ -76,7 +76,6 @@ public:
     bool bomb_exploded() const;
     bool bomb_defused() const;
     void defuse_bomb();
-    void plant_bomb(Player& terrorist);
     bool tt_are_all_dead() const;
     bool ct_are_all_dead() const;
     void rotate_player(const std::string& username, const double& angle);

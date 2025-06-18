@@ -24,7 +24,6 @@ public:
     std::optional<Rect>& get_plantation();
     std::optional<Vector2D<int>> get_plantation_position();
     void restart();
-    void plant_in(const Vector2D<int>& plantation_position);
     void defuse();
     bool just_planted();
     int detonation_time();
