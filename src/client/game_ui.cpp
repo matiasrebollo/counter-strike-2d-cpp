@@ -100,6 +100,7 @@ void GameUI::detect_player_events(const Snapshot& snapshot) {
 
 void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
     local_info.time_left = snapshot.time_left;
+    local_info.bomb_status = snapshot.bomb_status;
     local_info.total_rounds = snapshot.total_rounds;
     local_info.current_round = snapshot.current_round_number;
     local_info.total_players = snapshot.total_players;
