@@ -61,6 +61,8 @@ private:
             const Shot& shot, const Vector2D<float>& seg_start,
             const Vector2D<float>& seg_end) const;
 
+    bool can_defuse_bomb(const Player& player) const;
+
 public:
     const std::string id;
 
