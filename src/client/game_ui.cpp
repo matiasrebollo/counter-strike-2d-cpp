@@ -376,6 +376,11 @@ bool GameUI::update_attack() {
     } else if (just_defuse && !make_sound_defused) {
         make_sound_defused = false;
         sdl.make_bomb_sound(local_info.bomb_status);
+    } else if (local_info.time_left <= 10 && !make_sound_clock) {
+        sdl.make_clock_sound(true);
+        make_sound_clock = true;
+    } else if (local_info.current_round_winner.has_value() && make_sound_clock) {
+        sdl.make_clock_sound(false);
     }
     return true;
 }
@@ -469,6 +474,7 @@ void GameUI::update_bomb_status(const Snapshot& snapshot) {
         just_defuse = false;
         make_sound_defused = false;
         make_sound_planted = false;
+        make_sound_clock = false;
     }
 }
 

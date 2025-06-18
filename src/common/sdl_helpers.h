@@ -52,7 +52,8 @@ enum SoundEffect {
     BOMB_DEFUSE,
     BOMB_PLANTED,
     CT_WINS,
-    TT_WINS
+    TT_WINS,
+    FAST_TICK_CLOCK
 };
 
 enum Others { AWP_SHOT_FLARE };

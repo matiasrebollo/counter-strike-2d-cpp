@@ -104,7 +104,8 @@ void BlockTextureParser::set_sound_paths() {
                    {BOMB_DEFUSE, "../assets/sfx/radio/bombdef.ogg"},
                    {BOMB_PLANTED, "../assets/sfx/radio/bombpl.ogg"},
                    {CT_WINS, "../assets/sfx/radio/ctwin.ogg"},
-                   {TT_WINS, "../assets/sfx/radio/terwin.ogg"}};
+                   {TT_WINS, "../assets/sfx/radio/terwin.ogg"},
+                   {FAST_TICK_CLOCK, "../assets/sfx/fast-ticking-clock-sound.wav"}};
 }
 
 const std::string& BlockTextureParser::get_editor_gun_texture(const GunType& gun) {

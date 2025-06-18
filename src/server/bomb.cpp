@@ -52,12 +52,12 @@ void Bomb::update(const float& delta_t, Player& owner, GameWorld& game) {
 
 void Bomb::update_planted(const float& delta_t) {
     just_been_planted = false;
+    time_since_planted += delta_t;
     if (just_triggered_action) {
         just_triggered_action = false;
-        return;
+    } else {
+        time_since_last_action += delta_t;
     }
-    time_since_last_action += delta_t;
-    time_since_planted += delta_t;
     if (time_since_planted >= DETONATION_TIME) {
         status = EXPLODED;
         return;

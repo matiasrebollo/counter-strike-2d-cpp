@@ -30,10 +30,11 @@ private:
     LocalInfo local_info;
     std::unique_ptr<GameUIPhase> phase;
     bool keep_running;
-    bool just_planted;
-    bool make_sound_planted;
-    bool just_defuse;
-    bool make_sound_defused;
+    bool just_planted = false;
+    bool make_sound_planted = false;
+    bool just_defuse = false;
+    bool make_sound_defused = false;
+    bool make_sound_clock = false;
 
     friend class GameUIPhase;
     friend class WaitingForGamePhase;

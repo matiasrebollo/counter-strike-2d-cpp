@@ -15,7 +15,7 @@
 
 #include "texture_manager.h"
 
-enum SoundType { STEP_TYPE, SHOT_TYPE, SHOP_TYPE, ROUND_TYPE, BOMB_TYPE };
+enum SoundType { STEP_TYPE, SHOT_TYPE, SHOP_TYPE, ROUND_TYPE, BOMB_TYPE, CLOCK_TYPE };
 
 
 class Sounds {
@@ -31,6 +31,7 @@ private:
     int shop_channel = 0;
     int round_channel = 0;
     int bomb_channel = 0;
+    int clock_channel = 0;
     Uint32 step_delay = 500;
 
     SDL2pp::Mixer& mixer;
@@ -52,6 +53,10 @@ public:
     void play_round_sound(SoundEffect effect);
 
     void play_bomb_sound(SoundEffect effect);
+
+    void play_clock_sound(SoundEffect effect);
+
+    void stop_clock_sound();
 
     void play_step(const std::string& username, const SDL2pp::Point& destino_camera,
                    bool is_moving);

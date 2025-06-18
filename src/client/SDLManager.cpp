@@ -773,3 +773,11 @@ void SDLManager::make_bomb_sound(const BombStatus& bomb_status) {
         sounds.play_bomb_sound(BOMB_DEFUSE);
     }
 }
+
+void SDLManager::make_clock_sound(const bool& play) {
+    if (play) {
+        sounds.play_clock_sound(FAST_TICK_CLOCK);
+    } else {
+        sounds.stop_clock_sound();
+    }
+}
