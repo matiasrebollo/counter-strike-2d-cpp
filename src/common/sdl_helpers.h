@@ -50,7 +50,9 @@ enum SoundEffect {
     START_ROUND_CT,
     ROUND_ALMOST_FINISH,
     BOMB_DEFUSE,
-    BOMB_PLANTED
+    BOMB_PLANTED,
+    CT_WINS,
+    TT_WINS
 };
 
 enum Others { AWP_SHOT_FLARE };

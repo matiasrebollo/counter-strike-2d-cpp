@@ -418,8 +418,10 @@ void GameUI::show_between_rounds(const int& it) {
     sdl.show_screen();
 }
 
-void GameUI::play_start_round_sound() {
-    this->sdl.make_round_start_sound(this->local_info.player.is_ct);
+void GameUI::play_start_round_sound() { sdl.make_round_start_sound(local_info.player.is_ct); }
+
+void GameUI::play_team_winner_sound() {
+    sdl.make_team_winner_sound(local_info.current_round_winner);
 }
 
 /*void GameUI::update() { idea para sacar codigo repetido de la actualizacion del juego popeando

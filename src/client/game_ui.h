@@ -77,7 +77,10 @@ private:
 
     void handle_game_ended();
     void close_client();
+
     void play_start_round_sound();
+
+    void play_team_winner_sound();
 
 public:
     explicit GameUI(Lobby& lobby);

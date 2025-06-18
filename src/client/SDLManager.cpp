@@ -752,3 +752,16 @@ void SDLManager::make_round_start_sound(const bool& is_ct) {
         sounds.play_shop_sound(SoundEffect::START_ROUND_TT);
     }
 }
+
+void SDLManager::make_team_winner_sound(std::optional<Team> current_winner) {
+    if (!current_winner.has_value()) {
+        return;
+    } else {
+        Team winner = current_winner.value();
+        if (winner == Team::CT) {
+            sounds.play_shop_sound(CT_WINS);
+        } else {
+            sounds.play_shop_sound(TT_WINS);
+        }
+    }
+}
