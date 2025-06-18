@@ -115,7 +115,7 @@ void Player::stop_making_action() {
     making_action = false;
 }
 
-void Player::shoot(const Shot& a_shot) { shot = ShotDTO{a_shot.distance}; }
+void Player::shoot(const Shot& a_shot) { shot = ShotDTO{a_shot.impact_info->first}; }
 
 void Player::receive_damage(const int& damage) {
     life = std::max(life - damage, 0);

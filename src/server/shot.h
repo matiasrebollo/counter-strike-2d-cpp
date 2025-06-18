@@ -4,6 +4,7 @@
 #include <list>
 #include <memory>
 #include <optional>
+#include <utility>
 
 #include "server/collidable.h"
 
@@ -15,7 +16,7 @@ public:
     const Vector2D<int> origin;
     const float orientation;
     Collidable* hit;
-    double distance;
+    std::optional<std::pair<double, Vector2D<float>>> impact_info;
 
     Shot(const Vector2D<int>& origin, const float& orientation);
 
