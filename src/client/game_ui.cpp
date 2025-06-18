@@ -116,7 +116,7 @@ void GameUI::show_waiting(const int& it) {
     // configurable
     sdl.render_waiting_screen(this->game_snapshot.ct.size() + this->game_snapshot.tt.size(),
                               this->game_snapshot.total_players, local_info.gamename, it,
-                              FPS_CLIENT);
+                              Settings::getInstance().get_fps_client());
     sdl.show_screen();
 }
 

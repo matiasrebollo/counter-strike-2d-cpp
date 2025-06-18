@@ -1,3 +1,7 @@
+client_fps: 30
+window_initial_height: 400
+window_initial_width: 640
+fullscreen: false
 server_fps: 60
 rounds: 10
 buy_phase_duration: 5

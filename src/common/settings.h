@@ -58,10 +58,10 @@ struct ServerSettings {
 // client
 #define CAMERA_WIDTH 640
 #define CAMERA_HEIGHT 400
-#define FPS_CLIENT 30
+//#define FPS_CLIENT 30
 
-#define WINDOW_INITIAL_WIDTH 640
-#define WINDOW_INITIAL_HEIGHT 400
+//#define WINDOW_INITIAL_WIDTH 640
+//#define WINDOW_INITIAL_HEIGHT 400
 #define HUD_IDEAL_WIDTH 640
 #define HUD_IDEAL_HEIGHT 400
 #define FONT_IDEAL_WIDTH 480
@@ -70,18 +70,14 @@ struct ServerSettings {
 
 
 struct ClientSettings {
-    int camera_width;
-    int camera_height;
-
+    // int camera_width;
+    // int camera_height;
     int fps;
 
     int window_initial_width;
     int window_initial_height;
-    int hud_ideal_width;
-    int hud_ideal_height;
-    int font_ideal_width;
-    int font_ideal_height;
-    int size_player;
+
+    bool fullscreen;
 };
 
 class Settings {
@@ -105,17 +101,16 @@ public:
 
     int get_gun_price(const GunType& gun);
     int get_clip_size(const GunType& gun);
-    int get_gun_rof(const GunType& gun);
-    int get_gun_dmg(const GunType& gun);
-    int get_gun_falloff(const GunType& gun);
-    int get_gun_precision(const GunType& gun);
-    int get_gun_initial_ammo(const GunType& gun);
-    int get_gun_kill_bonus(const GunType& gun);
 
     int get_knife_dmg();
     int get_knife_ar();
     int get_knife_distance();
     int get_knife_kill_bonus();
+
+    int get_fps_client();
+    int get_window_initial_width();
+    int get_window_initial_height();
+    bool get_fullscreen();
 
     Settings(const Settings&) = delete;
     Settings& operator=(const Settings&) = delete;
@@ -127,7 +122,7 @@ private:
     ~Settings() = default;
 
     ServerSettings serverSettings;
-    // ClientSettings clientSettings;
+    ClientSettings clientSettings;
 };
 
 

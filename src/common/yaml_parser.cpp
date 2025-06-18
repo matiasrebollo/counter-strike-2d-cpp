@@ -104,6 +104,14 @@ ServerSettings YamlParser::load_server_settings(const std::string& path) {
     return settings;
 }
 
+ClientSettings YamlParser::load_client_settings(const std::string& path) {
+    YAML::Node file = YAML::LoadFile(path);
+    ClientSettings settings = {file["client_fps"].as<int>(), file["window_initial_width"].as<int>(),
+                               file["window_initial_height"].as<int>(),
+                               file["fullscreen"].as<bool>()};
+    return settings;
+}
+
 std::unordered_map<GunType, GunSettings> YamlParser::load_guns_settings(const YAML::Node& node) {
     std::unordered_map<std::string, GunType> str_to_gun = {
             {"glock", GLOCK}, {"awp", AWP}, {"ak-47", AK47}, {"m3", M3}};

@@ -17,6 +17,7 @@ public:
     YAML::Node game_map_to_Yaml(const GameMap& game_map);
     GameMap yaml_to_game_map(const std::string& path);
     ServerSettings load_server_settings(const std::string& path);
+    ClientSettings load_client_settings(const std::string& path);
 
 private:
     YAML::Node map_object_to_yaml(const MapObject& map_obj);
