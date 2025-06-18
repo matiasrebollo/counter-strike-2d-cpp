@@ -121,6 +121,7 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
             local_info.player.primary_gun = p.loadout.primary_gun;
             local_info.player.secondary_gun = p.loadout.secondary_gun;
             local_info.player.equipped = p.loadout.equipped;
+            local_info.player.in_site = p.on_site;
 
             if (local_info.player.equipped == PRIMARY)
                 local_info.player.equipped_gun_ammo = p.loadout.primary_ammo;
@@ -195,6 +196,8 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
             local_info.player.primary_gun = p.loadout.primary_gun;
             local_info.player.secondary_gun = p.loadout.secondary_gun;
             local_info.player.equipped = p.loadout.equipped;
+            local_info.player.has_bomb = p.loadout.has_bomb;
+            local_info.player.in_site = p.on_site;
 
             if (local_info.player.equipped == PRIMARY)
                 local_info.player.equipped_gun_ammo = p.loadout.primary_ammo;
@@ -216,6 +219,7 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
                     info.primary_gun = p.loadout.primary_gun;
                     info.secondary_gun = p.loadout.secondary_gun;
                     info.equipped = p.loadout.equipped;
+                    info.in_site = p.on_site;
 
                     if (info.equipped == PRIMARY)
                         info.equipped_gun_ammo = p.loadout.primary_ammo;
@@ -241,6 +245,7 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
             info.primary_gun = p.loadout.primary_gun;
             info.secondary_gun = p.loadout.secondary_gun;
             info.equipped = p.loadout.equipped;
+            info.in_site = p.on_site;
 
             if (p.loadout.equipped == PRIMARY)
                 info.equipped_gun_ammo = p.loadout.primary_ammo;
