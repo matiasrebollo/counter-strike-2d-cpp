@@ -25,7 +25,8 @@ private:
     double orientation;
     uint16_t life;
     std::optional<ShotDTO> shot;
-    bool planting_bomb;
+    bool is_planting_bomb;
+    bool is_defusing_bomb;
     bool on_site;
     int bonifications;
     int kills;
@@ -38,6 +39,7 @@ public:
     float get_orientation() const;
     bool is_alive() const;
     bool is_on_site() const;
+    bool defusing_bomb() const;
     bool has_bomb() const;
     WeaponType equipped() const;
     void update(GameWorld& game, const float& delta_t);
@@ -61,6 +63,8 @@ public:
     void equip_bomb();
     void stop_making_action();
     void make_action();
+    void defuse_bomb();
+    void stop_defusing_bomb();
     void shoot(const Shot& a_shot);
     void receive_damage(const int& damage);
     void count_kill(const int& money_bonification);

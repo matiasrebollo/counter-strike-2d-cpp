@@ -19,6 +19,7 @@ struct PlayerDTO {
     uint16_t life;
     std::optional<ShotDTO> shot;
     bool planting_bomb;
+    bool defusing_bomb;
     bool on_site;
     int bonifications;
     int kills;

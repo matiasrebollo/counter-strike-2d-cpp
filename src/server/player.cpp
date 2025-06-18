@@ -16,7 +16,8 @@ Player::Player(const std::string& name, Vector2D<int>& position):
         orientation(0.0),
         life(PLAYER_INITIAL_LIFE),
         shot(std::nullopt),
-        planting_bomb(false),
+        is_planting_bomb(false),
+        is_defusing_bomb(false),
         on_site(false),
         bonifications(0),
         kills(0),
@@ -28,17 +29,21 @@ float Player::get_orientation() const { return orientation; }
 bool Player::is_alive() const { return this->life > 0; }
 bool Player::has_bomb() const { return loadout.has_bomb(); }
 bool Player::is_on_site() const { return this->on_site; }
+bool Player::defusing_bomb() const { return is_defusing_bomb; }
 WeaponType Player::equipped() const { return loadout.get_equipped(); }
 
 void Player::update(GameWorld& game, const float& delta_t) {
     shot = std::nullopt;
-    planting_bomb = false;
+    is_planting_bomb = false;
     int delta_it = static_cast<int>(std::round(delta_t * FPS_SERVER));
 
     Weapon* weapon = loadout.equipped_weapon();
 
+    if (is_defusing_bomb)
+        return;
+
     if (making_action && dynamic_cast<Bomb*>(weapon)) {
-        planting_bomb = true;
+        is_planting_bomb = true;
         weapon->update(delta_t, *this, game);
         return;
     }
@@ -100,6 +105,8 @@ void Player::restart() {
     moving_left = false;
     moving_right = false;
     making_action = false;
+    is_planting_bomb = false;
+    is_defusing_bomb = false;
     shot = std::nullopt;
     orientation = 0.0;
     leave_bomb();
@@ -114,6 +121,8 @@ void Player::stop_making_action() {
         weapon->stop_action();
     making_action = false;
 }
+void Player::defuse_bomb() { is_defusing_bomb = true; }
+void Player::stop_defusing_bomb() { is_defusing_bomb = false; }
 
 void Player::shoot(const Shot& a_shot) { shot = ShotDTO{a_shot.distance}; }
 
@@ -153,9 +162,18 @@ void Player::equip_bomb() {
 Loadout& Player::get_loadout() { return loadout; }
 
 const PlayerDTO Player::get_dto() const {
-    return PlayerDTO{name,  rect.position, orientation,      life,
-                     shot,  planting_bomb, on_site,          bonifications,
-                     kills, deaths,        loadout.get_dto()};
+    return PlayerDTO{name,
+                     rect.position,
+                     orientation,
+                     life,
+                     shot,
+                     is_planting_bomb,
+                     is_defusing_bomb,
+                     on_site,
+                     bonifications,
+                     kills,
+                     deaths,
+                     loadout.get_dto()};
 }
 
 

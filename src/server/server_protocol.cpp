@@ -143,6 +143,7 @@ void ServerProtocol::send_players(const std::vector<PlayerDTO>& players) {
         this->send_big_endian_number(player.life);
         this->send_shot(player);
         this->send_byte(this->bools_to_code.find(player.planting_bomb)->second);
+        this->send_byte(this->bools_to_code.find(player.defusing_bomb)->second);
         this->send_byte(this->bools_to_code.find(player.on_site)->second);
         this->send_byte(player.bonifications);
         this->send_byte(player.kills);
@@ -194,6 +195,8 @@ GameCommandDTO ServerProtocol::receive_client_game_request() {
             return this->receive_buy_weapon_request();
         case CODE_BUY_BULLETS:
             return this->receive_buy_ammo_request();
+        case CODE_DEFUSE_BOMB:
+            return DefuseBombDTO{this->code_to_bools.find(this->receive_byte())->second};
         default:
             throw std::runtime_error("Command not recognised");
     }

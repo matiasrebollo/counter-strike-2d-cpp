@@ -16,6 +16,7 @@ private:
     bool a = false;
     bool s = false;
     bool d = false;
+    bool e = false;
 
     bool one = false;
     bool two = false;
@@ -36,6 +37,7 @@ private:
     double calculate_angle_to_mouse(int mouse_x, int mouse_y) const;
     bool handle_mouse_motion_event(const SDL_Event& event);
     bool handle_shoot_event(const SDL_Event& event);
+    bool handle_defuse_event(const SDL_Event& event);
 
     template <typename T>
     bool try_move(bool& flag, T dto);

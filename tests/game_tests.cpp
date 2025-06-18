@@ -295,10 +295,10 @@ TEST(ServerProtocolTest, SendSnapshot) {
         for (auto current_round: current_rounds) {
             for (auto loadout: loadouts) {
                 std::vector<PlayerDTO> ct = {PlayerDTO{"Mati", Vector2D(0, 0), 0, 100, std::nullopt,
-                                                       false, false, 0, 0, 0, loadout}};
+                                                       false, true, false, 0, 0, 0, loadout}};
                 std::vector<PlayerDTO> tt = {PlayerDTO{"Facu", Vector2D(10, 10), 100, 100,
                                                        std::optional<ShotDTO>(100.20), true, true,
-                                                       10, 10, 10, loadout}};
+                                                       false, 10, 10, 10, loadout}};
                 Snapshot snapshot{total_players, phase,     current_round,
                                   total_rounds,  time_left, status,
                                   bomb_pos,      ct,        tt,
