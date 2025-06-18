@@ -264,7 +264,8 @@ void validate_player(const PlayerDTO& expected_player, const PlayerDTO& actual_p
     ASSERT_EQ(expected_player.life, actual_player.life);
     ASSERT_EQ(expected_player.shot.has_value(), actual_player.shot.has_value());
     if (expected_player.shot.has_value()) {
-        ASSERT_NEAR(expected_player.shot->distance, actual_player.shot->distance, 0.2);
+        ASSERT_EQ(expected_player.shot->impact_position.x, actual_player.shot->impact_position.x);
+        ASSERT_EQ(expected_player.shot->impact_position.y, actual_player.shot->impact_position.y);
     }
     ASSERT_EQ(expected_player.planting_bomb, actual_player.planting_bomb);
     ASSERT_EQ(expected_player.on_site, actual_player.on_site);

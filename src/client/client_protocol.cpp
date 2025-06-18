@@ -197,9 +197,10 @@ std::vector<PlayerDTO> ClientProtocol::receive_players(const int& size_players) 
 
 std::optional<ShotDTO> ClientProtocol::receive_shot() {
     bool has_value = this->code_to_bools.find(this->receive_byte())->second;
-    double distance = this->receive_double();
+    int x = this->receive_byte();
+    int y = this->receive_byte();
     if (has_value) {
-        return ShotDTO{distance};
+        return ShotDTO{Vector2D(x, y)};
     } else {
         return std::nullopt;
     }
