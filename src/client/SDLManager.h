@@ -112,6 +112,15 @@ public:
 
     /* Abre la tienda si es que está cerrada */
     void open_shop();
+
+    /* Emite el sonido correspondiente al inicio de ronda
+    dependiendo en qué team esté el player actualmente */
+    void make_round_start_sound(const bool& is_ct);
+
+    /* Emite un sonido con el equipo ganador, si es que hay uno */
+    void make_team_winner_sound(std::optional<Team> current_winner);
+
+    void make_bomb_sound(const BombStatus& bomb_status);
 };
 
 #endif

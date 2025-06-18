@@ -77,5 +77,4 @@ void Bomb::defuse() {
     time_since_last_action = 0.0f;
     making_action = false;
     status = DEFUSED;
-    std::cout << "defused!!!" << std::endl;
 }
