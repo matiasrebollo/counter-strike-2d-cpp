@@ -36,6 +36,7 @@ private:
 public:
     Player(const std::string& name, Vector2D<int>& position);
 
+    std::string get_username() const;
     float get_orientation() const;
     bool is_alive() const;
     bool is_on_site() const;
@@ -67,7 +68,7 @@ public:
     void stop_defusing_bomb();
     void shoot(const Shot& a_shot);
     void receive_damage(const int& damage);
-    void count_kill(const int& money_bonification);
+    void count_kill(GameWorld& game, Player& victim, const int& money_bonification);
     Loadout& get_loadout();
     const PlayerDTO get_dto() const;
 

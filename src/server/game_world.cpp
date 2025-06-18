@@ -368,6 +368,23 @@ bool GameWorld::team_is_dead(const std::map<std::string, std::shared_ptr<Player>
                        [](const auto& player) { return !player.second->is_alive(); });
 }
 
+bool GameWorld::are_teammates(const Player& player1, const Player& player2) const {
+    const std::string& u1 = player1.get_username();
+    const std::string& u2 = player2.get_username();
+
+    bool in_terrorist_team_1 = terrorists.count(u1);
+    bool in_terrorist_team_2 = terrorists.count(u2);
+    if (in_terrorist_team_1 && in_terrorist_team_2)
+        return true;
+
+    bool in_ct_team_1 = counter_terrorists.count(u1);
+    bool in_ct_team_2 = counter_terrorists.count(u2);
+    if (in_ct_team_1 && in_ct_team_2)
+        return true;
+
+    return false;
+}
+
 bool GameWorld::tt_are_all_dead() const { return team_is_dead(terrorists); }
 
 bool GameWorld::ct_are_all_dead() const { return team_is_dead(counter_terrorists); }
