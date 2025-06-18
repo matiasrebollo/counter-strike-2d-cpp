@@ -299,14 +299,21 @@ GameMap Game_editor::create_map(const std::vector<std::vector<int>>& grid) {
         throw std::runtime_error(MSG_SIZE_TT_SPAWNS);
     }
     std::vector<Vector2D<int>> sites_vector = set_to_vector(bomb_sites, offset_x, offset_y);
+    std::set<Vector2D<int>> sites(sites_vector.begin(), sites_vector.end());
     if (bomb_sites.size() < MIN_SIZE_SITES) {
         QMessageBox::information(this, TITLE_MSG_ERROR_SITES,
                                  QString::fromStdString(MSG_SIZE_SITES));
         throw std::runtime_error(MSG_SIZE_SITES);
     }
 
-    return {right_most - offset_x + 1, bottom_most - offset_y + 1, selected_background, blocks,
-            ct_spawns_vector,          tt_spawns_vector,           sites_vector,        guns_map};
+    return {right_most - offset_x + 1,
+            bottom_most - offset_y + 1,
+            selected_background,
+            blocks,
+            ct_spawns_vector,
+            tt_spawns_vector,
+            sites,
+            guns_map};
 }
 
 std::vector<MapObject> Game_editor::load_blocks(const int& offset_x, const int& offset_y) {

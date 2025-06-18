@@ -1,6 +1,7 @@
 #include "yaml_parser.h"
 
 #include <algorithm>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -71,10 +72,10 @@ GameMap YamlParser::yaml_to_game_map(const std::string& path) {
         tt_spawns.push_back(yaml_to_vector2d(block));
     }
 
-    std::vector<Vector2D<int>> sites;
+    std::set<Vector2D<int>> sites;
     for (const auto& block: file["sites"]) {
         // cppcheck-suppress useStlAlgorithm
-        sites.push_back(yaml_to_vector2d(block));
+        sites.insert(yaml_to_vector2d(block));
     }
 
     GameMap map{file["width"].as<int>(),

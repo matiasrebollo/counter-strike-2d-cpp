@@ -25,7 +25,6 @@ private:
     std::list<std::shared_ptr<Collidable>> collidables;
     std::vector<Rect> sites;
     std::shared_ptr<Bomb> bomb;
-    std::optional<Vector2D<int>> bomb_position;
     Shop shop;
     const GameMap game_map;
 
@@ -80,7 +79,6 @@ public:
     bool bomb_exploded() const;
     bool bomb_defused() const;
     void defuse_bomb();
-    void plant_bomb(Player& terrorist);
     bool tt_are_all_dead() const;
     bool ct_are_all_dead() const;
     void rotate_player(const std::string& username, const double& angle);
@@ -95,6 +93,8 @@ public:
     void stop_moving_player_right(const std::string& username);
     void make_player_action(const std::string& username);
     void stop_making_player_action(const std::string& username);
+    void make_player_defuse_bomb(const std::string& username);
+    void stop_making_player_defuse_bomb(const std::string& username);
     void equip_primary_for(const std::string& username);
     void equip_secondary_for(const std::string& username);
     void equip_knife_for(const std::string& username);

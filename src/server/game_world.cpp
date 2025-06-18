@@ -44,7 +44,6 @@ void GameWorld::set_sites() {
 
 GameWorld::GameWorld(const std::string& map_filename):
         bomb(std::make_shared<Bomb>()),
-        bomb_position(std::nullopt),
         shop(),
         game_map(YamlParser().yaml_to_game_map(PATH_FOLDER_MAPS + map_filename + ".yaml")) {
     add_collidables();
@@ -160,7 +159,7 @@ const GameWorldSnapshot GameWorld::get_snapshot() const {
         tt.push_back(player.second->get_dto());
     }
 
-    return GameWorldSnapshot{bomb->get_status(), bomb_position, ct, tt};
+    return GameWorldSnapshot{bomb->get_status(), bomb->get_plantation_position(), ct, tt};
 }
 
 void GameWorld::rotate_player(const std::string& username, const double& angle) {
@@ -213,6 +212,28 @@ void GameWorld::stop_making_player_action(const std::string& username) {
             return;
         p.stop_making_action();
     });
+}
+
+void GameWorld::make_player_defuse_bomb(const std::string& username) {
+    auto it = counter_terrorists.find(username);
+    if (it != counter_terrorists.end()) {
+        Player& p = *(it->second);
+        if (this->can_defuse_bomb(p)) {
+            p.defuse_bomb();
+            this->bomb->action();
+        }
+    }
+}
+
+void GameWorld::stop_making_player_defuse_bomb(const std::string& username) {
+    auto it = counter_terrorists.find(username);
+    if (it != counter_terrorists.end()) {
+        Player& p = *(it->second);
+        if (p.defusing_bomb()) {
+            p.stop_defusing_bomb();
+            this->bomb->stop_action();
+        }
+    }
 }
 
 void GameWorld::equip_primary_for(const std::string& username) {
@@ -272,6 +293,11 @@ bool GameWorld::on_site(const Player& p) const {
     });
 }
 
+bool GameWorld::can_defuse_bomb(const Player& player) const {
+    const auto& plantation = bomb->get_plantation();
+    return plantation && player.rect.intersects_with(*plantation);
+}
+
 void GameWorld::make_step_player(Player& player, const Vector2D<int>& step) {
 
     if (step.x != 0) {
@@ -304,20 +330,20 @@ void GameWorld::make_step_player(Player& player, const Vector2D<int>& step) {
 }
 
 void GameWorld::update(const float& delta_t) {
-    if (bomb->get_status() == PLANTED) {
+    BombStatus prev_status = bomb->get_status();
+
+    if (prev_status == PLANTED) {
         bomb->update_planted(delta_t);
     }
+
     for (const auto& [_, c_terrorist]: counter_terrorists) {
+        if (prev_status == PLANTED && bomb->get_status() == DEFUSED && c_terrorist->defusing_bomb())
+            c_terrorist->stop_defusing_bomb();
         c_terrorist->update(*this, delta_t);
     }
     for (const auto& [_, terrorist]: terrorists) {
         terrorist->update(*this, delta_t);
     }
-}
-
-void GameWorld::plant_bomb(Player& terrorist) {
-    terrorist.leave_bomb();
-    bomb_position = terrorist.rect.position;
 }
 
 bool GameWorld::bomb_just_planted() const { return bomb->just_planted(); }

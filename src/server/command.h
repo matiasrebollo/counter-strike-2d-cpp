@@ -52,6 +52,14 @@ public:
     ~PlayerActionCommand() override = default;
 };
 
+class DefuseBombCommand: public Command {
+public:
+    const bool make;
+    DefuseBombCommand(const std::string& username, const bool& make);
+    void execute_in_attack_phase(GameWorld& game) const override;
+    ~DefuseBombCommand() override = default;
+};
+
 class BuyGunCommand: public Command {
 public:
     const GunType gun;
@@ -113,5 +121,6 @@ public:
     explicit EquipBombCommand(const std::string& username);
     ~EquipBombCommand() override = default;
 };
+
 
 #endif

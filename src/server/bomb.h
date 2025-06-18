@@ -2,10 +2,11 @@
 #define BOMB_H
 
 #include <memory>
-#include <unordered_map>
+#include <optional>
 
 #include "common/bomb_status.h"
 #include "common/settings.h"
+#include "server/rect.h"
 #include "server/weapon.h"
 
 
@@ -14,11 +15,14 @@ private:
     BombStatus status;
     bool just_been_planted;
     float time_since_planted;
+    std::optional<Rect> plantation;
 
 public:
     Bomb();
 
     BombStatus get_status();
+    std::optional<Rect>& get_plantation();
+    std::optional<Vector2D<int>> get_plantation_position();
     void restart();
     void defuse();
     bool just_planted();

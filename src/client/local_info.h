@@ -18,6 +18,8 @@ struct PlayerInfo {
     GunType primary_gun = NONE;
     GunType secondary_gun = NONE;
     WeaponType equipped = SECONDARY;
+    bool in_site = false;
+    bool has_bomb = false;
     bool movement = false;
     bool shoot = false;
     int impact_position_x = 0;
@@ -36,6 +38,7 @@ struct LocalInfo {
     std::vector<PlayerInfo> tt_players;
     PlayerInfo player;
     std::optional<Team> current_round_winner;
+    BombStatus bomb_status = BombStatus::NOT_PLANTED;
     Phase phase = WAITING_PLAYERS;
     int time_left = 0;
     int total_players = 0;

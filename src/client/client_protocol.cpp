@@ -57,6 +57,8 @@ void ClientProtocol::send_command(const GameCommandDTO& command) {
                     handle_rotate(d);
                 } else if constexpr (std::is_same_v<T, PlayerActionDTO>) {
                     handle_player_action(d);
+                } else if constexpr (std::is_same_v<T, DefuseBombDTO>) {
+                    handle_defuse_bomb(d);
                 } else if constexpr (std::is_same_v<T, EquipPrimaryDTO>) {
                     handle_equip_primary();
                 } else if constexpr (std::is_same_v<T, EquipSecondaryDTO>) {
@@ -104,6 +106,11 @@ void ClientProtocol::handle_rotate(const RotateDTO& dto) {
 
 void ClientProtocol::handle_player_action(const PlayerActionDTO& dto) {
     this->send_byte(CODE_ACTION);
+    this->send_byte(this->bools_to_code.find(dto.make)->second);
+}
+
+void ClientProtocol::handle_defuse_bomb(const DefuseBombDTO& dto) {
+    this->send_byte(CODE_DEFUSE_BOMB);
     this->send_byte(this->bools_to_code.find(dto.make)->second);
 }
 
@@ -183,14 +190,15 @@ std::vector<PlayerDTO> ClientProtocol::receive_players(const int& size_players) 
         uint16_t life = this->receive_big_endian_number();
         std::optional<ShotDTO> shot = this->receive_shot();
         bool planting_bomb = this->code_to_bools.find(this->receive_byte())->second;
+        bool defusing_bomb = this->code_to_bools.find(this->receive_byte())->second;
         bool on_site = this->code_to_bools.find(this->receive_byte())->second;
         int bonifications = this->receive_byte();
         int kills = this->receive_byte();
         int deaths = this->receive_byte();
         LoadoutDTO loadout = this->receive_loadout();
         players.push_back(PlayerDTO{username, Vector2D<int>(position_x, position_y), angle, life,
-                                    shot, planting_bomb, on_site, bonifications, kills, deaths,
-                                    loadout});
+                                    shot, planting_bomb, defusing_bomb, on_site, bonifications,
+                                    kills, deaths, loadout});
     }
     return players;
 }
@@ -247,7 +255,7 @@ GameInitialInfoDTO ClientProtocol::receive_game_initial_info() {
     uint16_t size = this->receive_big_endian_number();
     std::vector<MapObject> map_objects = this->receive_map_objects(size);
     uint16_t size_sites = this->receive_big_endian_number();
-    std::vector<Vector2D<int>> sites = this->receive_sites(size_sites);
+    std::set<Vector2D<int>> sites = this->receive_sites(size_sites);
     GameMapDTO game_map = GameMapDTO{background, map_objects, sites};
     uint8_t shop_gun_prices_size = this->receive_byte();
     std::unordered_map<GunType, int> gun_prices = this->receive_gun_prices(shop_gun_prices_size);
@@ -258,13 +266,13 @@ GameInitialInfoDTO ClientProtocol::receive_game_initial_info() {
     return GameInitialInfoDTO{game_map, shop_info};
 }
 
-std::vector<Vector2D<int>> ClientProtocol::receive_sites(const uint16_t& size) {
-    std::vector<Vector2D<int>> sites = {};
+std::set<Vector2D<int>> ClientProtocol::receive_sites(const uint16_t& size) {
+    std::set<Vector2D<int>> sites = {};
     for (int i = 0; i < size; i++) {
         int x = static_cast<int>(this->receive_big_endian_number());
         int y = static_cast<int>(this->receive_big_endian_number());
         Vector2D<int> actual = Vector2D(x, y);
-        sites.push_back(actual);
+        sites.insert(actual);
     }
     return sites;
 }

@@ -13,7 +13,7 @@
 #define MAX_DISTANCE_SHOT 10000
 
 #define TERRORISTS 1
-#define COUNTER_TERRORISTS 2
+#define COUNTER_TERRORISTS 1
 
 #define GLOCK_INITIAL_AMMO 30
 #define AWP_INITIAL_AMMO 10
@@ -56,6 +56,8 @@
 #define GLOCK_KILL_BONUS 500
 #define KNIFE_KILL_BONUS 1500
 
+
+#define BOMB_THICKNESS 180
 #define BLOCK_THICKNESS 400
 
 #define PLAYER_SPEED 10       // debe ser un numero par

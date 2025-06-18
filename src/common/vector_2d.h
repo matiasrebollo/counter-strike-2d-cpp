@@ -19,6 +19,10 @@ public:
 
     bool operator==(const Vector2D& other) const { return x == other.x && y == other.y; }
 
+    bool operator<(const Vector2D& other) const {
+        return (x < other.x) || (x == other.x && y < other.y);
+    }
+
     T dot(const Vector2D& other) const { return x * other.x + y * other.y; }
 
     T cross(const Vector2D& other) const { return x * other.y - y * other.x; }
