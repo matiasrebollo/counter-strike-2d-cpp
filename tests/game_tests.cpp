@@ -263,7 +263,8 @@ void validate_player(const PlayerDTO& expected_player, const PlayerDTO& actual_p
     ASSERT_EQ(expected_player.life, actual_player.life);
     ASSERT_EQ(expected_player.shot.has_value(), actual_player.shot.has_value());
     if (expected_player.shot.has_value()) {
-        ASSERT_NEAR(expected_player.shot->distance, actual_player.shot->distance, 0.2);
+        ASSERT_EQ(expected_player.shot->impact_position.x, actual_player.shot->impact_position.x);
+        ASSERT_EQ(expected_player.shot->impact_position.y, actual_player.shot->impact_position.y);
     }
     ASSERT_EQ(expected_player.planting_bomb, actual_player.planting_bomb);
     ASSERT_EQ(expected_player.on_site, actual_player.on_site);
@@ -294,11 +295,12 @@ TEST(ServerProtocolTest, SendSnapshot) {
     for (auto phase: phases) {
         for (auto current_round: current_rounds) {
             for (auto loadout: loadouts) {
-                std::vector<PlayerDTO> ct = {PlayerDTO{"Mati", Vector2D(0, 0), 0, 100, std::nullopt,
-                                                       false, true, false, 0, 0, 0, loadout}};
-                std::vector<PlayerDTO> tt = {PlayerDTO{"Facu", Vector2D(10, 10), 100, 100,
-                                                       std::optional<ShotDTO>(100.20), true, true,
-                                                       false, 10, 10, 10, loadout}};
+                std::vector<PlayerDTO> ct = {PlayerDTO{"Mati", Vector2D<int>(0, 0), 0, 100,
+                                                       std::nullopt, false, false, 0, 0, 0,
+                                                       loadout}};
+                std::vector<PlayerDTO> tt = {PlayerDTO{"Facu", Vector2D<int>(10, 10), 100, 100,
+                                                       std::optional<ShotDTO>(Vector2D<int>(1, 2)),
+                                                       true, true, 10, 10, 10, loadout}};
                 Snapshot snapshot{total_players, phase,     current_round,
                                   total_rounds,  time_left, status,
                                   bomb_pos,      ct,        tt,

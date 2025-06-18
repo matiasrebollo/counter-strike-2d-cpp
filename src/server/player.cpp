@@ -124,7 +124,7 @@ void Player::stop_making_action() {
 void Player::defuse_bomb() { is_defusing_bomb = true; }
 void Player::stop_defusing_bomb() { is_defusing_bomb = false; }
 
-void Player::shoot(const Shot& a_shot) { shot = ShotDTO{a_shot.distance}; }
+void Player::shoot(const Shot& a_shot) { shot = a_shot.get_dto(); }
 
 void Player::receive_damage(const int& damage) {
     life = std::max(life - damage, 0);

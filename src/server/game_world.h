@@ -6,6 +6,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "common/game_map.h"
@@ -52,11 +53,13 @@ private:
         }
     }
 
-    // devuelve la distancia del objeto con el que impactó o 0 si no impactó.
-    double impacts(const Shot& shot, const Collidable& collidable) const;
-    double intersects_segment(const Shot& shot, const Vector2D<float>& seg_start,
-                              const Vector2D<float>& seg_end) const;
-    bool can_defuse_bomb(const Player& player) const;
+    // devuelve el punto de impacto y la distancia del objeto con el que impactó o std::nullopt si
+    // no impactó.
+    std::optional<std::pair<double, Vector2D<float>>> impacts(const Shot& shot,
+                                                              const Collidable& collidable) const;
+    std::optional<std::pair<double, Vector2D<float>>> intersects_segment(
+            const Shot& shot, const Vector2D<float>& seg_start,
+            const Vector2D<float>& seg_end) const;
 
 public:
     const std::string id;

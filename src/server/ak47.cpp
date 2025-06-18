@@ -31,7 +31,7 @@ void Ak_47::shoot(GameWorld& game, Player& shooter) {
 
     if (Player* hit_player = dynamic_cast<Player*>(shot.hit)) {
         for (int i = 0; i < num_shots; ++i) {
-            execute_shot(hit_player, shot.distance);
+            execute_shot(hit_player, shot.impact_info->first);
         }
         if (!hit_player->is_alive())
             shooter.count_kill(kill_bonification);

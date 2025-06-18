@@ -45,16 +45,19 @@ void GameUI::reset_player_events() {
     for (auto& p: local_info.ct_players) {
         p.movement = false;
         p.shoot = false;
-        p.shot_distance = 0;
+        p.impact_position_x = 0;
+        p.impact_position_y = 0;
     }
     for (auto& p: local_info.tt_players) {
         p.movement = false;
         p.shoot = false;
-        p.shot_distance = 0;
+        p.impact_position_x = 0;
+        p.impact_position_y = 0;
     }
     local_info.player.movement = false;
     local_info.player.shoot = false;
-    local_info.player.shot_distance = 0;
+    local_info.player.impact_position_x = 0;
+    local_info.player.impact_position_y = 0;
 }
 
 void GameUI::detect_player_events(const Snapshot& snapshot) {
@@ -64,7 +67,8 @@ void GameUI::detect_player_events(const Snapshot& snapshot) {
         }
         if (dto.shot.has_value()) {
             info.shoot = true;
-            info.shot_distance = dto.shot->distance;
+            info.impact_position_x = dto.shot->impact_position.x;
+            info.impact_position_y = dto.shot->impact_position.y;
         }
     };
 

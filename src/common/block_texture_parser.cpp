@@ -17,6 +17,7 @@ BlockTextureParser::BlockTextureParser(): block_textures(), backgrounds_paths() 
     this->set_font_and_waiting();
     this->set_gun_textures();
     this->set_editor_gun_textures();
+    this->set_other_paths();
 }
 
 const BlockTextureInfo& BlockTextureParser::get_texture_info(int block) {
@@ -79,6 +80,14 @@ const std::string& BlockTextureParser::get_sound_path(SoundEffect effect) const 
     return sound_paths.at(effect);
 }
 
+const std::string& BlockTextureParser::get_other_path(Others other) const {
+    return other_paths.at(other);
+}
+
+void BlockTextureParser::set_other_paths() {
+    other_paths = {{AWP_SHOT_FLARE, "../assets/gfx/flare3.bmp"}};
+}
+
 void BlockTextureParser::set_sound_paths() {
     sound_paths = {{DENY_SELECT, "../assets/sfx/wpn_denyselect.wav"},
                    {SELECT, "../assets/sfx/wpn_select.wav"},
@@ -87,7 +96,9 @@ void BlockTextureParser::set_sound_paths() {
                    {CLOSE_SHOP, "../assets/sfx/wpn_hudoff.wav"},
                    {DIRT_STEP_ONE, "../assets/sfx/player/pl_dirt1.wav"},
                    {DIRT_STEP_TWO, "../assets/sfx/player/pl_dirt2.wav"},
-                   {GLOCK_SHOT, "../assets/sfx/weapons/glock18.wav"}};
+                   {GLOCK_SHOT, "../assets/sfx/weapons/glock18.wav"},
+                   {AWP_SHOT, "../assets/sfx/weapons/awp.wav"},
+                   {KNIFE_HIT, "../assets/sfx/weapons/knife_hit.wav"}};
 }
 
 const std::string& BlockTextureParser::get_editor_gun_texture(const GunType& gun) {

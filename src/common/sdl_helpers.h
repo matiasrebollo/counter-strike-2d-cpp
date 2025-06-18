@@ -43,8 +43,12 @@ enum SoundEffect {
     CLOSE_SHOP,
     DIRT_STEP_ONE,
     DIRT_STEP_TWO,
-    GLOCK_SHOT
+    GLOCK_SHOT,
+    AWP_SHOT,
+    KNIFE_HIT
 };
+
+enum Others { AWP_SHOT_FLARE };
 
 
 #endif

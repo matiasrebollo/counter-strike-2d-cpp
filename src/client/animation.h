@@ -6,28 +6,24 @@
 #include <SDL2/SDL.h>
 #include <SDL2pp/SDL2pp.hh>
 
+#include "../common/block_texture_parser.h"
+#include "../common/weapon_type.h"
+
 #include "camera.h"
+#include "texture_manager.h"
 
 class Animation {
 private:
-    /*struct Shot {
-        SDL2pp::Point origin;
-        double angle;
-        double distance;
-    };*/
-
     SDL2pp::Renderer& renderer;
     Camera& camera;
+    TextureManager& texture_manager;
+    BlockTextureParser& texture_parser;
 
-    // std::unordered_map<std::string, Shot> active_shots; // luego quizas el valor debe ser un
-    // vector de shots
 public:
-    Animation(SDL2pp::Renderer& renderer, Camera& camera);
+    Animation(SDL2pp::Renderer& renderer, Camera& camera, TextureManager& texture_manager,
+              BlockTextureParser& texture_parser);
 
-    /*void start_shot(const std::string& username, SDL2pp::Point origin,
-                    double angle, double distance);*/
-
-    void render_shot(SDL2pp::Point origin, double angle, double distance);
+    void render_shot(SDL2pp::Point origin_camera, SDL2pp::Point end_world, GunType gun);
 };
 
 #endif

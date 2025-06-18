@@ -22,7 +22,8 @@ struct PlayerInfo {
     bool has_bomb = false;
     bool movement = false;
     bool shoot = false;
-    int shot_distance = 0;
+    int impact_position_x = 0;
+    int impact_position_y = 0;
 };
 
 struct LocalInfo {

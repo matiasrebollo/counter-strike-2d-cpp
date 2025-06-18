@@ -26,7 +26,7 @@
 #define GLOCK_ROF 200
 #define AWP_DMG 130
 #define AWP_ROF 40
-#define KNIFE_DISTANCE 50
+#define KNIFE_DISTANCE 210
 #define KNIFE_DMG 25
 #define KNIFE_AR 120
 #define M3_PRECISION 0.9

@@ -155,10 +155,12 @@ void ServerProtocol::send_players(const std::vector<PlayerDTO>& players) {
 void ServerProtocol::send_shot(const PlayerDTO& player) {
     if (player.shot.has_value()) {
         this->send_byte(CODE_TRUE);
-        this->send_double(player.shot->distance);
+        this->send_big_endian_number(player.shot->impact_position.x);
+        this->send_big_endian_number(player.shot->impact_position.y);
     } else {
         this->send_byte(CODE_FALSE);
-        this->send_double(0.0);
+        this->send_big_endian_number(0);
+        this->send_big_endian_number(0);
     }
 }
 
