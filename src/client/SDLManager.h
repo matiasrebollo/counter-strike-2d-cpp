@@ -20,6 +20,18 @@
 #include "shop.h"
 #include "sounds.h"
 
+struct GunVisualData {
+    Position carry_sprite;
+    GunSprites weapon_sprite;
+    int sprite_offset_x;
+    int sprite_offset_y;
+    int shot_offset_x;
+    int shot_offset_y;
+    int width;
+    int height;
+    float recoil;
+};
+
 class SDLManager {
 private:
     SDL2pp::SDL sdl;
@@ -37,9 +49,9 @@ private:
     std::optional<GameMapDTO> map;
 
     void update_camera(int player_x, int player_y);
-    std::pair<Position, GunSprites> get_gun_info(const WeaponType& equipped,
-                                                 const GunType& primary_gun);
-    void render_player(const PlayerInfo& p, const BlockTextureInfo& sprite_info);
+    GunVisualData get_gun_visual_info(WeaponType equipped, GunType gun_type);
+    void render_player(const PlayerInfo& p, const CounterTerroristSkin& ct_skin,
+                       const TerroristSkin& tt_skin);
     void render_player_weapon(const PlayerInfo& p);
     void render_fov(float orientation_deg);
     void render_hud_time(int time_left);
