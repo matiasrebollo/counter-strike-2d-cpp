@@ -87,7 +87,7 @@ private:
 
     void play_team_winner_sound();
 
-    void update_bomb_status(const Snapshot& snapshot);
+    void update_game_status(const Snapshot& snapshot);
 
 public:
     explicit GameUI(Lobby& lobby);

@@ -103,7 +103,7 @@ void GameUI::detect_player_events(const Snapshot& snapshot) {
 
 
 void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
-    update_bomb_status(snapshot);
+    update_game_status(snapshot);
     local_info.time_left = snapshot.time_left;
     local_info.bomb_status = snapshot.bomb_status;
     local_info.total_rounds = snapshot.total_rounds;
@@ -461,19 +461,25 @@ void GameUI::change_phase(std::unique_ptr<GameUIPhase> new_phase) {
     this->phase = std::move(new_phase);
 }
 
-void GameUI::update_bomb_status(const Snapshot& snapshot) {
+void GameUI::update_game_status(const Snapshot& snapshot) {
     if (local_info.bomb_status == BombStatus::NOT_PLANTED &&
         snapshot.bomb_status == BombStatus::PLANTED) {
         just_planted = true;
     } else if (local_info.bomb_status == BombStatus::PLANTED &&
                snapshot.bomb_status == BombStatus::DEFUSED) {
+        sdl.make_clock_sound(false);
         just_defuse = true;
     }
     if (local_info.current_round == snapshot.current_round_number - 1) {
+        sdl.make_clock_sound(false);
         just_planted = false;
         just_defuse = false;
         make_sound_defused = false;
         make_sound_planted = false;
+        make_sound_clock = false;
+    }
+    if (local_info.time_left > snapshot.time_left) {
+        sdl.make_clock_sound(false);
         make_sound_clock = false;
     }
 }
