@@ -134,6 +134,9 @@ bool InputHandler::handle_buy_events(int money, GunType primary) {
             sdl.close_shop();
             continue;
         }
+        if (event.type == SDL_QUIT) {
+            return false;
+        }
         if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_b) {
             sdl.open_shop();
             continue;

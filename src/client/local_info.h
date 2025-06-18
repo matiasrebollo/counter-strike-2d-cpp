@@ -24,6 +24,9 @@ struct PlayerInfo {
     bool shoot = false;
     int impact_position_x = 0;
     int impact_position_y = 0;
+    int bonifications = 0;
+    int kills = 0;
+    int deaths = 0;
 };
 
 struct LocalInfo {

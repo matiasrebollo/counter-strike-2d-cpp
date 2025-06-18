@@ -3,7 +3,7 @@
 
 // server
 #define FPS_SERVER 60
-#define ROUNDS 10
+#define ROUNDS 2
 
 #define BUY_PHASE_DURATION 10
 #define ATTACK_PHASE_DURATION 60

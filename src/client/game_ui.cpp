@@ -127,6 +127,9 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
             local_info.player.secondary_gun = p.loadout.secondary_gun;
             local_info.player.equipped = p.loadout.equipped;
             local_info.player.in_site = p.on_site;
+            local_info.player.bonifications = p.bonifications;
+            local_info.player.kills = p.kills;
+            local_info.player.deaths = p.deaths;
 
             if (local_info.player.equipped == PRIMARY)
                 local_info.player.equipped_gun_ammo = p.loadout.primary_ammo;
@@ -149,6 +152,10 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
                     info.primary_gun = p.loadout.primary_gun;
                     info.secondary_gun = p.loadout.secondary_gun;
                     info.equipped = p.loadout.equipped;
+                    info.bonifications = p.bonifications;
+                    info.kills = p.kills;
+                    info.deaths = p.deaths;
+
 
                     if (info.equipped == PRIMARY)
                         info.equipped_gun_ammo = p.loadout.primary_ammo;
@@ -175,6 +182,9 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
             info.primary_gun = p.loadout.primary_gun;
             info.secondary_gun = p.loadout.secondary_gun;
             info.equipped = p.loadout.equipped;
+            info.bonifications = p.bonifications;
+            info.kills = p.kills;
+            info.deaths = p.deaths;
 
             if (p.loadout.equipped == PRIMARY)
                 info.equipped_gun_ammo = p.loadout.primary_ammo;
@@ -203,6 +213,9 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
             local_info.player.equipped = p.loadout.equipped;
             local_info.player.has_bomb = p.loadout.has_bomb;
             local_info.player.in_site = p.on_site;
+            local_info.player.bonifications = p.bonifications;
+            local_info.player.kills = p.kills;
+            local_info.player.deaths = p.deaths;
 
             if (local_info.player.equipped == PRIMARY)
                 local_info.player.equipped_gun_ammo = p.loadout.primary_ammo;
@@ -225,6 +238,9 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
                     info.secondary_gun = p.loadout.secondary_gun;
                     info.equipped = p.loadout.equipped;
                     info.in_site = p.on_site;
+                    info.bonifications = p.bonifications;
+                    info.kills = p.kills;
+                    info.deaths = p.deaths;
 
                     if (info.equipped == PRIMARY)
                         info.equipped_gun_ammo = p.loadout.primary_ammo;
@@ -251,6 +267,9 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
             info.secondary_gun = p.loadout.secondary_gun;
             info.equipped = p.loadout.equipped;
             info.in_site = p.on_site;
+            info.bonifications = p.bonifications;
+            info.kills = p.kills;
+            info.deaths = p.deaths;
 
             if (p.loadout.equipped == PRIMARY)
                 info.equipped_gun_ammo = p.loadout.primary_ammo;
@@ -368,6 +387,7 @@ bool GameUI::update_attack() {
             return false;
         }
     }
+
     if (got_snapshot)
         update_local_info_from_snapshot(last_snapshot);
     if (just_planted && !make_sound_planted) {
@@ -382,6 +402,7 @@ bool GameUI::update_attack() {
     } else if (local_info.current_round_winner.has_value() && make_sound_clock) {
         sdl.make_clock_sound(false);
     }
+
     return true;
 }
 
@@ -455,7 +476,7 @@ snapshots GameDTO game_dto; bool pop = true; while (pop) { if
     }
 }*/
 
-void GameUI::handle_game_ended() { std::cout << "Game ended!" << std::endl; }
+void GameUI::handle_game_ended() {}
 
 void GameUI::change_phase(std::unique_ptr<GameUIPhase> new_phase) {
     this->phase = std::move(new_phase);
