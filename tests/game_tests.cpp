@@ -161,9 +161,8 @@ void validate_map(const GameMapDTO& expected_gamemap, const GameMapDTO& actual_g
         }
     }
     ASSERT_EQ(expected_gamemap.sites.size(), actual_gamemap.sites.size());
-    for (size_t i = 0; i < expected_gamemap.sites.size(); i++) {
-        ASSERT_EQ(expected_gamemap.sites[i].x, actual_gamemap.sites[i].x);
-        ASSERT_EQ(expected_gamemap.sites[i].y, actual_gamemap.sites[i].y);
+    for (auto site: expected_gamemap.sites) {
+        ASSERT_TRUE(actual_gamemap.sites.find(site) != actual_gamemap.sites.end());
     }
 }
 
@@ -192,10 +191,10 @@ TEST(ServerProtocolTest, SendGameInitialInfo) {
         MapObject object = {positions, 19, true};
         objects.push_back(object);
     }
-    std::vector<Vector2D<int>> sites = {};
+    std::set<Vector2D<int>> sites = {};
     for (int i = 0; i < 100; i++) {
         Vector2D<int> site = Vector2D(i, i + 1);
-        sites.push_back(site);
+        sites.insert(site);
     }
 
     GameMapDTO game_map = GameMapDTO{Background::AZTEC_BACKGROUND, objects, sites};

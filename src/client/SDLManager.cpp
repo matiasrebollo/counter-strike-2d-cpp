@@ -571,7 +571,6 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
         for (const MapObject& obj: game_map.map_objects) {
             const BlockTextureInfo& obj_info = texture_parser.get_texture_info(obj.type);
             std::string path = obj_info.tileset_path;
-
             SDL2pp::Texture& obj_texture = texture_manager.get_texture(path);
 
             SDL2pp::Rect rect_origen(obj_info.x, obj_info.y, obj_info.width, obj_info.height);
@@ -583,6 +582,12 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
                     continue;
                 SDL2pp::Rect destino_camera = camera.rect_world_to_screen(destino_mundo);
                 renderer.Copy(obj_texture, rect_origen, destino_camera);
+                if (game_map.sites.find(vec) != game_map.sites.end()) {
+                    renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
+                    renderer.SetDrawColor(255, 0, 0, 40);
+                    renderer.FillRect(destino_camera);
+                    renderer.SetDrawBlendMode(SDL_BLENDMODE_NONE);
+                }
             }
         }
     }
