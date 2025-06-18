@@ -385,6 +385,20 @@ void Shop::render(int player_money, GunType primary_gun, GunType secondary_gun) 
     highlight_primary = false;
 }
 
+void Shop::close_shop() {
+    if (open) {
+        open = false;
+        sounds.play_shop_sound(CLOSE_SHOP);
+    }
+}
+
+void Shop::open_shop() {
+    if (!open) {
+        open = true;
+        sounds.play_shop_sound(OPEN_SHOP);
+    }
+}
+
 // se puede modificar el volumen del canal o de cada chunk si esta muy fuerta ahora
 std::optional<ShopButtonType> Shop::interact_button(int x, int y, int money, GunType primary_gun,
                                                     bool click) {
@@ -393,8 +407,7 @@ std::optional<ShopButtonType> Shop::interact_button(int x, int y, int money, Gun
 
     if (!open) {
         if (open_button.rect.Contains(point) && click) {
-            open = true;
-            sounds.play_shop_sound(OPEN_SHOP);
+            open_shop();
             return ShopButtonType::Open;
         }
         return std::nullopt;
@@ -417,9 +430,7 @@ std::optional<ShopButtonType> Shop::interact_button(int x, int y, int money, Gun
             }
 
             if (button.type == ShopButtonType::Close) {
-                open = false;
-
-                sounds.play_shop_sound(CLOSE_SHOP);
+                close_shop();
 
                 return ShopButtonType::Close;
             }

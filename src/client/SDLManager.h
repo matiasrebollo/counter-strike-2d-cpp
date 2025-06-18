@@ -106,6 +106,12 @@ public:
 
     /* Muestra lo dibujado en pantalla */
     void show_screen();
+
+    /* Cierra la tienda si es que está abierta */
+    void close_shop();
+
+    /* Abre la tienda si es que está cerrada */
+    void open_shop();
 };
 
 #endif

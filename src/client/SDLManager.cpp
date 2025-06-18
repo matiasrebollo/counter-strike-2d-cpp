@@ -740,3 +740,7 @@ void SDLManager::render_crosshair(const LocalInfo& local_info) {
 
 
 void SDLManager::show_screen() { renderer.Present(); }
+
+void SDLManager::close_shop() { shop.close_shop(); }
+
+void SDLManager::open_shop() { shop.open_shop(); }
