@@ -34,6 +34,7 @@ void GameUIPhase::change_phase() {
     } else if (game_ui.local_info.phase == BUY) {
         game_ui.change_phase(std::make_unique<UIBuyPhase>(game_ui));
     } else if (game_ui.local_info.phase == ATTACK) {
+        game_ui.play_start_round_sound();
         game_ui.change_phase(std::make_unique<UIAttackPhase>(game_ui));
     } else if (game_ui.local_info.phase == ROUND_ENDED) {
         game_ui.change_phase(std::make_unique<RoundEndedPhase>(game_ui));

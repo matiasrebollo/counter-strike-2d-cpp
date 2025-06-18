@@ -382,6 +382,7 @@ void GameUI::show_attack(const int& it) {
 void GameUI::handle_between_rounds_events() {
     this->keep_running = input_handler.handle_between_rounds_events();
 }
+
 bool GameUI::update_between_rounds() {
     GameDTO game_dto;
     Snapshot last_snapshot;
@@ -415,6 +416,10 @@ void GameUI::show_between_rounds(const int& it) {
     sdl.render_in_z_order(local_info, it);
     sdl.render_crosshair(local_info);
     sdl.show_screen();
+}
+
+void GameUI::play_start_round_sound() {
+    this->sdl.make_round_start_sound(this->local_info.player.is_ct);
 }
 
 /*void GameUI::update() { idea para sacar codigo repetido de la actualizacion del juego popeando

@@ -744,3 +744,11 @@ void SDLManager::show_screen() { renderer.Present(); }
 void SDLManager::close_shop() { shop.close_shop(); }
 
 void SDLManager::open_shop() { shop.open_shop(); }
+
+void SDLManager::make_round_start_sound(const bool& is_ct) {
+    if (is_ct) {
+        sounds.play_shop_sound(SoundEffect::START_ROUND_CT);
+    } else {
+        sounds.play_shop_sound(SoundEffect::START_ROUND_TT);
+    }
+}

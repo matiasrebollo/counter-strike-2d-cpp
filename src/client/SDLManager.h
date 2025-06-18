@@ -112,6 +112,10 @@ public:
 
     /* Abre la tienda si es que está cerrada */
     void open_shop();
+
+    /* Emite el sonido correspondiente al inicio de ronda
+    dependiendo en qué team esté el player actualmente */
+    void make_round_start_sound(const bool& is_ct);
 };
 
 #endif
