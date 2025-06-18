@@ -507,8 +507,8 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
                 renderer.Copy(obj_texture, rect_origen, destino_camera);
                 if (game_map.sites.find(vec) != game_map.sites.end()) {
                     renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
-                    renderer.SetDrawColor(255, 0, 0, 80);
-                    renderer.DrawRect(destino_camera);
+                    renderer.SetDrawColor(255, 0, 0, 40);
+                    renderer.FillRect(destino_camera);
                     renderer.SetDrawBlendMode(SDL_BLENDMODE_NONE);
                 }
             }
