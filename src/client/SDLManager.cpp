@@ -21,7 +21,7 @@ SDLManager::SDLManager():
         texture_manager(renderer),
         camera(CAMERA_WIDTH, CAMERA_HEIGHT),
         sounds(mixer, texture_manager, texture_parser),
-        animation(renderer, camera),
+        animation(renderer, camera, texture_manager, texture_parser),
         shop(renderer, mixer, texture_manager, texture_parser, sounds) {
     renderer.SetLogicalSize(CAMERA_WIDTH, CAMERA_HEIGHT);
     SDL_ShowCursor(SDL_DISABLE);
@@ -98,52 +98,63 @@ void SDLManager::update_camera(int player_x, int player_y) {
     camera.follow(player_x + size_player / 2, player_y + size_player / 2);
 }
 
-/* Devuelve un pair de la posicion del player segun el arma equipada y el sprite del arma a usar */
-std::pair<Position, GunSprites> SDLManager::get_gun_info(const WeaponType& equipped,
-                                                         const GunType& primary_gun) {
+/* Devuelve toda la informacion para dibujar player y armas en base al arma equipada */
+GunVisualData SDLManager::get_gun_visual_info(WeaponType equipped, GunType gun_type) {
     switch (equipped) {
         case KNIFE:
-            return {CARRY_KNIFE, KNIFE_GAME};
-        // por ahora solo secondary glock
+            return GunVisualData{CARRY_KNIFE, KNIFE_GAME, 18, -10, 0, 0, 20, 40, 0};
         case SECONDARY:
-            return {CARRY_SECONDARY, GLOCK_GAME};
+            return GunVisualData{CARRY_SECONDARY, GLOCK_GAME, 0, -17, 0, -17, 32, 32, 3};
         case PRIMARY:
-            switch (primary_gun) {
+            switch (gun_type) {
                 case AK47:
-                    return {CARRY_PRIMARY, AK47_GAME};
+                    return GunVisualData{CARRY_PRIMARY, AK47_GAME, 0, -17, 0, -17, 32, 32, 3};
                 case AWP:
-                    return {CARRY_PRIMARY, AWP_GAME};
+                    return GunVisualData{CARRY_PRIMARY, AWP_GAME, 0, -17, -2, -30, 32, 32, 8};
                 case M3:
-                    return {CARRY_PRIMARY, M3_GAME};
+                    return GunVisualData{CARRY_PRIMARY, M3_GAME, 0, -17, 0, -17, 32, 32, 5};
                 default:
-                    return {CARRY_PRIMARY,
-                            AK47_GAME};  // aca llegamos en caso de que sea NONE, no deberia pasar.
+                    // nunca deberia llegar aca
+                    return GunVisualData{CARRY_PRIMARY, AK47_GAME, 0, -17, 0, -17, 32, 32, 0};
             }
-        /*case BOMB:
-            return {CARRY_BOMB, BOMB_GAME};  */
         default:
-            return {CARRY_KNIFE, KNIFE_GAME};
+            return GunVisualData{CARRY_KNIFE, KNIFE_GAME, 0, 0, 0, 0, 32, 32, 0};
     }
 }
 
 /* Renderiza un jugador */
-void SDLManager::render_player(const PlayerInfo& p, const BlockTextureInfo& sprite_info) {
+void SDLManager::render_player(const PlayerInfo& p, const CounterTerroristSkin& ct_skin,
+                               const TerroristSkin& tt_skin) {
     double angulo = p.orientation + PLAYER_SPRITE_GAP;
     int x_pos = p.x;
     int y_pos = p.y;
-
     int size_player = PLAYER_THICKNESS / GRAPHIC_SCALE;
 
-    SDL2pp::Rect rect_origen(sprite_info.x, sprite_info.y, sprite_info.width, sprite_info.height);
     SDL2pp::Rect destino_mundo(x_pos / GRAPHIC_SCALE, y_pos / GRAPHIC_SCALE, size_player,
                                size_player);
 
     if (!camera.is_visible(destino_mundo))
         return;
 
-    SDL2pp::Rect destino_camera = camera.rect_world_to_screen(destino_mundo);
-    std::string path = sprite_info.tileset_path;
+    GunVisualData gun_info = get_gun_visual_info(p.equipped, p.primary_gun);
+    const BlockTextureInfo& sprite_info =
+            p.is_ct ? texture_parser.get_ct_texture(ct_skin, gun_info.carry_sprite) :
+                      texture_parser.get_tt_texture(tt_skin, gun_info.carry_sprite);
 
+    SDL2pp::Rect rect_origen(sprite_info.x, sprite_info.y, sprite_info.width, sprite_info.height);
+
+    SDL2pp::Rect destino_camera = camera.rect_world_to_screen(destino_mundo);
+
+    if (p.shoot) {
+        double rad = (angulo - 90) * M_PI / 180.0;
+        int recoil_x = static_cast<int>(std::cos(rad) * gun_info.recoil);
+        int recoil_y = static_cast<int>(std::sin(rad) * gun_info.recoil);
+        destino_camera =
+                SDL2pp::Rect(destino_camera.GetX() - recoil_x, destino_camera.GetY() - recoil_y,
+                             destino_camera.GetW(), destino_camera.GetH());
+    }
+
+    std::string path = sprite_info.tileset_path;
     SDL2pp::Texture& skin_texture = texture_manager.get_texture(path);
     renderer.Copy(skin_texture, rect_origen, destino_camera, angulo, SDL2pp::NullOpt);
 
@@ -166,45 +177,42 @@ void SDLManager::render_player_weapon(const PlayerInfo& p) {
                                size_player);
     SDL2pp::Rect destino_camera = camera.rect_world_to_screen(destino_mundo);  // calcular SIEMPRE
 
+    GunVisualData gun_info = get_gun_visual_info(p.equipped, p.primary_gun);
+
     // Solo renderizamos el arma si el jugador es visible
     if (camera.is_visible(destino_mundo)) {
-        GunSprites sprite = get_gun_info(p.equipped, p.primary_gun).second;
-        std::string weapon_path = texture_parser.get_gun_texture(sprite);
-        int offset_x, offset_y, gun_width, gun_height;
+        std::string weapon_path = texture_parser.get_gun_texture(gun_info.weapon_sprite);
 
-        if (sprite == KNIFE_GAME) {
-            offset_x = 18;
-            offset_y = -10;
-            gun_width = 20;
-            gun_height = 40;
-            angulo -= 110;
-        } else {
-            offset_x = 0;
-            offset_y = -17;
-            gun_width = 32;
-            gun_height = 32;
+        int gun_x = destino_camera.GetX() + gun_info.sprite_offset_x;
+        int gun_y = destino_camera.GetY() + gun_info.sprite_offset_y;
+
+        if (p.shoot) {
+            double rad = (angulo - 90) * M_PI / 180.0;
+            gun_x -= static_cast<int>(std::cos(rad) * gun_info.recoil);
+            gun_y -= static_cast<int>(std::sin(rad) * gun_info.recoil);
         }
 
-        SDL2pp::Rect gun_dst(destino_camera.GetX() + offset_x, destino_camera.GetY() + offset_y,
-                             gun_width, gun_height);
-        SDL2pp::Point rotate(-offset_x + size_player / 2, -offset_y + size_player / 2);
+        SDL2pp::Rect gun_dst(gun_x, gun_y, gun_info.width, gun_info.height);
+
+        if (gun_info.weapon_sprite == KNIFE_GAME)
+            angulo -= 110;
+
+        SDL2pp::Point rotate(-gun_info.sprite_offset_x + size_player / 2,
+                             -gun_info.sprite_offset_y + size_player / 2);
+
         SDL2pp::Texture& weapon_texture = texture_manager.get_texture(weapon_path);
         renderer.Copy(weapon_texture, SDL2pp::NullOpt, gun_dst, angulo, rotate);
     }
 
     // Siempre mostramos disparo este o no visible al jugador
-    if (p.shoot && p.equipped == SECONDARY && p.secondary_gun == GLOCK) {
+    if (p.shoot) {
+
         int cx = destino_camera.GetX() + destino_camera.GetW() / 2;
         int cy = destino_camera.GetY() + destino_camera.GetH() / 2;
 
         // Vector desde el centro del jugador hasta la punta del arma (sin rotar)
-        int offset_x = 0;
-        int offset_y = -17;
-        int gun_width = 32;
-        int gun_height = 32;
-
-        SDL2pp::Point local_offset(offset_x + gun_width / 2 - size_player / 2,
-                                   offset_y + gun_height / 2 - size_player / 2);
+        SDL2pp::Point local_offset(gun_info.shot_offset_x + gun_info.width / 2 - size_player / 2,
+                                   gun_info.shot_offset_y + gun_info.height / 2 - size_player / 2);
 
         double rad = angulo * M_PI / 180.0;
         double rotated_x =
@@ -213,10 +221,21 @@ void SDLManager::render_player_weapon(const PlayerInfo& p) {
                 local_offset.GetX() * std::sin(rad) + local_offset.GetY() * std::cos(rad);
 
         SDL2pp::Point origin(static_cast<int>(cx + rotated_x), static_cast<int>(cy + rotated_y));
-        animation.render_shot(origin, angulo - 90, p.shot_distance / GRAPHIC_SCALE);
-
+        if (p.equipped == SECONDARY) {
+            animation.render_shot(origin, angulo - 90, p.shot_distance / GRAPHIC_SCALE,
+                                  p.secondary_gun);
+        } else if (p.equipped != KNIFE && p.equipped != BOMB) {
+            animation.render_shot(origin, angulo - 90, p.shot_distance / GRAPHIC_SCALE,
+                                  p.primary_gun);
+        }
         SDL2pp::Point centro(cx, cy);
-        sounds.play_shot(p.username, p.secondary_gun, centro);
+        if (p.equipped == SECONDARY) {
+            sounds.play_shot(p.username, p.secondary_gun, centro);
+        } else if (p.equipped == KNIFE) {
+            sounds.play_shot(p.username, NONE, centro);
+        } else if (p.equipped == PRIMARY) {
+            sounds.play_shot(p.username, p.primary_gun, centro);
+        }
     }
 }
 
@@ -511,39 +530,17 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
     }
 
     // render de mi player
-    Position pos_player =
-            get_gun_info(local_info.player.equipped, local_info.player.primary_gun).first;
-
-    const BlockTextureInfo& skin_player =
-            local_info.player.is_ct ?
-                    texture_parser.get_ct_texture(local_info.ct_skin, pos_player) :
-                    texture_parser.get_tt_texture(local_info.tt_skin, pos_player);
-
-    render_player(local_info.player, skin_player);
-
-
-    for (const PlayerInfo& p: local_info.ct_players) {
-        Position pos = get_gun_info(p.equipped, p.primary_gun).first;
-        const BlockTextureInfo& skin_info = texture_parser.get_ct_texture(local_info.ct_skin, pos);
-        render_player(p, skin_info);
-    }
-
-    for (const PlayerInfo& p: local_info.tt_players) {
-        Position pos = get_gun_info(p.equipped, p.primary_gun).first;
-        const BlockTextureInfo& skin_info = texture_parser.get_tt_texture(local_info.tt_skin, pos);
-        render_player(p, skin_info);
-    }
-
+    render_player(local_info.player, local_info.ct_skin, local_info.tt_skin);
+    for (const PlayerInfo& p: local_info.ct_players)
+        render_player(p, local_info.ct_skin, local_info.tt_skin);
+    for (const PlayerInfo& p: local_info.tt_players)
+        render_player(p, local_info.ct_skin, local_info.tt_skin);
 
     // Renderizo las armas luego de los players para que aparezcan por encima
     render_player_weapon(local_info.player);
-    for (const PlayerInfo& p: local_info.ct_players) {
-        render_player_weapon(p);
-    }
+    for (const PlayerInfo& p: local_info.ct_players) render_player_weapon(p);
+    for (const PlayerInfo& p: local_info.tt_players) render_player_weapon(p);
 
-    for (const PlayerInfo& p: local_info.tt_players) {
-        render_player_weapon(p);
-    }
 
     render_fov(local_info.player.orientation + PLAYER_SPRITE_GAP);
     render_if_dead(local_info.player.life);

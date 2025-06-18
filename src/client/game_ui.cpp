@@ -67,8 +67,12 @@ void GameUI::detect_player_events(const Snapshot& snapshot) {
         }
         if (dto.shot.has_value()) {
             info.shoot = true;
+<<<<<<< shotDTO
             info.impact_position_x = dto.shot->impact_position.x;
             info.impact_position_y = dto.shot->impact_position.x;
+=======
+            info.shot_distance = dto.shot->distance;
+>>>>>>> nueva-sdl2
         }
     };
 
