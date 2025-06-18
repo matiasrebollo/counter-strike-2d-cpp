@@ -215,21 +215,25 @@ void GameWorld::stop_making_player_action(const std::string& username) {
 }
 
 void GameWorld::make_player_defuse_bomb(const std::string& username) {
-    with_player(username, [this](Player& p) {
+    auto it = counter_terrorists.find(username);
+    if (it != counter_terrorists.end()) {
+        Player& p = *(it->second);
         if (this->can_defuse_bomb(p)) {
             p.defuse_bomb();
             this->bomb->action();
         }
-    });
+    }
 }
 
 void GameWorld::stop_making_player_defuse_bomb(const std::string& username) {
-    with_player(username, [this](Player& p) {
+    auto it = counter_terrorists.find(username);
+    if (it != counter_terrorists.end()) {
+        Player& p = *(it->second);
         if (p.defusing_bomb()) {
             p.stop_defusing_bomb();
             this->bomb->stop_action();
         }
-    });
+    }
 }
 
 void GameWorld::equip_primary_for(const std::string& username) {
