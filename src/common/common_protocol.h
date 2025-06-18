@@ -61,12 +61,6 @@ protected:
     std::unordered_map<bool, uint8_t> bools_to_code;
     std::unordered_map<uint8_t, bool> code_to_bools;
 
-public:
-    explicit CommonProtocol(std::unique_ptr<Socket> socket);
-
-    CommonProtocol(CommonProtocol&& other) noexcept;
-    CommonProtocol& operator=(CommonProtocol&& other) noexcept;
-
     double receive_angle();
     void send_angle(const double& angle);
     uint8_t receive_byte();
@@ -77,4 +71,10 @@ public:
     std::string receive_string();
     void send_double(const double& number);
     double receive_double();
+
+public:
+    explicit CommonProtocol(std::unique_ptr<Socket> socket);
+
+    CommonProtocol(CommonProtocol&& other) noexcept;
+    CommonProtocol& operator=(CommonProtocol&& other) noexcept;
 };

@@ -19,7 +19,8 @@ GameUI::GameUI(Lobby& lobby):
                    lobby.get_tt_skin(),
                    {},
                    {},
-                   PlayerInfo{}},
+                   PlayerInfo{},
+                   std::nullopt},
         keep_running(true) {
     this->phase = std::make_unique<WaitingForGamePhase>(*this);
 }
@@ -44,16 +45,19 @@ void GameUI::reset_player_events() {
     for (auto& p: local_info.ct_players) {
         p.movement = false;
         p.shoot = false;
-        p.shot_distance = 0;
+        p.impact_position_x = 0;
+        p.impact_position_y = 0;
     }
     for (auto& p: local_info.tt_players) {
         p.movement = false;
         p.shoot = false;
-        p.shot_distance = 0;
+        p.impact_position_x = 0;
+        p.impact_position_y = 0;
     }
     local_info.player.movement = false;
     local_info.player.shoot = false;
-    local_info.player.shot_distance = 0;
+    local_info.player.impact_position_x = 0;
+    local_info.player.impact_position_y = 0;
 }
 
 void GameUI::detect_player_events(const Snapshot& snapshot) {
@@ -63,7 +67,12 @@ void GameUI::detect_player_events(const Snapshot& snapshot) {
         }
         if (dto.shot.has_value()) {
             info.shoot = true;
+<<<<<<< shotDTO
+            info.impact_position_x = dto.shot->impact_position.x;
+            info.impact_position_y = dto.shot->impact_position.x;
+=======
             info.shot_distance = dto.shot->distance;
+>>>>>>> nueva-sdl2
         }
     };
 
@@ -99,8 +108,11 @@ void GameUI::detect_player_events(const Snapshot& snapshot) {
 
 void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
     local_info.time_left = snapshot.time_left;
+    local_info.total_rounds = snapshot.total_rounds;
+    local_info.current_round = snapshot.current_round_number;
     local_info.total_players = snapshot.total_players;
     local_info.phase = snapshot.phase;
+    local_info.current_round_winner = snapshot.current_round_winner;
 
     // Actualizo jugadores CT
     for (const PlayerDTO& p: snapshot.ct) {
@@ -342,11 +354,6 @@ bool GameUI::update_attack() {
             pop = false;
             continue;
         }
-        if (std::holds_alternative<GameEnded>(game_dto)) {
-            this->keep_running = false;
-            pop = false;
-            continue;
-        }
 
         // Identificar en snapshot_tmp cambios/eventos para activar animaciones
         Snapshot snapshot = std::get<Snapshot>(game_dto);
@@ -364,6 +371,44 @@ bool GameUI::update_attack() {
 }
 
 void GameUI::show_attack(const int& it) {
+    sdl.clear_display();
+    sdl.render_in_z_order(local_info, it);
+    sdl.render_crosshair(local_info);
+    sdl.show_screen();
+}
+
+void GameUI::handle_between_rounds_events() {
+    this->keep_running = input_handler.handle_between_rounds_events();
+}
+bool GameUI::update_between_rounds() {
+    GameDTO game_dto;
+    Snapshot last_snapshot;
+    bool got_snapshot = false;
+    bool pop = true;
+    while (pop) {
+        if (!this->receiver.try_pop_game_dto(game_dto)) {
+            pop = false;
+            continue;
+        }
+        if (std::holds_alternative<GameEnded>(game_dto)) {
+            this->keep_running = false;
+            pop = false;
+            continue;
+        }
+        Snapshot snapshot = std::get<Snapshot>(game_dto);
+        last_snapshot = std::move(snapshot);
+        got_snapshot = true;
+
+        if (local_info.phase != ROUND_ENDED) {
+            return false;
+        }
+    }
+    if (got_snapshot)
+        update_local_info_from_snapshot(last_snapshot);
+    return true;
+}
+
+void GameUI::show_between_rounds(const int& it) {
     sdl.clear_display();
     sdl.render_in_z_order(local_info, it);
     sdl.render_crosshair(local_info);

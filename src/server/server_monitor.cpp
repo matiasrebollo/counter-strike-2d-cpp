@@ -24,7 +24,6 @@ std::shared_ptr<CS2DGame> ServerMonitor::create_new_game(const std::string& user
             this->games.try_emplace(game_name, std::make_shared<CS2DGame>(game_name, map_filename));
     this->game_id++;
     it->second->add_player(username, sender);
-    it->second->start();
     return it->second;
 }
 

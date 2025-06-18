@@ -9,7 +9,7 @@
 #include "common/weapon_type.h"
 
 struct ShotDTO {
-    double distance;
+    Vector2D<int> impact_position;
 };
 
 struct PlayerDTO {

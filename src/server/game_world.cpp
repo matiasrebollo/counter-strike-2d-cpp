@@ -87,7 +87,13 @@ void GameWorld::add_player(const std::string& username) {
     size_t cts = counter_terrorists.size();
     size_t tts = terrorists.size();
 
-    if (cts < COUNTER_TERRORISTS && (cts <= tts || tts >= TERRORISTS)) {
+    if (cts < COUNTER_TERRORISTS && tts < TERRORISTS) {
+        if (cts <= tts) {
+            counter_terrorists[username] = player;
+        } else {
+            terrorists[username] = player;
+        }
+    } else if (cts < COUNTER_TERRORISTS) {
         counter_terrorists[username] = player;
     } else if (tts < TERRORISTS) {
         terrorists[username] = player;
@@ -342,31 +348,32 @@ bool GameWorld::ct_are_all_dead() const { return team_is_dead(counter_terrorists
 
 GameWorld::~GameWorld() {}
 
-double GameWorld::impacts(const Shot& shot, const Collidable& collidable) const {
-    Rect h = collidable.rect;
-    Vector2D<float> v1(static_cast<float>(h.position.x), static_cast<float>(h.position.y));
-    Vector2D<float> v2(static_cast<float>(h.position.x + h.width),
-                       static_cast<float>(h.position.y));
-    Vector2D<float> v3(static_cast<float>(h.position.x + h.width),
-                       static_cast<float>(h.position.y + h.height));
-    Vector2D<float> v4(static_cast<float>(h.position.x),
-                       static_cast<float>(h.position.y + h.height));
+std::optional<std::pair<double, Vector2D<float>>> GameWorld::impacts(
+        const Shot& shot, const Collidable& collidable) const {
 
-    std::vector<double> distances = {
+    Rect h = collidable.rect;
+
+    Vector2D<float> v1(h.position.x, h.position.y);
+    Vector2D<float> v2(h.position.x + h.width, h.position.y);
+    Vector2D<float> v3(h.position.x + h.width, h.position.y + h.height);
+    Vector2D<float> v4(h.position.x, h.position.y + h.height);
+
+    std::vector<std::optional<std::pair<double, Vector2D<float>>>> results = {
             intersects_segment(shot, v1, v2), intersects_segment(shot, v2, v3),
             intersects_segment(shot, v3, v4), intersects_segment(shot, v4, v1)};
 
-    auto it = std::min_element(distances.begin(), distances.end(), [](double a, double b) {
-        if (a == 0.0)
-            return false;
-        if (b == 0.0)
-            return true;
-        return a < b;
-    });
+    std::optional<std::pair<double, Vector2D<float>>> best;
 
-    return (it != distances.end() && *it > 0.0) ? *it : 0.0;
+    for (const auto& result: results) {
+        if (!result.has_value())
+            continue;
+
+        if (!best.has_value() || result->first < best->first)
+            best = result;
+    }
+
+    return best;
 }
-
 // R(t) = origin + direction * t, con t ≥ 0 - Semirrecta por la que recorrerá el disparo.
 // S(u) = seg_start + seg_dir * u, con 0 ≤ u ≤ 1 - Segmento, se quiere ver si la recta lo corta.
 // Buscamos u y t para los que se cumpla: origin + direction * t  ==  seg_start + seg_dir * u
@@ -374,8 +381,8 @@ double GameWorld::impacts(const Shot& shot, const Collidable& collidable) const 
 // => direction * t + (-seg_dir) * u = r (siendo r = seg_start - origin)
 // => ... (wolfram) =>  t = (r x (seg_dir)) / ((direction))x(seg_dir)), u = (r x direction) /
 // ((shoot_direction))x(seg_dir))
-double GameWorld::intersects_segment(const Shot& shot, const Vector2D<float>& seg_start,
-                                     const Vector2D<float>& seg_end) const {
+std::optional<std::pair<double, Vector2D<float>>> GameWorld::intersects_segment(
+        const Shot& shot, const Vector2D<float>& seg_start, const Vector2D<float>& seg_end) const {
 
     double orientation_in_radians = shot.orientation * M_PI / 180.0;
     Vector2D<float> direction(std::cos(orientation_in_radians), std::sin(orientation_in_radians));
@@ -386,24 +393,23 @@ double GameWorld::intersects_segment(const Shot& shot, const Vector2D<float>& se
 
     double c = static_cast<double>(direction.cross(seg_dir));
 
-    if (c == 0)
-        return 0.0;  // son paralelos, no hay intersección
+    if (c == 0.0)
+        return std::nullopt;  // recta y segmento son paralelos
 
     double t = static_cast<double>(r.cross(seg_dir)) / c;
     double u = static_cast<double>(r.cross(direction)) / c;
 
-    // La semirrecta solo vale para t >= 0, y el segmento para u ∈ [0,1]. Se intersecan si t y u
-    // cumplen con esto.
-    if (t >= 0 && u >= 0 && u <= 1) {
-        return t * direction.magnitude();
+    if (t >= 0.0 && u >= 0.0 && u <= 1.0) {
+        Vector2D<float> intersection = origin + direction * t;
+        return std::make_pair(t * direction.magnitude(), intersection);
     }
 
-    return 0.0;
+    return std::nullopt;
 }
 
 void GameWorld::calculate_shot(Shot& shot, const Player& shooter) const {
     Collidable* hit = nullptr;
-    double closest = std::numeric_limits<double>::max();
+    std::optional<std::pair<double, Vector2D<float>>> best_impact;
 
     for (const auto& collidable: collidables) {
         const Collidable* coll_ptr = collidable.get();
@@ -415,15 +421,16 @@ void GameWorld::calculate_shot(Shot& shot, const Player& shooter) const {
             }
         }
 
-        double dist = impacts(shot, *collidable);
-        if (dist != 0.0) {
-            if (dist < closest) {
-                closest = dist;
-                hit = collidable.get();
-            }
+        auto impact = impacts(shot, *collidable);
+        if (!impact.has_value())
+            continue;
+
+        if (!best_impact.has_value() || impact->first < best_impact->first) {
+            best_impact = impact;
+            hit = collidable.get();
         }
     }
 
     shot.hit = hit;
-    shot.distance = closest - PLAYER_THICKNESS / 2;
+    shot.impact_info = best_impact;
 }
