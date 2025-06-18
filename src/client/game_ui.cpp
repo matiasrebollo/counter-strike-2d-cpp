@@ -103,6 +103,7 @@ void GameUI::detect_player_events(const Snapshot& snapshot) {
 
 
 void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
+    update_bomb_status(snapshot);
     local_info.time_left = snapshot.time_left;
     local_info.bomb_status = snapshot.bomb_status;
     local_info.total_rounds = snapshot.total_rounds;
@@ -369,6 +370,13 @@ bool GameUI::update_attack() {
     }
     if (got_snapshot)
         update_local_info_from_snapshot(last_snapshot);
+    if (just_planted && !make_sound_planted) {
+        make_sound_planted = true;
+        sdl.make_bomb_sound(local_info.bomb_status);
+    } else if (just_defuse && !make_sound_defused) {
+        make_sound_defused = false;
+        sdl.make_bomb_sound(local_info.bomb_status);
+    }
     return true;
 }
 
@@ -446,6 +454,22 @@ void GameUI::handle_game_ended() { std::cout << "Game ended!" << std::endl; }
 
 void GameUI::change_phase(std::unique_ptr<GameUIPhase> new_phase) {
     this->phase = std::move(new_phase);
+}
+
+void GameUI::update_bomb_status(const Snapshot& snapshot) {
+    if (local_info.bomb_status == BombStatus::NOT_PLANTED &&
+        snapshot.bomb_status == BombStatus::PLANTED) {
+        just_planted = true;
+    } else if (local_info.bomb_status == BombStatus::PLANTED &&
+               snapshot.bomb_status == BombStatus::DEFUSED) {
+        just_defuse = true;
+    }
+    if (local_info.current_round == snapshot.current_round_number - 1) {
+        just_planted = false;
+        just_defuse = false;
+        make_sound_defused = false;
+        make_sound_planted = false;
+    }
 }
 
 void GameUI::close_client() {

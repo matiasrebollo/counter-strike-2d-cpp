@@ -30,6 +30,10 @@ private:
     LocalInfo local_info;
     std::unique_ptr<GameUIPhase> phase;
     bool keep_running;
+    bool just_planted;
+    bool make_sound_planted;
+    bool just_defuse;
+    bool make_sound_defused;
 
     friend class GameUIPhase;
     friend class WaitingForGamePhase;
@@ -81,6 +85,8 @@ private:
     void play_start_round_sound();
 
     void play_team_winner_sound();
+
+    void update_bomb_status(const Snapshot& snapshot);
 
 public:
     explicit GameUI(Lobby& lobby);

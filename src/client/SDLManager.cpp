@@ -747,9 +747,9 @@ void SDLManager::open_shop() { shop.open_shop(); }
 
 void SDLManager::make_round_start_sound(const bool& is_ct) {
     if (is_ct) {
-        sounds.play_shop_sound(SoundEffect::START_ROUND_CT);
+        sounds.play_round_sound(SoundEffect::START_ROUND_CT);
     } else {
-        sounds.play_shop_sound(SoundEffect::START_ROUND_TT);
+        sounds.play_round_sound(SoundEffect::START_ROUND_TT);
     }
 }
 
@@ -759,9 +759,17 @@ void SDLManager::make_team_winner_sound(std::optional<Team> current_winner) {
     } else {
         Team winner = current_winner.value();
         if (winner == Team::CT) {
-            sounds.play_shop_sound(CT_WINS);
+            sounds.play_round_sound(CT_WINS);
         } else {
-            sounds.play_shop_sound(TT_WINS);
+            sounds.play_round_sound(TT_WINS);
         }
+    }
+}
+
+void SDLManager::make_bomb_sound(const BombStatus& bomb_status) {
+    if (bomb_status == BombStatus::PLANTED) {
+        sounds.play_bomb_sound(BOMB_PLANTED);
+    } else if (bomb_status == BombStatus::DEFUSED) {
+        sounds.play_bomb_sound(BOMB_DEFUSE);
     }
 }

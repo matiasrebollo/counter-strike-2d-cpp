@@ -119,6 +119,8 @@ public:
 
     /* Emite un sonido con el equipo ganador, si es que hay uno */
     void make_team_winner_sound(std::optional<Team> current_winner);
+
+    void make_bomb_sound(const BombStatus& bomb_status);
 };
 
 #endif
