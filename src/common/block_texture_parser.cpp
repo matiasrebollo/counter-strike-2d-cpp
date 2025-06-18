@@ -97,7 +97,8 @@ void BlockTextureParser::set_sound_paths() {
                    {DIRT_STEP_ONE, "../assets/sfx/player/pl_dirt1.wav"},
                    {DIRT_STEP_TWO, "../assets/sfx/player/pl_dirt2.wav"},
                    {GLOCK_SHOT, "../assets/sfx/weapons/glock18.wav"},
-                   {AWP_SHOT, "../assets/sfx/weapons/awp.wav"}};
+                   {AWP_SHOT, "../assets/sfx/weapons/awp.wav"},
+                   {KNIFE_HIT, "../assets/sfx/weapons/knife_hit.wav"}};
 }
 
 const std::string& BlockTextureParser::get_editor_gun_texture(const GunType& gun) {

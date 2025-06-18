@@ -26,7 +26,10 @@ void Knife::update(const float& delta_t, Player& owner, GameWorld& game) {
 void Knife::execute_stab(Player* shot_victim, double shot_distance) {
     if (shot_distance < KNIFE_DISTANCE) {
         shot_victim->receive_damage(damage);
+        std::cout << "recibio daño" << std::endl;
     }
+    std::cout << "shot distance es " << shot_distance << std::endl;
+    std::cout << "el daño fue " << damage << std::endl;
 }
 
 void Knife::stab(GameWorld& game, Player& shooter) {

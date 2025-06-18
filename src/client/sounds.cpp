@@ -88,7 +88,7 @@ void Sounds::play_step(const std::string& username, const SDL2pp::Point& destino
 
 void Sounds::play_shot(const std::string& username, GunType gun_type,
                        const SDL2pp::Point& destino_camera) {
-    if (gun_type != GLOCK && gun_type != AWP)
+    if (gun_type != GLOCK && gun_type != AWP && gun_type != NONE)
         return;
 
     int channel = get_channel(username, SoundType::SHOT_TYPE);
@@ -111,6 +111,8 @@ void Sounds::play_shot(const std::string& username, GunType gun_type,
         path = texture_parser.get_sound_path(GLOCK_SHOT);
     else if (gun_type == AWP)
         path = texture_parser.get_sound_path(AWP_SHOT);
+    else if (gun_type == NONE)
+        path = texture_parser.get_sound_path(KNIFE_HIT);
     SDL2pp::Chunk& sound = texture_manager.get_sound(path);
 
     int used_channel = mixer.PlayChannel(channel, sound);

@@ -206,7 +206,6 @@ void SDLManager::render_player_weapon(const PlayerInfo& p) {
 
     // Siempre mostramos disparo este o no visible al jugador
     if (p.shoot) {
-
         int cx = destino_camera.GetX() + destino_camera.GetW() / 2;
         int cy = destino_camera.GetY() + destino_camera.GetH() / 2;
 
@@ -221,12 +220,12 @@ void SDLManager::render_player_weapon(const PlayerInfo& p) {
                 local_offset.GetX() * std::sin(rad) + local_offset.GetY() * std::cos(rad);
 
         SDL2pp::Point origin(static_cast<int>(cx + rotated_x), static_cast<int>(cy + rotated_y));
+        SDL2pp::Point end_world(p.impact_position_x / GRAPHIC_SCALE,
+                                p.impact_position_y / GRAPHIC_SCALE);
         if (p.equipped == SECONDARY) {
-            animation.render_shot(origin, angulo - 90, p.shot_distance / GRAPHIC_SCALE,
-                                  p.secondary_gun);
+            animation.render_shot(origin, end_world, p.secondary_gun);
         } else if (p.equipped != KNIFE && p.equipped != BOMB) {
-            animation.render_shot(origin, angulo - 90, p.shot_distance / GRAPHIC_SCALE,
-                                  p.primary_gun);
+            animation.render_shot(origin, end_world, p.primary_gun);
         }
         SDL2pp::Point centro(cx, cy);
         if (p.equipped == SECONDARY) {

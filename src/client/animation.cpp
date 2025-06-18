@@ -10,19 +10,18 @@ Animation::Animation(SDL2pp::Renderer& renderer, Camera& camera, TextureManager&
         texture_manager(texture_manager),
         texture_parser(texture_parser) {}
 
-void Animation::render_shot(SDL2pp::Point origin_camera, double angle, double distance,
-                            GunType gun) {
-    double rad = angle * M_PI / 180.0;
-
+void Animation::render_shot(SDL2pp::Point origin_camera, SDL2pp::Point end_world, GunType gun) {
     SDL2pp::Rect viewport = camera.get_viewport();
     SDL2pp::Point origin_world = camera.point_screen_to_world(origin_camera);
-    SDL2pp::Point end_world(static_cast<int>(origin_world.GetX() + std::cos(rad) * distance),
-                            static_cast<int>(origin_world.GetY() + std::sin(rad) * distance));
 
     if (!viewport.IntersectLine(origin_world, end_world))
         return;
 
     SDL2pp::Point end_camera = camera.point_world_to_screen(end_world);
+
+    double dx = static_cast<double>(end_camera.GetX() - origin_camera.GetX());
+    double dy = static_cast<double>(end_camera.GetY() - origin_camera.GetY());
+    double rad = std::atan2(dy, dx);
 
     if (gun == AWP) {
         const int thickness = 2;

@@ -44,7 +44,8 @@ enum SoundEffect {
     DIRT_STEP_ONE,
     DIRT_STEP_TWO,
     GLOCK_SHOT,
-    AWP_SHOT
+    AWP_SHOT,
+    KNIFE_HIT
 };
 
 enum Others { AWP_SHOT_FLARE };
