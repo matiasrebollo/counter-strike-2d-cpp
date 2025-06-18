@@ -246,7 +246,7 @@ GameInitialInfoDTO ClientProtocol::receive_game_initial_info() {
     uint16_t size = this->receive_big_endian_number();
     std::vector<MapObject> map_objects = this->receive_map_objects(size);
     uint16_t size_sites = this->receive_big_endian_number();
-    std::vector<Vector2D<int>> sites = this->receive_sites(size_sites);
+    std::set<Vector2D<int>> sites = this->receive_sites(size_sites);
     GameMapDTO game_map = GameMapDTO{background, map_objects, sites};
     uint8_t shop_gun_prices_size = this->receive_byte();
     std::unordered_map<GunType, int> gun_prices = this->receive_gun_prices(shop_gun_prices_size);
@@ -257,13 +257,13 @@ GameInitialInfoDTO ClientProtocol::receive_game_initial_info() {
     return GameInitialInfoDTO{game_map, shop_info};
 }
 
-std::vector<Vector2D<int>> ClientProtocol::receive_sites(const uint16_t& size) {
-    std::vector<Vector2D<int>> sites = {};
+std::set<Vector2D<int>> ClientProtocol::receive_sites(const uint16_t& size) {
+    std::set<Vector2D<int>> sites = {};
     for (int i = 0; i < size; i++) {
         int x = static_cast<int>(this->receive_big_endian_number());
         int y = static_cast<int>(this->receive_big_endian_number());
         Vector2D<int> actual = Vector2D(x, y);
-        sites.push_back(actual);
+        sites.insert(actual);
     }
     return sites;
 }
