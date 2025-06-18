@@ -235,27 +235,28 @@ void SDLManager::render_fov(float orientation) {
 }
 
 void SDLManager::render_if_dead(const int& life) {
-    if (life == 0) {
-        renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
-
-        renderer.SetDrawColor(255, 0, 0, 40);
-
-        SDL2pp::Rect redOverlay(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
-        renderer.FillRect(redOverlay);
-
-        int font_size = 20;
-        const std::string& font_path = texture_parser.get_fw_texture(FONT_WAITING);
-        std::string message_dead = "You are dead!";
-        SDL2pp::Texture& round_texture = texture_manager.get_text_texture(
-                message_dead, font_path, font_size, SDL2pp::Color(255, 255, 0));
-        round_texture.SetAlphaMod(190);
-        SDL2pp::Rect dstRect((CAMERA_WIDTH - round_texture.GetWidth()) / 2, 100,
-                             round_texture.GetWidth(), round_texture.GetHeight());
-        renderer.Copy(round_texture, SDL2pp::NullOpt, dstRect);
-
-        renderer.SetDrawBlendMode(SDL_BLENDMODE_NONE);
-        renderer.SetDrawColor(0, 0, 0, 255);
+    if (life > 0) {
+        return;
     }
+    renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
+
+    renderer.SetDrawColor(255, 0, 0, 40);
+
+    SDL2pp::Rect redOverlay(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
+    renderer.FillRect(redOverlay);
+
+    int font_size = 20;
+    const std::string& font_path = texture_parser.get_fw_texture(FONT_WAITING);
+    std::string message_dead = "You are dead!";
+    SDL2pp::Texture& round_texture = texture_manager.get_text_texture(
+            message_dead, font_path, font_size, SDL2pp::Color(255, 255, 0));
+    round_texture.SetAlphaMod(190);
+    SDL2pp::Rect dstRect((CAMERA_WIDTH - round_texture.GetWidth()) / 2, 100,
+                         round_texture.GetWidth(), round_texture.GetHeight());
+    renderer.Copy(round_texture, SDL2pp::NullOpt, dstRect);
+
+    renderer.SetDrawBlendMode(SDL_BLENDMODE_NONE);
+    renderer.SetDrawColor(0, 0, 0, 255);
 }
 
 void SDLManager::render_hud_bomb_not_planted_time(int minutes, int seconds, Phase phase) {
@@ -536,7 +537,13 @@ void SDLManager::render_hud_round(size_t current_round_number, size_t total_roun
     renderer.Copy(round_texture, SDL2pp::NullOpt, dstRect);
 }
 
-void SDLManager::render_current_round_winner(const std::optional<Team>& winner) {
+/* Si hay un ganador en la ronda, se está en unos segundos donde se muestra el ganador, y este
+   método lo renderiza */
+void SDLManager::render_current_round_winner(const std::optional<Team>& winner,
+                                             const Phase& phase) {
+    if (phase != ROUND_ENDED) {
+        return;
+    }
     int font_size = 25;
     const std::string& font_path = texture_parser.get_fw_texture(FONT_WAITING);
     std::string winner_string =
@@ -553,6 +560,40 @@ void SDLManager::render_current_round_winner(const std::optional<Team>& winner) 
     renderer.Copy(round_texture, SDL2pp::NullOpt, dstRect);
 }
 
+void SDLManager::render_hud_bomb(const bool& has_bomb, const bool& in_site, const int& seconds) {
+    if (!has_bomb) {
+        return;
+    }
+    int plus_width = 30;
+    int plus_height = 33;
+    int char_height = 33;
+
+    int x = 140;
+    int y = CAMERA_HEIGHT - char_height;
+
+
+    const BlockTextureInfo& bomb_info = texture_parser.get_symbol_texture(BOMB_ACTIVE);
+    SDL2pp::Texture& bomb_texture = texture_manager.get_texture(bomb_info.tileset_path);
+
+    int r, g, b;
+    if (in_site && seconds % 2 == 0) {
+        r = 255;
+        g = 0;
+        b = 0;
+    } else {
+        r = 255;
+        g = 255;
+        b = 0;
+    }
+
+    bomb_texture.SetColorMod(r, g, b);
+    bomb_texture.SetAlphaMod(200);
+
+    SDL2pp::Rect src_bomb(bomb_info.x, bomb_info.y, bomb_info.width, bomb_info.height);
+    SDL2pp::Rect dst_bomb(x, y, plus_width, plus_height);
+
+    renderer.Copy(bomb_texture, src_bomb, dst_bomb);
+}
 
 void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
     update_camera(local_info.player.x / GRAPHIC_SCALE, local_info.player.y / GRAPHIC_SCALE);
@@ -587,6 +628,7 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
                     renderer.SetDrawColor(255, 0, 0, 40);
                     renderer.FillRect(destino_camera);
                     renderer.SetDrawBlendMode(SDL_BLENDMODE_NONE);
+                    renderer.SetDrawColor(0, 0, 0, 255);
                 }
             }
         }
@@ -631,12 +673,12 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
     render_if_dead(local_info.player.life);
     render_hud_time(local_info.time_left, local_info.bomb_status, local_info.phase);
     render_hud_life(local_info.player.life);
+    render_hud_bomb(local_info.player.has_bomb, local_info.player.in_site,
+                    local_info.time_left % 60);
     render_hud_round(local_info.current_round, local_info.total_rounds);
     render_hud_ammo(local_info.player.equipped_gun_ammo);
     render_hud_money(local_info.player.money);
-    if (local_info.phase == ROUND_ENDED) {
-        render_current_round_winner(local_info.current_round_winner);
-    }
+    render_current_round_winner(local_info.current_round_winner, local_info.phase);
 }
 
 std::optional<ShopButtonType> SDLManager::interact_button(int x, int y, int money, GunType primary,

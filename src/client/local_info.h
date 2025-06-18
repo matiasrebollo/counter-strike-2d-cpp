@@ -18,6 +18,8 @@ struct PlayerInfo {
     GunType primary_gun = NONE;
     GunType secondary_gun = NONE;
     WeaponType equipped = SECONDARY;
+    bool in_site = false;
+    bool has_bomb = false;
     bool movement = false;
     bool shoot = false;
     int shot_distance = 0;
