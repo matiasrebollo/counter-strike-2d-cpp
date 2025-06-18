@@ -19,6 +19,8 @@
 #define MSG_GAME_NOT_EXIST(id) "La partida con ID " + id + " no existe."
 #define MSG_GAME_NOT_CREATED "El servidor no ha podido crear su partida."
 #define MSG_MAP_NOT_SELECTED "Debe seleccionar un mapa para crear una partida."
+#define MSG_GAME_IS_DEAD \
+    "Todos los jugadores de esta partida se han desconectado. Intenta conectarte a otra."
 #define MSG_UNEXPECTED_SERVER_RESPONSE "El servidor ha respondido con un código inesperado."
 
 #define MSG_NO_PROTOCOL "Debes conectarte a un servidor disponible para poder jugar."
