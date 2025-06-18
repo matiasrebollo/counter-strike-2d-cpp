@@ -6,6 +6,7 @@
 #include <optional>
 #include <utility>
 
+#include "common/player_dto.h"
 #include "server/collidable.h"
 
 class GameWorld;  // forward declaration
@@ -21,6 +22,8 @@ public:
     Shot(const Vector2D<int>& origin, const float& orientation);
 
     void shoot(const GameWorld& game, Player& shooter);
+
+    std::optional<ShotDTO> get_dto() const;
 
     Shot(const Shot&) = delete;
     Shot& operator=(const Shot&) = delete;
