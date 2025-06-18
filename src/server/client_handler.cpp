@@ -108,6 +108,8 @@ void ClientHandler::manage_join_game(const JoinGameDTO& dto) {
                 receiver.start();
                 this->game_ended = sender->run();
             }
+        } catch (const GameDeadException& e) {
+            this->send_lobby_response(CommandType::JOIN_GAME, ResponseStatus::GAME_IS_DEAD, "");
         } catch (const GameFullException& e) {
             this->send_lobby_response(CommandType::JOIN_GAME, ResponseStatus::GAME_IS_FULL, "");
         } catch (const PlayerAlreadyInGameException& e) {

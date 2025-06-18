@@ -157,6 +157,10 @@ void Lobby::on_JoinGameButton_clicked() {
             close();
             break;
 
+        case ResponseStatus::GAME_IS_DEAD:
+            QMessageBox::information(this, TITLE_MSG_JOIN, MSG_GAME_IS_DEAD);
+            break;
+
         case ResponseStatus::GAME_IS_FULL:
             QMessageBox::information(this, TITLE_MSG_JOIN,
                                      QString::fromStdString(MSG_GAME_IS_FULL(game_name)));

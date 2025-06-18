@@ -44,6 +44,9 @@ std::shared_ptr<CS2DGame> ServerMonitor::join_game(const std::string& gameName,
     if (it == this->games.end()) {
         return nullptr;
     } else {
+        if (!it->second->is_alive()) {
+            throw GameDeadException();
+        }
         it->second->add_player(username, sender);
         return it->second;
     }

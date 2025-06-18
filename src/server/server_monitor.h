@@ -14,6 +14,7 @@
 
 #include "client_sender.h"
 #include "cs2d_game.h"
+#include "game_dead_exception.h"
 
 #define MSG_GAME_JOINED(id) "Game of id " + (id) + " has been joined!"
 
