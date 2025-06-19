@@ -619,7 +619,7 @@ void SDLManager::render_stats(const LocalInfo& local_info) {
     }
 
     int box_width = static_cast<int>(CAMERA_WIDTH * 0.7);
-    int box_height = static_cast<int>(CAMERA_HEIGHT * 0.6);
+    int box_height = static_cast<int>(CAMERA_HEIGHT * 0.8);
     int box_x = (CAMERA_WIDTH - box_width) / 2;
     int box_y = (CAMERA_HEIGHT - box_height) / 2;
 
@@ -632,14 +632,16 @@ void SDLManager::render_stats(const LocalInfo& local_info) {
     renderer.SetDrawColor(255, 255, 255, 255);
     renderer.DrawRect(stats_box);
 
-    int font_size = 18;
+    int font_size = static_cast<int>(box_x * 0.15);
     const std::string& font_path = texture_parser.get_fw_texture(FONT_WAITING);
     int start_y = stats_box.y + 10;
     int spacing = 10;
     int text_x = stats_box.x + 10;
 
-    auto draw_line = [&](const std::string& line, int y) {
-        SDL_Color color = {255, 255, 255, 255};
+    SDL_Color blue = {0, 150, 255, 255};
+    SDL_Color yellow = {255, 200, 0, 255};
+    SDL_Color white = {255, 255, 255, 255};
+    auto draw_line = [&](const std::string& line, int y, SDL_Color color) {
         SDL2pp::Texture& text_texture =
                 texture_manager.get_text_texture(line, font_path, font_size, color);
         renderer.Copy(text_texture, SDL2pp::NullOpt,
@@ -648,15 +650,15 @@ void SDLManager::render_stats(const LocalInfo& local_info) {
 
     int line_y = start_y;
 
-    draw_line("Counter Terrorists", line_y);
-    line_y += spacing;
+    draw_line("Counter Terrorists", line_y, blue);
+    line_y += spacing + 10;
 
     if (local_info.player.is_ct) {
         draw_line("* " + local_info.player.username +
                           " | Kills: " + std::to_string(local_info.player.kills) +
                           " | Deaths: " + std::to_string(local_info.player.deaths) +
                           " | Bonifications: $" + std::to_string(local_info.player.bonifications),
-                  line_y);
+                  line_y, white);
         line_y += spacing;
     }
 
@@ -665,22 +667,22 @@ void SDLManager::render_stats(const LocalInfo& local_info) {
             draw_line("* " + p.username + " | Kills: " + std::to_string(p.kills) +
                               " | Deaths: " + std::to_string(p.deaths) + " | Bonifications: $" +
                               std::to_string(p.bonifications),
-                      line_y);
+                      line_y, white);
             line_y += spacing;
         }
     }
 
-    line_y += spacing / 2;
+    line_y = stats_box.y + stats_box.h / 2;
 
-    draw_line("Terrorists", line_y);
-    line_y += spacing;
+    draw_line("Terrorists", line_y, yellow);
+    line_y += spacing + 10;
 
     if (!local_info.player.is_ct) {
         draw_line("* " + local_info.player.username +
                           " | Kills: " + std::to_string(local_info.player.kills) +
                           " | Deaths: " + std::to_string(local_info.player.deaths) +
                           " | Bonifications: $" + std::to_string(local_info.player.bonifications),
-                  line_y);
+                  line_y, white);
         line_y += spacing;
     }
 
@@ -689,7 +691,7 @@ void SDLManager::render_stats(const LocalInfo& local_info) {
             draw_line("* " + p.username + " | Kills: " + std::to_string(p.kills) +
                               " | Deaths: " + std::to_string(p.deaths) + " | Bonifications: $" +
                               std::to_string(p.bonifications),
-                      line_y);
+                      line_y, white);
             line_y += spacing;
         }
     }

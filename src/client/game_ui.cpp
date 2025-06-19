@@ -390,18 +390,6 @@ bool GameUI::update_attack() {
 
     if (got_snapshot)
         update_local_info_from_snapshot(last_snapshot);
-    if (just_planted && !make_sound_planted) {
-        make_sound_planted = true;
-        sdl.make_bomb_sound(local_info.bomb_status);
-    } else if (just_defuse && !make_sound_defused) {
-        make_sound_defused = false;
-        sdl.make_bomb_sound(local_info.bomb_status);
-    } else if (local_info.time_left <= 10 && !make_sound_clock) {
-        sdl.make_clock_sound(true);
-        make_sound_clock = true;
-    } else if (local_info.current_round_winner.has_value() && make_sound_clock) {
-        sdl.make_clock_sound(false);
-    }
 
     return true;
 }
@@ -506,12 +494,21 @@ void GameUI::change_phase(std::unique_ptr<GameUIPhase> new_phase) {
 
 void GameUI::update_game_status(const Snapshot& snapshot) {
     if (local_info.bomb_status == BombStatus::NOT_PLANTED &&
-        snapshot.bomb_status == BombStatus::PLANTED) {
-        just_planted = true;
-    } else if (local_info.bomb_status == BombStatus::PLANTED &&
-               snapshot.bomb_status == BombStatus::DEFUSED) {
+        snapshot.bomb_status == BombStatus::PLANTED && !make_sound_planted) {
         sdl.make_clock_sound(false);
+        sdl.make_bomb_sound(snapshot.bomb_status);
+        just_planted = true;
+        make_sound_planted = true;
+    } else if (local_info.bomb_status == BombStatus::PLANTED &&
+               snapshot.bomb_status == BombStatus::DEFUSED && !make_sound_defused) {
+        sdl.make_clock_sound(false);
+        sdl.make_bomb_sound(local_info.bomb_status);
         just_defuse = true;
+        make_sound_defused = true;
+    }
+    if (snapshot.phase == ROUND_ENDED && make_sound_clock) {
+        make_sound_clock = false;
+        sdl.make_clock_sound(false);
     }
     if (local_info.current_round == snapshot.current_round_number - 1) {
         sdl.make_clock_sound(false);
@@ -521,9 +518,9 @@ void GameUI::update_game_status(const Snapshot& snapshot) {
         make_sound_planted = false;
         make_sound_clock = false;
     }
-    if (local_info.time_left > snapshot.time_left) {
-        sdl.make_clock_sound(false);
-        make_sound_clock = false;
+    if (local_info.time_left <= 10 && !make_sound_clock && local_info.phase == ATTACK) {
+        sdl.make_clock_sound(true);
+        make_sound_clock = true;
     }
 }
 
