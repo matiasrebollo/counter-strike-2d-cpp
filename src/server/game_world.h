@@ -102,6 +102,7 @@ public:
     void equip_secondary_for(const std::string& username);
     void equip_knife_for(const std::string& username);
     void equip_bomb_for(const std::string& username);
+    void pick_up_item_for(const std::string& username);
     void buy_gun_for(const std::string& username, const GunType& gun);
     void buy_ammo_for(const std::string& username, const bool& for_primary);
 

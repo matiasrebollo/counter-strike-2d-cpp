@@ -67,6 +67,8 @@ void ClientProtocol::send_command(const GameCommandDTO& command) {
                     handle_equip_knife();
                 } else if constexpr (std::is_same_v<T, EquipBombDTO>) {
                     handle_equip_bomb();
+                } else if constexpr (std::is_same_v<T, PickUpItemDTO>) {
+                    handle_pick_up_item();
                 } else if constexpr (std::is_same_v<T, BuyGunDTO>) {
                     handle_buy_gun(d);
                 } else if constexpr (std::is_same_v<T, BuyAmmoDTO>) {
@@ -133,6 +135,8 @@ void ClientProtocol::handle_equip_bomb() {
     this->send_byte(CODE_CHANGE_WEAPON);
     this->send_byte(CODE_CHOOSE_BOMB);
 }
+
+void ClientProtocol::handle_pick_up_item() { this->send_byte(CODE_PICK_UP); }
 
 void ClientProtocol::handle_buy_gun(const BuyGunDTO& dto) {
     this->send_byte(CODE_BUY_WEAPON);

@@ -28,6 +28,8 @@ struct EquipSecondaryDTO {};
 struct EquipKnifeDTO {};
 struct EquipBombDTO {};
 
+struct PickUpItemDTO {};
+
 struct BuyGunDTO {
     const GunType gun;
 };
@@ -35,8 +37,8 @@ struct BuyAmmoDTO {
     const bool for_primary;
 };
 
-using GameCommandDTO =
-        std::variant<MoveDTO, RotateDTO, PlayerActionDTO, DefuseBombDTO, EquipPrimaryDTO,
-                     EquipSecondaryDTO, EquipKnifeDTO, EquipBombDTO, BuyGunDTO, BuyAmmoDTO>;
+using GameCommandDTO = std::variant<MoveDTO, RotateDTO, PlayerActionDTO, DefuseBombDTO,
+                                    EquipPrimaryDTO, EquipSecondaryDTO, EquipKnifeDTO, EquipBombDTO,
+                                    PickUpItemDTO, BuyGunDTO, BuyAmmoDTO>;
 
 #endif

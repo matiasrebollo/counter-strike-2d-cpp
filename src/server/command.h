@@ -122,5 +122,12 @@ public:
     ~EquipBombCommand() override = default;
 };
 
+class PickUpItemCommand: public Command {
+public:
+    explicit PickUpItemCommand(const std::string& username);
+    void execute_in_attack_phase(GameWorld& game) const override;
+    ~PickUpItemCommand() override = default;
+};
+
 
 #endif

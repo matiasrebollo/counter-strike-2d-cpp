@@ -268,6 +268,10 @@ void GameWorld::equip_bomb_for(const std::string& username) {
     with_player(username, [](Player& p) { p.equip_bomb(); });
 }
 
+void GameWorld::pick_up_item_for(const std::string& username) {
+    with_player(username, [](Player& /*p*/) {});
+}
+
 void GameWorld::buy_gun_for(const std::string& username, const GunType& gun) {
     with_player(username, [this, &gun](Player& p) {
         Loadout& loadout = p.get_loadout();

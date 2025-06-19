@@ -48,6 +48,7 @@ private:
     void handle_equip_secondary();
     void handle_equip_knife();
     void handle_equip_bomb();
+    void handle_pick_up_item();
     void handle_buy_gun(const BuyGunDTO& dto);
     void handle_buy_ammo(const BuyAmmoDTO& dto);
 
