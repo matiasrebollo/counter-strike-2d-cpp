@@ -37,6 +37,10 @@ void GamePhase::run() {
         it = clock.sleep_and_calc_next_it(FPS_SERVER, it);
     }
 
+    if (dynamic_cast<WaitingPlayersPhase*>(this) && time >= duration) {
+        game.manage_elapsed_waiting_timed();
+        return;
+    }
     end();
 }
 
@@ -72,7 +76,6 @@ void AttackPhase::execute(std::unique_ptr<Command> cmd) {
 void AttackPhase::end() {
     game.decide_winner();
     game.change_phase(std::make_unique<BetweenRoundsPhase>(game));
-    // si termina la partida???
 }
 
 BetweenRoundsPhase::BetweenRoundsPhase(CS2DGame& game):

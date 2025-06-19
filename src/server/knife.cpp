@@ -26,10 +26,7 @@ void Knife::update(const float& delta_t, Player& owner, GameWorld& game) {
 void Knife::execute_stab(Player* shot_victim, double shot_distance) {
     if (shot_distance < KNIFE_DISTANCE) {
         shot_victim->receive_damage(damage);
-        std::cout << "recibio daño" << std::endl;
     }
-    std::cout << "shot distance es " << shot_distance << std::endl;
-    std::cout << "el daño fue " << damage << std::endl;
 }
 
 void Knife::stab(GameWorld& game, Player& shooter) {
@@ -42,6 +39,6 @@ void Knife::stab(GameWorld& game, Player& shooter) {
     if (Player* hit_player = dynamic_cast<Player*>(shot.hit)) {
         execute_stab(hit_player, shot.impact_info->first);
         if (!hit_player->is_alive())
-            shooter.count_kill(kill_bonification);
+            shooter.count_kill(game, *hit_player, kill_bonification);
     }
 }

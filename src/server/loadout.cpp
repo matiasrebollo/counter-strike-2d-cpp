@@ -1,6 +1,6 @@
 #include "server/loadout.h"
 
-#include <iostream>
+#include <algorithm>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -26,7 +26,12 @@ GunType Loadout::primary_gun_type() const {
 }
 GunType Loadout::secondary_gun_type() const { return secondary_gun->get_type(); }
 
-void Loadout::decrease_money_by(const int& ammount_of_money) { this->money -= ammount_of_money; }
+void Loadout::decrease_money_by(const int& ammount_of_money) {
+    if (ammount_of_money <= 0)
+        return;
+
+    money = std::max(0, money - ammount_of_money);
+}
 
 void Loadout::add_money(const int& ammount_of_money) { this->money += ammount_of_money; }
 
@@ -80,6 +85,14 @@ const LoadoutDTO Loadout::get_dto() const {
                       secondary_gun->get_ammo(),
                       equipped,
                       bomb != nullptr};
+}
+
+void Loadout::reset() {
+    money = INITIAL_MONEY;
+    primary_gun = nullptr;
+    secondary_gun = Gun::new_gun(GLOCK);
+    bomb = nullptr;
+    equipped = SECONDARY;
 }
 
 Loadout::~Loadout() {}
