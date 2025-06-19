@@ -476,7 +476,29 @@ snapshots GameDTO game_dto; bool pop = true; while (pop) { if
     }
 }*/
 
-void GameUI::handle_game_ended() {}
+void GameUI::handle_game_ended() {
+    Clock clock;
+    size_t last_it = 0;
+    size_t it = 0;
+    float time = 0.0f;
+
+    while (time < 10) {
+        if (!input_handler.handle_ended_events()) {
+            break;
+        }
+        size_t delta_it = it - last_it;
+        float delta_seconds = static_cast<float>(delta_it) / FPS_SERVER;
+        time += delta_seconds;
+
+        sdl.clear_display();
+        sdl.render_in_z_order(local_info, it);
+        sdl.render_crosshair(local_info);
+        sdl.show_screen();
+
+        last_it = it;
+        it = clock.sleep_and_calc_next_it(FPS_SERVER, it);
+    }
+}
 
 void GameUI::change_phase(std::unique_ptr<GameUIPhase> new_phase) {
     this->phase = std::move(new_phase);

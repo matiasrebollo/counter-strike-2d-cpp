@@ -252,8 +252,8 @@ void SDLManager::render_fov(float orientation) {
                   orientation - PLAYER_SPRITE_GAP);  // PLAYER_SPRITE_GAP desfasaje textura cono
 }
 
-void SDLManager::render_if_dead(const int& life) {
-    if (life > 0) {
+void SDLManager::render_if_dead(const LocalInfo& local_info) {
+    if (local_info.player.life > 0 || game_ended(local_info)) {
         return;
     }
     renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
@@ -613,6 +613,91 @@ void SDLManager::render_hud_bomb(const bool& has_bomb, const bool& in_site, cons
     renderer.Copy(bomb_texture, src_bomb, dst_bomb);
 }
 
+void SDLManager::render_stats(const LocalInfo& local_info) {
+    if (!game_ended(local_info)) {
+        return;
+    }
+
+    int box_width = static_cast<int>(CAMERA_WIDTH * 0.7);
+    int box_height = static_cast<int>(CAMERA_HEIGHT * 0.6);
+    int box_x = (CAMERA_WIDTH - box_width) / 2;
+    int box_y = (CAMERA_HEIGHT - box_height) / 2;
+
+    SDL_Rect stats_box{box_x, box_y, box_width, box_height};
+
+    renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
+    renderer.SetDrawColor(0, 0, 0, 180);
+    renderer.FillRect(stats_box);
+
+    renderer.SetDrawColor(255, 255, 255, 255);
+    renderer.DrawRect(stats_box);
+
+    int font_size = 18;
+    const std::string& font_path = texture_parser.get_fw_texture(FONT_WAITING);
+    int start_y = stats_box.y + 10;
+    int spacing = 10;
+    int text_x = stats_box.x + 10;
+
+    auto draw_line = [&](const std::string& line, int y) {
+        SDL_Color color = {255, 255, 255, 255};
+        SDL2pp::Texture& text_texture =
+                texture_manager.get_text_texture(line, font_path, font_size, color);
+        renderer.Copy(text_texture, SDL2pp::NullOpt,
+                      SDL2pp::Rect(text_x, y, text_texture.GetWidth(), text_texture.GetHeight()));
+    };
+
+    int line_y = start_y;
+
+    draw_line("Counter Terrorists", line_y);
+    line_y += spacing;
+
+    if (local_info.player.is_ct) {
+        draw_line("* " + local_info.player.username +
+                          " | Kills: " + std::to_string(local_info.player.kills) +
+                          " | Deaths: " + std::to_string(local_info.player.deaths) +
+                          " | Bonifications: $" + std::to_string(local_info.player.bonifications),
+                  line_y);
+        line_y += spacing;
+    }
+
+    for (const auto& p: local_info.ct_players) {
+        if (p.username != local_info.player.username) {
+            draw_line("* " + p.username + " | Kills: " + std::to_string(p.kills) +
+                              " | Deaths: " + std::to_string(p.deaths) + " | Bonifications: $" +
+                              std::to_string(p.bonifications),
+                      line_y);
+            line_y += spacing;
+        }
+    }
+
+    line_y += spacing / 2;
+
+    draw_line("Terrorists", line_y);
+    line_y += spacing;
+
+    if (!local_info.player.is_ct) {
+        draw_line("* " + local_info.player.username +
+                          " | Kills: " + std::to_string(local_info.player.kills) +
+                          " | Deaths: " + std::to_string(local_info.player.deaths) +
+                          " | Bonifications: $" + std::to_string(local_info.player.bonifications),
+                  line_y);
+        line_y += spacing;
+    }
+
+    for (const auto& p: local_info.tt_players) {
+        if (p.username != local_info.player.username) {
+            draw_line("* " + p.username + " | Kills: " + std::to_string(p.kills) +
+                              " | Deaths: " + std::to_string(p.deaths) + " | Bonifications: $" +
+                              std::to_string(p.bonifications),
+                      line_y);
+            line_y += spacing;
+        }
+    }
+
+    renderer.SetDrawBlendMode(SDL_BLENDMODE_NONE);
+}
+
+
 void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
     update_camera(local_info.player.x / GRAPHIC_SCALE, local_info.player.y / GRAPHIC_SCALE);
 
@@ -666,7 +751,7 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
 
 
     render_fov(local_info.player.orientation + PLAYER_SPRITE_GAP);
-    render_if_dead(local_info.player.life);
+    render_if_dead(local_info);
     render_hud_time(local_info.time_left, local_info.bomb_status, local_info.phase);
     render_hud_life(local_info.player.life);
     render_hud_bomb(local_info.player.has_bomb, local_info.player.in_site,
@@ -675,6 +760,7 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
     render_hud_ammo(local_info.player.equipped_gun_ammo);
     render_hud_money(local_info.player.money);
     render_current_round_winner(local_info.current_round_winner, local_info.phase);
+    render_stats(local_info);
 }
 
 std::optional<ShopButtonType> SDLManager::interact_button(int x, int y, int money, GunType primary,
@@ -744,6 +830,11 @@ void SDLManager::show_screen() { renderer.Present(); }
 void SDLManager::close_shop() { shop.close_shop(); }
 
 void SDLManager::open_shop() { shop.open_shop(); }
+
+bool SDLManager::game_ended(const LocalInfo& local_info) {
+    return local_info.current_round == local_info.total_rounds &&
+           local_info.phase == Phase::ROUND_ENDED && local_info.time_left == 0;
+}
 
 void SDLManager::make_round_start_sound(const bool& is_ct) {
     if (is_ct) {

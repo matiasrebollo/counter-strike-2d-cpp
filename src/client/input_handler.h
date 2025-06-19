@@ -54,6 +54,7 @@ public:
     /* Maneja eventos del cliente en la fase de juego */
     bool handle_attack_events();
 
+    bool handle_ended_events();
     bool handle_between_rounds_events();
 
     void start_sender();

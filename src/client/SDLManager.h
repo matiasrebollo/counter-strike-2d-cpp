@@ -54,7 +54,7 @@ private:
                        const TerroristSkin& tt_skin);
     void render_player_weapon(const PlayerInfo& p);
     void render_fov(float orientation_deg);
-    void render_if_dead(const int& life);
+    void render_if_dead(const LocalInfo& local_info);
     void render_hud_bomb_not_planted_time(int minutes, int seconds, Phase phase);
     void render_hud_bomb_explotion_time(int minutes, int seconds);
     void render_hud_time(int time_left, BombStatus bomb_status, Phase phase);
@@ -64,6 +64,8 @@ private:
     void render_hud_life(int life);
     void render_hud_ammo(int ammo);
     void render_hud_money(int money);
+    void render_stats(const LocalInfo& local_info);
+    bool game_ended(const LocalInfo& local_info);
     Crosshairs get_crosshair_color(int mouse_x, int mouse_y, const LocalInfo& local_info);
 
 public:
