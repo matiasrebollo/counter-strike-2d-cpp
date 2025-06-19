@@ -61,6 +61,8 @@ private:
             const Shot& shot, const Vector2D<float>& seg_start,
             const Vector2D<float>& seg_end) const;
 
+    bool can_defuse_bomb(const Player& player) const;
+
 public:
     const std::string id;
 
@@ -78,7 +80,8 @@ public:
     bool bomb_not_planted() const;
     bool bomb_exploded() const;
     bool bomb_defused() const;
-    void defuse_bomb();
+    void make_bomb_explode();
+    bool are_teammates(const Player& player1, const Player& player2) const;
     bool tt_are_all_dead() const;
     bool ct_are_all_dead() const;
     void rotate_player(const std::string& username, const double& angle);

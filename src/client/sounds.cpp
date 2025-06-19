@@ -13,7 +13,10 @@ void Sounds::initialize_channels(const std::vector<std::string>& usernames) {
 
     for (const auto& username: usernames) player_shot_channel[username] = current_channel++;
 
-    shop_channel = current_channel;
+    shop_channel = current_channel++;
+    bomb_channel = current_channel++;
+    round_channel = current_channel++;
+    clock_channel = current_channel;
 
     total_players = usernames.size();
 }
@@ -35,6 +38,15 @@ int Sounds::get_channel(const std::string& username, SoundType type) const {
         case SoundType::SHOP_TYPE: {
             return shop_channel;
         }
+        case SoundType::BOMB_TYPE: {
+            return bomb_channel;
+        }
+        case SoundType::ROUND_TYPE: {
+            return round_channel;
+        }
+        case SoundType::CLOCK_TYPE: {
+            return clock_channel;
+        }
     }
     return -1;
 }
@@ -46,6 +58,31 @@ void Sounds::play_shop_sound(SoundEffect effect) {
     mixer.PlayChannel(channel, sound);
 }
 
+void Sounds::play_round_sound(SoundEffect effect) {
+    std::string path = texture_parser.get_sound_path(effect);
+    SDL2pp::Chunk& sound = texture_manager.get_sound(path);
+    int channel = get_channel(" ", SoundType::ROUND_TYPE);
+    mixer.PlayChannel(channel, sound);
+}
+
+void Sounds::play_bomb_sound(SoundEffect effect) {
+    std::string path = texture_parser.get_sound_path(effect);
+    SDL2pp::Chunk& sound = texture_manager.get_sound(path);
+    int channel = get_channel(" ", SoundType::BOMB_TYPE);
+    mixer.PlayChannel(channel, sound);
+}
+
+void Sounds::play_clock_sound(SoundEffect effect) {
+    std::string path = texture_parser.get_sound_path(effect);
+    SDL2pp::Chunk& sound = texture_manager.get_sound(path);
+    int channel = get_channel(" ", SoundType::CLOCK_TYPE);
+    mixer.PlayChannel(channel, sound);
+}
+
+void Sounds::stop_clock_sound() {
+    int channel = get_channel(" ", SoundType::CLOCK_TYPE);
+    mixer.HaltChannel(channel);
+}
 
 void Sounds::play_step(const std::string& username, const SDL2pp::Point& destino_camera,
                        bool is_moving) {

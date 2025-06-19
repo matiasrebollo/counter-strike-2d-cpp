@@ -45,7 +45,15 @@ enum SoundEffect {
     DIRT_STEP_TWO,
     GLOCK_SHOT,
     AWP_SHOT,
-    KNIFE_HIT
+    KNIFE_HIT,
+    START_ROUND_TT,
+    START_ROUND_CT,
+    ROUND_ALMOST_FINISH,
+    BOMB_DEFUSE,
+    BOMB_PLANTED,
+    CT_WINS,
+    TT_WINS,
+    FAST_TICK_CLOCK
 };
 
 enum Others { AWP_SHOT_FLARE };

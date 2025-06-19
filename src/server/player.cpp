@@ -24,6 +24,7 @@ Player::Player(const std::string& name, Vector2D<int>& position):
         deaths(0),
         loadout() {}
 
+std::string Player::get_username() const { return name; }
 float Player::get_orientation() const { return orientation; }
 
 bool Player::is_alive() const { return this->life > 0; }
@@ -111,6 +112,8 @@ void Player::restart() {
     orientation = 0.0;
     leave_bomb();
 }
+void Player::reset_loadout() { loadout.reset(); }
+
 void Player::make_action() {
     if (Weapon* weapon = loadout.equipped_weapon())
         weapon->action();
@@ -127,14 +130,21 @@ void Player::stop_defusing_bomb() { is_defusing_bomb = false; }
 void Player::shoot(const Shot& a_shot) { shot = a_shot.get_dto(); }
 
 void Player::receive_damage(const int& damage) {
+    if (life == 0)
+        return;
     life = std::max(life - damage, 0);
     if (life == 0)
         deaths += 1;
 }
-void Player::count_kill(const int& money_bonification) {
-    kills += 1;
-    bonifications += money_bonification;
-    loadout.add_money(money_bonification);
+void Player::count_kill(GameWorld& game, Player& victim, const int& money_bonification) {
+    if (game.are_teammates(*this, victim)) {
+        bonifications -= TEAM_KILL_PENALTY;
+        loadout.decrease_money_by(TEAM_KILL_PENALTY);
+    } else {
+        kills += 1;
+        bonifications += money_bonification;
+        loadout.add_money(money_bonification);
+    }
 }
 
 void Player::unequip_weapon() {

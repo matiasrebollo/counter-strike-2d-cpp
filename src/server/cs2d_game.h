@@ -36,6 +36,7 @@ private:
     bool should_start() const;
 
     void broadcast_game_dto(const GameDTO& game_dto);
+    void manage_elapsed_waiting_timed();
     void broadcast_game_initial_info();
     void broadcast_snapshot(const int time_left);
 

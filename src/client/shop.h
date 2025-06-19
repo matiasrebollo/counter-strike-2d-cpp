@@ -77,6 +77,10 @@ public:
      */
     std::optional<ShopButtonType> interact_button(int x, int y, int money, GunType primary_gun,
                                                   bool click);
+
+    void close_shop();
+
+    void open_shop();
 };
 
 

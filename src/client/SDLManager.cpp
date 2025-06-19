@@ -654,16 +654,14 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
 
     // render de mi player
     render_player(local_info.player, local_info.ct_skin, local_info.tt_skin);
-    for (const PlayerInfo& p: local_info.ct_players)
+    for (auto& [_, p]: local_info.players) {
         render_player(p, local_info.ct_skin, local_info.tt_skin);
-    for (const PlayerInfo& p: local_info.tt_players)
-        render_player(p, local_info.ct_skin, local_info.tt_skin);
-
+    }
     // Renderizo las armas luego de los players para que aparezcan por encima
     render_player_weapon(local_info.player);
-    for (const PlayerInfo& p: local_info.ct_players) render_player_weapon(p);
-    for (const PlayerInfo& p: local_info.tt_players) render_player_weapon(p);
-
+    for (auto& [_, p]: local_info.players) {
+        render_player_weapon(p);
+    }
 
     render_fov(local_info.player.orientation + PLAYER_SPRITE_GAP);
     render_if_dead(local_info.player.life);
@@ -690,10 +688,12 @@ void SDLManager::render_shop(int player_money, GunType primary_gun, GunType seco
 /* Devuelve el color de la mira a usar dependiendo donde esta posicionado el mouse */
 Crosshairs SDLManager::get_crosshair_color(int mouse_x, int mouse_y, const LocalInfo& local_info) {
 
-    const auto& enemies = local_info.player.is_ct ? local_info.tt_players : local_info.ct_players;
     int size_player = PLAYER_THICKNESS / GRAPHIC_SCALE;
 
-    for (const auto& e: enemies) {
+    for (const auto& [_, e]: local_info.players) {
+        if ((local_info.player.is_ct && e.is_ct) || (!local_info.player.is_ct && !e.is_ct)) {
+            continue;
+        }
         SDL2pp::Rect destino_mundo(e.x / GRAPHIC_SCALE, e.y / GRAPHIC_SCALE, size_player,
                                    size_player);
 
@@ -740,3 +740,44 @@ void SDLManager::render_crosshair(const LocalInfo& local_info) {
 
 
 void SDLManager::show_screen() { renderer.Present(); }
+
+void SDLManager::close_shop() { shop.close_shop(); }
+
+void SDLManager::open_shop() { shop.open_shop(); }
+
+void SDLManager::make_round_start_sound(const bool& is_ct) {
+    if (is_ct) {
+        sounds.play_round_sound(SoundEffect::START_ROUND_CT);
+    } else {
+        sounds.play_round_sound(SoundEffect::START_ROUND_TT);
+    }
+}
+
+void SDLManager::make_team_winner_sound(std::optional<Team> current_winner) {
+    if (!current_winner.has_value()) {
+        return;
+    } else {
+        Team winner = current_winner.value();
+        if (winner == Team::CT) {
+            sounds.play_round_sound(CT_WINS);
+        } else {
+            sounds.play_round_sound(TT_WINS);
+        }
+    }
+}
+
+void SDLManager::make_bomb_sound(const BombStatus& bomb_status) {
+    if (bomb_status == BombStatus::PLANTED) {
+        sounds.play_bomb_sound(BOMB_PLANTED);
+    } else if (bomb_status == BombStatus::DEFUSED) {
+        sounds.play_bomb_sound(BOMB_DEFUSE);
+    }
+}
+
+void SDLManager::make_clock_sound(const bool& play) {
+    if (play) {
+        sounds.play_clock_sound(FAST_TICK_CLOCK);
+    } else {
+        sounds.stop_clock_sound();
+    }
+}

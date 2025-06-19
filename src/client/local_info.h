@@ -2,7 +2,7 @@
 #define LOCAL_INFO_H
 
 #include <string>
-#include <vector>
+#include <unordered_map>
 
 #include "../common/skins.h"
 
@@ -24,6 +24,8 @@ struct PlayerInfo {
     bool shoot = false;
     int impact_position_x = 0;
     int impact_position_y = 0;
+
+    bool operator<(const PlayerInfo& other) const { return username < other.username; }
 };
 
 struct LocalInfo {
@@ -33,9 +35,7 @@ struct LocalInfo {
     CounterTerroristSkin ct_skin;
     TerroristSkin tt_skin;
 
-    // podrian ser dos maps, que la key sea el username, y que el valor sea playerinfo(sin username)
-    std::vector<PlayerInfo> ct_players;
-    std::vector<PlayerInfo> tt_players;
+    std::unordered_map<std::string, PlayerInfo> players;
     PlayerInfo player;
     std::optional<Team> current_round_winner;
     BombStatus bomb_status = BombStatus::NOT_PLANTED;

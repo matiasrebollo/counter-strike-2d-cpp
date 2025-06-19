@@ -106,6 +106,25 @@ public:
 
     /* Muestra lo dibujado en pantalla */
     void show_screen();
+
+    /* Cierra la tienda si es que está abierta */
+    void close_shop();
+
+    /* Abre la tienda si es que está cerrada */
+    void open_shop();
+
+    /* Emite el sonido correspondiente al inicio de ronda
+    dependiendo en qué team esté el player actualmente */
+    void make_round_start_sound(const bool& is_ct);
+
+    /* Emite un sonido con el equipo ganador, si es que hay uno */
+    void make_team_winner_sound(std::optional<Team> current_winner);
+
+    /* Emite un sonido de la bomba: plantada o defuseada */
+    void make_bomb_sound(const BombStatus& bomb_status);
+
+    /* Emite un sonido de la bomba: plantada o defuseada */
+    void make_clock_sound(const bool& play);
 };
 
 #endif
