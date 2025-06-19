@@ -87,4 +87,12 @@ const LoadoutDTO Loadout::get_dto() const {
                       bomb != nullptr};
 }
 
+void Loadout::reset() {
+    money = INITIAL_MONEY;
+    primary_gun = nullptr;
+    secondary_gun = Gun::new_gun(GLOCK);
+    bomb = nullptr;
+    equipped = SECONDARY;
+}
+
 Loadout::~Loadout() {}

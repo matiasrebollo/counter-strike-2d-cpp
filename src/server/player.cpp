@@ -112,6 +112,8 @@ void Player::restart() {
     orientation = 0.0;
     leave_bomb();
 }
+void Player::reset_loadout() { loadout.reset(); }
+
 void Player::make_action() {
     if (Weapon* weapon = loadout.equipped_weapon())
         weapon->action();

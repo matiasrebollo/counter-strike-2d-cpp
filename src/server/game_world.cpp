@@ -107,10 +107,12 @@ void GameWorld::swap_teams() {
 
     for (auto& [username, player]: counter_terrorists) {
         new_terrorists[username] = player;
+        player->reset_loadout();
     }
 
     for (auto& [username, player]: terrorists) {
         new_counter_terrorists[username] = player;
+        player->reset_loadout();
     }
 
     terrorists = std::move(new_terrorists);

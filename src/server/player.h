@@ -42,6 +42,7 @@ public:
     bool is_on_site() const;
     bool defusing_bomb() const;
     bool has_bomb() const;
+    Loadout& get_loadout();
     WeaponType equipped() const;
     void update(GameWorld& game, const float& delta_t);
     void rotate(const double& new_orientation);
@@ -53,6 +54,7 @@ public:
     void receive_bomb(std::shared_ptr<Bomb> bomb);
     void leave_bomb();
     void restart();
+    void reset_loadout();
     void stop_moving_up();
     void stop_moving_down();
     void stop_moving_left();
@@ -69,7 +71,7 @@ public:
     void shoot(const Shot& a_shot);
     void receive_damage(const int& damage);
     void count_kill(GameWorld& game, Player& victim, const int& money_bonification);
-    Loadout& get_loadout();
+
     const PlayerDTO get_dto() const;
 
     Player(const Player&) = delete;
