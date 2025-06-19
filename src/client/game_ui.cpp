@@ -116,6 +116,7 @@ void GameUI::update_player(const PlayerDTO& player, const bool& is_ct) {
         local_info.player.secondary_gun = player.loadout.secondary_gun;
         local_info.player.equipped = player.loadout.equipped;
         local_info.player.in_site = player.on_site;
+        local_info.player.has_bomb = player.loadout.has_bomb;
 
         if (local_info.player.equipped == PRIMARY)
             local_info.player.equipped_gun_ammo = player.loadout.primary_ammo;
