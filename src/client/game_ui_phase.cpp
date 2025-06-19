@@ -38,7 +38,9 @@ void GameUIPhase::change_phase() {
         game_ui.play_start_round_sound();
         game_ui.change_phase(std::make_unique<UIAttackPhase>(game_ui));
     } else if (game_ui.local_info.phase == ROUND_ENDED) {
-        game_ui.play_team_winner_sound();
+        if (game_ui.local_info.current_round < game_ui.local_info.total_rounds) {
+            game_ui.play_team_winner_sound();
+        }
         game_ui.change_phase(std::make_unique<RoundEndedPhase>(game_ui));
     }
     // ended ?
