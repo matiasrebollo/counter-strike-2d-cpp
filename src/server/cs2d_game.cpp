@@ -122,13 +122,14 @@ void CS2DGame::change_phase(std::unique_ptr<GamePhase> new_phase) {
     this->phase = std::move(new_phase);
 }
 
+void CS2DGame::manage_elapsed_waiting_timed() { end_game(); }
+
 void CS2DGame::end() {
     this->command_queue.close();
     this->stop();
 }
 
 void CS2DGame::end_game() {
-    // determinar equipo ganador y enviar estadisticas finales
     this->broadcast_game_dto(GameEnded{});
     end();
 }
