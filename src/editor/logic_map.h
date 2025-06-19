@@ -22,27 +22,27 @@ class LogicMap {
 public:
     LogicMap();
 
-    void load_map(const GameMap& map);
-    const GameMap create_map();
+    void loadMap(const GameMap& map);
+    const GameMap createMap();
 
-    Background get_background();
-    void clear_map();
-    void clear_grid();
-    int get_width();
-    int get_height();
-    const CellInfo get_cell_info(const int& row, const int& column);
+    Background getBackground();
+    void clearMap();
+    void clearGrid();
+    int getWidth();
+    int getHeight();
+    const CellInfo getCellInfo(const int& row, const int& column);
 
-    void add_columns();
-    void add_rows();
+    void addColumns();
+    void addRows();
 
     void setBlock(const int& row, const int& column, const bool& to_delete);
     void setCtSpawn(const int& row, const int& column, const bool& to_delete);
     void setTTSpawn(const int& row, const int& column, const bool& to_delete);
     void setBombSite(const int& row, const int& column, const bool& to_delete);
     void setGun(const int& row, const int& column, const bool& to_delete);
-    void select_background(const Background& background);
-    void select_block(const int& block);
-    void select_gun(const GunType& gun);
+    void selectBackground(const Background& background);
+    void selectBlock(const int& block);
+    void selectGun(const GunType& gun);
 
 private:
     BlockTextureParser texture_parser;

@@ -26,7 +26,7 @@ LogicMap::LogicMap():
         selected_background(AZTEC_BACKGROUND),
         selected_gun(NONE) {}
 
-void LogicMap::load_map(const GameMap& map) {
+void LogicMap::loadMap(const GameMap& map) {
     this->grid.resize(map.height);
 
     for (auto& row: grid) {
@@ -61,25 +61,25 @@ void LogicMap::load_map(const GameMap& map) {
     }
 }
 
-Background LogicMap::get_background() { return this->selected_background; }
+Background LogicMap::getBackground() { return this->selected_background; }
 
-void LogicMap::select_background(const Background& background) {
+void LogicMap::selectBackground(const Background& background) {
     this->selected_background = background;
 }
 
-int LogicMap::get_width() { return static_cast<int>(this->grid[0].size()); }
+int LogicMap::getWidth() { return static_cast<int>(this->grid[0].size()); }
 
-int LogicMap::get_height() { return static_cast<int>(this->grid.size()); }
+int LogicMap::getHeight() { return static_cast<int>(this->grid.size()); }
 
-void LogicMap::clear_map() {
-    this->clear_grid();
+void LogicMap::clearMap() {
+    this->clearGrid();
     this->tt_spawns.clear();
     this->ct_spawns.clear();
     this->bomb_sites.clear();
     this->selected_background = AZTEC_BACKGROUND;
 }
 
-void LogicMap::clear_grid() {
+void LogicMap::clearGrid() {
     this->grid = {};
     for (int i = 0; i < DEFAULT_ROWS; i++) {
         this->grid.push_back({});
@@ -89,7 +89,7 @@ void LogicMap::clear_grid() {
     }
 }
 
-const CellInfo LogicMap::get_cell_info(const int& row, const int& column) {
+const CellInfo LogicMap::getCellInfo(const int& row, const int& column) {
     GunType gun = NONE;
     if (this->guns.find({column, row}) != guns.end()) {
         gun = guns[{column, row}];
@@ -100,11 +100,11 @@ const CellInfo LogicMap::get_cell_info(const int& row, const int& column) {
             this->bomb_sites.find({column, row}) != bomb_sites.end(), gun};
 }
 
-void LogicMap::select_block(const int& block) { this->selected_block = block; }
+void LogicMap::selectBlock(const int& block) { this->selected_block = block; }
 
-void LogicMap::select_gun(const GunType& gun) { this->selected_gun = gun; }
+void LogicMap::selectGun(const GunType& gun) { this->selected_gun = gun; }
 
-const GameMap LogicMap::create_map() {
+const GameMap LogicMap::createMap() {
     int height = static_cast<int>(grid.size());
     int width = static_cast<int>(grid[0].size());
 
@@ -258,13 +258,13 @@ void LogicMap::setGun(const int& row, const int& column, const bool& to_delete) 
     }
 }
 
-void LogicMap::add_columns() {
-    for (int i = 0; i < this->get_height(); i++) {
-        this->grid[i].resize(this->get_width() + COLUMNS_TO_ADD, NONE_BLOCK);
+void LogicMap::addColumns() {
+    for (int i = 0; i < this->getHeight(); i++) {
+        this->grid[i].resize(this->getWidth() + COLUMNS_TO_ADD, NONE_BLOCK);
     }
 }
 
-void LogicMap::add_rows() {
-    this->grid.resize(this->get_height() + ROWS_TO_ADD,
-                      std::vector<int>(this->get_width(), NONE_BLOCK));
+void LogicMap::addRows() {
+    this->grid.resize(this->getHeight() + ROWS_TO_ADD,
+                      std::vector<int>(this->getWidth(), NONE_BLOCK));
 }
