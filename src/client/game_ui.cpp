@@ -69,16 +69,14 @@ void GameUI::detect_player_events(const Snapshot& snapshot) {
         for (const auto& dto: snapshot.ct) {
             if (dto.username == local_info.username) {
                 check_and_flag(local_info.player, dto);
-                continue;
-            } else {
+            } else if (dto.username == username) {
                 check_and_flag(player, dto);
             }
         }
         for (const auto& dto: snapshot.tt) {
             if (dto.username == local_info.username) {
                 check_and_flag(local_info.player, dto);
-                continue;
-            } else {
+            } else if (dto.username == username) {
                 check_and_flag(player, dto);
             }
         }
@@ -105,7 +103,6 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
 
 void GameUI::update_player(const PlayerDTO& player, const bool& is_ct) {
     if (player.username == local_info.username) {
-        local_info.player.username = player.username;
         local_info.player.is_ct = is_ct;
         local_info.player.x = player.position.x;
         local_info.player.y = player.position.y;
@@ -125,28 +122,47 @@ void GameUI::update_player(const PlayerDTO& player, const bool& is_ct) {
         else
             local_info.player.equipped_gun_ammo = 0;
     } else {
-        PlayerInfo updated;
-        updated.username = player.username;
-        updated.is_ct = is_ct;
-        updated.x = player.position.x;
-        updated.y = player.position.y;
-        updated.orientation = player.orientation;
-        updated.life = player.life;
-        updated.money = player.loadout.money;
-        updated.primary_gun = player.loadout.primary_gun;
-        updated.secondary_gun = player.loadout.secondary_gun;
-        updated.equipped = player.loadout.equipped;
-        updated.has_bomb = player.loadout.has_bomb;
-        updated.in_site = player.on_site;
+        auto it = local_info.players.find(player.username);
+        if (it != local_info.players.end()) {
+            it->second.is_ct = is_ct;
+            it->second.x = player.position.x;
+            it->second.y = player.position.y;
+            it->second.orientation = player.orientation;
+            it->second.life = player.life;
+            it->second.money = player.loadout.money;
+            it->second.primary_gun = player.loadout.primary_gun;
+            it->second.secondary_gun = player.loadout.secondary_gun;
+            it->second.equipped = player.loadout.equipped;
+            it->second.has_bomb = player.loadout.has_bomb;
+            it->second.in_site = player.on_site;
+            if (it->second.equipped == PRIMARY)
+                it->second.equipped_gun_ammo = player.loadout.primary_ammo;
+            else if (it->second.equipped == SECONDARY)
+                it->second.equipped_gun_ammo = player.loadout.secondary_ammo;
+            else
+                it->second.equipped_gun_ammo = 0;
+        } else {
+            PlayerInfo updated;
+            updated.is_ct = is_ct;
+            updated.x = player.position.x;
+            updated.y = player.position.y;
+            updated.orientation = player.orientation;
+            updated.life = player.life;
+            updated.money = player.loadout.money;
+            updated.primary_gun = player.loadout.primary_gun;
+            updated.secondary_gun = player.loadout.secondary_gun;
+            updated.equipped = player.loadout.equipped;
+            updated.has_bomb = player.loadout.has_bomb;
+            updated.in_site = player.on_site;
 
-        if (updated.equipped == PRIMARY)
-            updated.equipped_gun_ammo = player.loadout.primary_ammo;
-        else if (updated.equipped == SECONDARY)
-            updated.equipped_gun_ammo = player.loadout.secondary_ammo;
-        else
-            updated.equipped_gun_ammo = 0;
-
-        local_info.players[updated.username] = std::move(updated);
+            if (updated.equipped == PRIMARY)
+                updated.equipped_gun_ammo = player.loadout.primary_ammo;
+            else if (updated.equipped == SECONDARY)
+                updated.equipped_gun_ammo = player.loadout.secondary_ammo;
+            else
+                updated.equipped_gun_ammo = 0;
+            local_info.players[player.username] = std::move(updated);
+        }
     }
 }
 
@@ -181,7 +197,7 @@ bool GameUI::update_waiting() {
             continue;
         if (local_info.phase != WAITING_PLAYERS) {
             std::vector<std::string> usernames;
-            usernames.push_back(local_info.player.username);
+            usernames.push_back(local_info.username);
             for (const auto& [username, player]: local_info.players) usernames.push_back(username);
 
             this->sdl.set_sound_info(usernames);
@@ -257,6 +273,7 @@ bool GameUI::update_attack() {
     if (got_snapshot)
         update_local_info_from_snapshot(last_snapshot);
 
+    // esto todo en local info y los make sound en Sounds, y que se haga al renderizar en sdl
     if (just_planted && !make_sound_planted) {
         make_sound_planted = true;
         sdl.make_bomb_sound(local_info.bomb_status);
@@ -350,6 +367,8 @@ void GameUI::change_phase(std::unique_ptr<GameUIPhase> new_phase) {
     this->phase = std::move(new_phase);
 }
 
+// just planted just defuse en local info, y las variables de sonido las pondria en Sounds, y en sdl
+// segun lo que leo de local info, hago el sonido.
 void GameUI::update_game_status(const Snapshot& snapshot) {
     if (local_info.bomb_status == BombStatus::NOT_PLANTED &&
         snapshot.bomb_status == BombStatus::PLANTED) {

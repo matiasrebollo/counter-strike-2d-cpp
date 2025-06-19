@@ -130,9 +130,11 @@ bool InputHandler::handle_buy_events(int money, GunType primary) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (handle_quit_event(event)) {
+            // llamar close shop dentro del handler
             sdl.close_shop();
             continue;
         }
+        // tener un handler y llamar open shop dentro
         if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_b) {
             sdl.open_shop();
             continue;

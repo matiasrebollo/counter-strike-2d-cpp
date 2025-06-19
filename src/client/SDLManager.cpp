@@ -123,8 +123,8 @@ GunVisualData SDLManager::get_gun_visual_info(WeaponType equipped, GunType gun_t
 }
 
 /* Renderiza un jugador */
-void SDLManager::render_player(const PlayerInfo& p, const CounterTerroristSkin& ct_skin,
-                               const TerroristSkin& tt_skin) {
+void SDLManager::render_player(const std::string& username, const PlayerInfo& p,
+                               const CounterTerroristSkin& ct_skin, const TerroristSkin& tt_skin) {
     double angulo = p.orientation + PLAYER_SPRITE_GAP;
     int x_pos = p.x;
     int y_pos = p.y;
@@ -160,14 +160,14 @@ void SDLManager::render_player(const PlayerInfo& p, const CounterTerroristSkin& 
 
     SDL2pp::Point centro(destino_camera.GetX() + destino_camera.GetW() / 2,
                          destino_camera.GetY() + destino_camera.GetH() / 2);
-    sounds.play_step(p.username, centro, p.movement);
+    sounds.play_step(username, centro, p.movement);
 }
 
 // falta hacer que quizas podes no ver el player pero si el arma (x la camera)
 // no dibujo las armas junto a cada player para que todas las armas se dibujen sobre los demas
 // players (z order)
 /* Renderiza las armas de cada jugador */
-void SDLManager::render_player_weapon(const PlayerInfo& p) {
+void SDLManager::render_player_weapon(const std::string& username, const PlayerInfo& p) {
     double angulo = p.orientation + PLAYER_SPRITE_GAP;
     int x_pos = p.x;
     int y_pos = p.y;
@@ -229,11 +229,11 @@ void SDLManager::render_player_weapon(const PlayerInfo& p) {
         }
         SDL2pp::Point centro(cx, cy);
         if (p.equipped == SECONDARY) {
-            sounds.play_shot(p.username, p.secondary_gun, centro);
+            sounds.play_shot(username, p.secondary_gun, centro);
         } else if (p.equipped == KNIFE) {
-            sounds.play_shot(p.username, NONE, centro);
+            sounds.play_shot(username, NONE, centro);
         } else if (p.equipped == PRIMARY) {
-            sounds.play_shot(p.username, p.primary_gun, centro);
+            sounds.play_shot(username, p.primary_gun, centro);
         }
     }
 }
@@ -301,6 +301,7 @@ void SDLManager::render_hud_bomb_not_planted_time(int minutes, int seconds, Phas
     const BlockTextureInfo& clock_info = texture_parser.get_symbol_texture(CLOCK);
     SDL2pp::Texture& clock_texture = texture_manager.get_texture(clock_info.tileset_path);
     int r, g, b;
+    // por que nos fijamos la phase?
     if (phase == Phase::ATTACK && minutes == 0 && seconds <= 10) {
         r = 255;
         g = 0;
@@ -402,8 +403,6 @@ void SDLManager::render_hud_bomb_explotion_time(int minutes, int seconds) {
 
 /* Renderiza el tiempo restante de la ronda del HUD */
 void SDLManager::render_hud_time(int time_left, BombStatus bomb_status, Phase phase) {
-    // quizas este calculo procesarlo al recibir la snapshot si no necesito el tiempo para otra
-    // cosa.
     int minutes = time_left / 60;
     int seconds = time_left % 60;
 
@@ -618,6 +617,7 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
 
     (void)it;
 
+    // funcion luego para renderizar el mapa.
     if (map.has_value()) {
         GameMapDTO game_map = map.value();
 
@@ -653,14 +653,14 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
     }
 
     // render de mi player
-    render_player(local_info.player, local_info.ct_skin, local_info.tt_skin);
-    for (auto& [_, p]: local_info.players) {
-        render_player(p, local_info.ct_skin, local_info.tt_skin);
+    render_player(local_info.username, local_info.player, local_info.ct_skin, local_info.tt_skin);
+    for (auto& [username, p]: local_info.players) {
+        render_player(username, p, local_info.ct_skin, local_info.tt_skin);
     }
     // Renderizo las armas luego de los players para que aparezcan por encima
-    render_player_weapon(local_info.player);
-    for (auto& [_, p]: local_info.players) {
-        render_player_weapon(p);
+    render_player_weapon(local_info.username, local_info.player);
+    for (auto& [username, p]: local_info.players) {
+        render_player_weapon(username, p);
     }
 
     render_fov(local_info.player.orientation + PLAYER_SPRITE_GAP);
@@ -745,6 +745,7 @@ void SDLManager::close_shop() { shop.close_shop(); }
 
 void SDLManager::open_shop() { shop.open_shop(); }
 
+// chequear sonidos
 void SDLManager::make_round_start_sound(const bool& is_ct) {
     if (is_ct) {
         sounds.play_round_sound(SoundEffect::START_ROUND_CT);
