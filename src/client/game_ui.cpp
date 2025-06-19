@@ -18,7 +18,6 @@ GameUI::GameUI(Lobby& lobby):
                    lobby.get_ct_skin(),
                    lobby.get_tt_skin(),
                    {},
-                   {},
                    PlayerInfo{},
                    std::nullopt},
         keep_running(true) {
@@ -42,13 +41,7 @@ void GameUI::run() {
 }
 
 void GameUI::reset_player_events() {
-    for (auto& p: local_info.ct_players) {
-        p.movement = false;
-        p.shoot = false;
-        p.impact_position_x = 0;
-        p.impact_position_y = 0;
-    }
-    for (auto& p: local_info.tt_players) {
+    for (auto& [username, p]: local_info.players) {
         p.movement = false;
         p.shoot = false;
         p.impact_position_x = 0;
@@ -72,30 +65,21 @@ void GameUI::detect_player_events(const Snapshot& snapshot) {
         }
     };
 
-    for (const auto& dto: snapshot.ct) {
-        if (dto.username == local_info.username) {
-            check_and_flag(local_info.player, dto);
-            continue;
-        }
-
-        for (auto& info: local_info.ct_players) {
-            if (dto.username == info.username) {
-                check_and_flag(info, dto);
-                break;
+    for (auto& [username, player]: local_info.players) {
+        for (const auto& dto: snapshot.ct) {
+            if (dto.username == local_info.username) {
+                check_and_flag(local_info.player, dto);
+                continue;
+            } else {
+                check_and_flag(player, dto);
             }
         }
-    }
-
-    for (const auto& dto: snapshot.tt) {
-        if (dto.username == local_info.username) {
-            check_and_flag(local_info.player, dto);
-            continue;
-        }
-
-        for (auto& info: local_info.tt_players) {
-            if (dto.username == info.username) {
-                check_and_flag(info, dto);
-                break;
+        for (const auto& dto: snapshot.tt) {
+            if (dto.username == local_info.username) {
+                check_and_flag(local_info.player, dto);
+                continue;
+            } else {
+                check_and_flag(player, dto);
             }
         }
     }
@@ -103,15 +87,6 @@ void GameUI::detect_player_events(const Snapshot& snapshot) {
 
 
 void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
-    std::cout << "Counter-Terrorists:\n";
-    for (const auto& player: snapshot.ct) {
-        std::cout << " - " << player.username << std::endl;
-    }
-
-    std::cout << "Terrorists:\n";
-    for (const auto& player: snapshot.tt) {
-        std::cout << " - " << player.username << std::endl;
-    }
     update_bomb_status(snapshot);
     local_info.time_left = snapshot.time_left;
     local_info.bomb_status = snapshot.bomb_status;
@@ -120,160 +95,58 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
     local_info.total_players = snapshot.total_players;
     local_info.phase = snapshot.phase;
     local_info.current_round_winner = snapshot.current_round_winner;
-
-    // update_swap(); ??
-
-    // Actualizo jugadores CT
     for (const PlayerDTO& p: snapshot.ct) {
-        bool found = false;
-        if (p.username == local_info.username) {
-            local_info.player.username = p.username;
-            local_info.player.is_ct = true;
-            local_info.player.x = p.position.x;
-            local_info.player.y = p.position.y;
-            local_info.player.orientation = p.orientation;
-            local_info.player.life = p.life;
-            local_info.player.money = p.loadout.money;
-            local_info.player.primary_gun = p.loadout.primary_gun;
-            local_info.player.secondary_gun = p.loadout.secondary_gun;
-            local_info.player.equipped = p.loadout.equipped;
-            local_info.player.in_site = p.on_site;
-
-            if (local_info.player.equipped == PRIMARY)
-                local_info.player.equipped_gun_ammo = p.loadout.primary_ammo;
-            else if (local_info.player.equipped == SECONDARY)
-                local_info.player.equipped_gun_ammo = p.loadout.secondary_ammo;
-            else
-                local_info.player.equipped_gun_ammo = 0;
-            found = true;
-        } else {
-            // Busco el jugador en ct_players y actualizo
-            for (auto& info: local_info.ct_players) {
-                if (info.username == p.username) {
-                    info.username = p.username;
-                    info.is_ct = true;
-                    info.x = p.position.x;
-                    info.y = p.position.y;
-                    info.orientation = p.orientation;
-                    info.life = p.life;
-                    info.money = p.loadout.money;
-                    info.primary_gun = p.loadout.primary_gun;
-                    info.secondary_gun = p.loadout.secondary_gun;
-                    info.equipped = p.loadout.equipped;
-
-                    if (info.equipped == PRIMARY)
-                        info.equipped_gun_ammo = p.loadout.primary_ammo;
-                    else if (info.equipped == SECONDARY)
-                        info.equipped_gun_ammo = p.loadout.secondary_ammo;
-                    else
-                        info.equipped_gun_ammo = 0;
-                    found = true;
-                    break;
-                }
-            }
-        }
-
-        if (!found) {
-            // No lo encontré ni en local ni en ct_players → agrego nuevo
-            PlayerInfo info;
-            info.username = p.username;
-            info.is_ct = true;
-            info.x = p.position.x;
-            info.y = p.position.y;
-            info.orientation = p.orientation;
-            info.life = p.life;
-            info.money = p.loadout.money;
-            info.primary_gun = p.loadout.primary_gun;
-            info.secondary_gun = p.loadout.secondary_gun;
-            info.equipped = p.loadout.equipped;
-
-            if (p.loadout.equipped == PRIMARY)
-                info.equipped_gun_ammo = p.loadout.primary_ammo;
-            else if (p.loadout.equipped == SECONDARY)
-                info.equipped_gun_ammo = p.loadout.secondary_ammo;
-            else
-                info.equipped_gun_ammo = 0;
-
-            local_info.ct_players.push_back(std::move(info));
-        }
+        update_player(p, true);
     }
-
-    // Actualizo jugadores TT (igual que CT)
     for (const PlayerDTO& p: snapshot.tt) {
-        bool found = false;
-        if (p.username == local_info.username) {
-            local_info.player.username = p.username;
-            local_info.player.is_ct = false;
-            local_info.player.x = p.position.x;
-            local_info.player.y = p.position.y;
-            local_info.player.orientation = p.orientation;
-            local_info.player.life = p.life;
-            local_info.player.money = p.loadout.money;
-            local_info.player.primary_gun = p.loadout.primary_gun;
-            local_info.player.secondary_gun = p.loadout.secondary_gun;
-            local_info.player.equipped = p.loadout.equipped;
-            local_info.player.has_bomb = p.loadout.has_bomb;
-            local_info.player.in_site = p.on_site;
-
-            if (local_info.player.equipped == PRIMARY)
-                local_info.player.equipped_gun_ammo = p.loadout.primary_ammo;
-            else if (local_info.player.equipped == SECONDARY)
-                local_info.player.equipped_gun_ammo = p.loadout.secondary_ammo;
-            else
-                local_info.player.equipped_gun_ammo = 0;
-            found = true;
-        } else {
-            for (auto& info: local_info.tt_players) {
-                if (info.username == p.username) {
-                    info.username = p.username;
-                    info.is_ct = false;
-                    info.x = p.position.x;
-                    info.y = p.position.y;
-                    info.orientation = p.orientation;
-                    info.life = p.life;
-                    info.money = p.loadout.money;
-                    info.primary_gun = p.loadout.primary_gun;
-                    info.secondary_gun = p.loadout.secondary_gun;
-                    info.equipped = p.loadout.equipped;
-                    info.in_site = p.on_site;
-
-                    if (info.equipped == PRIMARY)
-                        info.equipped_gun_ammo = p.loadout.primary_ammo;
-                    else if (info.equipped == SECONDARY)
-                        info.equipped_gun_ammo = p.loadout.secondary_ammo;
-                    else
-                        info.equipped_gun_ammo = 0;
-                    found = true;
-                    break;
-                }
-            }
-        }
-        if (!found) {
-            // No lo encontré ni en local ni en tt_players → agrego nuevo
-            PlayerInfo info;
-            info.username = p.username;
-            info.is_ct = false;
-            info.x = p.position.x;
-            info.y = p.position.y;
-            info.orientation = p.orientation;
-            info.life = p.life;
-            info.money = p.loadout.money;
-            info.primary_gun = p.loadout.primary_gun;
-            info.secondary_gun = p.loadout.secondary_gun;
-            info.equipped = p.loadout.equipped;
-            info.in_site = p.on_site;
-
-            if (p.loadout.equipped == PRIMARY)
-                info.equipped_gun_ammo = p.loadout.primary_ammo;
-            else if (p.loadout.equipped == SECONDARY)
-                info.equipped_gun_ammo = p.loadout.secondary_ammo;
-            else
-                info.equipped_gun_ammo = 0;
-
-            local_info.tt_players.push_back(std::move(info));
-        }
+        update_player(p, false);
     }
 }
+
+void GameUI::update_player(const PlayerDTO& player, const bool& is_ct) {
+    if (player.username == local_info.username) {
+        local_info.player.username = player.username;
+        local_info.player.is_ct = is_ct;
+        local_info.player.x = player.position.x;
+        local_info.player.y = player.position.y;
+        local_info.player.orientation = player.orientation;
+        local_info.player.life = player.life;
+        local_info.player.money = player.loadout.money;
+        local_info.player.primary_gun = player.loadout.primary_gun;
+        local_info.player.secondary_gun = player.loadout.secondary_gun;
+        local_info.player.equipped = player.loadout.equipped;
+        local_info.player.in_site = player.on_site;
+
+        if (local_info.player.equipped == PRIMARY)
+            local_info.player.equipped_gun_ammo = player.loadout.primary_ammo;
+        else if (local_info.player.equipped == SECONDARY)
+            local_info.player.equipped_gun_ammo = player.loadout.secondary_ammo;
+        else
+            local_info.player.equipped_gun_ammo = 0;
+    } else {
+        PlayerInfo updated;
+        updated.username = player.username;
+        updated.is_ct = is_ct;
+        updated.x = player.position.x;
+        updated.y = player.position.y;
+        updated.orientation = player.orientation;
+        updated.life = player.life;
+        updated.money = player.loadout.money;
+        updated.primary_gun = player.loadout.primary_gun;
+        updated.secondary_gun = player.loadout.secondary_gun;
+        updated.equipped = player.loadout.equipped;
+
+        if (updated.equipped == PRIMARY)
+            updated.equipped_gun_ammo = player.loadout.primary_ammo;
+        else if (updated.equipped == SECONDARY)
+            updated.equipped_gun_ammo = player.loadout.secondary_ammo;
+        else
+            updated.equipped_gun_ammo = 0;
+
+        local_info.players[updated.username] = std::move(updated);
+    }
+}
+
 
 void GameUI::handle_waiting_events() { this->keep_running = input_handler.handle_waiting_events(); }
 bool GameUI::update_waiting() {
@@ -306,8 +179,7 @@ bool GameUI::update_waiting() {
         if (local_info.phase != WAITING_PLAYERS) {
             std::vector<std::string> usernames;
             usernames.push_back(local_info.player.username);
-            for (const auto& player: local_info.ct_players) usernames.push_back(player.username);
-            for (const auto& player: local_info.tt_players) usernames.push_back(player.username);
+            for (const auto& [username, player]: local_info.players) usernames.push_back(username);
 
             this->sdl.set_sound_info(usernames);
             return false;
@@ -319,7 +191,7 @@ bool GameUI::update_waiting() {
 void GameUI::show_waiting(const int& it) {
     sdl.clear_display();
     sdl.render_waiting_screen(
-            local_info.ct_players.size() + local_info.tt_players.size() +
+            local_info.players.size() +
                     1,  // 1 porque si veo esta pantalla quiere decir estoy conectado
             local_info.total_players, local_info.gamename, it, FPS_CLIENT);
     sdl.show_screen();
