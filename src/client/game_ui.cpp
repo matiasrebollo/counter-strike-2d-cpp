@@ -35,6 +35,7 @@ void GameUI::run() {
     } catch (const ClosedQueue& e) {
         std::cout << "The server has been closed!" << std::endl;
         this->keep_running = false;
+        local_info.server_has_been_closed = true;
     }
 
     this->handle_game_ended();

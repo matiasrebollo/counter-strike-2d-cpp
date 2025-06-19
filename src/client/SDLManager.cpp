@@ -355,30 +355,26 @@ void SDLManager::render_hud_bomb_explotion_time(int minutes, int seconds) {
                                          return sum + (c == ':' ? dp_width : char_width) + spacing;
                                      }) -
                      spacing;
-    int total_width = bomb_width + spacing + text_width;
 
-    int start_x = (CAMERA_WIDTH - total_width) / 2;
+    int text_x = (CAMERA_WIDTH - text_width) / 2;
+    int bomb_x = text_x - bomb_width - spacing;
     int y = CAMERA_HEIGHT - char_height;
 
     const BlockTextureInfo& bomb_info = texture_parser.get_symbol_texture(BOMB_ACTIVE);
     SDL2pp::Texture& bomb_texture = texture_manager.get_texture(bomb_info.tileset_path);
-    int r, g, b;
-    if (seconds % 2 == 0) {
-        r = 255;
-        g = 0;
-        b = 0;
-    } else {
-        r = 255;
-        g = 255;
-        b = 0;
-    }
+
+    int r = 255;
+    int g = (seconds % 2 == 0) ? 0 : 255;
+    int b = 0;
+
     bomb_texture.SetColorMod(r, g, b);
     bomb_texture.SetAlphaMod(190);
+
     SDL2pp::Rect clock_src(bomb_info.x, bomb_info.y, bomb_info.width, bomb_info.height);
-    SDL2pp::Rect clock_dst(start_x, y, bomb_width, bomb_height);
+    SDL2pp::Rect clock_dst(bomb_x, y, bomb_width, bomb_height);
     renderer.Copy(bomb_texture, clock_src, clock_dst);
 
-    int x = start_x + bomb_width + spacing;
+    int x = text_x;
     for (char c: time_str) {
         HudNumbers num_enum = (c == ':') ? DP : static_cast<HudNumbers>(c - '0');
         const BlockTextureInfo& sprite_info = texture_parser.get_number_texture(num_enum);
@@ -386,14 +382,10 @@ void SDLManager::render_hud_bomb_explotion_time(int minutes, int seconds) {
         texture.SetColorMod(r, g, b);
         texture.SetAlphaMod(190);
 
-        int width = char_width;
-        if (c == ':') {
-            width = dp_width;
-        }
+        int width = (c == ':') ? dp_width : char_width;
 
         SDL2pp::Rect src(sprite_info.x, sprite_info.y, sprite_info.width, sprite_info.height);
         SDL2pp::Rect dst(x, y, width, char_height);
-
         renderer.Copy(texture, src, dst);
 
         x += width + spacing;
@@ -404,6 +396,9 @@ void SDLManager::render_hud_bomb_explotion_time(int minutes, int seconds) {
 void SDLManager::render_hud_time(int time_left, BombStatus bomb_status, Phase phase) {
     // quizas este calculo procesarlo al recibir la snapshot si no necesito el tiempo para otra
     // cosa.
+    if (phase == ROUND_ENDED) {
+        return;
+    }
     int minutes = time_left / 60;
     int seconds = time_left % 60;
 
@@ -614,6 +609,40 @@ void SDLManager::render_hud_bomb(const bool& has_bomb, const bool& in_site, cons
 }
 
 void SDLManager::render_stats(const LocalInfo& local_info) {
+    if (local_info.server_has_been_closed) {
+
+        int box_width = static_cast<int>(CAMERA_WIDTH * 0.59);
+        int box_height = static_cast<int>(CAMERA_HEIGHT * 0.1);
+        int box_x = (CAMERA_WIDTH - box_width) / 2;
+        int box_y = (CAMERA_HEIGHT - box_height) / 2;
+
+        SDL_Rect stats_box{box_x, box_y, box_width, box_height};
+
+        renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
+        renderer.SetDrawColor(0, 0, 0, 180);
+        renderer.FillRect(stats_box);
+
+        renderer.SetDrawColor(255, 255, 255, 255);
+        renderer.DrawRect(stats_box);
+
+        int font_size = static_cast<int>(box_x * 0.2);
+        const std::string& font_path = texture_parser.get_fw_texture(FONT_WAITING);
+        int start_y = stats_box.y + 10;
+        int text_x = stats_box.x + 10;
+
+        SDL_Color red = {255, 0, 0, 255};
+        auto draw_line = [&](const std::string& line, int y, SDL_Color color) {
+            SDL2pp::Texture& text_texture =
+                    texture_manager.get_text_texture(line, font_path, font_size, color);
+            renderer.Copy(
+                    text_texture, SDL2pp::NullOpt,
+                    SDL2pp::Rect(text_x, y, text_texture.GetWidth(), text_texture.GetHeight()));
+        };
+
+        int line_y = start_y;
+
+        draw_line("Connection lost with server!", line_y, red);
+    }
     if (!game_ended(local_info)) {
         return;
     }

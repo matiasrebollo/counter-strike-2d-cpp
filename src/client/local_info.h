@@ -36,6 +36,7 @@ struct LocalInfo {
     CounterTerroristSkin ct_skin;
     TerroristSkin tt_skin;
 
+
     // podrian ser dos maps, que la key sea el username, y que el valor sea playerinfo(sin username)
     std::vector<PlayerInfo> ct_players;
     std::vector<PlayerInfo> tt_players;
@@ -47,6 +48,7 @@ struct LocalInfo {
     int total_players = 0;
     size_t total_rounds = 0;
     size_t current_round = 0;
+    bool server_has_been_closed = false;
 };
 
 #endif
