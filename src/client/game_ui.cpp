@@ -256,21 +256,20 @@ bool GameUI::update_attack() {
     }
     if (got_snapshot)
         update_local_info_from_snapshot(last_snapshot);
-    if (local_info.phase == ATTACK) {
+
+    if (just_planted && !make_sound_planted) {
+        make_sound_planted = true;
+        sdl.make_bomb_sound(local_info.bomb_status);
+    } else if (just_defuse && !make_sound_defused) {
+        make_sound_defused = false;
+        sdl.make_bomb_sound(local_info.bomb_status);
+    } else if (local_info.phase == ATTACK && local_info.time_left <= 10 && !make_sound_clock) {
         // si no es attack justo acabo de cambiar de fase, y asi evito que suene el reloj un delta_t
         // corto cuando no deberia
-        if (just_planted && !make_sound_planted) {
-            make_sound_planted = true;
-            sdl.make_bomb_sound(local_info.bomb_status);
-        } else if (just_defuse && !make_sound_defused) {
-            make_sound_defused = false;
-            sdl.make_bomb_sound(local_info.bomb_status);
-        } else if (local_info.time_left <= 10 && !make_sound_clock) {
-            sdl.make_clock_sound(true);
-            make_sound_clock = true;
-        } else if (local_info.current_round_winner.has_value() && make_sound_clock) {
-            sdl.make_clock_sound(false);
-        }
+        sdl.make_clock_sound(true);
+        make_sound_clock = true;
+    } else if (local_info.current_round_winner.has_value() && make_sound_clock) {
+        sdl.make_clock_sound(false);
     }
     return true;
 }
