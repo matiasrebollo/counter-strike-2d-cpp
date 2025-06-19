@@ -80,7 +80,7 @@ public:
     bool bomb_not_planted() const;
     bool bomb_exploded() const;
     bool bomb_defused() const;
-    void defuse_bomb();
+    void make_bomb_explode();
     bool are_teammates(const Player& player1, const Player& player2) const;
     bool tt_are_all_dead() const;
     bool ct_are_all_dead() const;

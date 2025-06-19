@@ -352,6 +352,10 @@ void GameWorld::update(const float& delta_t) {
         bomb->update_planted(delta_t);
     }
 
+    if (prev_status == PLANTED && bomb->get_status() == EXPLODED) {
+        make_bomb_explode();
+    }
+
     for (const auto& [_, c_terrorist]: counter_terrorists) {
         if (prev_status == PLANTED && bomb->get_status() == DEFUSED && c_terrorist->defusing_bomb())
             c_terrorist->stop_defusing_bomb();
@@ -369,14 +373,30 @@ bool GameWorld::bomb_exploded() const { return bomb->get_status() == EXPLODED; }
 bool GameWorld::bomb_defused() const { return bomb->get_status() == DEFUSED; }
 bool GameWorld::bomb_not_planted() const { return bomb->get_status() == NOT_PLANTED; }
 
-void GameWorld::defuse_bomb() {
-    for (auto& [_, player]: terrorists) {
-        if (player->has_bomb()) {
-            player->leave_bomb();
-            break;
+void GameWorld::make_bomb_explode() {
+    Vector2D<int> bomb_center(
+            bomb->get_plantation()->position.x + bomb->get_plantation()->width / 2,
+            bomb->get_plantation()->position.y + bomb->get_plantation()->height / 2);
+
+    auto apply_explosion = [&](auto& team) {
+        for (auto& [username, player]: team) {
+            if (!player->is_alive())
+                continue;
+            Vector2D<int> player_center(player->rect.position.x + player->rect.width / 2,
+                                        player->rect.position.y + player->rect.height / 2);
+
+            int dx = bomb_center.x - player_center.x;
+            int dy = bomb_center.y - player_center.y;
+            float distance = std::sqrt(static_cast<float>(dx * dx + dy * dy));
+
+            if (distance <= bomb->get_explosion_radius()) {
+                bomb->make_damage_to(*player, distance);
+            }
         }
-    }
-    bomb->defuse();
+    };
+
+    apply_explosion(terrorists);
+    apply_explosion(counter_terrorists);
 }
 
 bool GameWorld::team_is_dead(const std::map<std::string, std::shared_ptr<Player>>& team) const {

@@ -3,7 +3,7 @@
 
 // server
 #define FPS_SERVER 60
-#define ROUNDS 2
+#define ROUNDS 10
 
 #define BUY_PHASE_DURATION 10
 #define ATTACK_PHASE_DURATION 60
@@ -58,20 +58,21 @@
 #define KNIFE_KILL_BONUS 1500
 
 
-#define BOMB_THICKNESS 180
+#define BOMB_THICKNESS 100
 #define BLOCK_THICKNESS 400
 
 #define PLAYER_SPEED 10       // debe ser un numero par
 #define PLAYER_THICKNESS 320  // debe ser menor a BLOCK_THICKNESS (para spawns)
 #define PLAYER_INITIAL_LIFE 100
 
+#define BOMB_EXPLOSION_DAMAGE 200
+#define BOMB_EXPLOSION_RADIUS 1000
 #define DETONATION_TIME 30
 #define PLANTATION_TIME 4
 #define DEFUSE_TIME 4
 
 #define PATH_FOLDER_MAPS "../maps/"
 #define PATH_CS_FONT "../../../assets/cs_regular.ttf"
-
 
 // client
 #define CAMERA_WIDTH 640

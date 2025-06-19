@@ -8,7 +8,9 @@ Bomb::Bomb():
         status(NOT_PLANTED),
         just_been_planted(false),
         time_since_planted(0.0f),
-        plantation(std::nullopt) {}
+        plantation(std::nullopt),
+        explosion_radius(BOMB_EXPLOSION_RADIUS),
+        explosion_damage(BOMB_EXPLOSION_DAMAGE) {}
 
 BombStatus Bomb::get_status() { return status; }
 
@@ -18,6 +20,8 @@ std::optional<Vector2D<int>> Bomb::get_plantation_position() {
         return std::nullopt;
     return plantation->position;
 }
+
+int Bomb::get_explosion_radius() const { return explosion_radius; }
 
 bool Bomb::just_planted() { return just_been_planted; }
 int Bomb::detonation_time() { return DETONATION_TIME; }
@@ -65,6 +69,12 @@ void Bomb::update_planted(const float& delta_t) {
     if (making_action && time_since_last_action >= DEFUSE_TIME) {
         defuse();
     }
+}
+
+void Bomb::make_damage_to(Player& victim, const float& distance_to_victim) {
+    float damage_ratio = 1.0f - (distance_to_victim / explosion_radius);
+    int damage = static_cast<int>(explosion_damage * damage_ratio);
+    victim.receive_damage(damage);
 }
 
 void Bomb::restart() {
