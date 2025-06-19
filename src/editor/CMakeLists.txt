@@ -5,21 +5,14 @@ target_sources(taller_editor
     clickable_label.cpp
     main.cpp
     resources.qrc
-    blocks_setter.cpp
-    ct_spawns_setter.cpp
-    tt_spawns_setter.cpp
-    bomb_sites_setter.cpp
     pixmap_manager.cpp
-    guns_setter.cpp
+    logic_map.cpp
     PUBLIC
     # .h files
     game_editor.h
     clickable_label.h
-    grid_action.h
-    blocks_setter.h
-    ct_spawns_setter.h
-    tt_spawns_setter.h
-    bomb_sites_setter.h
     pixmap_manager.h
-    guns_setter.h
+    logic_map.h
     )
+
+add_subdirectory(grid_action)

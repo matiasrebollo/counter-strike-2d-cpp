@@ -1,12 +1,12 @@
-#include "bomb_sites_setter.h"
+#include "blocks_setter.h"
 
+#include <QDebug>
 #include <algorithm>
 #include <utility>
 
-#include "game_editor.h"
 
-void BombSiteSetter::handle(std::pair<int, int> click_on, std::pair<int, int> click_drop,
-                            Game_editor& editor, const bool& to_delete) {
+void BlocksSetter::handle(std::pair<int, int> click_on, std::pair<int, int> click_drop,
+                          Game_editor& editor, const bool& to_delete) {
     int x1 = std::min(click_on.first, click_drop.first);
     int y1 = std::min(click_on.second, click_drop.second);
     int x2 = std::max(click_on.first, click_drop.first);
@@ -14,7 +14,7 @@ void BombSiteSetter::handle(std::pair<int, int> click_on, std::pair<int, int> cl
 
     for (int i = y1; i <= y2; ++i) {
         for (int j = x1; j <= x2; ++j) {
-            editor.setBombSite(i, j, to_delete);
+            editor.setBlock(i, j, to_delete);
         }
     }
 }

@@ -19,18 +19,6 @@
 #include "./ui_game_editor.h"
 
 #define MAP_PATH "../maps"
-#define DEFAULT_ROWS 10
-#define DEFAULT_COLUMNS 12
-#define MIN_SIZE_SPAWNS 10
-#define MIN_SIZE_SITES 1
-#define TITLE_MSG_ERROR_SPAWNS "No hay suficientes spawns"
-#define TITLE_MSG_ERROR_SITES "No hay suficientes sites"
-#define MSG_SIZE_CT_SPAWNS \
-    "Debes tener por lo menos " + std::to_string(MIN_SIZE_SPAWNS) + " spawns de CT"
-#define MSG_SIZE_TT_SPAWNS \
-    "Debes tener por lo menos " + std::to_string(MIN_SIZE_SPAWNS) + " spawns de TT"
-#define MSG_SIZE_SITES \
-    "Debes tener por lo menos " + std::to_string(MIN_SIZE_SITES) + " sites para plantar la bomba"
 
 
 Game_editor::Game_editor(QWidget* parent):
@@ -38,12 +26,10 @@ Game_editor::Game_editor(QWidget* parent):
         ui(new Ui::Game_editor),
         texture_parser(),
         pixmap_manager(),
-        selected_block(NONE_BLOCK),
-        selected_background(AZTEC_BACKGROUND),
+        logic_map(),
         mode(std::make_unique<BlocksSetter>()),
         first_left_click_done(false),
         first_right_click_done(false),
-        selected_gun(NONE),
         has_entry_create(false) {
     ui->setupUi(this);
     ui->stack->setCurrentIndex(0);
@@ -97,7 +83,7 @@ void Game_editor::setupBlockList() {
 
         connect(label, &ClickableLabel::left_clicked, [this, block]() {
             mode = std::make_unique<BlocksSetter>();
-            selected_block = block;
+            logic_map.select_block(block);
             first_left_click_done = false;
         });
 
@@ -161,7 +147,7 @@ void Game_editor::setupGunBar() {
         label->setCursor(Qt::CrossCursor);
         connect(label, &ClickableLabel::left_clicked, [this, gun]() {
             first_left_click_done = false;
-            selected_gun = gun;
+            this->logic_map.select_gun(gun);
             mode = std::make_unique<GunsSetter>();
         });
         ui->gunsArea->addWidget(label, 0, Qt::AlignHCenter);
@@ -190,25 +176,26 @@ void Game_editor::onBackgroundLabelClicked(const Background& background,
                           "border-image: url(%1) 0 0 0 0 stretch stretch;"
                           "}")
                           .arg(QString::fromStdString(background_path));
-
+    logic_map.select_background(background);
     ui->scrollAreaGridMap->setStyleSheet(qss);
-    selected_background = background;
     first_left_click_done = false;
 }
 
 void Game_editor::setupGridMap() {
     this->clear_grid_map();
-    ui->scrollAreaGridMap->setMinimumSize(50 * this->grid[0].size(), 50 * this->grid.size());
+    int width = logic_map.get_width();
+    int height = logic_map.get_height();
+    ui->scrollAreaGridMap->setMinimumSize(50 * width, 50 * height);
 
-    for (int i = 0; i < static_cast<int>(this->grid.size()); ++i) {
-        for (int j = 0; j < static_cast<int>(this->grid[i].size()); ++j) {
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
             add_grid_map_cell(i, j);
         }
     }
     ui->scrollArea_2->setWidget(ui->scrollAreaGridMap);
     ui->scrollArea_2->setWidgetResizable(true);
     ui->scrollAreaGridMap->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    ui->scrollAreaGridMap->setMinimumSize(50 * this->grid[0].size(), 50 * this->grid.size());
+    ui->scrollAreaGridMap->setMinimumSize(50 * width, 50 * height);
     ui->editMapPage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->stack->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->page->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -226,19 +213,9 @@ void Game_editor::clear_grid_map() {
     }
 }
 
-void Game_editor::clear_grid() {
-    this->grid = {};
-    for (int i = 0; i < DEFAULT_ROWS; i++) {
-        this->grid.push_back({});
-        for (int j = 0; j < DEFAULT_COLUMNS; j++) {
-            this->grid[i].push_back(NONE_BLOCK);
-        }
-    }
-}
-
 void Game_editor::on_save_button_clicked() {
     try {
-        GameMap map = create_map(grid);
+        GameMap map = this->logic_map.create_map();
         YamlParser parser;
         YAML::Node yaml = parser.game_map_to_Yaml(map);
 
@@ -261,163 +238,39 @@ void Game_editor::on_save_button_clicked() {
     }
 }
 
-GameMap Game_editor::create_map(const std::vector<std::vector<int>>& grid) {
-    int height = static_cast<int>(grid.size());
-    int width = static_cast<int>(grid[0].size());
-
-    int offset_x = width;
-    int right_most = 0;
-    int offset_y = height;
-    int bottom_most = 0;
-
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
-            int block = grid[i][j];
-            if (block != NONE_BLOCK) {
-                offset_x = std::min(j, offset_x);
-                right_most = std::max(j, right_most);
-                offset_y = std::min(i, offset_y);
-                bottom_most = std::max(i, bottom_most);
-            }
-        }
-    }
-
-    std::vector<MapObject> blocks = load_blocks(offset_x, offset_y);
-    std::map<GunType, std::vector<Vector2D<int>>> guns_map = save_guns(offset_x, offset_y);
-
-    std::vector<Vector2D<int>> ct_spawns_vector = set_to_vector(ct_spawns, offset_x, offset_y);
-    if (ct_spawns_vector.size() < MIN_SIZE_SPAWNS) {
-        QMessageBox::information(this, TITLE_MSG_ERROR_SPAWNS,
-                                 QString::fromStdString(MSG_SIZE_CT_SPAWNS));
-        throw std::runtime_error(MSG_SIZE_CT_SPAWNS);
-    }
-
-    std::vector<Vector2D<int>> tt_spawns_vector = set_to_vector(tt_spawns, offset_x, offset_x);
-    if (tt_spawns_vector.size() < MIN_SIZE_SPAWNS) {
-        QMessageBox::information(this, TITLE_MSG_ERROR_SPAWNS,
-                                 QString::fromStdString(MSG_SIZE_TT_SPAWNS));
-        throw std::runtime_error(MSG_SIZE_TT_SPAWNS);
-    }
-    std::vector<Vector2D<int>> sites_vector = set_to_vector(bomb_sites, offset_x, offset_y);
-    std::set<Vector2D<int>> sites(sites_vector.begin(), sites_vector.end());
-    if (bomb_sites.size() < MIN_SIZE_SITES) {
-        QMessageBox::information(this, TITLE_MSG_ERROR_SITES,
-                                 QString::fromStdString(MSG_SIZE_SITES));
-        throw std::runtime_error(MSG_SIZE_SITES);
-    }
-
-    return {right_most - offset_x + 1,
-            bottom_most - offset_y + 1,
-            selected_background,
-            blocks,
-            ct_spawns_vector,
-            tt_spawns_vector,
-            sites,
-            guns_map};
-}
-
-std::vector<MapObject> Game_editor::load_blocks(const int& offset_x, const int& offset_y) {
-    std::map<int, std::vector<Vector2D<int>>> positions_map;
-    int height = static_cast<int>(grid.size());
-    int width = static_cast<int>(grid[0].size());
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
-            int block = grid[i][j];
-            positions_map[block].push_back(Vector2D<int>(j - offset_x, i - offset_y));
-        }
-    }
-
-    std::vector<MapObject> blocks;
-
-    std::transform(positions_map.begin(), positions_map.end(), std::back_inserter(blocks),
-                   [this](const auto& pair) {
-                       return MapObject{pair.second, pair.first,
-                                        texture_parser.get_texture_info(pair.first).collidable};
-                   });
-    return blocks;
-}
-
-std::map<GunType, std::vector<Vector2D<int>>> Game_editor::save_guns(const int& offset_x,
-                                                                     const int& offset_y) {
-    std::map<GunType, std::vector<Vector2D<int>>> positions_guns;
-    for (const auto& gun: this->guns) {
-        auto pos = gun.first;
-        GunType type = gun.second;
-        positions_guns[type].push_back(Vector2D<int>(pos.first - offset_x, pos.second - offset_y));
-    }
-    return positions_guns;
-}
-
-std::vector<Vector2D<int>> Game_editor::set_to_vector(const std::set<std::pair<int, int>>& set_pos,
-                                                      const int& offset_x, const int& offset_y) {
-    std::vector<Vector2D<int>> vec;
-    vec.reserve(set_pos.size());
-
-    std::transform(set_pos.begin(), set_pos.end(), std::back_inserter(vec),
-                   [offset_x, offset_y](const auto& pair) {
-                       return Vector2D<int>(pair.first - offset_x, pair.second - offset_y);
-                   });
-    return vec;
-}
 
 void Game_editor::setBlock(const int& row, const int& column, const bool& to_delete) {
-    int block = to_delete ? NONE_BLOCK : selected_block;
-    this->grid[row][column] = block;
-    if (texture_parser.get_texture_info(block).collidable) {
-        setCtSpawn(row, column, true);
-        setTTSpawn(row, column, true);
-        setBombSite(row, column, true);
-        setGun(row, column, true);
-    }
-
+    this->logic_map.setBlock(row, column, to_delete);
     this->render_block_info(row, column);
 }
 
 void Game_editor::setCtSpawn(const int& row, const int& column, const bool& to_delete) {
-    if (to_delete) {
-        ct_spawns.erase({column, row});
-    } else {
-        if (texture_parser.get_texture_info(grid[row][column]).collidable) {
-            return;
-        }
-        ct_spawns.insert({column, row});
-    }
+    this->logic_map.setCtSpawn(row, column, to_delete);
     this->render_block_info(row, column);
 }
 
 void Game_editor::setTTSpawn(const int& row, const int& column, const bool& to_delete) {
-    if (to_delete) {
-        tt_spawns.erase({column, row});
-    } else {
-        if (texture_parser.get_texture_info(grid[row][column]).collidable) {
-            return;
-        }
-        tt_spawns.insert({column, row});
-    }
+    this->logic_map.setTTSpawn(row, column, to_delete);
     this->render_block_info(row, column);
 }
 
 void Game_editor::setBombSite(const int& row, const int& column, const bool& to_delete) {
-    if (to_delete) {
-        bomb_sites.erase({column, row});
-    } else {
-        if (texture_parser.get_texture_info(grid[row][column]).collidable) {
-            return;
-        }
-        bomb_sites.insert({column, row});
-    }
+    this->logic_map.setBombSite(row, column, to_delete);
+    this->render_block_info(row, column);
+}
+
+void Game_editor::setGun(const int& row, const int& column, const bool& to_delete) {
+    this->logic_map.setGun(row, column, to_delete);
     this->render_block_info(row, column);
 }
 
 void Game_editor::on_go_to_create_button_clicked() {
     if (!this->has_entry_create) {
-        this->clear_grid();
-        this->tt_spawns.clear();
-        this->ct_spawns.clear();
-        this->bomb_sites.clear();
-        this->selected_background = AZTEC_BACKGROUND;
-        std::string background_path = texture_parser.get_background_path(this->selected_background);
-        this->onBackgroundLabelClicked(this->selected_background, background_path);
+        this->logic_map.clear_map();
+
+        std::string background_path =
+                texture_parser.get_background_path(this->logic_map.get_background());
+        this->onBackgroundLabelClicked(this->logic_map.get_background(), background_path);
         this->setupEditorUi();
         this->has_entry_create = true;
     }
@@ -464,68 +317,39 @@ void Game_editor::on_load_map_button_clicked() {
 void Game_editor::load_map_from_file(const std::string& map_name) {
     YamlParser parser;
     GameMap map = parser.yaml_to_game_map(std::string(MAP_PATH) + "/" + map_name + ".yaml");
-    this->grid.resize(map.height);
 
-    for (auto& row: grid) {
-        row.resize(map.width, NONE_BLOCK);
-    }
+    logic_map.load_map(map);
 
-    this->selected_background = map.background;
-    std::string background_path = texture_parser.get_background_path(this->selected_background);
-    this->onBackgroundLabelClicked(this->selected_background, background_path);
-    for (auto object: map.map_objects) {
-        for (auto vector: object.positions) {
-            this->grid[vector.y][vector.x] = object.type;
-        }
-    }
-
-    this->tt_spawns.clear();
-    this->ct_spawns.clear();
-    this->bomb_sites.clear();
-    this->guns.clear();
-    for (auto vector: map.ct_spawns) {
-        this->ct_spawns.emplace(std::make_pair(vector.x, vector.y));
-    }
-    for (auto vector: map.tt_spawns) {
-        this->tt_spawns.emplace(std::make_pair(vector.x, vector.y));
-    }
-    for (auto vector: map.sites) {
-        this->bomb_sites.emplace(std::make_pair(vector.x, vector.y));
-    }
-    for (const auto& gun: map.guns) {
-        for (const auto& vector: gun.second) {
-            this->guns[{vector.x, vector.y}] = gun.first;
-        }
-    }
+    std::string background_path = texture_parser.get_background_path(logic_map.get_background());
+    this->onBackgroundLabelClicked(logic_map.get_background(), background_path);
 }
 
 void Game_editor::format_string(std::string& s) { s.erase(s.length() - 5); }
 
 void Game_editor::on_add_columns_button_clicked() {
-    int COLLUMNS_TO_ADD = 1;
-    int rows_actual = grid.size();
-    int collumns_actual = grid[0].size();
+    int collumns_actual = this->logic_map.get_width();
+    this->logic_map.add_columns();
+    int rows = this->logic_map.get_height();
+    int collumns_new = this->logic_map.get_width();
 
-    ui->scrollAreaGridMap->setMinimumSize(50 * (collumns_actual + COLLUMNS_TO_ADD),
-                                          50 * rows_actual);
-    for (int i = 0; i < rows_actual; ++i) {
-        this->grid[i].resize(collumns_actual + COLLUMNS_TO_ADD, NONE_BLOCK);
-        for (int j = collumns_actual; j < collumns_actual + COLLUMNS_TO_ADD; ++j) {
+    ui->scrollAreaGridMap->setMinimumSize(50 * collumns_new, 50 * rows);
+    for (int i = 0; i < rows; ++i) {
+        for (int j = collumns_actual; j < collumns_new; ++j) {
             add_grid_map_cell(i, j);
         }
     }
 }
 
 void Game_editor::on_add_rows_button_clicked() {
-    int ROWS_TO_ADD = 1;
-    int rows_actual = grid.size();
-    int collumns_actual = grid[0].size();
+    int rows_actual = this->logic_map.get_height();
+    this->logic_map.add_rows();
+    int rows_new = this->logic_map.get_height();
+    int collumns = this->logic_map.get_width();
 
-    this->grid.resize(rows_actual + ROWS_TO_ADD, std::vector<int>(collumns_actual, NONE_BLOCK));
-    ui->scrollAreaGridMap->setMinimumSize(50 * collumns_actual, 50 * (rows_actual + ROWS_TO_ADD));
+    ui->scrollAreaGridMap->setMinimumSize(50 * collumns, 50 * rows_new);
 
-    for (int i = rows_actual; i < ROWS_TO_ADD + rows_actual; ++i) {
-        for (int j = 0; j < collumns_actual; ++j) {
+    for (int i = rows_actual; i < rows_new; ++i) {
+        for (int j = 0; j < collumns; ++j) {
             add_grid_map_cell(i, j);
         }
     }
@@ -536,18 +360,20 @@ void Game_editor::render_block_info(const int& row, const int& column) {
     if (item) {
         QWidget* widget = item->widget();
         if (ClickableLabel* cell = qobject_cast<ClickableLabel*>(widget)) {
-            this->render_block(cell, grid[row][column]);
-            if (tt_spawns.find({column, row}) != tt_spawns.end()) {
+            CellInfo cell_info = logic_map.get_cell_info(row, column);
+
+            this->render_block(cell, cell_info.block);
+            if (cell_info.tt_spawn) {
                 mark_as_tt_spawn(cell);
             }
-            if (ct_spawns.find({column, row}) != ct_spawns.end()) {
+            if (cell_info.ct_spawn) {
                 mark_as_ct_spawn(cell);
             }
-            if (bomb_sites.find({column, row}) != bomb_sites.end()) {
+            if (cell_info.bomb_site) {
                 mark_as_bomb_site(cell);
             }
-            if (guns.find({column, row}) != guns.end()) {
-                mark_with_gun(cell, row, column);
+            if (cell_info.gun != NONE) {
+                mark_with_gun(cell, cell_info.gun);
             }
         }
     }
@@ -618,11 +444,11 @@ void Game_editor::mark_as_bomb_site(ClickableLabel* label) {
     label->setPixmap(result.scaled(50, 50));
 }
 
-void Game_editor::mark_with_gun(ClickableLabel* label, const int& row, const int& column) {
+void Game_editor::mark_with_gun(ClickableLabel* label, const GunType& gun) {
     QPixmap result = label->pixmap(Qt::ReturnByValue);
     QPainter painter(&result);
 
-    QPixmap& overlay = pixmap_manager.get_gun_pixmap(guns[{column, row}]);
+    QPixmap& overlay = pixmap_manager.get_gun_pixmap(gun);
     QPixmap scaledOverlay = overlay.scaled(20, 20);
 
     int x = result.width() - scaledOverlay.width();
@@ -631,18 +457,6 @@ void Game_editor::mark_with_gun(ClickableLabel* label, const int& row, const int
 
     painter.end();
     label->setPixmap(result.scaled(50, 50));
-}
-
-void Game_editor::setGun(const int& row, const int& column, const bool& to_delete) {
-    if (to_delete) {
-        guns.erase({column, row});
-    } else {
-        if (texture_parser.get_texture_info(grid[row][column]).collidable) {
-            return;
-        }
-        guns[std::make_pair(column, row)] = selected_gun;
-    }
-    this->render_block_info(row, column);
 }
 
 void Game_editor::add_grid_map_cell(const int& i, const int& j) {
