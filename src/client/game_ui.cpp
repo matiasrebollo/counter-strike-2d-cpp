@@ -496,6 +496,7 @@ void GameUI::update_game_status(const Snapshot& snapshot) {
     if (local_info.bomb_status == BombStatus::NOT_PLANTED &&
         snapshot.bomb_status == BombStatus::PLANTED && !make_sound_planted) {
         sdl.make_clock_sound(false);
+        make_sound_clock = false;
         sdl.make_bomb_sound(snapshot.bomb_status);
         just_planted = true;
         make_sound_planted = true;
@@ -518,7 +519,7 @@ void GameUI::update_game_status(const Snapshot& snapshot) {
         make_sound_planted = false;
         make_sound_clock = false;
     }
-    if (local_info.time_left <= 10 && !make_sound_clock && local_info.phase == ATTACK) {
+    if (snapshot.time_left <= 10 && !make_sound_clock && local_info.phase == ATTACK) {
         sdl.make_clock_sound(true);
         make_sound_clock = true;
     }
