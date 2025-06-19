@@ -128,6 +128,8 @@ void Player::stop_defusing_bomb() { is_defusing_bomb = false; }
 void Player::shoot(const Shot& a_shot) { shot = a_shot.get_dto(); }
 
 void Player::receive_damage(const int& damage) {
+    if (life == 0)
+        return;
     life = std::max(life - damage, 0);
     if (life == 0)
         deaths += 1;

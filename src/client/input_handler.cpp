@@ -100,7 +100,6 @@ bool InputHandler::handle_click_shop_event(const SDL_Event& event, int money, Gu
                     sender.add_command_to_queue(BuyAmmoDTO{false});
                     break;
                 default:
-                    std::cout << "Botón desconocido\n";
                     break;
             }
         }

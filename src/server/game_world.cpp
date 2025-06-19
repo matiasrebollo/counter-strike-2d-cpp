@@ -101,7 +101,21 @@ void GameWorld::add_player(const std::string& username) {
     }
 }
 
-void GameWorld::swap_teams() {}
+void GameWorld::swap_teams() {
+    std::map<std::string, std::shared_ptr<Player>> new_terrorists;
+    std::map<std::string, std::shared_ptr<Player>> new_counter_terrorists;
+
+    for (auto& [username, player]: counter_terrorists) {
+        new_terrorists[username] = player;
+    }
+
+    for (auto& [username, player]: terrorists) {
+        new_counter_terrorists[username] = player;
+    }
+
+    terrorists = std::move(new_terrorists);
+    counter_terrorists = std::move(new_counter_terrorists);
+}
 
 void GameWorld::restart_players() {
     for (auto& [_, player]: terrorists) {

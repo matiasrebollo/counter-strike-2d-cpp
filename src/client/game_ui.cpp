@@ -103,6 +103,15 @@ void GameUI::detect_player_events(const Snapshot& snapshot) {
 
 
 void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
+    std::cout << "Counter-Terrorists:\n";
+    for (const auto& player: snapshot.ct) {
+        std::cout << " - " << player.username << std::endl;
+    }
+
+    std::cout << "Terrorists:\n";
+    for (const auto& player: snapshot.tt) {
+        std::cout << " - " << player.username << std::endl;
+    }
     update_bomb_status(snapshot);
     local_info.time_left = snapshot.time_left;
     local_info.bomb_status = snapshot.bomb_status;
@@ -111,6 +120,8 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
     local_info.total_players = snapshot.total_players;
     local_info.phase = snapshot.phase;
     local_info.current_round_winner = snapshot.current_round_winner;
+
+    // update_swap(); ??
 
     // Actualizo jugadores CT
     for (const PlayerDTO& p: snapshot.ct) {
@@ -238,7 +249,7 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
             }
         }
         if (!found) {
-            // No lo encontré ni en local ni en ct_players → agrego nuevo
+            // No lo encontré ni en local ni en tt_players → agrego nuevo
             PlayerInfo info;
             info.username = p.username;
             info.is_ct = false;
