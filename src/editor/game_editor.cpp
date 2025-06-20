@@ -123,55 +123,38 @@ void Game_editor::setupBlockList() {
 }
 
 void Game_editor::setupToolbar() {
-    ClickableLabel* labelTT = new ClickableLabel();
-    ui->GameAreas->addStretch();
-    labelTT->setFixedSize(60, 80);
-    labelTT->setText("TT");
-    labelTT->setCursor(Qt::CrossCursor);
-    labelTT->setStyleSheet("color:white;"
-                           "border-width: 1px;"
-                           "border-style: solid;"
-                           "border-color: white;");
-    connect(labelTT, &ClickableLabel::left_clicked, [this]() {
-        first_left_click_done = false;
-        mode = std::make_unique<TTSpawnsSetter>();
-        ui->selected_mode->setPixmap(
-                pixmap_manager.get_pixmap("../assets/gfx/terrorist_logo.png").scaled(50, 50));
-    });
-
-    ClickableLabel* labelCT = new ClickableLabel();
-    labelCT->setFixedSize(60, 80);
-    labelCT->setText("CT");
-    labelCT->setCursor(Qt::CrossCursor);
-    labelCT->setStyleSheet("color:white;"
-                           "border-width: 1px;"
-                           "border-style: solid;"
-                           "border-color: white;");
-    connect(labelCT, &ClickableLabel::left_clicked, [this]() {
-        first_left_click_done = false;
-        mode = std::make_unique<CTSpawnsSetter>();
-        ui->selected_mode->setPixmap(
-                pixmap_manager.get_pixmap("../assets/gfx/counter_terrorist_logo.png")
-                        .scaled(50, 50));
-    });
-
-    ClickableLabel* labelBombSites = new ClickableLabel();
-    labelBombSites->setFixedSize(60, 80);
-    labelBombSites->setText("SITES");
-    labelBombSites->setCursor(Qt::CrossCursor);
-    labelBombSites->setStyleSheet("color:white;"
-                                  "border-width: 1px;"
-                                  "border-style: solid;"
-                                  "border-color: white;");
-    connect(labelBombSites, &ClickableLabel::left_clicked, [this]() {
-        first_left_click_done = false;
-        mode = std::make_unique<BombSiteSetter>();
-        ui->selected_mode->setPixmap(
-                pixmap_manager.get_pixmap("../assets/gfx/weapons/bomb.bmp").scaled(50, 50));
-    });
-    ui->GameAreas->addWidget(labelTT, 0, Qt::AlignHCenter);
-    ui->GameAreas->addWidget(labelCT, 0, Qt::AlignHCenter);
-    ui->GameAreas->addWidget(labelBombSites, 0, Qt::AlignHCenter);
+    std::vector<QString> labelsNames = {"TT", "CT", "SITES"};
+    std::vector<std::string> labelsPixPath = {":images/terrorist_logo", ":images/ct_logo",
+                                              ":images/bomb"};
+    int i = 0;
+    for (const auto& name: labelsNames) {
+        ClickableLabel* label = new ClickableLabel();
+        ui->GameAreas->addStretch();
+        label->setFixedSize(60, 80);
+        label->setText(name);
+        label->setCursor(Qt::CrossCursor);
+        label->setStyleSheet("color:white;"
+                             "border-width: 1px;"
+                             "border-style: solid;"
+                             "border-color: white;");
+        connect(label, &ClickableLabel::left_clicked, [this, i, labelsPixPath]() {
+            first_left_click_done = false;
+            std::vector<std::unique_ptr<GridAction>> labelsModes;
+            labelsModes.emplace_back(std::make_unique<TTSpawnsSetter>());
+            labelsModes.emplace_back(std::make_unique<CTSpawnsSetter>());
+            labelsModes.emplace_back(std::make_unique<BombSiteSetter>());
+            mode = std::move(labelsModes[i]);
+            ui->selected_mode->setPixmap(
+                    pixmap_manager.get_pixmap(labelsPixPath[i]).scaled(50, 50));
+            ui->selected_mode->setStyleSheet("margin: 10px 10px;"
+                                             "color:white;"
+                                             "border-width: 1px;"
+                                             "border-style: solid;"
+                                             "border-color: white;");
+        });
+        ui->GameAreas->addWidget(label, 0, Qt::AlignHCenter);
+        i++;
+    }
     ui->GameAreas->addStretch();
 }
 
@@ -345,7 +328,7 @@ void Game_editor::markAsCollidable(ClickableLabel* label) {
     QPixmap result = label->pixmap(Qt::ReturnByValue);
     QPainter painter(&result);
 
-    QPixmap& overlay = pixmap_manager.get_pixmap("../assets/gfx/collidable.png");
+    QPixmap& overlay = pixmap_manager.get_pixmap(":images/collidable");
     QPixmap scaledOverlay = overlay.scaled(20, 20);
 
     int x = result.width() - scaledOverlay.width();
@@ -360,7 +343,7 @@ void Game_editor::markAsTTSpawn(ClickableLabel* label) {
     QPixmap result = label->pixmap(Qt::ReturnByValue);
     QPainter painter(&result);
 
-    QPixmap& overlay = pixmap_manager.get_pixmap("../assets/gfx/terrorist_logo.png");
+    QPixmap& overlay = pixmap_manager.get_pixmap(":images/terrorist_logo");
     QPixmap scaledOverlay = overlay.scaled(20, 20);
 
     int x = result.width() - scaledOverlay.width();
@@ -375,7 +358,7 @@ void Game_editor::markAsCtSpawn(ClickableLabel* label) {
     QPixmap result = label->pixmap(Qt::ReturnByValue);
     QPainter painter(&result);
 
-    QPixmap& overlay = pixmap_manager.get_pixmap("../assets/gfx/counter_terrorist_logo.png");
+    QPixmap& overlay = pixmap_manager.get_pixmap(":images/ct_logo");
     QPixmap scaledOverlay = overlay.scaled(20, 20);
 
     int x = 0;
@@ -390,7 +373,7 @@ void Game_editor::markAsBombSite(ClickableLabel* label) {
     QPixmap result = label->pixmap(Qt::ReturnByValue);
     QPainter painter(&result);
 
-    QPixmap& overlay = pixmap_manager.get_pixmap("../assets/gfx/weapons/bomb.bmp");
+    QPixmap& overlay = pixmap_manager.get_pixmap(":images/bomb");
     QPixmap scaledOverlay = overlay.scaled(20, 20);
 
     int x = 0;
@@ -435,7 +418,6 @@ void Game_editor::on_save_button_clicked() {
 
         std::ofstream fout(fileName.toStdString());
         fout << yaml;
-        close();
     } catch (const std::runtime_error&) {
         return;
     }
