@@ -10,6 +10,7 @@
 
 #include "client/client_protocol.h"
 #include "common/commands.h"
+#include "common/communication_ended.h"
 #include "common/lobby_request.h"
 #include "common/message.h"
 #include "common/skins.h"
@@ -25,6 +26,10 @@ using Socket = RealSocket;
 #endif
 
 #define PATH_CS_FONT "../../../assets/cs_regular.ttf"
+#define TITLE_NO_SV "Fallo de conexion"
+#define MSG_NO_SV "No hay un servidor en la direccion solicidada"
+#define TITLE_SV_CLOSED "Servidor Desconectado"
+#define MSG_SV_CLOSED "Se ha perdido la conexion con el servidor"
 
 Lobby::Lobby(QWidget* parent):
         QMainWindow(parent),
@@ -62,18 +67,20 @@ void Lobby::on_CreateGame_clicked() {
         return;
     }
 
-    protocol.value().send_lobby_request(request);
+    this->tryLobbyRequest([this, request]() {
+        protocol.value().send_lobby_request(request);
 
-    ServerResponseLobby response = protocol.value().receive_server_response_lobby();
-    if (response.status == ResponseStatus::SUCCESS) {
-        this->username = ui->username->text().toStdString();
-        this->can_change_name = false;
-    } else {
-        QMessageBox::information(this, TITLE_MSG_CREATE, MSG_USERNAME_ALREADY_USED);
-        return;
-    }
+        ServerResponseLobby response = protocol.value().receive_server_response_lobby();
+        if (response.status == ResponseStatus::SUCCESS) {
+            this->username = ui->username->text().toStdString();
+            this->can_change_name = false;
+        } else {
+            QMessageBox::information(this, TITLE_MSG_CREATE, MSG_USERNAME_ALREADY_USED);
+            return;
+        }
 
-    this->create_game();
+        this->create_game();
+    });
 }
 
 void Lobby::create_game() {
@@ -106,14 +113,16 @@ void Lobby::on_CreateGameButton_clicked() {
     std::string map_name = ui->maps_list->currentItem()->text().toStdString();
     CreateGameDTO second_request = {map_name};
 
-    protocol.value().send_lobby_request(second_request);
-    ServerResponseLobby response = protocol.value().receive_server_response_lobby();
-    if (response.status == ResponseStatus::SUCCESS) {
-        this->gamecode = response.game_name;
-        close();
-    } else if (response.status == ResponseStatus::GAME_NOT_CREATED) {
-        QMessageBox::information(this, TITLE_MSG_CREATE, MSG_GAME_NOT_CREATED);
-    }
+    this->tryLobbyRequest([this, second_request]() {
+        protocol.value().send_lobby_request(second_request);
+        ServerResponseLobby response = protocol.value().receive_server_response_lobby();
+        if (response.status == ResponseStatus::SUCCESS) {
+            this->gamecode = response.game_name;
+            close();
+        } else if (response.status == ResponseStatus::GAME_NOT_CREATED) {
+            QMessageBox::information(this, TITLE_MSG_CREATE, MSG_GAME_NOT_CREATED);
+        }
+    });
 }
 
 void Lobby::on_JoinGame_clicked() {
@@ -127,16 +136,17 @@ void Lobby::on_JoinGame_clicked() {
         QMessageBox::information(this, TITLE_MSG_JOIN, MSG_NO_USERNAME);
         return;
     }
-    protocol.value().send_lobby_request(request);
-
-    ServerResponseLobby response = protocol.value().receive_server_response_lobby();
-    if (response.status == ResponseStatus::SUCCESS) {
-        ui->stack->setCurrentIndex(3);
-        this->username = ui->username->text().toStdString();
-        this->can_change_name = false;
-    } else if (response.status == ResponseStatus::USERNAME_IN_USE) {
-        QMessageBox::information(this, TITLE_MSG_JOIN, MSG_USERNAME_ALREADY_USED);
-    }
+    this->tryLobbyRequest([this, request]() {
+        protocol.value().send_lobby_request(request);
+        ServerResponseLobby response = protocol.value().receive_server_response_lobby();
+        if (response.status == ResponseStatus::SUCCESS) {
+            ui->stack->setCurrentIndex(3);
+            this->username = ui->username->text().toStdString();
+            this->can_change_name = false;
+        } else if (response.status == ResponseStatus::USERNAME_IN_USE) {
+            QMessageBox::information(this, TITLE_MSG_JOIN, MSG_USERNAME_ALREADY_USED);
+        }
+    });
 }
 
 void Lobby::on_JoinGameButton_clicked() {
@@ -144,37 +154,39 @@ void Lobby::on_JoinGameButton_clicked() {
 
     JoinGameDTO request = {game_name};
 
-    protocol.value().send_lobby_request(request);
-    ServerResponseLobby response = protocol.value().receive_server_response_lobby();
-    switch (response.status) {
-        case ResponseStatus::GAME_NOT_EXIST:
-            QMessageBox::information(this, TITLE_MSG_JOIN,
-                                     QString::fromStdString(MSG_GAME_NOT_EXIST(game_name)));
-            break;
+    this->tryLobbyRequest([this, request, game_name]() {
+        protocol.value().send_lobby_request(request);
+        ServerResponseLobby response = protocol.value().receive_server_response_lobby();
+        switch (response.status) {
+            case ResponseStatus::GAME_NOT_EXIST:
+                QMessageBox::information(this, TITLE_MSG_JOIN,
+                                         QString::fromStdString(MSG_GAME_NOT_EXIST(game_name)));
+                break;
 
-        case ResponseStatus::SUCCESS:
-            this->gamecode = game_name;
-            close();
-            break;
+            case ResponseStatus::SUCCESS:
+                this->gamecode = game_name;
+                close();
+                break;
 
-        case ResponseStatus::GAME_IS_DEAD:
-            QMessageBox::information(this, TITLE_MSG_JOIN, MSG_GAME_IS_DEAD);
-            break;
+            case ResponseStatus::GAME_IS_DEAD:
+                QMessageBox::information(this, TITLE_MSG_JOIN, MSG_GAME_IS_DEAD);
+                break;
 
-        case ResponseStatus::GAME_IS_FULL:
-            QMessageBox::information(this, TITLE_MSG_JOIN,
-                                     QString::fromStdString(MSG_GAME_IS_FULL(game_name)));
-            break;
+            case ResponseStatus::GAME_IS_FULL:
+                QMessageBox::information(this, TITLE_MSG_JOIN,
+                                         QString::fromStdString(MSG_GAME_IS_FULL(game_name)));
+                break;
 
-        case ResponseStatus::USERNAME_ALREADY_IN_GAME:
-            this->can_change_name = true;
-            QMessageBox::information(this, TITLE_MSG_JOIN, MSG_USERNAME_ALREADY_USED_IN_GAME);
-            break;
+            case ResponseStatus::USERNAME_ALREADY_IN_GAME:
+                this->can_change_name = true;
+                QMessageBox::information(this, TITLE_MSG_JOIN, MSG_USERNAME_ALREADY_USED_IN_GAME);
+                break;
 
-        default:
-            QMessageBox::information(this, TITLE_MSG_JOIN, MSG_UNEXPECTED_SERVER_RESPONSE);
-            break;
-    }
+            default:
+                QMessageBox::information(this, TITLE_MSG_JOIN, MSG_UNEXPECTED_SERVER_RESPONSE);
+                break;
+        }
+    });
 }
 
 void Lobby::connect_to_sv() {
@@ -189,7 +201,7 @@ void Lobby::connect_to_sv() {
         protocol.emplace(std::move(socket));
         go_to_lobby();
     } catch (...) {
-        // error
+        QMessageBox::critical(this, TITLE_NO_SV, MSG_NO_SV);
     }
 }
 
@@ -251,4 +263,13 @@ std::string Lobby::get_gamecode() {
         throw std::runtime_error(MSG_NO_GAME);
     }
     return this->gamecode;
+}
+
+void Lobby::tryLobbyRequest(const std::function<void()>& func) {
+    try {
+        func();
+    } catch (const CommunicationEnded& e) {
+        QMessageBox::critical(this, TITLE_SV_CLOSED, MSG_SV_CLOSED);
+        this->close();
+    }
 }
