@@ -75,13 +75,13 @@ int Gun::calculate_damage(const double& falloff) const {
 
 bool Gun::should_impact(const double& precision) const { return random_double() < precision; }
 
-void Gun::execute_shot(Player* shot_victim, const double& shot_distance) {
+void Gun::execute_shot(Player* shot_victim, const double& shot_distance, GameWorld& game) {
     const double shot_falloff = calculate_falloff(shot_distance);
     const double shot_precision = calculate_precision(shot_falloff);
 
     if (should_impact(shot_precision)) {
         const int shot_damage = calculate_damage(shot_falloff);
-        shot_victim->receive_damage(shot_damage);
+        shot_victim->receive_damage(shot_damage, game);
     }
 }
 
@@ -93,7 +93,7 @@ void Gun::shoot(GameWorld& game, Player& shooter) {
     shot.shoot(game, shooter);
 
     if (Player* hit_player = dynamic_cast<Player*>(shot.hit)) {
-        execute_shot(hit_player, shot.impact_info->first);
+        execute_shot(hit_player, shot.impact_info->first, game);
         if (!hit_player->is_alive())
             // avisar al gameworld que murio para drop items.
             shooter.count_kill(*hit_player, kill_bonification);

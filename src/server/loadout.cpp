@@ -39,6 +39,8 @@ void Loadout::receive_bomb(std::shared_ptr<Bomb> bomb) { this->bomb = bomb; }
 
 void Loadout::leave_bomb() { this->bomb = nullptr; }
 
+std::unique_ptr<Gun> Loadout::take_primary_gun() { return std::move(this->primary_gun); }
+
 std::unique_ptr<Gun> Loadout::new_primary_gun(std::unique_ptr<Gun> gun) {
     std::unique_ptr<Gun> prev = std::move(this->primary_gun);
     this->primary_gun = std::move(gun);

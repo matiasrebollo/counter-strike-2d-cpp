@@ -25,7 +25,7 @@ private:
     std::map<std::string, std::shared_ptr<Player>> players;
     std::list<std::shared_ptr<Collidable>> collidables;
     std::vector<Rect> sites;
-    std::vector<Item> items;
+    std::vector<std::unique_ptr<Item>> items;
     uint64_t next_drop_id;
     std::shared_ptr<Bomb> bomb;
     Shop shop;
@@ -101,6 +101,9 @@ public:
     void equip_knife_for(const std::string& username);
     void equip_bomb_for(const std::string& username);
     void pick_up_item_for(const std::string& username);
+    void pick_up_gun_for(Player& player, DroppedGun& dropped_gun);
+    void try_pick_up_bomb_for(Player& player, DroppedBomb& dropped_bomb);
+    void drop_weapons(Player& player);
     void buy_gun_for(const std::string& username, const GunType& gun);
     void buy_ammo_for(const std::string& username, const bool& for_primary);
 

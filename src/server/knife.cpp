@@ -23,9 +23,9 @@ void Knife::update(const float& delta_t, Player& owner, GameWorld& game) {
     Weapon::update(delta_t, owner, game);
 }
 
-void Knife::execute_stab(Player* shot_victim, double shot_distance) {
+void Knife::execute_stab(Player* shot_victim, double shot_distance, GameWorld& game) {
     if (shot_distance < KNIFE_DISTANCE) {
-        shot_victim->receive_damage(damage);
+        shot_victim->receive_damage(damage, game);
     }
 }
 
@@ -37,7 +37,7 @@ void Knife::stab(GameWorld& game, Player& shooter) {
     shot.shoot(game, shooter);
 
     if (Player* hit_player = dynamic_cast<Player*>(shot.hit)) {
-        execute_stab(hit_player, shot.impact_info->first);
+        execute_stab(hit_player, shot.impact_info->first, game);
         if (!hit_player->is_alive())
             shooter.count_kill(*hit_player, kill_bonification);
     }

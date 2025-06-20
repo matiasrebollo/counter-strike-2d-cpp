@@ -31,7 +31,7 @@ protected:
     virtual int calculate_damage(const double& falloff) const;
     double random_double(double min = 0.0, double max = 1.0) const;
     bool should_impact(const double& falloff) const;
-    void execute_shot(Player* shot_victim, const double& shot_distance);
+    void execute_shot(Player* shot_victim, const double& shot_distance, GameWorld& game);
 
 public:
     static std::unique_ptr<Gun> new_gun(const GunType& type);

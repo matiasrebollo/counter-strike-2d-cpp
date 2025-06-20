@@ -31,7 +31,7 @@ void M_3::shoot(GameWorld& game, Player& shooter) {
         shot.shoot(game, shooter);
 
         if (Player* hit_player = dynamic_cast<Player*>(shot.hit)) {
-            execute_shot(hit_player, shot.impact_info->first);
+            execute_shot(hit_player, shot.impact_info->first, game);
             if (!hit_player->is_alive())
                 shooter.count_kill(*hit_player, kill_bonification);
         }

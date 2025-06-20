@@ -132,12 +132,15 @@ void Player::stop_defusing_bomb() { is_defusing_bomb = false; }
 
 void Player::shoot(const Shot& a_shot) { shot = a_shot.get_dto(); }
 
-void Player::receive_damage(const int& damage) {
+void Player::receive_damage(const int& damage, GameWorld& game) {
     if (life == 0)
         return;
     life = std::max(life - damage, 0);
-    if (life == 0)
+    if (life == 0) {
         deaths += 1;
+        game.drop_weapons(*this);
+    }
+    deaths += 1;
 }
 void Player::count_kill(Player& victim, const int& money_bonification) {
     if ((this->is_ct() && victim.is_ct()) || (this->is_tt() && victim.is_tt())) {

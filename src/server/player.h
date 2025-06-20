@@ -74,7 +74,7 @@ public:
     void defuse_bomb();
     void stop_defusing_bomb();
     void shoot(const Shot& a_shot);
-    void receive_damage(const int& damage);
+    void receive_damage(const int& damage, GameWorld& game);
     void count_kill(Player& victim, const int& money_bonification);
 
     const PlayerDTO get_dto() const;

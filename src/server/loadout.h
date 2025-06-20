@@ -33,6 +33,7 @@ public:
     void add_money(const int& ammount_of_money);
     void receive_bomb(std::shared_ptr<Bomb> bomb);
     void leave_bomb();
+    std::unique_ptr<Gun> take_primary_gun();
     std::unique_ptr<Gun> new_primary_gun(
             std::unique_ptr<Gun> gun);  // devuelve el arma poseída anteriormente.
     std::unique_ptr<Gun> new_secondary_gun(std::unique_ptr<Gun> gun);

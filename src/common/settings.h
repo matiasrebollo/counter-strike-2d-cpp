@@ -57,8 +57,9 @@
 #define GLOCK_KILL_BONUS 500
 #define KNIFE_KILL_BONUS 1500
 
+#define ITEM_THICKNESS 100
 
-#define BOMB_THICKNESS 100
+#define BOMB_THICKNESS 200
 #define BLOCK_THICKNESS 400
 
 #define PLAYER_SPEED 10       // debe ser un numero par

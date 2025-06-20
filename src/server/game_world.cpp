@@ -276,9 +276,9 @@ void GameWorld::pick_up_item_for(const std::string& username) {
         Rect& player_rect = p.rect;
 
         std::vector<Item*> pickable_items;
-        for (auto& item: items) {
-            if (player_rect.contains(item.rect)) {
-                pickable_items.push_back(&item);
+        for (const auto& item: items) {
+            if (player_rect.contains(item->rect)) {
+                pickable_items.push_back(item.get());
             }
         }
         if (pickable_items.empty())
@@ -286,42 +286,79 @@ void GameWorld::pick_up_item_for(const std::string& username) {
 
         Item* oldest_item = *std::min_element(
                 pickable_items.begin(), pickable_items.end(),
-                [](const Item* a, const Item* b) { return a->drop_id < b->drop_id; });
+                [](const Item* a, const Item* b) { return a->get_drop_id() < b->get_drop_id(); });
 
-        Loadout& loadout = p.get_loadout();
-        if (oldest_item->gun == nullptr) {
-            // pick_up_bomb_for(username);
-            return;
-        }
-
-        std::unique_ptr<Gun> old_gun = nullptr;
-        if (oldest_item->gun->get_type() == GLOCK) {
-            old_gun = loadout.new_secondary_gun(std::move(oldest_item->gun));
-        } else {
-            old_gun = loadout.new_primary_gun(std::move(oldest_item->gun));
-        }
-        if (old_gun) {
-            Rect new_rect = p.rect;
-            items.push_back(Item{new_rect, std::move(old_gun), next_drop_id++});
-        }
-
-        items.erase(std::remove_if(
-                            items.begin(), items.end(),
-                            [&](const Item& item) { return item.drop_id == oldest_item->drop_id; }),
-                    items.end());
+        oldest_item->try_pick_up(*this, p);
     });
+}
+
+void GameWorld::pick_up_gun_for(Player& player, DroppedGun& dropped_gun) {
+    Loadout& loadout = player.get_loadout();
+    std::unique_ptr<Gun> old_gun;
+
+    if (dropped_gun.get_gun_type() == GLOCK) {
+        old_gun = loadout.new_secondary_gun(dropped_gun.take_gun());
+    } else {
+        old_gun = loadout.new_primary_gun(dropped_gun.take_gun());
+    }
+
+    if (old_gun) {
+        Rect new_rect = dropped_gun.rect;
+        items.push_back(std::make_unique<DroppedGun>(new_rect, std::move(old_gun), next_drop_id++));
+    }
+
+    items.erase(std::remove_if(items.begin(), items.end(),
+                               [&](const std::unique_ptr<Item>& ptr) {
+                                   return ptr.get() == &dropped_gun;
+                               }),
+                items.end());
+}
+
+void GameWorld::try_pick_up_bomb_for(Player& player, DroppedBomb& dropped_bomb) {
+    if (player.is_tt()) {
+        player.receive_bomb(bomb);
+        items.erase(std::remove_if(items.begin(), items.end(),
+                                   [&](const std::unique_ptr<Item>& ptr) {
+                                       return ptr.get() == &dropped_bomb;
+                                   }),
+                    items.end());
+    } else {
+        dropped_bomb.set_drop_id(next_drop_id++);
+    }
+}
+
+void GameWorld::drop_weapons(Player& player) {
+    Loadout& loadout = player.get_loadout();
+
+    std::unique_ptr<Gun> gun = loadout.take_primary_gun();
+    if (gun) {
+        Rect rect(player.rect.position, ITEM_THICKNESS, ITEM_THICKNESS);
+        items.push_back(std::make_unique<DroppedGun>(rect, std::move(gun), next_drop_id++));
+    }
+
+    if (loadout.has_bomb()) {
+        Vector2D<int> new_pos(player.rect.position.x + player.rect.width / 2,
+                              player.rect.position.y + player.rect.height / 2);
+        Rect rect(new_pos, ITEM_THICKNESS, ITEM_THICKNESS);
+        items.push_back(std::make_unique<DroppedBomb>(rect, next_drop_id++));
+    }
+
+    loadout.reset();
 }
 
 void GameWorld::buy_gun_for(const std::string& username, const GunType& gun) {
     with_player(username, [this, &gun](Player& p) {
         Loadout& loadout = p.get_loadout();
 
-        this->shop.buy_gun(gun, loadout);
-        // std::unique_ptr<Gun> old_gun = this->shop.buy_gun(gun, loadout);
+        std::unique_ptr<Gun> old_gun = this->shop.buy_gun(gun, loadout);
 
-        /*if (old_gun) {
-            this->drop_gun(p.get_position(), old_gun); // o similar
-        }*/
+        if (old_gun) {
+            Vector2D<int> new_pos(p.rect.position.x + p.rect.width / 2,
+                                  p.rect.position.y + p.rect.height / 2);
+            Rect new_rect = Rect(new_pos, ITEM_THICKNESS, ITEM_THICKNESS);
+            items.push_back(
+                    std::make_unique<DroppedGun>(new_rect, std::move(old_gun), next_drop_id++));
+        }
     });
 }
 
@@ -407,7 +444,8 @@ void GameWorld::update(const float& delta_t) {
 
         player->update(*this, delta_t);
     }
-    std::cout << "salgo del update" << std::endl;
+
+    // otro for de jugadores
 }
 
 
@@ -437,7 +475,7 @@ void GameWorld::make_bomb_explode() {
         float distance = std::sqrt(static_cast<float>(dx * dx + dy * dy));
 
         if (distance <= bomb->get_explosion_radius()) {
-            bomb->make_damage_to(*player, distance);
+            bomb->make_damage_to(*player, distance, *this);
         }
     }
 }
