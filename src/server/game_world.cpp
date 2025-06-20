@@ -45,7 +45,13 @@ void GameWorld::set_sites() {
 GameWorld::GameWorld(const std::string& map_filename):
         bomb(std::make_shared<Bomb>()),
         shop(),
-        game_map(YamlParser().yaml_to_game_map(PATH_FOLDER_MAPS + map_filename + ".yaml")) {
+        game_map(YamlParser().yaml_to_game_map(PATH_FOLDER_MAPS + map_filename + ".yaml")),
+        COUNTER_TERRORISTS(Settings::getInstance().get_counter_terrorists_number()),
+        TERRORISTS(Settings::getInstance().get_terrorists_number()) {
+    size_t min_spawns_size = std::min(game_map.ct_spawns.size(), game_map.tt_spawns.size());
+    size_t max_team_size = std::max(COUNTER_TERRORISTS, TERRORISTS);
+    if (max_team_size > min_spawns_size)
+        throw std::runtime_error("Not enough spawns on map");
     add_collidables();
     set_sites();
 }
@@ -101,7 +107,23 @@ void GameWorld::add_player(const std::string& username) {
     }
 }
 
-void GameWorld::swap_teams() {}
+void GameWorld::swap_teams() {
+    std::map<std::string, std::shared_ptr<Player>> new_terrorists;
+    std::map<std::string, std::shared_ptr<Player>> new_counter_terrorists;
+
+    for (auto& [username, player]: counter_terrorists) {
+        new_terrorists[username] = player;
+        player->reset_loadout();
+    }
+
+    for (auto& [username, player]: terrorists) {
+        new_counter_terrorists[username] = player;
+        player->reset_loadout();
+    }
+
+    terrorists = std::move(new_terrorists);
+    counter_terrorists = std::move(new_counter_terrorists);
+}
 
 void GameWorld::restart_players() {
     for (auto& [_, player]: terrorists) {
@@ -336,6 +358,10 @@ void GameWorld::update(const float& delta_t) {
         bomb->update_planted(delta_t);
     }
 
+    if (prev_status == PLANTED && bomb->get_status() == EXPLODED) {
+        make_bomb_explode();
+    }
+
     for (const auto& [_, c_terrorist]: counter_terrorists) {
         if (prev_status == PLANTED && bomb->get_status() == DEFUSED && c_terrorist->defusing_bomb())
             c_terrorist->stop_defusing_bomb();
@@ -353,14 +379,30 @@ bool GameWorld::bomb_exploded() const { return bomb->get_status() == EXPLODED; }
 bool GameWorld::bomb_defused() const { return bomb->get_status() == DEFUSED; }
 bool GameWorld::bomb_not_planted() const { return bomb->get_status() == NOT_PLANTED; }
 
-void GameWorld::defuse_bomb() {
-    for (auto& [_, player]: terrorists) {
-        if (player->has_bomb()) {
-            player->leave_bomb();
-            break;
+void GameWorld::make_bomb_explode() {
+    Vector2D<int> bomb_center(
+            bomb->get_plantation()->position.x + bomb->get_plantation()->width / 2,
+            bomb->get_plantation()->position.y + bomb->get_plantation()->height / 2);
+
+    auto apply_explosion = [&](auto& team) {
+        for (auto& [username, player]: team) {
+            if (!player->is_alive())
+                continue;
+            Vector2D<int> player_center(player->rect.position.x + player->rect.width / 2,
+                                        player->rect.position.y + player->rect.height / 2);
+
+            int dx = bomb_center.x - player_center.x;
+            int dy = bomb_center.y - player_center.y;
+            float distance = std::sqrt(static_cast<float>(dx * dx + dy * dy));
+
+            if (distance <= bomb->get_explosion_radius()) {
+                bomb->make_damage_to(*player, distance);
+            }
         }
-    }
-    bomb->defuse();
+    };
+
+    apply_explosion(terrorists);
+    apply_explosion(counter_terrorists);
 }
 
 bool GameWorld::team_is_dead(const std::map<std::string, std::shared_ptr<Player>>& team) const {
@@ -368,9 +410,48 @@ bool GameWorld::team_is_dead(const std::map<std::string, std::shared_ptr<Player>
                        [](const auto& player) { return !player.second->is_alive(); });
 }
 
+bool GameWorld::are_teammates(const Player& player1, const Player& player2) const {
+    const std::string& u1 = player1.get_username();
+    const std::string& u2 = player2.get_username();
+
+    bool in_terrorist_team_1 = terrorists.count(u1);
+    bool in_terrorist_team_2 = terrorists.count(u2);
+    if (in_terrorist_team_1 && in_terrorist_team_2)
+        return true;
+
+    bool in_ct_team_1 = counter_terrorists.count(u1);
+    bool in_ct_team_2 = counter_terrorists.count(u2);
+    if (in_ct_team_1 && in_ct_team_2)
+        return true;
+
+    return false;
+}
+
 bool GameWorld::tt_are_all_dead() const { return team_is_dead(terrorists); }
 
 bool GameWorld::ct_are_all_dead() const { return team_is_dead(counter_terrorists); }
+
+void GameWorld::apply_won_round_bonus(Team team) {
+    if (team == CT) {
+        for (auto& [_, player]: counter_terrorists) {
+            Loadout& loadout = player->get_loadout();
+            loadout.add_money(WON_ROUND_BONUS);
+        }
+        for (auto& [_, player]: terrorists) {
+            Loadout& loadout = player->get_loadout();
+            loadout.add_money(LOST_ROUND_BONUS);
+        }
+    } else {
+        for (auto& [_, player]: counter_terrorists) {
+            Loadout& loadout = player->get_loadout();
+            loadout.add_money(LOST_ROUND_BONUS);
+        }
+        for (auto& [_, player]: terrorists) {
+            Loadout& loadout = player->get_loadout();
+            loadout.add_money(WON_ROUND_BONUS);
+        }
+    }
+}
 
 GameWorld::~GameWorld() {}
 

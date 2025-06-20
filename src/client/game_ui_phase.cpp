@@ -4,7 +4,8 @@
 
 #include "client/game_ui.h"
 
-GameUIPhase::GameUIPhase(GameUI& game_ui): game_ui(game_ui) {}
+GameUIPhase::GameUIPhase(GameUI& game_ui):
+        game_ui(game_ui), FPS_CLIENT(Settings::getInstance().get_fps_client()) {}
 
 void GameUIPhase::run() {
     int it = 0;
@@ -35,10 +36,15 @@ void GameUIPhase::change_phase() {
     } else if (game_ui.local_info.phase == BUY) {
         game_ui.change_phase(std::make_unique<UIBuyPhase>(game_ui));
     } else if (game_ui.local_info.phase == ATTACK) {
+        // el close shop hacerlo dentro del if en la fase buy en el que te fijas si cambio de clase.
         game_ui.sdl.close_shop();
+        // lo mismo, cuando en buy se detecta el cambio, se llama a la funcion que reproduce el
+        // sonido, no aca, o tener una variable just_started que al renderizar si es true reproduzca
+        // el sonido.
         game_ui.play_start_round_sound();
         game_ui.change_phase(std::make_unique<UIAttackPhase>(game_ui));
     } else if (game_ui.local_info.phase == ROUND_ENDED) {
+        // lo mismo, cuando termina fase attack, que el play_start_round_sound.
         game_ui.play_team_winner_sound();
         game_ui.change_phase(std::make_unique<RoundEndedPhase>(game_ui));
     }

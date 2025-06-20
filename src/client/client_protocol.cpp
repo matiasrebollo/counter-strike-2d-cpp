@@ -218,10 +218,10 @@ std::optional<ShotDTO> ClientProtocol::receive_shot() {
 
 std::optional<Vector2D<int>> ClientProtocol::receive_bomb_position() {
     bool has_value = this->code_to_bools.find(this->receive_byte())->second;
-    int x = this->receive_byte();
-    int y = this->receive_byte();
+    int x = this->receive_big_endian_number();
+    int y = this->receive_big_endian_number();
     if (has_value) {
-        return Vector2D{x, y};
+        return Vector2D<int>(x, y);
     } else {
         return std::nullopt;
     }

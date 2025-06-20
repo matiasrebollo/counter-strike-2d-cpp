@@ -24,19 +24,25 @@ Gun::Gun(const GunType& type, const int& rate_of_fire, const int& base_damage,
         kill_bonification(kill_bonification) {}
 
 std::unique_ptr<Gun> Gun::new_gun(const GunType& type) {
+    Settings& settings = Settings::getInstance();
+    GunSettings gun_settings = settings.get_gun(type);
     switch (type) {
         case GunType::GLOCK:
-            return std::make_unique<Glock>(type, GLOCK_ROF, GLOCK_DMG, GLOCK_FALLOF,
-                                           GLOCK_PRECISION, GLOCK_INITIAL_AMMO, GLOCK_KILL_BONUS);
+            return std::make_unique<Glock>(type, gun_settings.rof, gun_settings.dmg,
+                                           gun_settings.falloff, gun_settings.precision,
+                                           gun_settings.initial_ammo, gun_settings.kill_bonus);
         case GunType::AK47:
-            return std::make_unique<Ak_47>(type, AK47_ROF, AK47_DMG, AK47_FALLOF, AK47_PRECISION,
-                                           AK47_INITIAL_AMMO, AK47_KILL_BONUS);
+            return std::make_unique<Ak_47>(type, gun_settings.rof, gun_settings.dmg,
+                                           gun_settings.falloff, gun_settings.precision,
+                                           gun_settings.initial_ammo, gun_settings.kill_bonus);
         case GunType::AWP:
-            return std::make_unique<Awp>(type, AWP_ROF, AWP_DMG, -1, 1.0, AWP_INITIAL_AMMO,
-                                         AWP_KILL_BONUS);
+            return std::make_unique<Awp>(type, gun_settings.rof, gun_settings.dmg,
+                                         gun_settings.falloff, gun_settings.precision,
+                                         gun_settings.initial_ammo, gun_settings.kill_bonus);
         case GunType::M3:
-            return std::make_unique<M_3>(type, M3_ROF, M3_DMG, M3_FALLOF, M3_PRECISION,
-                                         M3_INITIAL_AMMO, M3_KILL_BONUS);
+            return std::make_unique<M_3>(type, gun_settings.rof, gun_settings.dmg,
+                                         gun_settings.falloff, gun_settings.precision,
+                                         gun_settings.initial_ammo, gun_settings.kill_bonus);
         default:
             throw std::invalid_argument("not a gun type");
     }
@@ -66,6 +72,8 @@ double Gun::calculate_precision(const double& falloff) const {
 }
 
 int Gun::calculate_damage(const double& falloff) const {
+    float DAMAGE_VARIATION_FACTOR = Settings::getInstance().get_damage_variation_factor();
+
     int damage = base_damage;
     damage = static_cast<int>(damage * (1.0 - 0.5 * falloff));
     double variation = random_double(1.0 - DAMAGE_VARIATION_FACTOR, 1.0 + DAMAGE_VARIATION_FACTOR);
@@ -96,7 +104,7 @@ void Gun::shoot(GameWorld& game, Player& shooter) {
         execute_shot(hit_player, shot.impact_info->first);
         if (!hit_player->is_alive())
             // avisar al gameworld que murio para drop items.
-            shooter.count_kill(kill_bonification);
+            shooter.count_kill(game, *hit_player, kill_bonification);
     }
 }
 

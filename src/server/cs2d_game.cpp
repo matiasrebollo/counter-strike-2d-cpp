@@ -1,12 +1,7 @@
 #include "server/cs2d_game.h"
 
-#include <algorithm>
-#include <iostream>
-#include <limits>
-#include <random>
 #include <stdexcept>
 #include <string>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -26,6 +21,9 @@ CS2DGame::CS2DGame(const std::string& id, const std::string& map_filename):
         current_round_winner(std::nullopt),
         ct_wins(0),
         tt_wins(0),
+        ROUNDS(Settings::getInstance().get_rounds_server()),
+        TERRORISTS(Settings::getInstance().get_terrorists_number()),
+        COUNTER_TERRORISTS(Settings::getInstance().get_counter_terrorists_number()),
         id(id) {
     phase = std::make_unique<WaitingPlayersPhase>(*this);
 }
@@ -68,7 +66,7 @@ void CS2DGame::broadcast_game_initial_info() {
 
 void CS2DGame::broadcast_snapshot(const int time_left) {
     const GameWorldSnapshot game_world_snapshot = game_world.get_snapshot();
-    const Snapshot snapshot{COUNTER_TERRORISTS + TERRORISTS,
+    const Snapshot snapshot{int(COUNTER_TERRORISTS + TERRORISTS),
                             this->phase->type(),
                             this->current_round,
                             ROUNDS,
@@ -106,17 +104,22 @@ void CS2DGame::decide_winner() {
         game_world.bomb_defused() or !current_round_has_a_winner()) {
         this->current_round_winner = CT;
         this->ct_wins++;
+        game_world.apply_won_round_bonus(CT);
     } else if (game_world.ct_are_all_dead() or game_world.bomb_exploded()) {
         this->current_round_winner = TT;
         this->tt_wins++;
+        game_world.apply_won_round_bonus(TT);
     }
 }
 
 void CS2DGame::begin_new_round() {
     this->current_round_winner = std::nullopt;
     this->current_round++;
-    if (this->current_round == (ROUNDS / 2) + 1)
+    if (this->current_round == (ROUNDS / 2) + 1) {
+        std::swap(ct_wins, tt_wins);
         game_world.swap_teams();
+    }
+
     game_world.restart_players();
     game_world.spawn_players();
     // limpiar items del mapa (dejar algunos, random)
@@ -126,13 +129,14 @@ void CS2DGame::change_phase(std::unique_ptr<GamePhase> new_phase) {
     this->phase = std::move(new_phase);
 }
 
+void CS2DGame::manage_elapsed_waiting_timed() { end_game(); }
+
 void CS2DGame::end() {
     this->command_queue.close();
     this->stop();
 }
 
 void CS2DGame::end_game() {
-    // determinar equipo ganador y enviar estadisticas finales
     this->broadcast_game_dto(GameEnded{});
     end();
 }

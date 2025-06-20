@@ -122,6 +122,9 @@ if(TALLER_CLIENT)
     # Ejecutable y fuentes
     add_executable(taller_client)
 
+    # Agrego yaml-cpp
+    find_package(yaml-cpp REQUIRED)
+
     # Make them depend on taller_common lib
     add_dependencies(taller_client taller_common SDL2pp::SDL2pp)
     
@@ -142,6 +145,7 @@ if(TALLER_CLIENT)
         Qt${QT_VERSION_MAJOR}::Widgets
         taller_common
         SDL2pp::SDL2pp
+        yaml-cpp
 )
 endif()
 

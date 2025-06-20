@@ -102,7 +102,6 @@ bool InputHandler::handle_click_shop_event(const SDL_Event& event, int money, Gu
                     sender.add_command_to_queue(BuyAmmoDTO{false});
                     break;
                 default:
-                    std::cout << "Botón desconocido\n";
                     break;
             }
         }
@@ -133,11 +132,9 @@ bool InputHandler::handle_buy_events(int money, GunType primary) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (handle_quit_event(event)) {
+            // llamar close shop dentro del handler
             sdl.close_shop();
             continue;
-        }
-        if (event.type == SDL_QUIT) {
-            return false;
         }
         if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_b) {
             sdl.open_shop();

@@ -2,12 +2,11 @@
 #define LOCAL_INFO_H
 
 #include <string>
-#include <vector>
+#include <unordered_map>
 
 #include "../common/skins.h"
 
 struct PlayerInfo {
-    std::string username = " ";
     bool is_ct = false;
     int x = 0;
     int y = 0;
@@ -35,15 +34,13 @@ struct LocalInfo {
 
     CounterTerroristSkin ct_skin;
     TerroristSkin tt_skin;
-
-
-    // podrian ser dos maps, que la key sea el username, y que el valor sea playerinfo(sin username)
-    std::vector<PlayerInfo> ct_players;
-    std::vector<PlayerInfo> tt_players;
+    std::unordered_map<std::string, PlayerInfo> players;
     PlayerInfo player;
     std::optional<Team> current_round_winner;
     BombStatus bomb_status = BombStatus::NOT_PLANTED;
-    Phase phase = WAITING_PLAYERS;
+    int bomb_planted_x = 0;
+    int bomb_planted_y = 0;
+    Phase phase = Phase::WAITING_PLAYERS;
     int time_left = 0;
     int total_players = 0;
     size_t total_rounds = 0;

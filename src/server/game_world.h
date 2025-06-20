@@ -27,6 +27,8 @@ private:
     std::shared_ptr<Bomb> bomb;
     Shop shop;
     const GameMap game_map;
+    const size_t COUNTER_TERRORISTS;
+    const size_t TERRORISTS;
 
     void add_collidables();
     void set_sites();
@@ -80,9 +82,11 @@ public:
     bool bomb_not_planted() const;
     bool bomb_exploded() const;
     bool bomb_defused() const;
-    void defuse_bomb();
+    void make_bomb_explode();
+    bool are_teammates(const Player& player1, const Player& player2) const;
     bool tt_are_all_dead() const;
     bool ct_are_all_dead() const;
+    void apply_won_round_bonus(Team team);
     void rotate_player(const std::string& username, const double& angle);
     bool on_site(const Player& player) const;
     void move_player_up(const std::string& username);

@@ -125,7 +125,7 @@ void Sounds::play_step(const std::string& username, const SDL2pp::Point& destino
 
 void Sounds::play_shot(const std::string& username, GunType gun_type,
                        const SDL2pp::Point& destino_camera) {
-    if (gun_type != GLOCK && gun_type != AWP && gun_type != NONE)
+    if (gun_type != GLOCK && gun_type != AWP && gun_type != NONE && gun_type != M3)
         return;
 
     int channel = get_channel(username, SoundType::SHOT_TYPE);
@@ -144,15 +144,20 @@ void Sounds::play_shot(const std::string& username, GunType gun_type,
     Uint8 sdl_distance = static_cast<Uint8>(std::min(255.0, (dist / max_hearing_distance) * 255.0));
 
     std::string path;
-    if (gun_type == GLOCK)
+    int ticks = 100000;
+    if (gun_type == GLOCK) {
         path = texture_parser.get_sound_path(GLOCK_SHOT);
-    else if (gun_type == AWP)
+    } else if (gun_type == AWP) {  // quizas bajarle los ticks aca
         path = texture_parser.get_sound_path(AWP_SHOT);
-    else if (gun_type == NONE)
+    } else if (gun_type == NONE) {
         path = texture_parser.get_sound_path(KNIFE_HIT);
+    } else if (gun_type == M3) {
+        path = texture_parser.get_sound_path(M3_SHOT);
+        ticks = 1000;
+    }
     SDL2pp::Chunk& sound = texture_manager.get_sound(path);
 
-    int used_channel = mixer.PlayChannel(channel, sound);
+    int used_channel = mixer.PlayChannel(channel, sound, 0, ticks);
     if (used_channel != -1) {
         mixer.SetDistance(used_channel, sdl_distance);
     }

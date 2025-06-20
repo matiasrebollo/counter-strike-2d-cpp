@@ -117,12 +117,12 @@ void ServerProtocol::send_snapshot(const Snapshot& snapshot) {
 void ServerProtocol::send_bomb_position(const std::optional<Vector2D<int>>& bomb_position) {
     if (bomb_position.has_value()) {
         this->send_byte(CODE_TRUE);
-        this->send_byte(bomb_position->x);
-        this->send_byte(bomb_position->y);
+        this->send_big_endian_number(bomb_position->x);
+        this->send_big_endian_number(bomb_position->y);
     } else {
         this->send_byte(CODE_FALSE);
-        this->send_byte(0);
-        this->send_byte(0);
+        this->send_big_endian_number(0);
+        this->send_big_endian_number(0);
     }
 }
 

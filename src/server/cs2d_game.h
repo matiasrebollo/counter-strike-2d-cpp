@@ -25,6 +25,9 @@ private:
     std::optional<Team> current_round_winner;
     size_t ct_wins;
     size_t tt_wins;
+    const size_t ROUNDS;
+    const size_t TERRORISTS;
+    const size_t COUNTER_TERRORISTS;
 
     friend class GamePhase;
     friend class WaitingPlayersPhase;
@@ -36,6 +39,7 @@ private:
     bool should_start() const;
 
     void broadcast_game_dto(const GameDTO& game_dto);
+    void manage_elapsed_waiting_timed();
     void broadcast_game_initial_info();
     void broadcast_snapshot(const int time_left);
 
