@@ -312,6 +312,8 @@ bool GameUI::update_between_rounds() {
     Snapshot last_snapshot;
     bool got_snapshot = false;
     bool pop = true;
+
+    reset_player_events();
     while (pop) {
         if (!this->receiver.try_pop_game_dto(game_dto)) {
             pop = false;
@@ -323,6 +325,7 @@ bool GameUI::update_between_rounds() {
             continue;
         }
         Snapshot snapshot = std::get<Snapshot>(game_dto);
+        detect_player_events(snapshot);
         last_snapshot = std::move(snapshot);
         got_snapshot = true;
 
