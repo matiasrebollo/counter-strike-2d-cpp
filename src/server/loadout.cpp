@@ -88,7 +88,7 @@ const LoadoutDTO Loadout::get_dto() const {
 }
 
 void Loadout::reset() {
-    money = INITIAL_MONEY;
+    money = Settings::getInstance().get_initial_money();
     primary_gun = nullptr;
     secondary_gun = Gun::new_gun(GLOCK);
     bomb = nullptr;
