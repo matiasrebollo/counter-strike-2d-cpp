@@ -131,6 +131,8 @@ bool InputHandler::handle_move_shop_event(const SDL_Event& event, int money, Gun
 bool InputHandler::handle_buy_events(int money, GunType primary) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_QUIT)
+            return false;
         if (handle_quit_event(event)) {
             // llamar close shop dentro del handler
             sdl.close_shop();
