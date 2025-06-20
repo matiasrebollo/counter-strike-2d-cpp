@@ -248,7 +248,7 @@ void BlockTextureParser::set_gun_textures() {
                     {GLOCK_SHOP, "../assets/gfx/weapons/glock_k.bmp"},
                     {KNIFE_GAME, "../assets/gfx/weapons/knife.bmp"},
                     {KNIFE_SHOP, "../assets/gfx/weapons/knife_k.bmp"},
-                    {BOMB_GAME, "../assets/gfx/weapons/bomb.bmp"}};
+                    {BOMB_GAME, "../assets/gfx/weapons/bomb_sq.bmp"}};
 }
 
 void BlockTextureParser::set_editor_gun_textures() {

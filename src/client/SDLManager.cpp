@@ -118,7 +118,7 @@ GunVisualData SDLManager::get_gun_visual_info(WeaponType equipped, GunType gun_t
                     return GunVisualData{CARRY_PRIMARY, AK47_GAME, 0, -17, 0, -17, 32, 32, 0};
             }
         case BOMB:
-            return GunVisualData{CARRY_BOMB, BOMB_GAME, 12, -10, 0, 0, 36, 36, 0};
+            return GunVisualData{CARRY_BOMB, BOMB_GAME, 10, -5, 0, 0, 10, 10, 0};
         default:
             return GunVisualData{CARRY_KNIFE, KNIFE_GAME, 0, 0, 0, 0, 32, 32, 0};
     }
@@ -130,15 +130,14 @@ void SDLManager::render_bomb(BombStatus bomb_status, int x_world, int y_world) {
         return;
 
     // hacer textura de la bomba exactamente recortada
-    SDL2pp::Rect destino_mundo(x_world / GRAPHIC_SCALE, y_world / GRAPHIC_SCALE, BOMB_THICKNESS / 3,
-                               BOMB_THICKNESS / 3);
+    SDL2pp::Rect destino_mundo(x_world / GRAPHIC_SCALE, y_world / GRAPHIC_SCALE,
+                               BOMB_THICKNESS / GRAPHIC_SCALE, BOMB_THICKNESS / GRAPHIC_SCALE);
 
     if (!camera.is_visible(destino_mundo))
         return;
 
     SDL2pp::Rect destino_camera = camera.rect_world_to_screen(destino_mundo);
-    std::cout << x_world << ", " << y_world << std::endl;
-    destino_camera = SDL2pp::Rect(destino_camera.GetX() - 11, destino_camera.GetY() - 19,
+    destino_camera = SDL2pp::Rect(destino_camera.GetX(), destino_camera.GetY(),
                                   destino_camera.GetW(), destino_camera.GetH());
     std::string path = texture_parser.get_gun_texture(BOMB_GAME);
     SDL2pp::Texture& bomb_texture = texture_manager.get_texture(path);
@@ -220,8 +219,6 @@ void SDLManager::render_player_weapon(const std::string& username, const PlayerI
 
         if (gun_info.weapon_sprite == KNIFE_GAME)
             angulo -= 110;
-        if (gun_info.weapon_sprite == BOMB_GAME)
-            angulo -= 90;
 
         SDL2pp::Point rotate(-gun_info.sprite_offset_x + size_player / 2,
                              -gun_info.sprite_offset_y + size_player / 2);
