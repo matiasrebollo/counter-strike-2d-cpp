@@ -37,7 +37,8 @@ void SDLManager::set_sound_info(const std::vector<std::string>& usernames) {
 }
 
 void SDLManager::render_waiting_screen(int players_connected, int players_required,
-                                       const std::string& gamename, int iteration, int FPS) {
+                                       const std::string& gamename, int iteration, int FPS,
+                                       bool have_ended) {
 
     int large_font_size = 53;
     int small_font_size = 27;
@@ -73,6 +74,17 @@ void SDLManager::render_waiting_screen(int players_connected, int players_requir
     int playersH = playersTexture.GetHeight();
     SDL2pp::Rect playersRect((CAMERA_WIDTH / 2) - playersW / 2, waitingRect.y + mainH + 10,
                              playersW, playersH);
+
+    if (have_ended) {
+        std::string ended = "Server has been closed!";
+        SDL2pp::Texture& have_ended_texture = texture_manager.get_text_texture(
+                ended, font_path, small_font_size, SDL2pp::Color(255, 255, 255));
+        int ended_width = have_ended_texture.GetWidth();
+        int ended_height = have_ended_texture.GetHeight();
+        SDL2pp::Rect ended_rect((CAMERA_WIDTH / 2) - ended_width / 2, playersRect.y + mainH + 50,
+                                ended_width, ended_height);
+        renderer.Copy(have_ended_texture, SDL2pp::NullOpt, ended_rect);
+    }
 
     // Texto gamename
     std::string gamename_text = "gamename: " + gamename;
@@ -571,10 +583,12 @@ void SDLManager::render_current_round_winner(const std::optional<Team>& winner,
     int font_size = 25;
     const std::string& font_path = texture_parser.get_fw_texture(FONT_WAITING);
     std::string winner_string =
-            winner.value() == CT ? "Counter Terrorists wins!" : "Terrorists wins!";
+            winner.value() == CT ? "Counter Terrorists win!" : "Terrorists win!";
+    SDL2pp::Color color =
+            winner.value() == CT ? SDL2pp::Color(33, 97, 140) : SDL2pp::Color(183, 149, 11);
 
-    SDL2pp::Texture& round_texture = texture_manager.get_text_texture(
-            winner_string, font_path, font_size, SDL2pp::Color(255, 255, 0));
+    SDL2pp::Texture& round_texture =
+            texture_manager.get_text_texture(winner_string, font_path, font_size, color);
     round_texture.SetAlphaMod(190);
 
 
@@ -689,8 +703,9 @@ void SDLManager::render_stats(const LocalInfo& local_info) {
 
     int line_y = start_y;
 
-    draw_line("Counter Terrorists win " + std::to_string(local_info.ct_wins) + " rounds", line_y,
-              blue);
+    std::string plural = (local_info.ct_wins != 1 ? "s" : "");
+    draw_line("Counter Terrorists win " + std::to_string(local_info.ct_wins) + " round" + plural,
+              line_y, blue);
     line_y += spacing + 10;
 
     if (local_info.player.is_ct) {
@@ -714,7 +729,9 @@ void SDLManager::render_stats(const LocalInfo& local_info) {
 
     line_y = stats_box.y + stats_box.h / 2;
 
-    draw_line("Terrorists win " + std::to_string(local_info.tt_wins) + " rounds", line_y, yellow);
+    plural = (local_info.tt_wins != 1 ? "s" : "");
+    draw_line("Terrorists win " + std::to_string(local_info.tt_wins) + " round" + plural, line_y,
+              yellow);
     line_y += spacing + 10;
 
     if (!local_info.player.is_ct) {

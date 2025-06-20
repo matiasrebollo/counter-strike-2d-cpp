@@ -332,7 +332,7 @@ void GameUI::show_waiting(const int& it) {
     sdl.render_waiting_screen(
             local_info.ct_players.size() + local_info.tt_players.size() +
                     1,  // 1 porque si veo esta pantalla quiere decir estoy conectado
-            local_info.total_players, local_info.gamename, it, FPS_CLIENT);
+            local_info.total_players, local_info.gamename, it, FPS_CLIENT, false);
     sdl.show_screen();
 }
 
@@ -481,10 +481,19 @@ void GameUI::handle_game_ended() {
         float delta_seconds = static_cast<float>(delta_it) / FPS_SERVER;
         time += delta_seconds;
 
-        sdl.clear_display();
-        sdl.render_in_z_order(local_info, it);
-        sdl.render_crosshair(local_info);
-        sdl.show_screen();
+        if (local_info.phase != WAITING_PLAYERS) {
+            sdl.clear_display();
+            sdl.render_in_z_order(local_info, it);
+            sdl.render_crosshair(local_info);
+            sdl.show_screen();
+        } else {
+            sdl.clear_display();
+            sdl.render_waiting_screen(
+                    local_info.ct_players.size() + local_info.tt_players.size() +
+                            1,  // 1 porque si veo esta pantalla quiere decir estoy conectado
+                    local_info.total_players, local_info.gamename, it, FPS_CLIENT, true);
+            sdl.show_screen();
+        }
 
         last_it = it;
         it = clock.sleep_and_calc_next_it(FPS_SERVER, it);
@@ -536,7 +545,7 @@ void GameUI::close_client() {
 }
 
 GameUI::~GameUI() {
-    if (this->keep_running) {
+    if (receiver.is_alive()) {
         this->close_client();
     }
 }

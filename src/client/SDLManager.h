@@ -83,7 +83,8 @@ public:
 
     /* Renderiza la fase de waiting */
     void render_waiting_screen(int players_connected, int players_required,
-                               const std::string& gamename, int iteration, int FPS);
+                               const std::string& gamename, int iteration, int FPS,
+                               bool have_ended);
 
     /* Devuelve las coords logicas del renderizador */
     SDL_Point get_logical_size() const;
