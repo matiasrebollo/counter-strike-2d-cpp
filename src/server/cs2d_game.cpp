@@ -66,7 +66,7 @@ void CS2DGame::broadcast_game_initial_info() {
 
 void CS2DGame::broadcast_snapshot(const int time_left) {
     const GameWorldSnapshot game_world_snapshot = game_world.get_snapshot();
-    const Snapshot snapshot{ int(COUNTER_TERRORISTS + TERRORISTS),
+    const Snapshot snapshot{int(COUNTER_TERRORISTS + TERRORISTS),
                             this->phase->type(),
                             this->current_round,
                             ROUNDS,

@@ -196,7 +196,8 @@ void GameUI::show_waiting(const int& it) {
     sdl.render_waiting_screen(
             local_info.players.size() +
                     1,  // 1 porque si veo esta pantalla quiere decir estoy conectado
-            local_info.total_players, local_info.gamename, it,Settings::getInstance().get_fps_client() );
+            local_info.total_players, local_info.gamename, it,
+            Settings::getInstance().get_fps_client());
     sdl.show_screen();
 }
 

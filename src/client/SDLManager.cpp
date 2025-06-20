@@ -21,8 +21,8 @@ SDLManager::SDLManager():
                Settings::getInstance().get_window_initial_height(),
                Settings::getInstance().get_fullscreen() ? SDL_WINDOW_FULLSCREEN_DESKTOP :
                                                           SDL_WINDOW_RESIZABLE),
-        
-  
+
+
         renderer(window, -1, SDL_RENDERER_ACCELERATED),
         texture_manager(renderer),
         camera(CAMERA_WIDTH, CAMERA_HEIGHT),
