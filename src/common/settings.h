@@ -50,23 +50,39 @@ struct ServerSettings {
 #define BLOCK_THICKNESS 400
 #define PLAYER_THICKNESS 320
 
+#define MAX_DISTANCE_SHOT 10000
+
+
+#define TEAM_KILL_PENALTY 3000
+#define AWP_KILL_BONUS 100
+#define AK47_KILL_BONUS 300
+#define M3_KILL_BONUS 300
+#define GLOCK_KILL_BONUS 500
+#define KNIFE_KILL_BONUS 1500
+
+
+#define BOMB_THICKNESS 100
+
+#define BOMB_EXPLOSION_DAMAGE 200
+#define BOMB_EXPLOSION_RADIUS 1000
+#define DETONATION_TIME 30
+#define PLANTATION_TIME 4
+#define DEFUSE_TIME 4
+
 #define PATH_FOLDER_MAPS "../maps/"
 #define PATH_SETTINGS "../settings.yaml"
 #define PATH_CS_FONT "../../../assets/cs_regular.ttf"
 
-
 // client
 #define CAMERA_WIDTH 640
 #define CAMERA_HEIGHT 400
-//#define FPS_CLIENT 30
 
-//#define WINDOW_INITIAL_WIDTH 640
-//#define WINDOW_INITIAL_HEIGHT 400
 #define HUD_IDEAL_WIDTH 640
 #define HUD_IDEAL_HEIGHT 400
 #define FONT_IDEAL_WIDTH 480
 #define FONT_IDEAL_HEIGHT 300
 #define GRAPHIC_SCALE 10
+#define PLAYER_SPRITE_GAP 90
 
 
 struct ClientSettings {

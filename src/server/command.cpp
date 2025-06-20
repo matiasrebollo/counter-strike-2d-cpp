@@ -6,7 +6,7 @@ inline constexpr bool always_false_v = false;
 Command::Command(const std::string& username): username(username) {}
 
 std::unique_ptr<Command> Command::new_command(const std::string& username,
-                                              const CommandDTO& command_data) {
+                                              const GameCommandDTO& command_data) {
     return std::visit(
             [username](const auto& d) -> std::unique_ptr<Command> {
                 using T = std::decay_t<decltype(d)>;
@@ -17,6 +17,8 @@ std::unique_ptr<Command> Command::new_command(const std::string& username,
                     return std::make_unique<RotateCommand>(username, d.angle);
                 } else if constexpr (std::is_same_v<T, PlayerActionDTO>) {
                     return std::make_unique<PlayerActionCommand>(username, d.make);
+                } else if constexpr (std::is_same_v<T, DefuseBombDTO>) {
+                    return std::make_unique<DefuseBombCommand>(username, d.make);
                 } else if constexpr (std::is_same_v<T, EquipPrimaryDTO>) {
                     return std::make_unique<EquipPrimaryCommand>(username);
                 } else if constexpr (std::is_same_v<T, EquipSecondaryDTO>) {
@@ -82,6 +84,16 @@ void PlayerActionCommand::execute_in_attack_phase(GameWorld& game) const {
     }
 }
 
+DefuseBombCommand::DefuseBombCommand(const std::string& username, const bool& make):
+        Command(username), make(make) {}
+void DefuseBombCommand::execute_in_attack_phase(GameWorld& game) const {
+    if (make) {
+        game.make_player_defuse_bomb(username);
+    } else {
+        game.stop_making_player_defuse_bomb(username);
+    }
+}
+
 BuyGunCommand::BuyGunCommand(const std::string& username, const GunType& gun):
         Command(username), gun(gun) {}
 void BuyGunCommand::execute_in_buy_phase(GameWorld& game) const { game.buy_gun_for(username, gun); }
@@ -106,6 +118,4 @@ EquipKnifeCommand::EquipKnifeCommand(const std::string& username): EquipCommand(
 void EquipKnifeCommand::execute(GameWorld& game) const { game.equip_knife_for(username); }
 
 EquipBombCommand::EquipBombCommand(const std::string& username): EquipCommand(username) {}
-void EquipBombCommand::execute(GameWorld& /*game*/) const {
-    // game.equip_bomb_for(username);
-}
+void EquipBombCommand::execute(GameWorld& game) const { game.equip_bomb_for(username); }

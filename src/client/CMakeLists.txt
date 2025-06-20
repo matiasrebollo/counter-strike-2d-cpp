@@ -13,6 +13,8 @@ target_sources(taller_client
         local_info.h
         texture_manager.h
         shop.h
+        sounds.h
+        animation.h
     PRIVATE
         main.cpp
         lobby/lobby.cpp
@@ -29,4 +31,6 @@ target_sources(taller_client
         input_handler.cpp
         texture_manager.cpp
         shop.cpp
+        sounds.cpp
+        animation.cpp
 )

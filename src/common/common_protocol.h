@@ -10,8 +10,8 @@
 #include <arpa/inet.h>
 
 #include "commands.h"
-#include "commands_dto.h"
 #include "error_codes.h"
+#include "game_commands_dto.h"
 #include "weapon_parser.h"
 
 #ifdef TESTS
@@ -39,6 +39,7 @@ inline constexpr bool always_false_v = false;
 #define CODE_ACTION 0x10
 #define CODE_CHANGE_WEAPON 0x11
 #define CODE_PLANT_BOMB 0x12
+#define CODE_DEFUSE_BOMB 0x13
 #define CODE_SEND_GAME_INIT_INFO 0x25
 #define CODE_GAME_STARTED 0x30
 #define CODE_SNAPSHOT 0x35
@@ -61,12 +62,6 @@ protected:
     std::unordered_map<bool, uint8_t> bools_to_code;
     std::unordered_map<uint8_t, bool> code_to_bools;
 
-public:
-    explicit CommonProtocol(std::unique_ptr<Socket> socket);
-
-    CommonProtocol(CommonProtocol&& other) noexcept;
-    CommonProtocol& operator=(CommonProtocol&& other) noexcept;
-
     double receive_angle();
     void send_angle(const double& angle);
     uint8_t receive_byte();
@@ -75,4 +70,12 @@ public:
     void send_big_endian_number(const uint16_t& number);
     void send_string(const std::string& s);
     std::string receive_string();
+    void send_double(const double& number);
+    double receive_double();
+
+public:
+    explicit CommonProtocol(std::unique_ptr<Socket> socket);
+
+    CommonProtocol(CommonProtocol&& other) noexcept;
+    CommonProtocol& operator=(CommonProtocol&& other) noexcept;
 };

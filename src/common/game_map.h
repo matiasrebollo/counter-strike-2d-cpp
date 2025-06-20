@@ -1,6 +1,8 @@
 #ifndef GAME_MAP_H
 #define GAME_MAP_H
 
+#include <map>
+#include <set>
 #include <vector>
 
 #include "common/map_object.h"
@@ -14,7 +16,8 @@ struct GameMap {
     std::vector<MapObject> map_objects;
     std::vector<Vector2D<int>> ct_spawns;
     std::vector<Vector2D<int>> tt_spawns;
-    std::vector<Vector2D<int>> sites;
+    std::set<Vector2D<int>> sites;
+    std::map<GunType, std::vector<Vector2D<int>>> guns;
 };
 
 #endif

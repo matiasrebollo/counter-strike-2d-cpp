@@ -4,7 +4,9 @@
 #include <list>
 #include <memory>
 #include <optional>
+#include <utility>
 
+#include "common/player_dto.h"
 #include "server/collidable.h"
 
 class GameWorld;  // forward declaration
@@ -15,11 +17,13 @@ public:
     const Vector2D<int> origin;
     const float orientation;
     Collidable* hit;
-    double distance;
+    std::optional<std::pair<double, Vector2D<float>>> impact_info;
 
     Shot(const Vector2D<int>& origin, const float& orientation);
 
     void shoot(const GameWorld& game, Player& shooter);
+
+    std::optional<ShotDTO> get_dto() const;
 
     Shot(const Shot&) = delete;
     Shot& operator=(const Shot&) = delete;

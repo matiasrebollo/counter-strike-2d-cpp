@@ -1,6 +1,7 @@
 #include "yaml_parser.h"
 
 #include <algorithm>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -44,6 +45,9 @@ YAML::Node YamlParser::game_map_to_Yaml(const GameMap& game_map) {
     }
     map["sites"] = sites;
 
+    YAML::Node guns = guns_to_yaml(game_map.guns);
+    map["guns"] = guns;
+
     return map;
 }
 
@@ -68,10 +72,10 @@ GameMap YamlParser::yaml_to_game_map(const std::string& path) {
         tt_spawns.push_back(yaml_to_vector2d(block));
     }
 
-    std::vector<Vector2D<int>> sites;
+    std::set<Vector2D<int>> sites;
     for (const auto& block: file["sites"]) {
         // cppcheck-suppress useStlAlgorithm
-        sites.push_back(yaml_to_vector2d(block));
+        sites.insert(yaml_to_vector2d(block));
     }
 
     GameMap map{file["width"].as<int>(),
@@ -80,7 +84,8 @@ GameMap YamlParser::yaml_to_game_map(const std::string& path) {
                 blocks,
                 ct_spawns,
                 tt_spawns,
-                sites};
+                sites,
+                yaml_to_guns(file)};
     return map;
 }
 
@@ -157,6 +162,36 @@ YAML::Node YamlParser::vector2d_to_yaml(const Vector2D<int>& vector) {
     pos["x"] = vector.x;
     pos["y"] = vector.y;
     return pos;
+}
+
+YAML::Node YamlParser::guns_to_yaml(const std::map<GunType, std::vector<Vector2D<int>>>& guns) {
+    YAML::Node armas;
+    for (const auto& gun: guns) {
+        YAML::Node arma;
+        arma["type"] = int(gun.first);
+        YAML::Node positions(YAML::NodeType::Sequence);
+        for (const auto& pos: gun.second) {
+            // cppcheck-suppress useStlAlgorithm
+            positions.push_back(vector2d_to_yaml(pos));
+        }
+        arma["positions"] = positions;
+        armas.push_back(arma);
+    }
+    return armas;
+}
+
+std::map<GunType, std::vector<Vector2D<int>>> YamlParser::yaml_to_guns(const YAML::Node& node) {
+    std::map<GunType, std::vector<Vector2D<int>>> guns;
+    for (const auto& gun: node["guns"]) {
+        GunType type = static_cast<GunType>(gun["type"].as<int>());
+        std::vector<Vector2D<int>> positions;
+        for (const auto& pos: gun["positions"]) {
+            // cppcheck-suppress useStlAlgorithm
+            positions.push_back(yaml_to_vector2d(pos));
+        }
+        guns[type] = positions;
+    }
+    return guns;
 }
 
 MapObject YamlParser::yaml_to_map_object(const YAML::Node& node) {

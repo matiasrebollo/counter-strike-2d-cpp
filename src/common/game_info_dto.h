@@ -1,6 +1,7 @@
 #ifndef GAME_INFO_DTO_H
 #define GAME_INFO_DTO_H
 
+#include <set>
 #include <unordered_map>
 #include <vector>
 
@@ -10,6 +11,7 @@
 struct GameMapDTO {
     Background background;
     std::vector<MapObject> map_objects;
+    std::set<Vector2D<int>> sites;
 };
 
 struct ShopInfoDTO {

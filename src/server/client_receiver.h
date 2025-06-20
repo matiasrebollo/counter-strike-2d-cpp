@@ -4,8 +4,8 @@
 #include <memory>
 #include <string>
 
-#include "common/commands_dto.h"
 #include "common/communication_ended.h"
+#include "common/game_commands_dto.h"
 #include "common/message.h"
 #include "common/thread.h"
 #include "server/cs2d_game.h"
@@ -23,7 +23,7 @@ private:
 public:
     ClientReceiver(ServerProtocol& protocol, std::string& username, std::shared_ptr<CS2DGame> game);
     void receive_command();
-    void push_command(const CommandDTO& command_data);
+    void push_command(const GameCommandDTO& command_data);
     void run() override;
     ~ClientReceiver() override;
 };

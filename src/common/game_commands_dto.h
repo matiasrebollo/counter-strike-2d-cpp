@@ -1,5 +1,5 @@
-#ifndef COMMANDS_DTO_H
-#define COMMANDS_DTO_H
+#ifndef GAME_COMMANDS_DTO_H
+#define GAME_COMMANDS_DTO_H
 
 #include <cstdint>
 #include <variant>
@@ -18,6 +18,11 @@ struct RotateDTO {
 struct PlayerActionDTO {
     bool make;
 };
+
+struct DefuseBombDTO {
+    bool make;
+};
+
 struct EquipPrimaryDTO {};
 struct EquipSecondaryDTO {};
 struct EquipKnifeDTO {};
@@ -30,8 +35,8 @@ struct BuyAmmoDTO {
     const bool for_primary;
 };
 
-using CommandDTO =
-        std::variant<MoveDTO, RotateDTO, PlayerActionDTO, EquipPrimaryDTO, EquipSecondaryDTO,
-                     EquipKnifeDTO, EquipBombDTO, BuyGunDTO, BuyAmmoDTO>;
+using GameCommandDTO =
+        std::variant<MoveDTO, RotateDTO, PlayerActionDTO, DefuseBombDTO, EquipPrimaryDTO,
+                     EquipSecondaryDTO, EquipKnifeDTO, EquipBombDTO, BuyGunDTO, BuyAmmoDTO>;
 
 #endif

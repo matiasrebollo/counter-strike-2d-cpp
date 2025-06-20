@@ -39,15 +39,17 @@ private:
     bool should_start() const;
 
     void broadcast_game_dto(const GameDTO& game_dto);
+    void manage_elapsed_waiting_timed();
     void broadcast_game_initial_info();
     void broadcast_snapshot(const int time_left);
 
     bool current_round_has_a_winner() const;
     void decide_winner();
     void begin_new_round();
-    void swap_teams();
     void change_phase(std::unique_ptr<GamePhase> new_phase);
     void update(const float& delta_t);
+    bool bomb_just_planted();
+    int bomb_detonation_time();
     void execute_in_attack_phase(std::unique_ptr<Command> cmd);
     void execute_in_buy_phase(std::unique_ptr<Command> cmd);
     void end_game();
@@ -57,7 +59,6 @@ public:
     const std::string id;
 
     explicit CS2DGame(const std::string& id, const std::string& map_filename);
-    bool can_add_player(const std::string& username) const;
     void add_player(const std::string& username, std::shared_ptr<ClientSender> sender);
     void push(const std::unique_ptr<Command> command);
     void run() override;

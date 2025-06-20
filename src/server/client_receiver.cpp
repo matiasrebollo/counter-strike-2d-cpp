@@ -24,11 +24,11 @@ void ClientReceiver::run() {
 }
 
 void ClientReceiver::receive_command() {
-    CommandDTO command = this->protocol.receive_client_request();
+    GameCommandDTO command = this->protocol.receive_client_game_request();
     push_command(command);
 }
 
-void ClientReceiver::push_command(const CommandDTO& command_data) {
+void ClientReceiver::push_command(const GameCommandDTO& command_data) {
     this->game->push(Command::new_command(username, command_data));
 }
 

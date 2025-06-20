@@ -44,9 +44,10 @@ set_project_warnings(taller_common ${TALLER_MAKE_WARNINGS_AS_ERRORS} FALSE)
 target_include_directories(taller_common PUBLIC ${CMAKE_SOURCE_DIR}/src/)
 
 
-# Enable SDL2pp with Image and TTF support
+# Enable SDL2pp with Image and TTF and Mixer support
 set(SDL2PP_WITH_IMAGE YES)
 set(SDL2PP_WITH_TTF YES)
+set(SDL2PP_WITH_MIXER YES)
 
 # HEY!! TODO XXX: you need to install some runtime and dev libraries *before*
 # compiling the client/editor code.

@@ -9,7 +9,7 @@
 #include "common/weapon_type.h"
 
 struct ShotDTO {
-    double distance;
+    Vector2D<int> impact_position;
 };
 
 struct PlayerDTO {
@@ -18,6 +18,9 @@ struct PlayerDTO {
     double orientation;
     uint16_t life;
     std::optional<ShotDTO> shot;
+    bool planting_bomb;
+    bool defusing_bomb;
+    bool on_site;
     int bonifications;
     int kills;
     int deaths;

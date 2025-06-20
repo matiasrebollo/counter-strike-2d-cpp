@@ -30,18 +30,27 @@ private:
     LocalInfo local_info;
     std::unique_ptr<GameUIPhase> phase;
     bool keep_running;
-    Snapshot game_snapshot;  // guarda la ultima snapshot por si no llega una nueva, graficar esta
+    bool just_planted = false;
+    bool make_sound_planted = false;
+    bool just_defuse = false;
+    bool make_sound_defused = false;
+    bool make_sound_clock = false;
 
     friend class GameUIPhase;
     friend class WaitingForGamePhase;
     friend class UIBuyPhase;
     friend class UIAttackPhase;
+    friend class RoundEndedPhase;
     friend class GameEndedPhase;
 
-    bool validate_qt_results(Lobby& lobby);
-    void print_message(const std::string& s);
+    /* Setea en false todos los eventos de cada player */
+    void reset_player_events();
 
-    /* Actualiza la informacion local del estado del juego en base a una snapshot */
+    /* Detecta eventos para cada player en una snapshot*/
+    void detect_player_events(const Snapshot& snapshot);
+
+    /* Actualiza la informacion local del estado del juego en base a una snapshot
+     */
     void update_local_info_from_snapshot(const Snapshot& snapshot);
 
     /* Maneja eventos de usuario en la fase waiting */
@@ -65,10 +74,22 @@ private:
     /* Renderiza la fase de juego */
     void show_attack(const int& it);
 
+    void handle_between_rounds_events();
+    bool update_between_rounds();
+    void show_between_rounds(const int& it);
+
     void change_phase(std::unique_ptr<GameUIPhase> new_phase);
 
     void handle_game_ended();
     void close_client();
+
+    void play_start_round_sound();
+
+    void play_team_winner_sound();
+
+    void update_player(const PlayerDTO& player, const bool& is_ct);
+    void update_bomb_status(const Snapshot& snapshot);
+    void update_game_status(const Snapshot& snapshot);
 
 public:
     explicit GameUI(Lobby& lobby);

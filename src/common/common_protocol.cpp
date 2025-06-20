@@ -1,5 +1,6 @@
 #include "common_protocol.h"
 
+#include <algorithm>
 #include <iostream>
 #include <utility>
 
@@ -7,6 +8,7 @@
 
 #include "communication_ended.h"
 #include "liberror.h"
+#include "settings.h"
 
 CommonProtocol::CommonProtocol(std::unique_ptr<Socket> socket):
         socket(std::move(socket)),
@@ -151,4 +153,18 @@ double CommonProtocol::receive_angle() {
     uint16_t encoded = this->receive_big_endian_number();
 
     return (static_cast<double>(encoded) / 65535.0f) * 360.0f;
+}
+
+// 10000 max distance de las armas
+
+void CommonProtocol::send_double(const double& number) {
+    double normalized = std::clamp(number / MAX_DISTANCE_SHOT, 0.0, 1.0);
+    uint16_t encoded = static_cast<uint16_t>(normalized * 65535.0);
+    this->send_big_endian_number(encoded);
+}
+
+double CommonProtocol::receive_double() {
+    uint16_t encoded = this->receive_big_endian_number();
+    double normalized = static_cast<double>(encoded) / 65535.0;
+    return normalized * MAX_DISTANCE_SHOT;
 }

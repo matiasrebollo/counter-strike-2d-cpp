@@ -1,7 +1,7 @@
 #ifndef SDL_HELPERS_H
 #define SDL_HELPERS_H
 
-// quizas estar en client?
+
 enum HudNumbers {
     ZERO = 0,
     ONE = 1,
@@ -34,6 +34,29 @@ enum GunSprites {
     KNIFE_GAME,
     KNIFE_SHOP
 };
+
+enum SoundEffect {
+    DENY_SELECT,
+    SELECT,
+    MOVE_SELECT,
+    OPEN_SHOP,
+    CLOSE_SHOP,
+    DIRT_STEP_ONE,
+    DIRT_STEP_TWO,
+    GLOCK_SHOT,
+    AWP_SHOT,
+    KNIFE_HIT,
+    START_ROUND_TT,
+    START_ROUND_CT,
+    ROUND_ALMOST_FINISH,
+    BOMB_DEFUSE,
+    BOMB_PLANTED,
+    CT_WINS,
+    TT_WINS,
+    FAST_TICK_CLOCK
+};
+
+enum Others { AWP_SHOT_FLARE };
 
 
 #endif

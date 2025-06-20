@@ -13,12 +13,13 @@ private:
     int center_x;
     int center_y;
 
-    SDL2pp::Rect get_viewport() const;
-
 public:
     Camera(int screen_w, int screen_h);
+    SDL2pp::Rect get_viewport() const;
     void follow(int x, int y);
-    SDL2pp::Rect world_to_screen(const SDL2pp::Rect& rect_mundo) const;
+    SDL2pp::Point point_screen_to_world(const SDL2pp::Point& p) const;
+    SDL2pp::Point point_world_to_screen(const SDL2pp::Point& p) const;
+    SDL2pp::Rect rect_world_to_screen(const SDL2pp::Rect& rect_mundo) const;
     bool is_visible(const SDL2pp::Rect& rect_mundo) const;
 };
 

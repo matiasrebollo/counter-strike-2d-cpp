@@ -9,8 +9,8 @@
 class Game_editor;
 
 class CTSpawnsSetter: public GridAction {
-    void handle(std::pair<int, int> click_on, std::pair<int, int> click_drop,
-                Game_editor& editor) override;
+    void handle(std::pair<int, int> click_on, std::pair<int, int> click_drop, Game_editor& editor,
+                const bool& to_delete) override;
 };
 
 #endif

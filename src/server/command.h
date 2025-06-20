@@ -5,7 +5,7 @@
 #include <string>
 #include <variant>
 
-#include "common/commands_dto.h"
+#include "common/game_commands_dto.h"
 #include "server/game_world.h"
 
 class Command {
@@ -15,7 +15,7 @@ protected:
 public:
     const std::string username;
     static std::unique_ptr<Command> new_command(const std::string& username,
-                                                const CommandDTO& command_data);
+                                                const GameCommandDTO& command_data);
 
     virtual void execute_in_buy_phase(GameWorld& game) const;
     virtual void execute_in_attack_phase(GameWorld& game) const;
@@ -50,6 +50,14 @@ public:
     PlayerActionCommand(const std::string& username, const bool& make);
     void execute_in_attack_phase(GameWorld& game) const override;
     ~PlayerActionCommand() override = default;
+};
+
+class DefuseBombCommand: public Command {
+public:
+    const bool make;
+    DefuseBombCommand(const std::string& username, const bool& make);
+    void execute_in_attack_phase(GameWorld& game) const override;
+    ~DefuseBombCommand() override = default;
 };
 
 class BuyGunCommand: public Command {
@@ -113,5 +121,6 @@ public:
     explicit EquipBombCommand(const std::string& username);
     ~EquipBombCommand() override = default;
 };
+
 
 #endif

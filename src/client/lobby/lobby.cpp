@@ -24,11 +24,16 @@ using Socket = MockSocket;
 using Socket = RealSocket;
 #endif
 
+#define PATH_CS_FONT "../../../assets/cs_regular.ttf"
+
 Lobby::Lobby(QWidget* parent):
         QMainWindow(parent),
         ui(new Ui::Lobby),
         selected_ct_skin(SEAL_FORCE),
-        selected_tt_skin(PHEONIX) {
+        selected_tt_skin(PHEONIX),
+        username(""),
+        gamecode(""),
+        can_change_name(false) {
     ui->setupUi(this);
     ui->stack->setCurrentIndex(0);
     ui->skins_tt_stack->setCurrentIndex(0);
@@ -46,7 +51,7 @@ void Lobby::go_to_lobby() { ui->stack->setCurrentIndex(1); }
 
 
 void Lobby::on_CreateGame_clicked() {
-    if (this->username != "") {
+    if (this->username != "" && !this->can_change_name) {
         this->create_game();
         return;
     }
@@ -59,9 +64,10 @@ void Lobby::on_CreateGame_clicked() {
 
     protocol.value().send_lobby_request(request);
 
-    ServerResponseLobby response = protocol.value().receive_command();
-    if (response.success) {
+    ServerResponseLobby response = protocol.value().receive_server_response_lobby();
+    if (response.status == ResponseStatus::SUCCESS) {
         this->username = ui->username->text().toStdString();
+        this->can_change_name = false;
     } else {
         QMessageBox::information(this, TITLE_MSG_CREATE, MSG_USERNAME_ALREADY_USED);
         return;
@@ -101,17 +107,17 @@ void Lobby::on_CreateGameButton_clicked() {
     CreateGameDTO second_request = {map_name};
 
     protocol.value().send_lobby_request(second_request);
-    ServerResponseLobby response = protocol.value().receive_command();
-    if (response.success) {
+    ServerResponseLobby response = protocol.value().receive_server_response_lobby();
+    if (response.status == ResponseStatus::SUCCESS) {
         this->gamecode = response.game_name;
         close();
-    } else {
+    } else if (response.status == ResponseStatus::GAME_NOT_CREATED) {
         QMessageBox::information(this, TITLE_MSG_CREATE, MSG_GAME_NOT_CREATED);
     }
 }
 
 void Lobby::on_JoinGame_clicked() {
-    if (this->username != "") {
+    if (this->username != "" && !this->can_change_name) {
         ui->stack->setCurrentIndex(3);
         return;
     }
@@ -123,11 +129,12 @@ void Lobby::on_JoinGame_clicked() {
     }
     protocol.value().send_lobby_request(request);
 
-    ServerResponseLobby response = protocol.value().receive_command();
-    if (response.success) {
+    ServerResponseLobby response = protocol.value().receive_server_response_lobby();
+    if (response.status == ResponseStatus::SUCCESS) {
         ui->stack->setCurrentIndex(3);
         this->username = ui->username->text().toStdString();
-    } else {
+        this->can_change_name = false;
+    } else if (response.status == ResponseStatus::USERNAME_IN_USE) {
         QMessageBox::information(this, TITLE_MSG_JOIN, MSG_USERNAME_ALREADY_USED);
     }
 }
@@ -138,12 +145,35 @@ void Lobby::on_JoinGameButton_clicked() {
     JoinGameDTO request = {game_name};
 
     protocol.value().send_lobby_request(request);
-    ServerResponseLobby response = protocol.value().receive_command();
-    if (response.success) {
-        this->gamecode = game_name;
-        close();
-    } else {
-        QMessageBox::information(this, TITLE_MSG_JOIN, MSG_GAME_ALREADY_STARTED);
+    ServerResponseLobby response = protocol.value().receive_server_response_lobby();
+    switch (response.status) {
+        case ResponseStatus::GAME_NOT_EXIST:
+            QMessageBox::information(this, TITLE_MSG_JOIN,
+                                     QString::fromStdString(MSG_GAME_NOT_EXIST(game_name)));
+            break;
+
+        case ResponseStatus::SUCCESS:
+            this->gamecode = game_name;
+            close();
+            break;
+
+        case ResponseStatus::GAME_IS_DEAD:
+            QMessageBox::information(this, TITLE_MSG_JOIN, MSG_GAME_IS_DEAD);
+            break;
+
+        case ResponseStatus::GAME_IS_FULL:
+            QMessageBox::information(this, TITLE_MSG_JOIN,
+                                     QString::fromStdString(MSG_GAME_IS_FULL(game_name)));
+            break;
+
+        case ResponseStatus::USERNAME_ALREADY_IN_GAME:
+            this->can_change_name = true;
+            QMessageBox::information(this, TITLE_MSG_JOIN, MSG_USERNAME_ALREADY_USED_IN_GAME);
+            break;
+
+        default:
+            QMessageBox::information(this, TITLE_MSG_JOIN, MSG_UNEXPECTED_SERVER_RESPONSE);
+            break;
     }
 }
 

@@ -1,5 +1,5 @@
-#ifndef knife_H
-#define knife_H
+#ifndef KNIFE_H
+#define KNIFE_H
 
 #include <memory>
 #include <unordered_map>

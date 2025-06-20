@@ -57,7 +57,11 @@ TEST(ServerProtocolTest, SendLobbyResponse) {
 
     std::vector<CommandType> commands = {CommandType::CREATE_USERNAME, CommandType::CREATE_GAME,
                                          CommandType::JOIN_GAME};
-    std::vector<bool> success_values = {false, true};
+    std::vector<ResponseStatus> success_values = {
+            ResponseStatus::SUCCESS,         ResponseStatus::GAME_NOT_CREATED,
+            ResponseStatus::USERNAME_IN_USE, ResponseStatus::GAME_NOT_EXIST,
+            ResponseStatus::GAME_IS_FULL,    ResponseStatus::USERNAME_ALREADY_IN_GAME,
+            ResponseStatus::WITHOUT_USERNAME};
     std::vector<std::string> gamenames = {"", "mipartida"
                                               "unnombresuperlargoquequieroponera"};
 
@@ -73,10 +77,10 @@ TEST(ServerProtocolTest, SendLobbyResponse) {
 
                 server->send_lobby_message(dto);
 
-                ServerResponseLobby response = client->receive_command();
+                ServerResponseLobby response = client->receive_server_response_lobby();
 
                 ASSERT_EQ(response.commandType, command);
-                ASSERT_EQ(response.success, value);
+                ASSERT_EQ(response.status, value);
                 // Only if the client creates a game the server reply with a name game's name. If
                 // it's another command, it doesn't send anything so the game_name in the dto is
                 // empty.

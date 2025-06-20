@@ -23,17 +23,17 @@ void M_3::shoot(GameWorld& game, Player& shooter) {
     const int num_pellets = 8;
 
     for (int i = 0; i < num_pellets; ++i) {
-        double t = (i + 0.5) / num_pellets;          // En (0,1)
-        double offset = (t - 0.5) * cone_angle_deg;  // En (-cone/2, cone/2)
+        double t = (i + 0.5) / num_pellets;
+        double offset = (t - 0.5) * cone_angle_deg;
         double angle_deg = central_angle_deg + offset;
 
         Shot shot(origin, angle_deg);
         shot.shoot(game, shooter);
 
         if (Player* hit_player = dynamic_cast<Player*>(shot.hit)) {
-            execute_shot(hit_player, shot.distance);
+            execute_shot(hit_player, shot.impact_info->first);
             if (!hit_player->is_alive())
-                shooter.count_kill(kill_bonification);
+                shooter.count_kill(game, *hit_player, kill_bonification);
         }
     }
 }

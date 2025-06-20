@@ -26,13 +26,22 @@ void GamePhase::run() {
         while (game.command_queue.try_pop(cmd)) {
             execute(std::move(cmd));
         }
-        if (type() != WAITING_PLAYERS)
+        if (type() != WAITING_PLAYERS) {
             game.update(delta_seconds);
+            if (dynamic_cast<AttackPhase*>(this) && game.bomb_just_planted()) {
+                duration = game.bomb_detonation_time();
+                time = 0.0f;
+            }
+        }
 
         last_it = it;
         it = clock.sleep_and_calc_next_it(FPS_SERVER, it);
     }
 
+    if (dynamic_cast<WaitingPlayersPhase*>(this) && time >= duration) {
+        game.manage_elapsed_waiting_timed();
+        return;
+    }
     end();
 }
 
@@ -70,12 +79,12 @@ void AttackPhase::execute(std::unique_ptr<Command> cmd) {
 void AttackPhase::end() {
     game.decide_winner();
     game.change_phase(std::make_unique<BetweenRoundsPhase>(game));
-    // si termina la partida???
 }
 
 BetweenRoundsPhase::BetweenRoundsPhase(CS2DGame& game):
         GamePhase(game, Settings::getInstance().get_between_rounds_phase_duration()) {}
-Phase BetweenRoundsPhase::type() { return ATTACK; }
+Phase BetweenRoundsPhase::type() { return ROUND_ENDED; }
+
 bool BetweenRoundsPhase::should_continue() { return game.should_keep_running(); }
 void BetweenRoundsPhase::execute(std::unique_ptr<Command> cmd) {
     game.execute_in_attack_phase(std::move(cmd));

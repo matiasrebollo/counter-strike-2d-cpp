@@ -34,12 +34,22 @@ void GameWorld::add_collidables() {
                                                                game_map.height * BLOCK_THICKNESS));
 }
 
+void GameWorld::set_sites() {
+    for (const auto& site: game_map.sites) {
+        Vector2D<int> new_site_pos(site.x * BLOCK_THICKNESS, site.y * BLOCK_THICKNESS);
+        Rect new_site(new_site_pos, BLOCK_THICKNESS, BLOCK_THICKNESS);
+        this->sites.push_back(new_site);
+    }
+}
+
 GameWorld::GameWorld(const std::string& map_filename):
+        bomb(std::make_shared<Bomb>()),
         shop(),
         game_map(YamlParser().yaml_to_game_map(PATH_FOLDER_MAPS + map_filename + ".yaml")),
         COUNTER_TERRORISTS(Settings::getInstance().get_counter_terrorists_number()),
         TERRORISTS(Settings::getInstance().get_terrorists_number()) {
     add_collidables();
+    set_sites();
 }
 
 // spawn_points deben ser suficientes como para que eventualmente se pueda spawnear a un jugador y
@@ -78,17 +88,37 @@ void GameWorld::add_player(const std::string& username) {
     size_t cts = counter_terrorists.size();
     size_t tts = terrorists.size();
 
-    if (cts + tts >= COUNTER_TERRORISTS + TERRORISTS) {
-        throw std::runtime_error("No hay lugar para más jugadores");
-    }
-
-    if (cts <= tts && cts < COUNTER_TERRORISTS) {
+    if (cts < COUNTER_TERRORISTS && tts < TERRORISTS) {
+        if (cts <= tts) {
+            counter_terrorists[username] = player;
+        } else {
+            terrorists[username] = player;
+        }
+    } else if (cts < COUNTER_TERRORISTS) {
         counter_terrorists[username] = player;
     } else if (tts < TERRORISTS) {
         terrorists[username] = player;
     } else {
-        counter_terrorists[username] = player;
+        throw std::runtime_error("No hay lugar para más jugadores");
     }
+}
+
+void GameWorld::swap_teams() {
+    std::map<std::string, std::shared_ptr<Player>> new_terrorists;
+    std::map<std::string, std::shared_ptr<Player>> new_counter_terrorists;
+
+    for (auto& [username, player]: counter_terrorists) {
+        new_terrorists[username] = player;
+        player->reset_loadout();
+    }
+
+    for (auto& [username, player]: terrorists) {
+        new_counter_terrorists[username] = player;
+        player->reset_loadout();
+    }
+
+    terrorists = std::move(new_terrorists);
+    counter_terrorists = std::move(new_counter_terrorists);
 }
 
 void GameWorld::restart_players() {
@@ -98,6 +128,15 @@ void GameWorld::restart_players() {
     for (auto& [_, player]: counter_terrorists) {
         player->restart();
     }
+
+    bomb->restart();
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dist(0, terrorists.size() - 1);
+    size_t index = dist(gen);
+    auto it = terrorists.begin();
+    std::advance(it, index);
+    it->second->receive_bomb(bomb);
 }
 
 void GameWorld::spawn_players() {
@@ -138,7 +177,7 @@ const GameWorldSnapshot GameWorld::get_snapshot() const {
         tt.push_back(player.second->get_dto());
     }
 
-    return GameWorldSnapshot{ct, tt};
+    return GameWorldSnapshot{bomb->get_status(), bomb->get_plantation_position(), ct, tt};
 }
 
 void GameWorld::rotate_player(const std::string& username, const double& angle) {
@@ -178,11 +217,41 @@ void GameWorld::stop_moving_player_right(const std::string& username) {
 }
 
 void GameWorld::make_player_action(const std::string& username) {
-    with_player(username, [](Player& p) { p.make_action(); });
+    with_player(username, [](Player& p) {
+        if (p.equipped() == BOMB && !p.is_on_site())
+            return;
+        p.make_action();
+    });
 }
 
 void GameWorld::stop_making_player_action(const std::string& username) {
-    with_player(username, [](Player& p) { p.stop_making_action(); });
+    with_player(username, [](Player& p) {
+        if (p.equipped() == BOMB && !p.is_on_site())
+            return;
+        p.stop_making_action();
+    });
+}
+
+void GameWorld::make_player_defuse_bomb(const std::string& username) {
+    auto it = counter_terrorists.find(username);
+    if (it != counter_terrorists.end()) {
+        Player& p = *(it->second);
+        if (this->can_defuse_bomb(p)) {
+            p.defuse_bomb();
+            this->bomb->action();
+        }
+    }
+}
+
+void GameWorld::stop_making_player_defuse_bomb(const std::string& username) {
+    auto it = counter_terrorists.find(username);
+    if (it != counter_terrorists.end()) {
+        Player& p = *(it->second);
+        if (p.defusing_bomb()) {
+            p.stop_defusing_bomb();
+            this->bomb->stop_action();
+        }
+    }
 }
 
 void GameWorld::equip_primary_for(const std::string& username) {
@@ -195,6 +264,10 @@ void GameWorld::equip_secondary_for(const std::string& username) {
 
 void GameWorld::equip_knife_for(const std::string& username) {
     with_player(username, [](Player& p) { p.equip_knife(); });
+}
+
+void GameWorld::equip_bomb_for(const std::string& username) {
+    with_player(username, [](Player& p) { p.equip_bomb(); });
 }
 
 void GameWorld::buy_gun_for(const std::string& username, const GunType& gun) {
@@ -226,6 +299,21 @@ const Collidable* GameWorld::colliding_object_with(const Collidable& coll) const
             return collidable.get();
     }
     return nullptr;
+}
+
+bool GameWorld::on_site(const Player& p) const {
+    int center_x = p.rect.position.x + p.rect.width / 2;
+    int center_y = p.rect.position.y + p.rect.height / 2;
+
+    return std::any_of(sites.begin(), sites.end(), [&](const Rect& site) {
+        return center_x >= site.position.x && center_x < site.position.x + site.width &&
+               center_y >= site.position.y && center_y < site.position.y + site.height;
+    });
+}
+
+bool GameWorld::can_defuse_bomb(const Player& player) const {
+    const auto& plantation = bomb->get_plantation();
+    return plantation && player.rect.intersects_with(*plantation);
 }
 
 void GameWorld::make_step_player(Player& player, const Vector2D<int>& step) {
@@ -260,7 +348,19 @@ void GameWorld::make_step_player(Player& player, const Vector2D<int>& step) {
 }
 
 void GameWorld::update(const float& delta_t) {
+    BombStatus prev_status = bomb->get_status();
+
+    if (prev_status == PLANTED) {
+        bomb->update_planted(delta_t);
+    }
+
+    if (prev_status == PLANTED && bomb->get_status() == EXPLODED) {
+        make_bomb_explode();
+    }
+
     for (const auto& [_, c_terrorist]: counter_terrorists) {
+        if (prev_status == PLANTED && bomb->get_status() == DEFUSED && c_terrorist->defusing_bomb())
+            c_terrorist->stop_defusing_bomb();
         c_terrorist->update(*this, delta_t);
     }
     for (const auto& [_, terrorist]: terrorists) {
@@ -268,9 +368,59 @@ void GameWorld::update(const float& delta_t) {
     }
 }
 
+bool GameWorld::bomb_just_planted() const { return bomb->just_planted(); }
+int GameWorld::bomb_detonation_time() const { return bomb->detonation_time(); }
+
+bool GameWorld::bomb_exploded() const { return bomb->get_status() == EXPLODED; }
+bool GameWorld::bomb_defused() const { return bomb->get_status() == DEFUSED; }
+bool GameWorld::bomb_not_planted() const { return bomb->get_status() == NOT_PLANTED; }
+
+void GameWorld::make_bomb_explode() {
+    Vector2D<int> bomb_center(
+            bomb->get_plantation()->position.x + bomb->get_plantation()->width / 2,
+            bomb->get_plantation()->position.y + bomb->get_plantation()->height / 2);
+
+    auto apply_explosion = [&](auto& team) {
+        for (auto& [username, player]: team) {
+            if (!player->is_alive())
+                continue;
+            Vector2D<int> player_center(player->rect.position.x + player->rect.width / 2,
+                                        player->rect.position.y + player->rect.height / 2);
+
+            int dx = bomb_center.x - player_center.x;
+            int dy = bomb_center.y - player_center.y;
+            float distance = std::sqrt(static_cast<float>(dx * dx + dy * dy));
+
+            if (distance <= bomb->get_explosion_radius()) {
+                bomb->make_damage_to(*player, distance);
+            }
+        }
+    };
+
+    apply_explosion(terrorists);
+    apply_explosion(counter_terrorists);
+}
+
 bool GameWorld::team_is_dead(const std::map<std::string, std::shared_ptr<Player>>& team) const {
     return std::all_of(team.begin(), team.end(),
                        [](const auto& player) { return !player.second->is_alive(); });
+}
+
+bool GameWorld::are_teammates(const Player& player1, const Player& player2) const {
+    const std::string& u1 = player1.get_username();
+    const std::string& u2 = player2.get_username();
+
+    bool in_terrorist_team_1 = terrorists.count(u1);
+    bool in_terrorist_team_2 = terrorists.count(u2);
+    if (in_terrorist_team_1 && in_terrorist_team_2)
+        return true;
+
+    bool in_ct_team_1 = counter_terrorists.count(u1);
+    bool in_ct_team_2 = counter_terrorists.count(u2);
+    if (in_ct_team_1 && in_ct_team_2)
+        return true;
+
+    return false;
 }
 
 bool GameWorld::tt_are_all_dead() const { return team_is_dead(terrorists); }
@@ -279,31 +429,32 @@ bool GameWorld::ct_are_all_dead() const { return team_is_dead(counter_terrorists
 
 GameWorld::~GameWorld() {}
 
-double GameWorld::impacts(const Shot& shot, const Collidable& collidable) const {
-    Rect h = collidable.rect;
-    Vector2D<float> v1(static_cast<float>(h.position.x), static_cast<float>(h.position.y));
-    Vector2D<float> v2(static_cast<float>(h.position.x + h.width),
-                       static_cast<float>(h.position.y));
-    Vector2D<float> v3(static_cast<float>(h.position.x + h.width),
-                       static_cast<float>(h.position.y + h.height));
-    Vector2D<float> v4(static_cast<float>(h.position.x),
-                       static_cast<float>(h.position.y + h.height));
+std::optional<std::pair<double, Vector2D<float>>> GameWorld::impacts(
+        const Shot& shot, const Collidable& collidable) const {
 
-    std::vector<double> distances = {
+    Rect h = collidable.rect;
+
+    Vector2D<float> v1(h.position.x, h.position.y);
+    Vector2D<float> v2(h.position.x + h.width, h.position.y);
+    Vector2D<float> v3(h.position.x + h.width, h.position.y + h.height);
+    Vector2D<float> v4(h.position.x, h.position.y + h.height);
+
+    std::vector<std::optional<std::pair<double, Vector2D<float>>>> results = {
             intersects_segment(shot, v1, v2), intersects_segment(shot, v2, v3),
             intersects_segment(shot, v3, v4), intersects_segment(shot, v4, v1)};
 
-    auto it = std::min_element(distances.begin(), distances.end(), [](double a, double b) {
-        if (a == 0.0)
-            return false;
-        if (b == 0.0)
-            return true;
-        return a < b;
-    });
+    std::optional<std::pair<double, Vector2D<float>>> best;
 
-    return (it != distances.end() && *it > 0.0) ? *it : 0.0;
+    for (const auto& result: results) {
+        if (!result.has_value())
+            continue;
+
+        if (!best.has_value() || result->first < best->first)
+            best = result;
+    }
+
+    return best;
 }
-
 // R(t) = origin + direction * t, con t ≥ 0 - Semirrecta por la que recorrerá el disparo.
 // S(u) = seg_start + seg_dir * u, con 0 ≤ u ≤ 1 - Segmento, se quiere ver si la recta lo corta.
 // Buscamos u y t para los que se cumpla: origin + direction * t  ==  seg_start + seg_dir * u
@@ -311,11 +462,10 @@ double GameWorld::impacts(const Shot& shot, const Collidable& collidable) const 
 // => direction * t + (-seg_dir) * u = r (siendo r = seg_start - origin)
 // => ... (wolfram) =>  t = (r x (seg_dir)) / ((direction))x(seg_dir)), u = (r x direction) /
 // ((shoot_direction))x(seg_dir))
-double GameWorld::intersects_segment(const Shot& shot, const Vector2D<float>& seg_start,
-                                     const Vector2D<float>& seg_end) const {
-    double real_orientation = shot.orientation - 90.0f;
+std::optional<std::pair<double, Vector2D<float>>> GameWorld::intersects_segment(
+        const Shot& shot, const Vector2D<float>& seg_start, const Vector2D<float>& seg_end) const {
 
-    double orientation_in_radians = real_orientation * M_PI / 180.0;
+    double orientation_in_radians = shot.orientation * M_PI / 180.0;
     Vector2D<float> direction(std::cos(orientation_in_radians), std::sin(orientation_in_radians));
     Vector2D<float> origin(shot.origin.x, shot.origin.y);
 
@@ -324,24 +474,23 @@ double GameWorld::intersects_segment(const Shot& shot, const Vector2D<float>& se
 
     double c = static_cast<double>(direction.cross(seg_dir));
 
-    if (c == 0)
-        return 0.0;  // son paralelos, no hay intersección
+    if (c == 0.0)
+        return std::nullopt;  // recta y segmento son paralelos
 
     double t = static_cast<double>(r.cross(seg_dir)) / c;
     double u = static_cast<double>(r.cross(direction)) / c;
 
-    // La semirrecta solo vale para t >= 0, y el segmento para u ∈ [0,1]. Se intersecan si t y u
-    // cumplen con esto.
-    if (t >= 0 && u >= 0 && u <= 1) {
-        return t * direction.magnitude();
+    if (t >= 0.0 && u >= 0.0 && u <= 1.0) {
+        Vector2D<float> intersection = origin + direction * t;
+        return std::make_pair(t * direction.magnitude(), intersection);
     }
 
-    return 0.0;
+    return std::nullopt;
 }
 
 void GameWorld::calculate_shot(Shot& shot, const Player& shooter) const {
     Collidable* hit = nullptr;
-    double closest = std::numeric_limits<double>::max();
+    std::optional<std::pair<double, Vector2D<float>>> best_impact;
 
     for (const auto& collidable: collidables) {
         const Collidable* coll_ptr = collidable.get();
@@ -353,15 +502,16 @@ void GameWorld::calculate_shot(Shot& shot, const Player& shooter) const {
             }
         }
 
-        double dist = impacts(shot, *collidable);
-        if (dist != 0.0) {
-            if (dist < closest) {
-                closest = dist;
-                hit = collidable.get();
-            }
+        auto impact = impacts(shot, *collidable);
+        if (!impact.has_value())
+            continue;
+
+        if (!best_impact.has_value() || impact->first < best_impact->first) {
+            best_impact = impact;
+            hit = collidable.get();
         }
     }
 
     shot.hit = hit;
-    shot.distance = closest - PLAYER_THICKNESS / 2;
+    shot.impact_info = best_impact;
 }
