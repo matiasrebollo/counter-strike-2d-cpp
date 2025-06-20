@@ -110,6 +110,12 @@ void Game_editor::setupBlockList() {
             mode = std::make_unique<BlocksSetter>();
             logic_map.selectBlock(block);
             first_left_click_done = false;
+            ui->selected_mode->setPixmap(pixmap_manager.get_block_pixmap(block).scaled(70, 70));
+            ui->selected_mode->setStyleSheet("margin: 10px 10px;"
+                                             "color:white;"
+                                             "border-width: 1px;"
+                                             "border-style: solid;"
+                                             "border-color: white;");
         });
 
         count_blocks++;
@@ -129,6 +135,8 @@ void Game_editor::setupToolbar() {
     connect(labelTT, &ClickableLabel::left_clicked, [this]() {
         first_left_click_done = false;
         mode = std::make_unique<TTSpawnsSetter>();
+        ui->selected_mode->setPixmap(
+                pixmap_manager.get_pixmap("../assets/gfx/terrorist_logo.png").scaled(50, 50));
     });
 
     ClickableLabel* labelCT = new ClickableLabel();
@@ -142,6 +150,9 @@ void Game_editor::setupToolbar() {
     connect(labelCT, &ClickableLabel::left_clicked, [this]() {
         first_left_click_done = false;
         mode = std::make_unique<CTSpawnsSetter>();
+        ui->selected_mode->setPixmap(
+                pixmap_manager.get_pixmap("../assets/gfx/counter_terrorist_logo.png")
+                        .scaled(50, 50));
     });
 
     ClickableLabel* labelBombSites = new ClickableLabel();
@@ -155,6 +166,8 @@ void Game_editor::setupToolbar() {
     connect(labelBombSites, &ClickableLabel::left_clicked, [this]() {
         first_left_click_done = false;
         mode = std::make_unique<BombSiteSetter>();
+        ui->selected_mode->setPixmap(
+                pixmap_manager.get_pixmap("../assets/gfx/weapons/bomb.bmp").scaled(50, 50));
     });
     ui->GameAreas->addWidget(labelTT, 0, Qt::AlignHCenter);
     ui->GameAreas->addWidget(labelCT, 0, Qt::AlignHCenter);
@@ -174,6 +187,12 @@ void Game_editor::setupGunBar() {
             first_left_click_done = false;
             this->logic_map.selectGun(gun);
             mode = std::make_unique<GunsSetter>();
+            ui->selected_mode->setStyleSheet("margin: 10px 10px;"
+                                             "color:white;"
+                                             "border-width: 1px;"
+                                             "border-style: solid;"
+                                             "border-color: white;");
+            ui->selected_mode->setPixmap((pixmap_manager.get_gun_pixmap(gun)).scaled(50, 50));
         });
         ui->gunsArea->addWidget(label, 0, Qt::AlignHCenter);
     }

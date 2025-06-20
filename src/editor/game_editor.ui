@@ -243,6 +243,40 @@ QPushButton:pressed {
            </widget>
           </item>
           <item>
+           <widget class="QLabel" name="selected_mode">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>70</width>
+              <height>70</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>70</width>
+              <height>70</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">margin: 5px 10px;</string>
+            </property>
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="margin">
+             <number>0</number>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="add_rows_button">
             <property name="minimumSize">
              <size>
@@ -368,7 +402,7 @@ QPushButton:pressed {
                <x>0</x>
                <y>0</y>
                <width>248</width>
-               <height>543</height>
+               <height>524</height>
               </rect>
              </property>
              <property name="sizePolicy">
@@ -417,7 +451,7 @@ QPushButton:pressed {
                <x>0</x>
                <y>0</y>
                <width>400</width>
-               <height>543</height>
+               <height>524</height>
               </rect>
              </property>
              <layout class="QGridLayout" name="gridLayout_2">
@@ -482,7 +516,7 @@ QPushButton:pressed {
                <x>0</x>
                <y>0</y>
                <width>132</width>
-               <height>543</height>
+               <height>524</height>
               </rect>
              </property>
              <property name="sizePolicy">
