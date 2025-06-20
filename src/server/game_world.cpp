@@ -42,6 +42,17 @@ void GameWorld::set_sites() {
     }
 }
 
+void GameWorld::set_items() {
+    for (const auto& [gun_type, positions]: game_map.guns) {
+        for (const auto& pos: positions) {
+            Vector2D<int> item_pos(pos.x * BLOCK_THICKNESS, pos.y * BLOCK_THICKNESS);
+            Rect item_rect(item_pos, ITEM_THICKNESS, ITEM_THICKNESS);
+            items.emplace_back(std::make_unique<DroppedGun>(
+                    item_rect, std::move(Gun::new_gun(gun_type)), next_drop_id++));
+        }
+    }
+}
+
 GameWorld::GameWorld(const std::string& map_filename):
         next_drop_id(0),
         bomb(std::make_shared<Bomb>()),
@@ -49,7 +60,7 @@ GameWorld::GameWorld(const std::string& map_filename):
         game_map(YamlParser().yaml_to_game_map(PATH_FOLDER_MAPS + map_filename + ".yaml")) {
     add_collidables();
     set_sites();
-    // add_items();
+    set_items();
 }
 
 // spawn_points deben ser suficientes como para que eventualmente se pueda spawnear a un jugador y
@@ -110,7 +121,6 @@ void GameWorld::add_player(const std::string& username) {
 
     players[username] = player;
     collidables.push_back(player);
-    std::cout << "agregué a " << username << std::endl;
 }
 
 void GameWorld::swap_teams() {
@@ -143,6 +153,12 @@ void GameWorld::restart_players() {
         size_t index = dist(gen);
         terrorist_players[index]->receive_bomb(bomb);
     }
+}
+
+void GameWorld::restart_items() {
+    items.clear();
+    next_drop_id = 0;
+    set_items();
 }
 
 void GameWorld::spawn_players() {
@@ -427,7 +443,6 @@ void GameWorld::make_step_player(Player& player, const Vector2D<int>& step) {
 }
 
 void GameWorld::update(const float& delta_t) {
-    std::cout << "llamada a update" << std::endl;
     BombStatus prev_status = bomb->get_status();
 
     if (prev_status == PLANTED)

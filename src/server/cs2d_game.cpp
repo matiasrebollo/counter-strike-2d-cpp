@@ -115,7 +115,7 @@ void CS2DGame::begin_new_round() {
 
     game_world.restart_players();
     game_world.spawn_players();
-    // limpiar items del mapa (dejar algunos, random)
+    game_world.restart_items();
 }
 
 void CS2DGame::change_phase(std::unique_ptr<GamePhase> new_phase) {

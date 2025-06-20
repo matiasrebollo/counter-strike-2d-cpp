@@ -33,6 +33,7 @@ private:
 
     void add_collidables();
     void set_sites();
+    void set_items();
 
     Vector2D<int> random_spawn_position(const std::vector<Vector2D<int>>& spawn_points) const;
     Vector2D<int> random_ct_spawn_position() const;
@@ -69,6 +70,7 @@ public:
     void add_player(const std::string& username);
     void swap_teams();
     void restart_players();
+    void restart_items();
     void spawn_players();
     const GameMap get_map() const;
     const ShopInfoDTO get_shop_info() const;
