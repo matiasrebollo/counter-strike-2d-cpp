@@ -65,6 +65,13 @@ private:
     void render_hud_life(int life);
     void render_hud_ammo(int ammo);
     void render_hud_money(int money);
+    std::pair<std::vector<std::pair<std::string, PlayerInfo>>,
+              std::vector<std::pair<std::string, PlayerInfo>>>
+            get_teams(const LocalInfo& local_info);
+    void draw_line(const std::string& line, int y, SDL_Color color, const int& size_box);
+    void stats_team(int& line_y, const bool& are_ct,
+                    const std::vector<std::pair<std::string, PlayerInfo>>& team,
+                    const int& size_box);
     void render_stats(const LocalInfo& local_info);
     bool game_ended(const LocalInfo& local_info);
     Crosshairs get_crosshair_color(int mouse_x, int mouse_y, const LocalInfo& local_info);

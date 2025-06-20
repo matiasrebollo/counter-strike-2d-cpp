@@ -661,6 +661,69 @@ void SDLManager::render_hud_bomb(const bool& has_bomb, const bool& in_site, cons
     renderer.Copy(bomb_texture, src_bomb, dst_bomb);
 }
 
+std::pair<std::vector<std::pair<std::string, PlayerInfo>>,
+          std::vector<std::pair<std::string, PlayerInfo>>>
+        SDLManager::get_teams(const LocalInfo& local_info) {
+    std::vector<std::pair<std::string, PlayerInfo>> cts = {};
+    std::vector<std::pair<std::string, PlayerInfo>> tts = {};
+
+    for (const auto& [username, p]: local_info.players) {
+        if (p.is_ct) {
+            cts.emplace_back(username, p);
+        } else {
+            tts.emplace_back(username, p);
+        }
+    }
+    if (local_info.player.is_ct) {
+        cts.emplace_back(local_info.username, local_info.player);
+    } else {
+        tts.emplace_back(local_info.username, local_info.player);
+    }
+
+    auto f_cmp = [](const auto& pj1, const auto& pj2) {
+        if (pj1.second.kills != pj2.second.kills)
+            return pj1.second.kills > pj2.second.kills;
+        return pj1.first < pj2.first;  // desempata el nombre
+    };
+
+    std::sort(cts.begin(), cts.end(), f_cmp);
+    std::sort(tts.begin(), tts.end(), f_cmp);
+
+    return std::make_pair(cts, tts);
+}
+
+void SDLManager::draw_line(const std::string& line, int y, SDL_Color color, const int& size_box) {
+    int font_size = static_cast<int>(size_box * 0.15);
+    int text_x = size_box + 10;
+    const std::string& font_path = texture_parser.get_fw_texture(FONT_WAITING);
+    SDL2pp::Texture& text_texture =
+            texture_manager.get_text_texture(line, font_path, font_size, color);
+    renderer.Copy(text_texture, SDL2pp::NullOpt,
+                  SDL2pp::Rect(text_x, y, text_texture.GetWidth(), text_texture.GetHeight()));
+}
+
+void SDLManager::stats_team(int& line_y, const bool& are_ct,
+                            const std::vector<std::pair<std::string, PlayerInfo>>& team,
+                            const int& size_box) {
+    std::string team_s = are_ct ? "Counter Terrorirsts" : "Terrorists";
+    SDL_Color blue = {0, 150, 255, 255};
+    SDL_Color yellow = {255, 200, 0, 255};
+    SDL_Color team_c = are_ct ? blue : yellow;
+    SDL_Color white = {255, 255, 255, 255};
+
+    draw_line(team_s, line_y, team_c, size_box);
+    int spacing = 15;
+    line_y += spacing + 10;
+
+    for (const auto& [username, p]: team) {
+        draw_line("* " + username + " | Kills: " + std::to_string(p.kills) +
+                          " | Deaths: " + std::to_string(p.deaths) + " | Bonifications: $" +
+                          std::to_string(p.bonifications),
+                  line_y, white, size_box);
+        line_y += spacing;
+    }
+}
+
 void SDLManager::render_stats(const LocalInfo& local_info) {
     if (local_info.server_has_been_closed) {
         int box_width = static_cast<int>(CAMERA_WIDTH * 0.59);
@@ -677,23 +740,13 @@ void SDLManager::render_stats(const LocalInfo& local_info) {
         renderer.SetDrawColor(255, 255, 255, 255);
         renderer.DrawRect(stats_box);
 
-        int font_size = static_cast<int>(box_x * 0.2);
-        const std::string& font_path = texture_parser.get_fw_texture(FONT_WAITING);
         int start_y = stats_box.y + 10;
-        int text_x = stats_box.x + 10;
 
         SDL_Color red = {255, 0, 0, 255};
-        auto draw_line = [&](const std::string& line, int y, SDL_Color color) {
-            SDL2pp::Texture& text_texture =
-                    texture_manager.get_text_texture(line, font_path, font_size, color);
-            renderer.Copy(
-                    text_texture, SDL2pp::NullOpt,
-                    SDL2pp::Rect(text_x, y, text_texture.GetWidth(), text_texture.GetHeight()));
-        };
 
         int line_y = start_y;
 
-        draw_line("Connection lost with server!", line_y, red);
+        this->draw_line("Connection lost with server!", line_y, red, box_x);
     }
     if (!game_ended(local_info)) {
         return;
@@ -713,73 +766,40 @@ void SDLManager::render_stats(const LocalInfo& local_info) {
     renderer.SetDrawColor(255, 255, 255, 255);
     renderer.DrawRect(stats_box);
 
-    int font_size = static_cast<int>(box_x * 0.15);
-    const std::string& font_path = texture_parser.get_fw_texture(FONT_WAITING);
-    int start_y = stats_box.y + 10;
-    int spacing = 10;
-    int text_x = stats_box.x + 10;
+    std::string result_text;
+    SDL_Color result_color;
 
-    SDL_Color blue = {0, 150, 255, 255};
-    SDL_Color yellow = {255, 200, 0, 255};
-    SDL_Color white = {255, 255, 255, 255};
-    auto draw_line = [&](const std::string& line, int y, SDL_Color color) {
-        SDL2pp::Texture& text_texture =
-                texture_manager.get_text_texture(line, font_path, font_size, color);
-        renderer.Copy(text_texture, SDL2pp::NullOpt,
-                      SDL2pp::Rect(text_x, y, text_texture.GetWidth(), text_texture.GetHeight()));
-    };
+    bool player_is_ct = local_info.player.is_ct;
 
-    int line_y = start_y;
+    if (local_info.ct_wins == local_info.tt_wins) {
+        result_text = "Draw";
+        result_color = {200, 200, 200, 255};
+    } else {
+        bool ct_won = local_info.ct_wins > local_info.tt_wins;
+        bool player_won = (player_is_ct && ct_won) || (!player_is_ct && !ct_won);
 
-    std::vector<std::pair<std::string, PlayerInfo>> cts = {};
-    std::vector<std::pair<std::string, PlayerInfo>> tts = {};
-
-    for (const auto& [username, p]: local_info.players) {
-        if (p.is_ct) {
-            cts.emplace_back(username, p);
+        if (player_won) {
+            result_text = "Victory";
+            result_color = {35, 155, 86, 255};
         } else {
-            tts.emplace_back(username, p);
+            result_text = "Defeat";
+            result_color = {231, 76, 60, 255};
         }
     }
-    if (local_info.player.is_ct) {
-        cts.emplace_back(local_info.username, local_info.player);
-    } else {
-        tts.emplace_back(local_info.username, local_info.player);
-    }
 
-    auto f_cmp = [](const auto& pj1, const auto& pj2) {
-        return pj1.second.kills > pj2.second.kills;
-    };
-    std::sort(cts.begin(), cts.end(), f_cmp);
-    std::sort(tts.begin(), tts.end(), f_cmp);
+    int result_y = stats_box.y + 10;
+    this->draw_line(result_text, result_y, result_color, box_x + box_width / 3);
 
-    std::string plural = (local_info.ct_wins != 1 ? "s" : "");
-    draw_line("Counter Terrorists win " + std::to_string(local_info.ct_wins) + " round" + plural,
-              line_y, blue);
-    line_y += spacing + 10;
+    int start_y = result_y + 30;
+    int line_y = start_y;
 
-    for (const auto& [username, p]: cts) {
-        draw_line("* " + username + " | Kills: " + std::to_string(p.kills) +
-                          " | Deaths: " + std::to_string(p.deaths) + " | Bonifications: $" +
-                          std::to_string(p.bonifications),
-                  line_y, white);
-        line_y += spacing;
-    }
+    auto [cts, tts] = this->get_teams(local_info);
 
-    line_y = stats_box.y + stats_box.h / 2;
+    this->stats_team(line_y, true, cts, box_x);
 
-    plural = (local_info.tt_wins != 1 ? "s" : "");
-    draw_line("Terrorists win " + std::to_string(local_info.tt_wins) + " round" + plural, line_y,
-              yellow);
-    line_y += spacing + 10;
+    line_y = stats_box.y + static_cast<int>(stats_box.h / 1.8);
 
-    for (const auto& [username, p]: tts) {
-        draw_line("* " + username + " | Kills: " + std::to_string(p.kills) +
-                          " | Deaths: " + std::to_string(p.deaths) + " | Bonifications: $" +
-                          std::to_string(p.bonifications),
-                  line_y, white);
-        line_y += spacing;
-    }
+    this->stats_team(line_y, false, tts, box_x);
 
     renderer.SetDrawBlendMode(SDL_BLENDMODE_NONE);
     renderer.SetDrawColor(0, 0, 0, 255);

@@ -372,8 +372,9 @@ void GameUI::handle_game_ended() {
     size_t it = 0;
     float time = 0.0f;
     int fps_client = Settings::getInstance().get_fps_client();
+    float max_time = Settings::getInstance().get_stats_time();
 
-    while (time < 10) {
+    while (time < max_time) {
         if (!input_handler.handle_ended_events()) {
             break;
         }
