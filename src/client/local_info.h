@@ -36,6 +36,8 @@ struct LocalInfo {
     PlayerInfo player;
     std::optional<Team> current_round_winner;
     BombStatus bomb_status = BombStatus::NOT_PLANTED;
+    int bomb_planted_x = 0;
+    int bomb_planted_y = 0;
     Phase phase = Phase::WAITING_PLAYERS;
     int time_left = 0;
     int total_players = 0;

@@ -50,6 +50,7 @@ private:
 
     void update_camera(int player_x, int player_y);
     GunVisualData get_gun_visual_info(WeaponType equipped, GunType gun_type);
+    void render_bomb(BombStatus bomb_status, int x_world, int y_world);
     void render_player(const std::string& username, const PlayerInfo& p,
                        const CounterTerroristSkin& ct_skin, const TerroristSkin& tt_skin);
     void render_player_weapon(const std::string& username, const PlayerInfo& p);

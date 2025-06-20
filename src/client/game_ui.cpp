@@ -88,6 +88,11 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
     update_game_status(snapshot);
     local_info.time_left = snapshot.time_left;
     local_info.bomb_status = snapshot.bomb_status;
+    if (snapshot.bomb_position.has_value()) {
+        local_info.bomb_planted_x = snapshot.bomb_position->x;
+        local_info.bomb_planted_y = snapshot.bomb_position->y;
+        std::cout << local_info.bomb_planted_x << ", " << local_info.bomb_planted_y << std::endl;
+    }
     local_info.total_rounds = snapshot.total_rounds;
     local_info.current_round = snapshot.current_round_number;
     local_info.total_players = snapshot.total_players;

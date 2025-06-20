@@ -99,6 +99,7 @@ void BlockTextureParser::set_sound_paths() {
                    {GLOCK_SHOT, "../assets/sfx/weapons/glock18.wav"},
                    {AWP_SHOT, "../assets/sfx/weapons/awp.wav"},
                    {KNIFE_HIT, "../assets/sfx/weapons/knife_hit.wav"},
+                   {M3_SHOT, "../assets/sfx/weapons/m3.wav"},
                    {START_ROUND_TT, "../assets/sfx/radio/go.ogg"},
                    {START_ROUND_CT, "../assets/sfx/radio/letsgo.ogg"},
                    {BOMB_DEFUSE, "../assets/sfx/radio/bombdef.ogg"},
@@ -246,7 +247,8 @@ void BlockTextureParser::set_gun_textures() {
                     {GLOCK_GAME, "../assets/gfx/weapons/glock.bmp"},
                     {GLOCK_SHOP, "../assets/gfx/weapons/glock_k.bmp"},
                     {KNIFE_GAME, "../assets/gfx/weapons/knife.bmp"},
-                    {KNIFE_SHOP, "../assets/gfx/weapons/knife_k.bmp"}};
+                    {KNIFE_SHOP, "../assets/gfx/weapons/knife_k.bmp"},
+                    {BOMB_GAME, "../assets/gfx/weapons/bomb.bmp"}};
 }
 
 void BlockTextureParser::set_editor_gun_textures() {

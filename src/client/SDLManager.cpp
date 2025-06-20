@@ -117,9 +117,33 @@ GunVisualData SDLManager::get_gun_visual_info(WeaponType equipped, GunType gun_t
                     // nunca deberia llegar aca
                     return GunVisualData{CARRY_PRIMARY, AK47_GAME, 0, -17, 0, -17, 32, 32, 0};
             }
+        case BOMB:
+            return GunVisualData{CARRY_BOMB, BOMB_GAME, 12, -10, 0, 0, 36, 36, 0};
         default:
             return GunVisualData{CARRY_KNIFE, KNIFE_GAME, 0, 0, 0, 0, 32, 32, 0};
     }
+}
+
+/* Renderiza la bomba en el suelo si esta plantada */
+void SDLManager::render_bomb(BombStatus bomb_status, int x_world, int y_world) {
+    if (bomb_status != BombStatus::PLANTED && bomb_status != BombStatus::DEFUSED)
+        return;
+
+    // hacer textura de la bomba exactamente recortada
+    SDL2pp::Rect destino_mundo(x_world / GRAPHIC_SCALE, y_world / GRAPHIC_SCALE, BOMB_THICKNESS / 3,
+                               BOMB_THICKNESS / 3);
+
+    if (!camera.is_visible(destino_mundo))
+        return;
+
+    SDL2pp::Rect destino_camera = camera.rect_world_to_screen(destino_mundo);
+    std::cout << x_world << ", " << y_world << std::endl;
+    destino_camera = SDL2pp::Rect(destino_camera.GetX() - 11, destino_camera.GetY() - 19,
+                                  destino_camera.GetW(), destino_camera.GetH());
+    std::string path = texture_parser.get_gun_texture(BOMB_GAME);
+    SDL2pp::Texture& bomb_texture = texture_manager.get_texture(path);
+
+    renderer.Copy(bomb_texture, SDL2pp::NullOpt, destino_camera);
 }
 
 /* Renderiza un jugador */
@@ -136,10 +160,10 @@ void SDLManager::render_player(const std::string& username, const PlayerInfo& p,
     if (!camera.is_visible(destino_mundo))
         return;
 
-    GunVisualData gun_info = get_gun_visual_info(p.equipped, p.primary_gun);
+    GunVisualData gun_player_info = get_gun_visual_info(p.equipped, p.primary_gun);
     const BlockTextureInfo& sprite_info =
-            p.is_ct ? texture_parser.get_ct_texture(ct_skin, gun_info.carry_sprite) :
-                      texture_parser.get_tt_texture(tt_skin, gun_info.carry_sprite);
+            p.is_ct ? texture_parser.get_ct_texture(ct_skin, gun_player_info.carry_sprite) :
+                      texture_parser.get_tt_texture(tt_skin, gun_player_info.carry_sprite);
 
     SDL2pp::Rect rect_origen(sprite_info.x, sprite_info.y, sprite_info.width, sprite_info.height);
 
@@ -147,8 +171,8 @@ void SDLManager::render_player(const std::string& username, const PlayerInfo& p,
 
     if (p.shoot) {
         double rad = (angulo - 90) * M_PI / 180.0;
-        int recoil_x = static_cast<int>(std::cos(rad) * gun_info.recoil);
-        int recoil_y = static_cast<int>(std::sin(rad) * gun_info.recoil);
+        int recoil_x = static_cast<int>(std::cos(rad) * gun_player_info.recoil);
+        int recoil_y = static_cast<int>(std::sin(rad) * gun_player_info.recoil);
         destino_camera =
                 SDL2pp::Rect(destino_camera.GetX() - recoil_x, destino_camera.GetY() - recoil_y,
                              destino_camera.GetW(), destino_camera.GetH());
@@ -196,6 +220,8 @@ void SDLManager::render_player_weapon(const std::string& username, const PlayerI
 
         if (gun_info.weapon_sprite == KNIFE_GAME)
             angulo -= 110;
+        if (gun_info.weapon_sprite == BOMB_GAME)
+            angulo -= 90;
 
         SDL2pp::Point rotate(-gun_info.sprite_offset_x + size_player / 2,
                              -gun_info.sprite_offset_y + size_player / 2);
@@ -223,9 +249,9 @@ void SDLManager::render_player_weapon(const std::string& username, const PlayerI
         SDL2pp::Point end_world(p.impact_position_x / GRAPHIC_SCALE,
                                 p.impact_position_y / GRAPHIC_SCALE);
         if (p.equipped == SECONDARY) {
-            animation.render_shot(origin, end_world, p.secondary_gun);
+            animation.render_shot(origin, end_world, p.secondary_gun, angulo - 90);
         } else if (p.equipped != KNIFE && p.equipped != BOMB) {
-            animation.render_shot(origin, end_world, p.primary_gun);
+            animation.render_shot(origin, end_world, p.primary_gun, angulo - 90);
         }
         SDL2pp::Point centro(cx, cy);
         if (p.equipped == SECONDARY) {
@@ -652,8 +678,11 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
         }
     }
 
+    render_bomb(local_info.bomb_status, local_info.bomb_planted_x, local_info.bomb_planted_y);
+
     // render de mi player
     render_player(local_info.username, local_info.player, local_info.ct_skin, local_info.tt_skin);
+    std::cout << "estoy en: " << local_info.player.x << ", " << local_info.player.y << std::endl;
     for (auto& [username, p]: local_info.players) {
         render_player(username, p, local_info.ct_skin, local_info.tt_skin);
     }

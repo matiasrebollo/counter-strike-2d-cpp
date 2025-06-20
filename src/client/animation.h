@@ -23,7 +23,7 @@ public:
     Animation(SDL2pp::Renderer& renderer, Camera& camera, TextureManager& texture_manager,
               BlockTextureParser& texture_parser);
 
-    void render_shot(SDL2pp::Point origin_camera, SDL2pp::Point end_world, GunType gun);
+    void render_shot(SDL2pp::Point origin_camera, SDL2pp::Point end_world, GunType gun, int angle);
 };
 
 #endif
