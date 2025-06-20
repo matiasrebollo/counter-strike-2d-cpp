@@ -50,6 +50,7 @@ target_sources(taller_server
         awp.h
         m3.h
         ak47.cpp
+        item.h
         shot.h
         server.h
         server_monitor.h

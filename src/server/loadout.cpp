@@ -45,6 +45,12 @@ std::unique_ptr<Gun> Loadout::new_primary_gun(std::unique_ptr<Gun> gun) {
     return prev;
 }
 
+std::unique_ptr<Gun> Loadout::new_secondary_gun(std::unique_ptr<Gun> gun) {
+    std::unique_ptr<Gun> prev = std::move(this->secondary_gun);
+    this->secondary_gun = std::move(gun);
+    return prev;
+}
+
 void Loadout::add_ammo_to_primary(const int& ammo_count) { primary_gun->add_ammo(ammo_count); }
 void Loadout::add_ammo_to_secondary(const int& ammo_count) { secondary_gun->add_ammo(ammo_count); }
 

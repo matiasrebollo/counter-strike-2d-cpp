@@ -35,6 +35,7 @@ public:
     void leave_bomb();
     std::unique_ptr<Gun> new_primary_gun(
             std::unique_ptr<Gun> gun);  // devuelve el arma poseída anteriormente.
+    std::unique_ptr<Gun> new_secondary_gun(std::unique_ptr<Gun> gun);
     void add_ammo_to_primary(const int& ammo_count);
     void add_ammo_to_secondary(const int& ammo_count);
     void equip_primary();

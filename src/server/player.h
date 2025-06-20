@@ -8,6 +8,7 @@
 
 class GameWorld;  // forward declaration
 
+#include "common/game_snapshot.h"
 #include "common/player_dto.h"
 #include "common/settings.h"
 #include "server/collidable.h"
@@ -17,6 +18,7 @@ class GameWorld;  // forward declaration
 class Player: public Collidable {
 private:
     const std::string name;
+    Team team;
     bool moving_up;
     bool moving_down;
     bool moving_left;
@@ -38,12 +40,15 @@ public:
 
     std::string get_username() const;
     float get_orientation() const;
+    bool is_ct() const;
+    bool is_tt() const;
     bool is_alive() const;
     bool is_on_site() const;
     bool defusing_bomb() const;
     bool has_bomb() const;
     Loadout& get_loadout();
     WeaponType equipped() const;
+    void change_team(const Team& new_team);
     void update(GameWorld& game, const float& delta_t);
     void rotate(const double& new_orientation);
     void move_up();
@@ -70,7 +75,7 @@ public:
     void stop_defusing_bomb();
     void shoot(const Shot& a_shot);
     void receive_damage(const int& damage);
-    void count_kill(GameWorld& game, Player& victim, const int& money_bonification);
+    void count_kill(Player& victim, const int& money_bonification);
 
     const PlayerDTO get_dto() const;
 

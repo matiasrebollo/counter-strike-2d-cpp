@@ -1,6 +1,7 @@
 #ifndef GAME_WORLD_H
 #define GAME_WORLD_H
 
+#include <functional>
 #include <iostream>
 #include <list>
 #include <map>
@@ -14,16 +15,18 @@
 #include "common/settings.h"
 #include "server/collidable.h"
 #include "server/game_world_snapshot.h"
+#include "server/item.h"
 #include "server/player.h"
 #include "server/shop.h"
 #include "server/shot.h"
 
 class GameWorld {
 private:
-    std::map<std::string, std::shared_ptr<Player>> terrorists;
-    std::map<std::string, std::shared_ptr<Player>> counter_terrorists;
+    std::map<std::string, std::shared_ptr<Player>> players;
     std::list<std::shared_ptr<Collidable>> collidables;
     std::vector<Rect> sites;
+    std::vector<Item> items;
+    uint64_t next_drop_id;
     std::shared_ptr<Bomb> bomb;
     Shop shop;
     const GameMap game_map;
@@ -35,19 +38,15 @@ private:
     Vector2D<int> random_ct_spawn_position() const;
     Vector2D<int> random_tt_spawn_position() const;
 
-    bool team_is_dead(const std::map<std::string, std::shared_ptr<Player>>& team) const;
+    bool team_is_dead(std::function<bool(const Player&)> is_in_team) const;
 
     template <typename PlayerMethod>
     void with_player(const std::string& username, PlayerMethod action) {
-
-        auto ct_it = counter_terrorists.find(username);
-        auto tt_it = terrorists.find(username);
-        if (ct_it != counter_terrorists.end()) {
-            if (ct_it->second->is_alive())
-                action(*ct_it->second);
-        } else if (tt_it != terrorists.end()) {
-            if (tt_it->second->is_alive())
-                action(*tt_it->second);
+        auto it = players.find(username);
+        if (it != players.end()) {
+            if (it->second->is_alive()) {
+                action(*it->second);
+            }
         } else {
             throw std::invalid_argument("Username does not correspond to a player in this game.");
         }
@@ -81,7 +80,6 @@ public:
     bool bomb_exploded() const;
     bool bomb_defused() const;
     void make_bomb_explode();
-    bool are_teammates(const Player& player1, const Player& player2) const;
     bool tt_are_all_dead() const;
     bool ct_are_all_dead() const;
     void rotate_player(const std::string& username, const double& angle);

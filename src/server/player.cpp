@@ -8,6 +8,7 @@
 Player::Player(const std::string& name, Vector2D<int>& position):
         Collidable(position, PLAYER_THICKNESS, PLAYER_THICKNESS),
         name(name),
+        team(CT),
         moving_up(false),
         moving_down(false),
         moving_left(false),
@@ -26,12 +27,14 @@ Player::Player(const std::string& name, Vector2D<int>& position):
 
 std::string Player::get_username() const { return name; }
 float Player::get_orientation() const { return orientation; }
-
+bool Player::is_ct() const { return team == CT; }
+bool Player::is_tt() const { return team == TT; }
 bool Player::is_alive() const { return this->life > 0; }
 bool Player::has_bomb() const { return loadout.has_bomb(); }
 bool Player::is_on_site() const { return this->on_site; }
 bool Player::defusing_bomb() const { return is_defusing_bomb; }
 WeaponType Player::equipped() const { return loadout.get_equipped(); }
+void Player::change_team(const Team& new_team) { team = new_team; }
 
 void Player::update(GameWorld& game, const float& delta_t) {
     shot = std::nullopt;
@@ -136,8 +139,8 @@ void Player::receive_damage(const int& damage) {
     if (life == 0)
         deaths += 1;
 }
-void Player::count_kill(GameWorld& game, Player& victim, const int& money_bonification) {
-    if (game.are_teammates(*this, victim)) {
+void Player::count_kill(Player& victim, const int& money_bonification) {
+    if ((this->is_ct() && victim.is_ct()) || (this->is_tt() && victim.is_tt())) {
         bonifications -= TEAM_KILL_PENALTY;
         loadout.decrease_money_by(TEAM_KILL_PENALTY);
     } else {

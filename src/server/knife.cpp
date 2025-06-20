@@ -39,6 +39,6 @@ void Knife::stab(GameWorld& game, Player& shooter) {
     if (Player* hit_player = dynamic_cast<Player*>(shot.hit)) {
         execute_stab(hit_player, shot.impact_info->first);
         if (!hit_player->is_alive())
-            shooter.count_kill(game, *hit_player, kill_bonification);
+            shooter.count_kill(*hit_player, kill_bonification);
     }
 }

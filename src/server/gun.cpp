@@ -96,7 +96,7 @@ void Gun::shoot(GameWorld& game, Player& shooter) {
         execute_shot(hit_player, shot.impact_info->first);
         if (!hit_player->is_alive())
             // avisar al gameworld que murio para drop items.
-            shooter.count_kill(game, *hit_player, kill_bonification);
+            shooter.count_kill(*hit_player, kill_bonification);
     }
 }
 
