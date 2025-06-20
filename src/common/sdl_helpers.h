@@ -32,7 +32,8 @@ enum GunSprites {
     GLOCK_GAME,
     GLOCK_SHOP,
     KNIFE_GAME,
-    KNIFE_SHOP
+    KNIFE_SHOP,
+    BOMB_GAME
 };
 
 enum SoundEffect {
@@ -46,6 +47,7 @@ enum SoundEffect {
     GLOCK_SHOT,
     AWP_SHOT,
     KNIFE_HIT,
+    M3_SHOT,
     START_ROUND_TT,
     START_ROUND_CT,
     ROUND_ALMOST_FINISH,

@@ -47,7 +47,9 @@ void Bomb::update(const float& delta_t, Player& owner, GameWorld& game) {
     if (making_action && time_since_last_action >= PLANTATION_TIME) {
         just_been_planted = true;
         status = PLANTED;
-        plantation.emplace(owner.rect.position, BOMB_THICKNESS, BOMB_THICKNESS);
+        Vector2D<int> plantation_posicion(owner.rect.position.x + owner.rect.width / 2,
+                                          owner.rect.position.y + owner.rect.height / 2);
+        plantation.emplace(plantation_posicion, BOMB_THICKNESS, BOMB_THICKNESS);
         owner.leave_bomb();
         time_since_last_action = 0.0f;
         making_action = false;

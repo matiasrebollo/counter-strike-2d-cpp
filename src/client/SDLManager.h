@@ -50,9 +50,10 @@ private:
 
     void update_camera(int player_x, int player_y);
     GunVisualData get_gun_visual_info(WeaponType equipped, GunType gun_type);
-    void render_player(const PlayerInfo& p, const CounterTerroristSkin& ct_skin,
-                       const TerroristSkin& tt_skin);
-    void render_player_weapon(const PlayerInfo& p);
+    void render_bomb(BombStatus bomb_status, int x_world, int y_world);
+    void render_player(const std::string& username, const PlayerInfo& p,
+                       const CounterTerroristSkin& ct_skin, const TerroristSkin& tt_skin);
+    void render_player_weapon(const std::string& username, const PlayerInfo& p);
     void render_fov(float orientation_deg);
     void render_if_dead(const int& life);
     void render_hud_bomb_not_planted_time(int minutes, int seconds, Phase phase);
