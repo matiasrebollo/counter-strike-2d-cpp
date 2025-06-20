@@ -239,6 +239,7 @@ void GameUI::handle_buy_events() {
     this->keep_running =
             input_handler.handle_buy_events(local_info.player.money, local_info.player.primary_gun);
 }
+
 bool GameUI::update_buy() {
     GameDTO game_dto;
     bool pop = true;
@@ -370,6 +371,10 @@ snapshots GameDTO game_dto; bool pop = true; while (pop) { if
 }*/
 
 void GameUI::handle_game_ended() {
+    if (!local_info.server_has_been_closed && local_info.current_round < local_info.total_rounds &&
+        local_info.time_left > 0) {
+        return;
+    }
     Clock clock;
     size_t last_it = 0;
     size_t it = 0;
