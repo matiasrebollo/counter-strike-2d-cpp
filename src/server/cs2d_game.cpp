@@ -102,9 +102,11 @@ void CS2DGame::decide_winner() {
         game_world.bomb_defused() or !current_round_has_a_winner()) {
         this->current_round_winner = CT;
         this->ct_wins++;
+        game_world.apply_won_round_bonus(CT);
     } else if (game_world.ct_are_all_dead() or game_world.bomb_exploded()) {
         this->current_round_winner = TT;
         this->tt_wins++;
+        game_world.apply_won_round_bonus(TT);
     }
 }
 

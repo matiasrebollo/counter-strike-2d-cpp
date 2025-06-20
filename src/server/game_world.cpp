@@ -431,6 +431,28 @@ bool GameWorld::tt_are_all_dead() const { return team_is_dead(terrorists); }
 
 bool GameWorld::ct_are_all_dead() const { return team_is_dead(counter_terrorists); }
 
+void GameWorld::apply_won_round_bonus(Team team) {
+    if (team == CT) {
+        for (auto& [_, player]: counter_terrorists) {
+            Loadout& loadout = player->get_loadout();
+            loadout.add_money(WON_ROUND_BONUS);
+        }
+        for (auto& [_, player]: terrorists) {
+            Loadout& loadout = player->get_loadout();
+            loadout.add_money(LOST_ROUND_BONUS);
+        }
+    } else {
+        for (auto& [_, player]: counter_terrorists) {
+            Loadout& loadout = player->get_loadout();
+            loadout.add_money(LOST_ROUND_BONUS);
+        }
+        for (auto& [_, player]: terrorists) {
+            Loadout& loadout = player->get_loadout();
+            loadout.add_money(WON_ROUND_BONUS);
+        }
+    }
+}
+
 GameWorld::~GameWorld() {}
 
 std::optional<std::pair<double, Vector2D<float>>> GameWorld::impacts(
