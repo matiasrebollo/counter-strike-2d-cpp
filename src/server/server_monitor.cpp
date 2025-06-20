@@ -56,9 +56,10 @@ void ServerMonitor::reap_games() {
     for (auto it = games.begin(); it != games.end();) {
         std::shared_ptr<CS2DGame> game = it->second;
         if (!game->is_alive()) {
+            std::string deleted_game = game->id;
             game->join();
             it = games.erase(it);
-            std::cout << MSG_GAME_JOINED(game->id) << std::endl;
+            std::cout << MSG_GAME_JOINED(deleted_game) << std::endl;
         } else {
             ++it;
         }
