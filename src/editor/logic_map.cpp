@@ -61,49 +61,6 @@ void LogicMap::loadMap(const GameMap& map) {
     }
 }
 
-Background LogicMap::getBackground() { return this->selected_background; }
-
-void LogicMap::selectBackground(const Background& background) {
-    this->selected_background = background;
-}
-
-int LogicMap::getWidth() { return static_cast<int>(this->grid[0].size()); }
-
-int LogicMap::getHeight() { return static_cast<int>(this->grid.size()); }
-
-void LogicMap::clearMap() {
-    this->clearGrid();
-    this->tt_spawns.clear();
-    this->ct_spawns.clear();
-    this->bomb_sites.clear();
-    this->selected_background = AZTEC_BACKGROUND;
-}
-
-void LogicMap::clearGrid() {
-    this->grid = {};
-    for (int i = 0; i < DEFAULT_ROWS; i++) {
-        this->grid.push_back({});
-        for (int j = 0; j < DEFAULT_COLUMNS; j++) {
-            this->grid[i].push_back(NONE_BLOCK);
-        }
-    }
-}
-
-const CellInfo LogicMap::getCellInfo(const int& row, const int& column) {
-    GunType gun = NONE;
-    if (this->guns.find({column, row}) != guns.end()) {
-        gun = guns[{column, row}];
-    }
-
-    return {this->grid[row][column], this->tt_spawns.find({column, row}) != tt_spawns.end(),
-            this->ct_spawns.find({column, row}) != ct_spawns.end(),
-            this->bomb_sites.find({column, row}) != bomb_sites.end(), gun};
-}
-
-void LogicMap::selectBlock(const int& block) { this->selected_block = block; }
-
-void LogicMap::selectGun(const GunType& gun) { this->selected_gun = gun; }
-
 const GameMap LogicMap::createMap() {
     int height = static_cast<int>(grid.size());
     int width = static_cast<int>(grid[0].size());
@@ -159,48 +116,50 @@ const GameMap LogicMap::createMap() {
             guns_map};
 }
 
-std::vector<Vector2D<int>> LogicMap::set_to_vector(const std::set<std::pair<int, int>>& set_pos,
-                                                   const int& offset_x, const int& offset_y) {
-    std::vector<Vector2D<int>> vec;
-    vec.reserve(set_pos.size());
+Background LogicMap::getBackground() { return this->selected_background; }
 
-    std::transform(set_pos.begin(), set_pos.end(), std::back_inserter(vec),
-                   [offset_x, offset_y](const auto& pair) {
-                       return Vector2D<int>(pair.first - offset_x, pair.second - offset_y);
-                   });
-    return vec;
-}
+int LogicMap::getWidth() { return static_cast<int>(this->grid[0].size()); }
 
-std::map<GunType, std::vector<Vector2D<int>>> LogicMap::save_guns(const int& offset_x,
-                                                                  const int& offset_y) {
-    std::map<GunType, std::vector<Vector2D<int>>> positions_guns;
-    for (const auto& gun: this->guns) {
-        auto pos = gun.first;
-        GunType type = gun.second;
-        positions_guns[type].push_back(Vector2D<int>(pos.first - offset_x, pos.second - offset_y));
+int LogicMap::getHeight() { return static_cast<int>(this->grid.size()); }
+
+const CellInfo LogicMap::getCellInfo(const int& row, const int& column) {
+    GunType gun = NONE;
+    if (this->guns.find({column, row}) != guns.end()) {
+        gun = guns[{column, row}];
     }
-    return positions_guns;
+
+    return {this->grid[row][column], this->tt_spawns.find({column, row}) != tt_spawns.end(),
+            this->ct_spawns.find({column, row}) != ct_spawns.end(),
+            this->bomb_sites.find({column, row}) != bomb_sites.end(), gun};
 }
 
-std::vector<MapObject> LogicMap::load_blocks(const int& offset_x, const int& offset_y) {
-    std::map<int, std::vector<Vector2D<int>>> positions_map;
-    int height = static_cast<int>(grid.size());
-    int width = static_cast<int>(grid[0].size());
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
-            int block = grid[i][j];
-            positions_map[block].push_back(Vector2D<int>(j - offset_x, i - offset_y));
+void LogicMap::clearMap() {
+    this->clearGrid();
+    this->tt_spawns.clear();
+    this->ct_spawns.clear();
+    this->bomb_sites.clear();
+    this->selected_background = AZTEC_BACKGROUND;
+}
+
+void LogicMap::clearGrid() {
+    this->grid = {};
+    for (int i = 0; i < DEFAULT_ROWS; i++) {
+        this->grid.push_back({});
+        for (int j = 0; j < DEFAULT_COLUMNS; j++) {
+            this->grid[i].push_back(NONE_BLOCK);
         }
     }
+}
 
-    std::vector<MapObject> blocks;
+void LogicMap::addColumns() {
+    for (int i = 0; i < this->getHeight(); i++) {
+        this->grid[i].resize(this->getWidth() + COLUMNS_TO_ADD, NONE_BLOCK);
+    }
+}
 
-    std::transform(positions_map.begin(), positions_map.end(), std::back_inserter(blocks),
-                   [this](const auto& pair) {
-                       return MapObject{pair.second, pair.first,
-                                        texture_parser.get_texture_info(pair.first).collidable};
-                   });
-    return blocks;
+void LogicMap::addRows() {
+    this->grid.resize(this->getHeight() + ROWS_TO_ADD,
+                      std::vector<int>(this->getWidth(), NONE_BLOCK));
 }
 
 void LogicMap::setBlock(const int& row, const int& column, const bool& to_delete) {
@@ -258,13 +217,54 @@ void LogicMap::setGun(const int& row, const int& column, const bool& to_delete) 
     }
 }
 
-void LogicMap::addColumns() {
-    for (int i = 0; i < this->getHeight(); i++) {
-        this->grid[i].resize(this->getWidth() + COLUMNS_TO_ADD, NONE_BLOCK);
-    }
+void LogicMap::selectBackground(const Background& background) {
+    this->selected_background = background;
 }
 
-void LogicMap::addRows() {
-    this->grid.resize(this->getHeight() + ROWS_TO_ADD,
-                      std::vector<int>(this->getWidth(), NONE_BLOCK));
+void LogicMap::selectBlock(const int& block) { this->selected_block = block; }
+
+void LogicMap::selectGun(const GunType& gun) { this->selected_gun = gun; }
+
+std::vector<Vector2D<int>> LogicMap::set_to_vector(const std::set<std::pair<int, int>>& set_pos,
+                                                   const int& offset_x, const int& offset_y) {
+    std::vector<Vector2D<int>> vec;
+    vec.reserve(set_pos.size());
+
+    std::transform(set_pos.begin(), set_pos.end(), std::back_inserter(vec),
+                   [offset_x, offset_y](const auto& pair) {
+                       return Vector2D<int>(pair.first - offset_x, pair.second - offset_y);
+                   });
+    return vec;
+}
+
+std::map<GunType, std::vector<Vector2D<int>>> LogicMap::save_guns(const int& offset_x,
+                                                                  const int& offset_y) {
+    std::map<GunType, std::vector<Vector2D<int>>> positions_guns;
+    for (const auto& gun: this->guns) {
+        auto pos = gun.first;
+        GunType type = gun.second;
+        positions_guns[type].push_back(Vector2D<int>(pos.first - offset_x, pos.second - offset_y));
+    }
+    return positions_guns;
+}
+
+std::vector<MapObject> LogicMap::load_blocks(const int& offset_x, const int& offset_y) {
+    std::map<int, std::vector<Vector2D<int>>> positions_map;
+    int height = static_cast<int>(grid.size());
+    int width = static_cast<int>(grid[0].size());
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            int block = grid[i][j];
+            positions_map[block].push_back(Vector2D<int>(j - offset_x, i - offset_y));
+        }
+    }
+
+    std::vector<MapObject> blocks;
+
+    std::transform(positions_map.begin(), positions_map.end(), std::back_inserter(blocks),
+                   [this](const auto& pair) {
+                       return MapObject{pair.second, pair.first,
+                                        texture_parser.get_texture_info(pair.first).collidable};
+                   });
+    return blocks;
 }

@@ -39,7 +39,7 @@ class Game_editor: public QMainWindow {
 public:
     explicit Game_editor(QWidget* parent = nullptr);
     ~Game_editor();
-    void setupToolbar();
+
     void setBlock(const int& row, const int& column, const bool& to_delete);
     void setCtSpawn(const int& row, const int& column, const bool& to_delete);
     void setTTSpawn(const int& row, const int& column, const bool& to_delete);
@@ -58,15 +58,19 @@ private slots:
 
 private:
     Ui::Game_editor* ui;
+
     void setupEditorUi();
+    void setupToolbar();
     void setupBlockList();
     void setupBackgroundList();
     void setupGridMap();
     void setupGunBar();
+
     void addGridMapCell(const int& i, const int& j);
     void clearGridMap();
+
     void loadMapFromFile(const std::string& map_name);
-    void clearGrid();
+
     void onBackgroundLabelClicked(const Background& background, const std::string& background_path);
     void renderBlockInfo(const int& row, const int& column);
     void renderBlock(ClickableLabel* cell, const int& block);
@@ -75,7 +79,9 @@ private:
     void markAsTTSpawn(ClickableLabel* label);
     void markAsBombSite(ClickableLabel* label);
     void markWithGun(ClickableLabel* label, const GunType& gun);
+
     void format_string(std::string& s);
+
     BlockTextureParser texture_parser;
     PixmapManager pixmap_manager;
     LogicMap logic_map;

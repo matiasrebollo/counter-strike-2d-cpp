@@ -26,11 +26,12 @@ public:
     const GameMap createMap();
 
     Background getBackground();
-    void clearMap();
-    void clearGrid();
     int getWidth();
     int getHeight();
     const CellInfo getCellInfo(const int& row, const int& column);
+
+    void clearMap();
+    void clearGrid();
 
     void addColumns();
     void addRows();
@@ -40,6 +41,7 @@ public:
     void setTTSpawn(const int& row, const int& column, const bool& to_delete);
     void setBombSite(const int& row, const int& column, const bool& to_delete);
     void setGun(const int& row, const int& column, const bool& to_delete);
+
     void selectBackground(const Background& background);
     void selectBlock(const int& block);
     void selectGun(const GunType& gun);
