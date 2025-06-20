@@ -59,7 +59,6 @@ public:
     void receive_bomb(std::shared_ptr<Bomb> bomb);
     void leave_bomb();
     void restart();
-    void reset_loadout();
     void stop_moving_up();
     void stop_moving_down();
     void stop_moving_left();

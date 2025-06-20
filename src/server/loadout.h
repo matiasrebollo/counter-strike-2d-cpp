@@ -43,7 +43,7 @@ public:
     void equip_secondary();
     void equip_knife();
     void equip_bomb();
-    void reset();
+    void reset(const bool& on_death);
 
     Weapon* equipped_weapon();
     const LoadoutDTO get_dto() const;

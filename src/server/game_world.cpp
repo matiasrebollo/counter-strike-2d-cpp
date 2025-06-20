@@ -130,7 +130,8 @@ void GameWorld::swap_teams() {
         } else if (player->is_tt()) {
             player->change_team(CT);
         }
-        player->reset_loadout();
+        Loadout& loadout = player->get_loadout();
+        loadout.reset(false);
     }
 }
 
@@ -365,7 +366,7 @@ void GameWorld::drop_weapons(Player& player) {
         items.push_back(std::make_unique<DroppedBomb>(rect, next_drop_id++));
     }
 
-    loadout.reset();
+    loadout.reset(true);
 }
 
 void GameWorld::buy_gun_for(const std::string& username, const GunType& gun) {
