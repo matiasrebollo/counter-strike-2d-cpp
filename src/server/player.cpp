@@ -14,7 +14,7 @@ Player::Player(const std::string& name, Vector2D<int>& position):
         moving_right(false),
         making_action(false),
         orientation(0.0),
-        life(PLAYER_INITIAL_LIFE),
+        life(Settings::getInstance().get_player_initial_life()),
         shot(std::nullopt),
         is_planting_bomb(false),
         is_defusing_bomb(false),
@@ -22,7 +22,10 @@ Player::Player(const std::string& name, Vector2D<int>& position):
         bonifications(0),
         kills(0),
         deaths(0),
-        loadout() {}
+        loadout(),
+        FPS_SERVER(Settings::getInstance().get_fps_server()),
+        PLAYER_INITIAL_LIFE(Settings::getInstance().get_player_initial_life()),
+        PLAYER_SPEED(Settings::getInstance().get_player_speed()) {}
 
 std::string Player::get_username() const { return name; }
 float Player::get_orientation() const { return orientation; }

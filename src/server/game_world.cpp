@@ -45,7 +45,9 @@ void GameWorld::set_sites() {
 GameWorld::GameWorld(const std::string& map_filename):
         bomb(std::make_shared<Bomb>()),
         shop(),
-        game_map(YamlParser().yaml_to_game_map(PATH_FOLDER_MAPS + map_filename + ".yaml")) {
+        game_map(YamlParser().yaml_to_game_map(PATH_FOLDER_MAPS + map_filename + ".yaml")),
+        COUNTER_TERRORISTS(Settings::getInstance().get_counter_terrorists_number()),
+        TERRORISTS(Settings::getInstance().get_terrorists_number()) {
     add_collidables();
     set_sites();
 }

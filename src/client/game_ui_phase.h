@@ -1,11 +1,14 @@
 #ifndef GAME_UI_PHASE_H
 #define GAME_UI_PHASE_H
 
+#include "../common/settings.h"
+
 class GameUI;  // Forward declaration
 
 class GameUIPhase {
 protected:
     GameUI& game_ui;
+    const int FPS_CLIENT;
 
 public:
     explicit GameUIPhase(GameUI& game_ui);

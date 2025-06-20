@@ -6,7 +6,8 @@
 #include "common/clock.h"
 #include "server/cs2d_game.h"
 
-GamePhase::GamePhase(CS2DGame& game, const size_t& duration): game(game), duration(duration) {}
+GamePhase::GamePhase(CS2DGame& game, const size_t& duration):
+        game(game), duration(duration), FPS_SERVER(Settings::getInstance().get_fps_server()) {}
 
 void GamePhase::run() {
     Clock clock;
@@ -45,7 +46,7 @@ void GamePhase::run() {
 }
 
 WaitingPlayersPhase::WaitingPlayersPhase(CS2DGame& game):
-        GamePhase(game, WAITING_PLAYERS_PHASE_DURATION) {}
+        GamePhase(game, Settings::getInstance().get_waiting_phase_duration()) {}
 Phase WaitingPlayersPhase::type() { return WAITING_PLAYERS; }
 bool WaitingPlayersPhase::should_continue() {
     return !game.should_start() && game.should_keep_running();
@@ -59,13 +60,15 @@ void WaitingPlayersPhase::end() {
 }
 
 
-BuyPhase::BuyPhase(CS2DGame& game): GamePhase(game, BUY_PHASE_DURATION) {}
+BuyPhase::BuyPhase(CS2DGame& game):
+        GamePhase(game, Settings::getInstance().get_buy_phase_duration()) {}
 Phase BuyPhase::type() { return BUY; }
 bool BuyPhase::should_continue() { return game.should_keep_running(); }
 void BuyPhase::execute(std::unique_ptr<Command> cmd) { game.execute_in_buy_phase(std::move(cmd)); }
 void BuyPhase::end() { game.change_phase(std::make_unique<AttackPhase>(game)); }
 
-AttackPhase::AttackPhase(CS2DGame& game): GamePhase(game, ATTACK_PHASE_DURATION) {}
+AttackPhase::AttackPhase(CS2DGame& game):
+        GamePhase(game, Settings::getInstance().get_attack_phase_duration()) {}
 Phase AttackPhase::type() { return ATTACK; }
 bool AttackPhase::should_continue() {
     return !game.current_round_has_a_winner() && game.should_keep_running();
@@ -79,8 +82,9 @@ void AttackPhase::end() {
 }
 
 BetweenRoundsPhase::BetweenRoundsPhase(CS2DGame& game):
-        GamePhase(game, BETWEEN_ROUNDS_PHASE_DURATION) {}
+        GamePhase(game, Settings::getInstance().get_between_rounds_phase_duration()) {}
 Phase BetweenRoundsPhase::type() { return ROUND_ENDED; }
+
 bool BetweenRoundsPhase::should_continue() { return game.should_keep_running(); }
 void BetweenRoundsPhase::execute(std::unique_ptr<Command> cmd) {
     game.execute_in_attack_phase(std::move(cmd));

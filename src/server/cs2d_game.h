@@ -25,6 +25,9 @@ private:
     std::optional<Team> current_round_winner;
     size_t ct_wins;
     size_t tt_wins;
+    const size_t ROUNDS;
+    const size_t TERRORISTS;
+    const size_t COUNTER_TERRORISTS;
 
     friend class GamePhase;
     friend class WaitingPlayersPhase;

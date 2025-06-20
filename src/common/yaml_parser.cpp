@@ -89,6 +89,59 @@ GameMap YamlParser::yaml_to_game_map(const std::string& path) {
     return map;
 }
 
+ServerSettings YamlParser::load_server_settings(const std::string& path) {
+    YAML::Node file = YAML::LoadFile(path);
+    ServerSettings settings = {file["server_fps"].as<int>(),
+                               file["rounds"].as<size_t>(),
+                               file["buy_phase_duration"].as<int>(),
+                               file["attack_phase_duration"].as<int>(),
+                               file["waiting_players_phase_duration"].as<int>(),
+                               file["between_rounds_phase_duration"].as<int>(),
+                               file["player_speed"].as<int>(),
+                               file["terrorists"].as<size_t>(),
+                               file["counter_terrorists"].as<size_t>(),
+                               file["player_initial_life"].as<int>(),
+                               file["initial_money"].as<int>(),
+                               file["clip_price"].as<int>(),
+                               file["damage_variation_factor"].as<float>(),
+                               load_guns_settings(file["guns_settings"]),
+                               load_knife_settings(file["knife_settings"])};
+    return settings;
+}
+
+ClientSettings YamlParser::load_client_settings(const std::string& path) {
+    YAML::Node file = YAML::LoadFile(path);
+    ClientSettings settings = {file["client_fps"].as<int>(), file["window_initial_width"].as<int>(),
+                               file["window_initial_height"].as<int>(),
+                               file["fullscreen"].as<bool>()};
+    return settings;
+}
+
+std::unordered_map<GunType, GunSettings> YamlParser::load_guns_settings(const YAML::Node& node) {
+    std::unordered_map<std::string, GunType> str_to_gun = {
+            {"glock", GLOCK}, {"awp", AWP}, {"ak-47", AK47}, {"m3", M3}};
+
+    std::unordered_map<GunType, GunSettings> guns;
+    for (YAML::const_iterator it = node.begin(); it != node.end(); ++it) {
+        std::string name = it->first.as<std::string>();
+        guns[str_to_gun[name]] = load_gun_sett(it->second);
+    }
+    return guns;
+}
+
+GunSettings YamlParser::load_gun_sett(const YAML::Node& node) {
+    GunSettings gun{node["initial_ammo"].as<int>(), node["precision"].as<float>(),
+                    node["falloff"].as<int>(),      node["damage"].as<int>(),
+                    node["rate_of_fire"].as<int>(), node["price"].as<int>(),
+                    node["clip_size"].as<int>(),    node["kill_bonus"].as<int>()};
+    return gun;
+}
+
+KnifeSettings YamlParser::load_knife_settings(const YAML::Node& node) {
+    return {node["knife_distance"].as<int>(), node["knife_damage"].as<int>(),
+            node["knife_ar"].as<int>(), node["knife_kill_bonus"].as<int>()};
+}
+
 YAML::Node YamlParser::map_object_to_yaml(const MapObject& map_obj) {
     YAML::Node obj;
     obj["block_id"] = int(map_obj.type);

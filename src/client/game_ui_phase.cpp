@@ -4,7 +4,8 @@
 
 #include "client/game_ui.h"
 
-GameUIPhase::GameUIPhase(GameUI& game_ui): game_ui(game_ui) {}
+GameUIPhase::GameUIPhase(GameUI& game_ui):
+        game_ui(game_ui), FPS_CLIENT(Settings::getInstance().get_fps_client()) {}
 
 void GameUIPhase::run() {
     int it = 0;

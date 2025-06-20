@@ -7,7 +7,7 @@
 #include <utility>
 
 Loadout::Loadout():
-        money(INITIAL_MONEY),
+        money(Settings::getInstance().get_initial_money()),
         knife(),
         primary_gun(nullptr),
         secondary_gun(Gun::new_gun(GLOCK)),

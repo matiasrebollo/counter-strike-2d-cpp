@@ -27,6 +27,8 @@ private:
     std::shared_ptr<Bomb> bomb;
     Shop shop;
     const GameMap game_map;
+    const size_t COUNTER_TERRORISTS;
+    const size_t TERRORISTS;
 
     void add_collidables();
     void set_sites();

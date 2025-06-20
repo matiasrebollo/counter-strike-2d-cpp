@@ -21,6 +21,9 @@ CS2DGame::CS2DGame(const std::string& id, const std::string& map_filename):
         current_round_winner(std::nullopt),
         ct_wins(0),
         tt_wins(0),
+        ROUNDS(Settings::getInstance().get_rounds_server()),
+        TERRORISTS(Settings::getInstance().get_terrorists_number()),
+        COUNTER_TERRORISTS(Settings::getInstance().get_counter_terrorists_number()),
         id(id) {
     phase = std::make_unique<WaitingPlayersPhase>(*this);
 }
@@ -63,7 +66,7 @@ void CS2DGame::broadcast_game_initial_info() {
 
 void CS2DGame::broadcast_snapshot(const int time_left) {
     const GameWorldSnapshot game_world_snapshot = game_world.get_snapshot();
-    const Snapshot snapshot{COUNTER_TERRORISTS + TERRORISTS,
+    const Snapshot snapshot{ int(COUNTER_TERRORISTS + TERRORISTS),
                             this->phase->type(),
                             this->current_round,
                             ROUNDS,
