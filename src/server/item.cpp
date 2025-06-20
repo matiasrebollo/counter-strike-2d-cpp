@@ -14,8 +14,12 @@ GunType DroppedGun::get_gun_type() const { return gun->get_type(); }
 void DroppedGun::try_pick_up(GameWorld& game, Player& player) {
     game.pick_up_gun_for(player, *this);
 }
+ItemDTO DroppedGun::get_dto() const {
+    return DroppedGunDTO(rect.position, gun->get_type(), gun->get_ammo());
+}
 
 DroppedBomb::DroppedBomb(const Rect& rect, uint64_t drop_id): Item(rect, drop_id) {}
 void DroppedBomb::try_pick_up(GameWorld& game, Player& player) {
     game.try_pick_up_bomb_for(player, *this);
 }
+ItemDTO DroppedBomb::get_dto() const { return DroppedBombDTO(rect.position); }

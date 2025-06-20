@@ -198,7 +198,13 @@ const GameWorldSnapshot GameWorld::get_snapshot() const {
         }
     }
 
-    return GameWorldSnapshot{bomb->get_status(), bomb->get_plantation_position(), ct, tt};
+    std::vector<ItemDTO> item_dtos;
+    for (const auto& item: items) {
+        item_dtos.push_back(item->get_dto());
+    }
+
+    return GameWorldSnapshot{bomb->get_status(), bomb->get_plantation_position(), ct, tt,
+                             item_dtos};
 }
 
 void GameWorld::rotate_player(const std::string& username, const double& angle) {

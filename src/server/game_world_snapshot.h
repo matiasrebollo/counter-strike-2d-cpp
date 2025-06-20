@@ -1,8 +1,11 @@
 #ifndef GAME_WORLD_SNAPSHOT_H
 #define GAME_WORLD_SNAPSHOT_H
 
+#include <optional>
 #include <vector>
 
+#include "common/bomb_status.h"
+#include "common/item_dto.h"
 #include "common/player_dto.h"
 
 struct GameWorldSnapshot {
@@ -10,8 +13,7 @@ struct GameWorldSnapshot {
     std::optional<Vector2D<int>> bomb_position;
     const std::vector<PlayerDTO> ct;
     const std::vector<PlayerDTO> tt;
-    // std::vector<itemDTO> items;
+    std::vector<ItemDTO> items;
 };
-
 
 #endif
