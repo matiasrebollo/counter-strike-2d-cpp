@@ -70,6 +70,8 @@ void CS2DGame::broadcast_snapshot(const int time_left) {
                             this->phase->type(),
                             this->current_round,
                             ROUNDS,
+                            ct_wins,
+                            tt_wins,
                             time_left,
                             game_world_snapshot.bomb_status,
                             game_world_snapshot.bomb_position,

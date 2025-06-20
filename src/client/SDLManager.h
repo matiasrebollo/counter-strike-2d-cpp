@@ -55,16 +55,25 @@ private:
                        const CounterTerroristSkin& ct_skin, const TerroristSkin& tt_skin);
     void render_player_weapon(const std::string& username, const PlayerInfo& p);
     void render_fov(float orientation_deg);
-    void render_if_dead(const int& life);
+    void render_if_dead(const LocalInfo& local_info);
     void render_hud_bomb_not_planted_time(int minutes, int seconds, Phase phase);
     void render_hud_bomb_explotion_time(int minutes, int seconds);
     void render_hud_time(int time_left, BombStatus bomb_status, Phase phase);
-    void render_hud_round(size_t current_round_number, size_t total_rounds);
+    void render_hud_rounds(size_t ct_wins, size_t tt_wins);
     void render_current_round_winner(const std::optional<Team>& winner, const Phase& phase);
     void render_hud_bomb(const bool& has_bomb, const bool& in_site, const int& seconds);
     void render_hud_life(int life);
     void render_hud_ammo(int ammo);
     void render_hud_money(int money);
+    std::pair<std::vector<std::pair<std::string, PlayerInfo>>,
+              std::vector<std::pair<std::string, PlayerInfo>>>
+            get_teams(const LocalInfo& local_info);
+    void draw_line(const std::string& line, int y, SDL_Color color, const int& size_box);
+    void stats_team(int& line_y, const bool& are_ct,
+                    const std::vector<std::pair<std::string, PlayerInfo>>& team,
+                    const int& size_box);
+    void render_stats(const LocalInfo& local_info);
+    bool game_ended(const LocalInfo& local_info);
     Crosshairs get_crosshair_color(int mouse_x, int mouse_y, const LocalInfo& local_info);
 
 public:
@@ -82,7 +91,8 @@ public:
 
     /* Renderiza la fase de waiting */
     void render_waiting_screen(int players_connected, int players_required,
-                               const std::string& gamename, int iteration, int FPS);
+                               const std::string& gamename, int iteration, int FPS,
+                               bool have_ended);
 
     /* Devuelve las coords logicas del renderizador */
     SDL_Point get_logical_size() const;

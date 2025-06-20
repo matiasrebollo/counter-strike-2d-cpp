@@ -43,7 +43,8 @@ void SDLManager::set_sound_info(const std::vector<std::string>& usernames) {
 }
 
 void SDLManager::render_waiting_screen(int players_connected, int players_required,
-                                       const std::string& gamename, int iteration, int FPS) {
+                                       const std::string& gamename, int iteration, int FPS,
+                                       bool have_ended) {
 
     int large_font_size = 53;
     int small_font_size = 27;
@@ -79,6 +80,17 @@ void SDLManager::render_waiting_screen(int players_connected, int players_requir
     int playersH = playersTexture.GetHeight();
     SDL2pp::Rect playersRect((CAMERA_WIDTH / 2) - playersW / 2, waitingRect.y + mainH + 10,
                              playersW, playersH);
+
+    if (have_ended) {
+        std::string ended = "Server has been closed!";
+        SDL2pp::Texture& have_ended_texture = texture_manager.get_text_texture(
+                ended, font_path, small_font_size, SDL2pp::Color(255, 255, 255));
+        int ended_width = have_ended_texture.GetWidth();
+        int ended_height = have_ended_texture.GetHeight();
+        SDL2pp::Rect ended_rect((CAMERA_WIDTH / 2) - ended_width / 2, playersRect.y + mainH + 50,
+                                ended_width, ended_height);
+        renderer.Copy(have_ended_texture, SDL2pp::NullOpt, ended_rect);
+    }
 
     // Texto gamename
     std::string gamename_text = "gamename: " + gamename;
@@ -281,8 +293,8 @@ void SDLManager::render_fov(float orientation) {
                   orientation - PLAYER_SPRITE_GAP);  // PLAYER_SPRITE_GAP desfasaje textura cono
 }
 
-void SDLManager::render_if_dead(const int& life) {
-    if (life > 0) {
+void SDLManager::render_if_dead(const LocalInfo& local_info) {
+    if (local_info.player.life > 0 || game_ended(local_info)) {
         return;
     }
     renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
@@ -385,30 +397,26 @@ void SDLManager::render_hud_bomb_explotion_time(int minutes, int seconds) {
                                          return sum + (c == ':' ? dp_width : char_width) + spacing;
                                      }) -
                      spacing;
-    int total_width = bomb_width + spacing + text_width;
 
-    int start_x = (CAMERA_WIDTH - total_width) / 2;
+    int text_x = (CAMERA_WIDTH - text_width) / 2;
+    int bomb_x = text_x - bomb_width - spacing;
     int y = CAMERA_HEIGHT - char_height;
 
     const BlockTextureInfo& bomb_info = texture_parser.get_symbol_texture(BOMB_ACTIVE);
     SDL2pp::Texture& bomb_texture = texture_manager.get_texture(bomb_info.tileset_path);
-    int r, g, b;
-    if (seconds % 2 == 0) {
-        r = 255;
-        g = 0;
-        b = 0;
-    } else {
-        r = 255;
-        g = 255;
-        b = 0;
-    }
+
+    int r = 255;
+    int g = (seconds % 2 == 0) ? 0 : 255;
+    int b = 0;
+
     bomb_texture.SetColorMod(r, g, b);
     bomb_texture.SetAlphaMod(190);
+
     SDL2pp::Rect clock_src(bomb_info.x, bomb_info.y, bomb_info.width, bomb_info.height);
-    SDL2pp::Rect clock_dst(start_x, y, bomb_width, bomb_height);
+    SDL2pp::Rect clock_dst(bomb_x, y, bomb_width, bomb_height);
     renderer.Copy(bomb_texture, clock_src, clock_dst);
 
-    int x = start_x + bomb_width + spacing;
+    int x = text_x;
     for (char c: time_str) {
         HudNumbers num_enum = (c == ':') ? DP : static_cast<HudNumbers>(c - '0');
         const BlockTextureInfo& sprite_info = texture_parser.get_number_texture(num_enum);
@@ -416,14 +424,10 @@ void SDLManager::render_hud_bomb_explotion_time(int minutes, int seconds) {
         texture.SetColorMod(r, g, b);
         texture.SetAlphaMod(190);
 
-        int width = char_width;
-        if (c == ':') {
-            width = dp_width;
-        }
+        int width = (c == ':') ? dp_width : char_width;
 
         SDL2pp::Rect src(sprite_info.x, sprite_info.y, sprite_info.width, sprite_info.height);
         SDL2pp::Rect dst(x, y, width, char_height);
-
         renderer.Copy(texture, src, dst);
 
         x += width + spacing;
@@ -432,6 +436,9 @@ void SDLManager::render_hud_bomb_explotion_time(int minutes, int seconds) {
 
 /* Renderiza el tiempo restante de la ronda del HUD */
 void SDLManager::render_hud_time(int time_left, BombStatus bomb_status, Phase phase) {
+    if (phase == ROUND_ENDED) {
+        return;
+    }
     int minutes = time_left / 60;
     int seconds = time_left % 60;
 
@@ -565,22 +572,33 @@ void SDLManager::render_hud_money(int money) {
 }
 
 /* Renderiza la ronda actual */
-void SDLManager::render_hud_round(size_t current_round_number, size_t total_rounds) {
+void SDLManager::render_hud_rounds(size_t ct_wins, size_t tt_wins) {
     int font_size = 15;
     const std::string& font_path = texture_parser.get_fw_texture(FONT_WAITING);
 
-    std::string round_text =
-            "Round " + std::to_string(current_round_number) + "/" + std::to_string(total_rounds);
+    std::string ct_text = std::to_string(ct_wins);
+    std::string vs_text = " vs ";
+    std::string tt_text = std::to_string(tt_wins);
 
-    SDL2pp::Texture& round_texture = texture_manager.get_text_texture(
-            round_text, font_path, font_size, SDL2pp::Color(255, 255, 0));
-    round_texture.SetAlphaMod(190);
+    SDL2pp::Texture& ct_texture = texture_manager.get_text_texture(ct_text, font_path, font_size,
+                                                                   SDL2pp::Color(33, 97, 140));
+    SDL2pp::Texture& vs_texture = texture_manager.get_text_texture(vs_text, font_path, font_size,
+                                                                   SDL2pp::Color(255, 255, 255));
+    SDL2pp::Texture& tt_texture = texture_manager.get_text_texture(tt_text, font_path, font_size,
+                                                                   SDL2pp::Color(183, 149, 11));
 
+    int total_width = ct_texture.GetWidth() + vs_texture.GetWidth() + tt_texture.GetWidth();
+    int start_x = (CAMERA_WIDTH - total_width) / 2;
+    int y = 10;
 
-    SDL2pp::Rect dstRect((CAMERA_WIDTH - round_texture.GetWidth()) / 2, 10,
-                         round_texture.GetWidth(), round_texture.GetHeight());
-
-    renderer.Copy(round_texture, SDL2pp::NullOpt, dstRect);
+    renderer.Copy(ct_texture, SDL2pp::NullOpt,
+                  SDL2pp::Rect(start_x, y, ct_texture.GetWidth(), ct_texture.GetHeight()));
+    renderer.Copy(vs_texture, SDL2pp::NullOpt,
+                  SDL2pp::Rect(start_x + ct_texture.GetWidth(), y, vs_texture.GetWidth(),
+                               vs_texture.GetHeight()));
+    renderer.Copy(tt_texture, SDL2pp::NullOpt,
+                  SDL2pp::Rect(start_x + ct_texture.GetWidth() + vs_texture.GetWidth(), y,
+                               tt_texture.GetWidth(), tt_texture.GetHeight()));
 }
 
 /* Si hay un ganador en la ronda, se está en unos segundos donde se muestra el ganador, y este
@@ -593,10 +611,12 @@ void SDLManager::render_current_round_winner(const std::optional<Team>& winner,
     int font_size = 25;
     const std::string& font_path = texture_parser.get_fw_texture(FONT_WAITING);
     std::string winner_string =
-            winner.value() == CT ? "Counter Terrorists wins!" : "Terrorists wins!";
+            winner.value() == CT ? "Counter Terrorists win!" : "Terrorists win!";
+    SDL2pp::Color color =
+            winner.value() == CT ? SDL2pp::Color(33, 97, 140) : SDL2pp::Color(183, 149, 11);
 
-    SDL2pp::Texture& round_texture = texture_manager.get_text_texture(
-            winner_string, font_path, font_size, SDL2pp::Color(255, 255, 0));
+    SDL2pp::Texture& round_texture =
+            texture_manager.get_text_texture(winner_string, font_path, font_size, color);
     round_texture.SetAlphaMod(190);
 
 
@@ -640,6 +660,151 @@ void SDLManager::render_hud_bomb(const bool& has_bomb, const bool& in_site, cons
 
     renderer.Copy(bomb_texture, src_bomb, dst_bomb);
 }
+
+std::pair<std::vector<std::pair<std::string, PlayerInfo>>,
+          std::vector<std::pair<std::string, PlayerInfo>>>
+        SDLManager::get_teams(const LocalInfo& local_info) {
+    std::vector<std::pair<std::string, PlayerInfo>> cts = {};
+    std::vector<std::pair<std::string, PlayerInfo>> tts = {};
+
+    for (const auto& [username, p]: local_info.players) {
+        if (p.is_ct) {
+            cts.emplace_back(username, p);
+        } else {
+            tts.emplace_back(username, p);
+        }
+    }
+    if (local_info.player.is_ct) {
+        cts.emplace_back(local_info.username, local_info.player);
+    } else {
+        tts.emplace_back(local_info.username, local_info.player);
+    }
+
+    auto f_cmp = [](const auto& pj1, const auto& pj2) {
+        if (pj1.second.kills != pj2.second.kills)
+            return pj1.second.kills > pj2.second.kills;
+        return pj1.first < pj2.first;  // desempata el nombre
+    };
+
+    std::sort(cts.begin(), cts.end(), f_cmp);
+    std::sort(tts.begin(), tts.end(), f_cmp);
+
+    return std::make_pair(cts, tts);
+}
+
+void SDLManager::draw_line(const std::string& line, int y, SDL_Color color, const int& size_box) {
+    int font_size = static_cast<int>(size_box * 0.15);
+    int text_x = size_box + 10;
+    const std::string& font_path = texture_parser.get_fw_texture(FONT_WAITING);
+    SDL2pp::Texture& text_texture =
+            texture_manager.get_text_texture(line, font_path, font_size, color);
+    renderer.Copy(text_texture, SDL2pp::NullOpt,
+                  SDL2pp::Rect(text_x, y, text_texture.GetWidth(), text_texture.GetHeight()));
+}
+
+void SDLManager::stats_team(int& line_y, const bool& are_ct,
+                            const std::vector<std::pair<std::string, PlayerInfo>>& team,
+                            const int& size_box) {
+    std::string team_s = are_ct ? "Counter Terrorirsts" : "Terrorists";
+    SDL_Color blue = {0, 150, 255, 255};
+    SDL_Color yellow = {255, 200, 0, 255};
+    SDL_Color team_c = are_ct ? blue : yellow;
+    SDL_Color white = {255, 255, 255, 255};
+
+    draw_line(team_s, line_y, team_c, size_box);
+    int spacing = 15;
+    line_y += spacing + 10;
+
+    for (const auto& [username, p]: team) {
+        draw_line("* " + username + " | Kills: " + std::to_string(p.kills) +
+                          " | Deaths: " + std::to_string(p.deaths) + " | Bonifications: $" +
+                          std::to_string(p.bonifications),
+                  line_y, white, size_box);
+        line_y += spacing;
+    }
+}
+
+void SDLManager::render_stats(const LocalInfo& local_info) {
+    if (local_info.server_has_been_closed) {
+        int box_width = static_cast<int>(CAMERA_WIDTH * 0.59);
+        int box_height = static_cast<int>(CAMERA_HEIGHT * 0.1);
+        int box_x = (CAMERA_WIDTH - box_width) / 2;
+        int box_y = (CAMERA_HEIGHT - box_height) / 2;
+
+        SDL_Rect stats_box{box_x, box_y, box_width, box_height};
+
+        renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
+        renderer.SetDrawColor(0, 0, 0, 180);
+        renderer.FillRect(stats_box);
+
+        renderer.SetDrawColor(255, 255, 255, 255);
+        renderer.DrawRect(stats_box);
+
+        int start_y = stats_box.y + 10;
+
+        SDL_Color red = {255, 0, 0, 255};
+
+        int line_y = start_y;
+
+        this->draw_line("Connection lost with server!", line_y, red, box_x);
+    }
+    if (!game_ended(local_info)) {
+        return;
+    }
+
+    int box_width = static_cast<int>(CAMERA_WIDTH * 0.7);
+    int box_height = static_cast<int>(CAMERA_HEIGHT * 0.8);
+    int box_x = (CAMERA_WIDTH - box_width) / 2;
+    int box_y = (CAMERA_HEIGHT - box_height) / 2;
+
+    SDL_Rect stats_box{box_x, box_y, box_width, box_height};
+
+    renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
+    renderer.SetDrawColor(0, 0, 0, 180);
+    renderer.FillRect(stats_box);
+
+    renderer.SetDrawColor(255, 255, 255, 255);
+    renderer.DrawRect(stats_box);
+
+    std::string result_text;
+    SDL_Color result_color;
+
+    bool player_is_ct = local_info.player.is_ct;
+
+    if (local_info.ct_wins == local_info.tt_wins) {
+        result_text = "Draw";
+        result_color = {200, 200, 200, 255};
+    } else {
+        bool ct_won = local_info.ct_wins > local_info.tt_wins;
+        bool player_won = (player_is_ct && ct_won) || (!player_is_ct && !ct_won);
+
+        if (player_won) {
+            result_text = "Victory";
+            result_color = {35, 155, 86, 255};
+        } else {
+            result_text = "Defeat";
+            result_color = {231, 76, 60, 255};
+        }
+    }
+
+    int result_y = stats_box.y + 10;
+    this->draw_line(result_text, result_y, result_color, box_x + box_width / 3);
+
+    int start_y = result_y + 30;
+    int line_y = start_y;
+
+    auto [cts, tts] = this->get_teams(local_info);
+
+    this->stats_team(line_y, true, cts, box_x);
+
+    line_y = stats_box.y + static_cast<int>(stats_box.h / 1.8);
+
+    this->stats_team(line_y, false, tts, box_x);
+
+    renderer.SetDrawBlendMode(SDL_BLENDMODE_NONE);
+    renderer.SetDrawColor(0, 0, 0, 255);
+}
+
 
 void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
     update_camera(local_info.player.x / GRAPHIC_SCALE, local_info.player.y / GRAPHIC_SCALE);
@@ -695,15 +860,16 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
     }
 
     render_fov(local_info.player.orientation + PLAYER_SPRITE_GAP);
-    render_if_dead(local_info.player.life);
+    render_if_dead(local_info);
     render_hud_time(local_info.time_left, local_info.bomb_status, local_info.phase);
     render_hud_life(local_info.player.life);
     render_hud_bomb(local_info.player.has_bomb, local_info.player.in_site,
                     local_info.time_left % 60);
-    render_hud_round(local_info.current_round, local_info.total_rounds);
+    render_hud_rounds(local_info.ct_wins, local_info.tt_wins);
     render_hud_ammo(local_info.player.equipped_gun_ammo);
     render_hud_money(local_info.player.money);
     render_current_round_winner(local_info.current_round_winner, local_info.phase);
+    render_stats(local_info);
 }
 
 std::optional<ShopButtonType> SDLManager::interact_button(int x, int y, int money, GunType primary,
@@ -776,7 +942,11 @@ void SDLManager::close_shop() { shop.close_shop(); }
 
 void SDLManager::open_shop() { shop.open_shop(); }
 
-// chequear sonidos
+bool SDLManager::game_ended(const LocalInfo& local_info) {
+    return local_info.current_round == local_info.total_rounds &&
+           local_info.phase == Phase::ROUND_ENDED && local_info.time_left == 0;
+}
+
 void SDLManager::make_round_start_sound(const bool& is_ct) {
     if (is_ct) {
         sounds.play_round_sound(SoundEffect::START_ROUND_CT);

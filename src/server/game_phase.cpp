@@ -53,6 +53,8 @@ bool WaitingPlayersPhase::should_continue() {
 }
 void WaitingPlayersPhase::execute(std::unique_ptr<Command>) {}
 void WaitingPlayersPhase::end() {
+    if (!game.should_keep_running())
+        return;
     game.broadcast_game_initial_info();
     game.begin_new_round();
     game.change_phase(std::make_unique<BuyPhase>(game));

@@ -3,18 +3,19 @@ window_initial_height: 400
 window_initial_width: 640
 fullscreen: false
 server_fps: 60
-rounds: 10
-buy_phase_duration: 5
+rounds: 4
+buy_phase_duration: 15
 attack_phase_duration: 60
 waiting_players_phase_duration: 300
 between_rounds_phase_duration: 5
-player_speed: 20
+player_speed: 15
 terrorists: 1
 counter_terrorists: 1
 player_initial_life: 100
 initial_money: 800
 clip_price: 50
 damage_variation_factor: 0.1
+stats_time: 10.0
 guns_settings:
   glock:
     initial_ammo: 20
