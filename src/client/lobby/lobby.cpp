@@ -1,5 +1,6 @@
 #include "client/lobby/lobby.h"
 
+#include <QFileInfo>
 #include <QFont>
 #include <QFontDatabase>
 #include <QMessageBox>
@@ -48,11 +49,20 @@ Lobby::Lobby(QWidget* parent):
     connect(ui->backButton2, &QPushButton::clicked, this, &Lobby::go_to_lobby);
     connect(ui->back_to_lobby3, &QPushButton::clicked, this, &Lobby::go_to_lobby);
     connect(ui->connectButton, &QPushButton::clicked, this, &Lobby::connect_to_sv);
+
+    this->sound_player = new QMediaPlayer(this);
+    QString relativePath = "../src/client/lobby/cs_music.mp3";
+    QString absolutePath = QFileInfo(relativePath).absoluteFilePath();
+    sound_player->setMedia(QUrl::fromLocalFile(absolutePath));
+    sound_player->setVolume(10);
 }
 
 Lobby::~Lobby() { delete ui; }
 
-void Lobby::go_to_lobby() { ui->stack->setCurrentIndex(1); }
+void Lobby::go_to_lobby() {
+    this->sound_player->play();
+    ui->stack->setCurrentIndex(1);
+}
 
 
 void Lobby::on_CreateGame_clicked() {
@@ -118,6 +128,7 @@ void Lobby::on_CreateGameButton_clicked() {
         ServerResponseLobby response = protocol.value().receive_server_response_lobby();
         if (response.status == ResponseStatus::SUCCESS) {
             this->gamecode = response.game_name;
+            this->sound_player->stop();
             close();
         } else if (response.status == ResponseStatus::GAME_NOT_CREATED) {
             QMessageBox::information(this, TITLE_MSG_CREATE, MSG_GAME_NOT_CREATED);
@@ -165,6 +176,7 @@ void Lobby::on_JoinGameButton_clicked() {
 
             case ResponseStatus::SUCCESS:
                 this->gamecode = game_name;
+                this->sound_player->stop();
                 close();
                 break;
 
@@ -270,6 +282,7 @@ void Lobby::tryLobbyRequest(const std::function<void()>& func) {
         func();
     } catch (const CommunicationEnded& e) {
         QMessageBox::critical(this, TITLE_SV_CLOSED, MSG_SV_CLOSED);
+        this->sound_player->stop();
         this->close();
     }
 }

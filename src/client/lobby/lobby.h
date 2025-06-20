@@ -2,6 +2,7 @@
 #define LOBBY_H
 
 #include <QMainWindow>
+#include <QMediaPlayer>
 #include <optional>
 #include <string>
 #include <vector>
@@ -81,6 +82,7 @@ private:
     std::string gamecode;
     bool can_change_name;
     std::optional<ClientProtocol> protocol;
+    QMediaPlayer* sound_player;
 
     void create_game();
     void format_string(std::string& s);
