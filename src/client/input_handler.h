@@ -17,6 +17,7 @@ private:
     bool s = false;
     bool d = false;
     bool e = false;
+    bool f = false;
 
     bool one = false;
     bool two = false;
@@ -38,6 +39,7 @@ private:
     bool handle_mouse_motion_event(const SDL_Event& event);
     bool handle_shoot_event(const SDL_Event& event);
     bool handle_defuse_event(const SDL_Event& event);
+    bool handle_pick_up_event(const SDL_Event& event);
 
     template <typename T>
     bool try_move(bool& flag, T dto);

@@ -73,7 +73,7 @@ void CS2DGame::broadcast_snapshot(const int time_left) {
                             game_world_snapshot.ct,
                             game_world_snapshot.tt,
                             this->current_round_winner,
-                            game_world_snapshot.items};
+                            /*game_world_snapshot.items*/};
     broadcast_game_dto(snapshot);
 }
 

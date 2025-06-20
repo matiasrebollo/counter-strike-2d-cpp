@@ -3,6 +3,9 @@
 
 #include <variant>
 
+#include "common/vector_2d.h"
+#include "common/weapon_type.h"
+
 struct DroppedGunDTO {
     Vector2D<int> position;
     GunType gun_type;
