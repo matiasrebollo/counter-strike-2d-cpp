@@ -48,6 +48,8 @@ struct LocalInfo {
     int total_players = 0;
     size_t total_rounds = 0;
     size_t current_round = 0;
+    size_t ct_wins = 0;
+    size_t tt_wins = 0;
     bool server_has_been_closed = false;
 };
 

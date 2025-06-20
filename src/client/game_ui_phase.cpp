@@ -24,8 +24,9 @@ void GameUIPhase::run() {
             break;
         it = clock.sleep_and_calc_next_it(FPS_CLIENT, it);
     }
-
-    change_phase();
+    if (!(game_ui.local_info.phase == ROUND_ENDED && dynamic_cast<RoundEndedPhase*>(this))) {
+        change_phase();
+    }
 }
 
 void GameUIPhase::change_phase() {
@@ -38,9 +39,7 @@ void GameUIPhase::change_phase() {
         game_ui.play_start_round_sound();
         game_ui.change_phase(std::make_unique<UIAttackPhase>(game_ui));
     } else if (game_ui.local_info.phase == ROUND_ENDED) {
-        if (game_ui.local_info.current_round < game_ui.local_info.total_rounds) {
-            game_ui.play_team_winner_sound();
-        }
+        game_ui.play_team_winner_sound();
         game_ui.change_phase(std::make_unique<RoundEndedPhase>(game_ui));
     }
     // ended ?

@@ -112,6 +112,8 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
     local_info.total_players = snapshot.total_players;
     local_info.phase = snapshot.phase;
     local_info.current_round_winner = snapshot.current_round_winner;
+    local_info.ct_wins = snapshot.ct_wins;
+    local_info.tt_wins = snapshot.tt_wins;
 
     // Actualizo jugadores CT
     for (const PlayerDTO& p: snapshot.ct) {

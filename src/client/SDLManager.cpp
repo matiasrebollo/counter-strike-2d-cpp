@@ -532,22 +532,33 @@ void SDLManager::render_hud_money(int money) {
 }
 
 /* Renderiza la ronda actual */
-void SDLManager::render_hud_round(size_t current_round_number, size_t total_rounds) {
+void SDLManager::render_hud_rounds(size_t ct_wins, size_t tt_wins) {
     int font_size = 15;
     const std::string& font_path = texture_parser.get_fw_texture(FONT_WAITING);
 
-    std::string round_text =
-            "Round " + std::to_string(current_round_number) + "/" + std::to_string(total_rounds);
+    std::string ct_text = std::to_string(ct_wins);
+    std::string vs_text = " vs ";
+    std::string tt_text = std::to_string(tt_wins);
 
-    SDL2pp::Texture& round_texture = texture_manager.get_text_texture(
-            round_text, font_path, font_size, SDL2pp::Color(255, 255, 0));
-    round_texture.SetAlphaMod(190);
+    SDL2pp::Texture& ct_texture = texture_manager.get_text_texture(ct_text, font_path, font_size,
+                                                                   SDL2pp::Color(33, 97, 140));
+    SDL2pp::Texture& vs_texture = texture_manager.get_text_texture(vs_text, font_path, font_size,
+                                                                   SDL2pp::Color(255, 255, 255));
+    SDL2pp::Texture& tt_texture = texture_manager.get_text_texture(tt_text, font_path, font_size,
+                                                                   SDL2pp::Color(183, 149, 11));
 
+    int total_width = ct_texture.GetWidth() + vs_texture.GetWidth() + tt_texture.GetWidth();
+    int start_x = (CAMERA_WIDTH - total_width) / 2;
+    int y = 10;
 
-    SDL2pp::Rect dstRect((CAMERA_WIDTH - round_texture.GetWidth()) / 2, 10,
-                         round_texture.GetWidth(), round_texture.GetHeight());
-
-    renderer.Copy(round_texture, SDL2pp::NullOpt, dstRect);
+    renderer.Copy(ct_texture, SDL2pp::NullOpt,
+                  SDL2pp::Rect(start_x, y, ct_texture.GetWidth(), ct_texture.GetHeight()));
+    renderer.Copy(vs_texture, SDL2pp::NullOpt,
+                  SDL2pp::Rect(start_x + ct_texture.GetWidth(), y, vs_texture.GetWidth(),
+                               vs_texture.GetHeight()));
+    renderer.Copy(tt_texture, SDL2pp::NullOpt,
+                  SDL2pp::Rect(start_x + ct_texture.GetWidth() + vs_texture.GetWidth(), y,
+                               tt_texture.GetWidth(), tt_texture.GetHeight()));
 }
 
 /* Si hay un ganador en la ronda, se está en unos segundos donde se muestra el ganador, y este
@@ -610,7 +621,6 @@ void SDLManager::render_hud_bomb(const bool& has_bomb, const bool& in_site, cons
 
 void SDLManager::render_stats(const LocalInfo& local_info) {
     if (local_info.server_has_been_closed) {
-
         int box_width = static_cast<int>(CAMERA_WIDTH * 0.59);
         int box_height = static_cast<int>(CAMERA_HEIGHT * 0.1);
         int box_x = (CAMERA_WIDTH - box_width) / 2;
@@ -679,7 +689,8 @@ void SDLManager::render_stats(const LocalInfo& local_info) {
 
     int line_y = start_y;
 
-    draw_line("Counter Terrorists", line_y, blue);
+    draw_line("Counter Terrorists win " + std::to_string(local_info.ct_wins) + " rounds", line_y,
+              blue);
     line_y += spacing + 10;
 
     if (local_info.player.is_ct) {
@@ -703,7 +714,7 @@ void SDLManager::render_stats(const LocalInfo& local_info) {
 
     line_y = stats_box.y + stats_box.h / 2;
 
-    draw_line("Terrorists", line_y, yellow);
+    draw_line("Terrorists win " + std::to_string(local_info.tt_wins) + " rounds", line_y, yellow);
     line_y += spacing + 10;
 
     if (!local_info.player.is_ct) {
@@ -787,7 +798,7 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
     render_hud_life(local_info.player.life);
     render_hud_bomb(local_info.player.has_bomb, local_info.player.in_site,
                     local_info.time_left % 60);
-    render_hud_round(local_info.current_round, local_info.total_rounds);
+    render_hud_rounds(local_info.ct_wins, local_info.tt_wins);
     render_hud_ammo(local_info.player.equipped_gun_ammo);
     render_hud_money(local_info.player.money);
     render_current_round_winner(local_info.current_round_winner, local_info.phase);
