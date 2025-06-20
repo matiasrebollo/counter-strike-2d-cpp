@@ -6,9 +6,6 @@
 ClientAcceptor::ClientAcceptor(const std::string& port): acceptor(port.c_str()), server_monitor() {}
 
 void ClientAcceptor::run() {
-    try {
-        throw std::runtime_error("init");
-    } catch (const std::exception&) {}
     while ((this->should_keep_running())) {
         try {
             Socket socket = this->acceptor.accept();

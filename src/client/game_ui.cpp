@@ -106,7 +106,6 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
         update_player(p, true);
     }
     for (const PlayerDTO& p: snapshot.tt) {
-
         update_player(p, false);
     }
 }
@@ -124,6 +123,9 @@ void GameUI::update_player(const PlayerDTO& player, const bool& is_ct) {
         local_info.player.equipped = player.loadout.equipped;
         local_info.player.in_site = player.on_site;
         local_info.player.has_bomb = player.loadout.has_bomb;
+        local_info.player.kills = player.kills;
+        local_info.player.bonifications = player.bonifications;
+        local_info.player.deaths = player.deaths;
 
         if (local_info.player.equipped == PRIMARY)
             local_info.player.equipped_gun_ammo = player.loadout.primary_ammo;
@@ -145,6 +147,9 @@ void GameUI::update_player(const PlayerDTO& player, const bool& is_ct) {
             it->second.equipped = player.loadout.equipped;
             it->second.has_bomb = player.loadout.has_bomb;
             it->second.in_site = player.on_site;
+            it->second.kills = player.kills;
+            it->second.bonifications = player.bonifications;
+            it->second.deaths = player.deaths;
             if (it->second.equipped == PRIMARY)
                 it->second.equipped_gun_ammo = player.loadout.primary_ammo;
             else if (it->second.equipped == SECONDARY)
@@ -164,6 +169,9 @@ void GameUI::update_player(const PlayerDTO& player, const bool& is_ct) {
             updated.equipped = player.loadout.equipped;
             updated.has_bomb = player.loadout.has_bomb;
             updated.in_site = player.on_site;
+            updated.kills = player.kills;
+            updated.bonifications = player.bonifications;
+            updated.deaths = player.deaths;
 
             if (updated.equipped == PRIMARY)
                 updated.equipped_gun_ammo = player.loadout.primary_ammo;
@@ -175,7 +183,6 @@ void GameUI::update_player(const PlayerDTO& player, const bool& is_ct) {
         }
     }
 }
-
 
 
 void GameUI::handle_waiting_events() { this->keep_running = input_handler.handle_waiting_events(); }
@@ -285,7 +292,7 @@ bool GameUI::update_attack() {
 
     if (got_snapshot)
         update_local_info_from_snapshot(last_snapshot);
-  
+
     return true;
 }
 
@@ -364,13 +371,14 @@ void GameUI::handle_game_ended() {
     size_t last_it = 0;
     size_t it = 0;
     float time = 0.0f;
+    int fps_client = Settings::getInstance().get_fps_client();
 
     while (time < 10) {
         if (!input_handler.handle_ended_events()) {
             break;
         }
         size_t delta_it = it - last_it;
-        float delta_seconds = static_cast<float>(delta_it) / FPS_SERVER;
+        float delta_seconds = static_cast<float>(delta_it) / fps_client;
         time += delta_seconds;
 
         if (local_info.phase != WAITING_PLAYERS) {
@@ -381,14 +389,14 @@ void GameUI::handle_game_ended() {
         } else {
             sdl.clear_display();
             sdl.render_waiting_screen(
-                    local_info.ct_players.size() + local_info.tt_players.size() +
+                    local_info.players.size() +
                             1,  // 1 porque si veo esta pantalla quiere decir estoy conectado
-                    local_info.total_players, local_info.gamename, it, FPS_CLIENT, true);
+                    local_info.total_players, local_info.gamename, it, fps_client, true);
             sdl.show_screen();
         }
 
         last_it = it;
-        it = clock.sleep_and_calc_next_it(FPS_SERVER, it);
+        it = clock.sleep_and_calc_next_it(fps_client, it);
     }
 }
 
@@ -438,8 +446,4 @@ void GameUI::close_client() {
     this->input_handler.join_sender();
 }
 
-GameUI::~GameUI() {
-    if (receiver.is_alive()) {
-        this->close_client();
-    }
-}
+GameUI::~GameUI() {}

@@ -731,28 +731,39 @@ void SDLManager::render_stats(const LocalInfo& local_info) {
 
     int line_y = start_y;
 
+    std::vector<std::pair<std::string, PlayerInfo>> cts = {};
+    std::vector<std::pair<std::string, PlayerInfo>> tts = {};
+
+    for (const auto& [username, p]: local_info.players) {
+        if (p.is_ct) {
+            cts.emplace_back(username, p);
+        } else {
+            tts.emplace_back(username, p);
+        }
+    }
+    if (local_info.player.is_ct) {
+        cts.emplace_back(local_info.username, local_info.player);
+    } else {
+        tts.emplace_back(local_info.username, local_info.player);
+    }
+
+    auto f_cmp = [](const auto& pj1, const auto& pj2) {
+        return pj1.second.kills > pj2.second.kills;
+    };
+    std::sort(cts.begin(), cts.end(), f_cmp);
+    std::sort(tts.begin(), tts.end(), f_cmp);
+
     std::string plural = (local_info.ct_wins != 1 ? "s" : "");
     draw_line("Counter Terrorists win " + std::to_string(local_info.ct_wins) + " round" + plural,
               line_y, blue);
     line_y += spacing + 10;
 
-    if (local_info.player.is_ct) {
-        draw_line("* " + local_info.player.username +
-                          " | Kills: " + std::to_string(local_info.player.kills) +
-                          " | Deaths: " + std::to_string(local_info.player.deaths) +
-                          " | Bonifications: $" + std::to_string(local_info.player.bonifications),
+    for (const auto& [username, p]: cts) {
+        draw_line("* " + username + " | Kills: " + std::to_string(p.kills) +
+                          " | Deaths: " + std::to_string(p.deaths) + " | Bonifications: $" +
+                          std::to_string(p.bonifications),
                   line_y, white);
         line_y += spacing;
-    }
-
-    for (const auto& p: local_info.ct_players) {
-        if (p.username != local_info.player.username) {
-            draw_line("* " + p.username + " | Kills: " + std::to_string(p.kills) +
-                              " | Deaths: " + std::to_string(p.deaths) + " | Bonifications: $" +
-                              std::to_string(p.bonifications),
-                      line_y, white);
-            line_y += spacing;
-        }
     }
 
     line_y = stats_box.y + stats_box.h / 2;
@@ -762,26 +773,16 @@ void SDLManager::render_stats(const LocalInfo& local_info) {
               yellow);
     line_y += spacing + 10;
 
-    if (!local_info.player.is_ct) {
-        draw_line("* " + local_info.player.username +
-                          " | Kills: " + std::to_string(local_info.player.kills) +
-                          " | Deaths: " + std::to_string(local_info.player.deaths) +
-                          " | Bonifications: $" + std::to_string(local_info.player.bonifications),
+    for (const auto& [username, p]: tts) {
+        draw_line("* " + username + " | Kills: " + std::to_string(p.kills) +
+                          " | Deaths: " + std::to_string(p.deaths) + " | Bonifications: $" +
+                          std::to_string(p.bonifications),
                   line_y, white);
         line_y += spacing;
     }
 
-    for (const auto& p: local_info.tt_players) {
-        if (p.username != local_info.player.username) {
-            draw_line("* " + p.username + " | Kills: " + std::to_string(p.kills) +
-                              " | Deaths: " + std::to_string(p.deaths) + " | Bonifications: $" +
-                              std::to_string(p.bonifications),
-                      line_y, white);
-            line_y += spacing;
-        }
-    }
-
     renderer.SetDrawBlendMode(SDL_BLENDMODE_NONE);
+    renderer.SetDrawColor(0, 0, 0, 255);
 }
 
 
