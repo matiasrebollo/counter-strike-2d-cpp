@@ -3,8 +3,6 @@
 #include <algorithm>
 #include <utility>
 
-#include "game_editor.h"
-
 void TTSpawnsSetter::handle(std::pair<int, int> click_on, std::pair<int, int> click_drop,
                             Game_editor& editor, const bool& to_delete) {
     int x1 = std::min(click_on.first, click_drop.first);
