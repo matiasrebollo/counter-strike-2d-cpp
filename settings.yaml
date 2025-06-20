@@ -53,7 +53,7 @@ guns_settings:
     clip_size: 8
     kill_bonus: 300
 knife_settings:
-  knife_distance: 50
+  knife_distance: 200 # Must be > 160
   knife_damage: 25
   knife_ar: 120
   knife_kill_bonus: 1500

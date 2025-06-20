@@ -685,7 +685,6 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
 
     // render de mi player
     render_player(local_info.username, local_info.player, local_info.ct_skin, local_info.tt_skin);
-    std::cout << "estoy en: " << local_info.player.x << ", " << local_info.player.y << std::endl;
     for (auto& [username, p]: local_info.players) {
         render_player(username, p, local_info.ct_skin, local_info.tt_skin);
     }
