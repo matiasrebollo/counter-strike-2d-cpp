@@ -2,6 +2,7 @@
 #define LOBBY_H
 
 #include <QMainWindow>
+#include <QMediaPlayer>
 #include <optional>
 #include <string>
 #include <vector>
@@ -81,9 +82,11 @@ private:
     std::string gamecode;
     bool can_change_name;
     std::optional<ClientProtocol> protocol;
+    QMediaPlayer* sound_player;
 
     void create_game();
     void format_string(std::string& s);
+    void tryLobbyRequest(const std::function<void()>& func);
 
     enum TerroristSkin skins_tt[4] = {PHEONIX, L3337_KREW, ARTIC_AVENGER, GUERRILLA};
     enum CounterTerroristSkin skins_ct[4] = {SEAL_FORCE, GSG_9, UK_SAS, GIGN};
