@@ -30,6 +30,7 @@ private:
     std::unordered_map<GunType, GunSettings> load_guns_settings(const YAML::Node& node);
     GunSettings load_gun_sett(const YAML::Node& node);
     KnifeSettings load_knife_settings(const YAML::Node& node);
+    BombSettings load_bomb_settings(const YAML::Node& node);
 };
 
 #endif

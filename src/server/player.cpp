@@ -141,8 +141,8 @@ void Player::receive_damage(const int& damage) {
 }
 void Player::count_kill(GameWorld& game, Player& victim, const int& money_bonification) {
     if (game.are_teammates(*this, victim)) {
-        bonifications -= TEAM_KILL_PENALTY;
-        loadout.decrease_money_by(TEAM_KILL_PENALTY);
+        bonifications -= Settings::getInstance().get_team_kill_penalty();
+        loadout.decrease_money_by(Settings::getInstance().get_team_kill_penalty());
     } else {
         kills += 1;
         bonifications += money_bonification;
