@@ -65,6 +65,10 @@ private:
     std::unordered_map<GunType, int> receive_gun_prices(const uint8_t& size);
     std::unordered_map<GunType, int> receive_gun_clips_size(const uint8_t& size);
 
+    std::vector<ItemDTO> receive_items();
+    DroppedGunDTO receive_dropped_gun();
+    DroppedBombDTO receive_dropped_bomb();
+
 public:
     explicit ClientProtocol(std::unique_ptr<Socket> socket);
 

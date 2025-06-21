@@ -1,6 +1,7 @@
 #ifndef ITEM_DTO_H
 #define ITEM_DTO_H
 
+#include <cstdint>
 #include <variant>
 
 #include "common/vector_2d.h"

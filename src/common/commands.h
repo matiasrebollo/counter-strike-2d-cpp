@@ -18,7 +18,9 @@ enum CommandType {
     DEFUSE_BOMB,
     GAME_STARTED,
     SHOT,
-    GAME_ENDED
+    GAME_ENDED,
+    GUN_DROPPED,
+    BOMB_DROPPED
 };
 
 #endif

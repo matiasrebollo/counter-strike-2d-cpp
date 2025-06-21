@@ -274,6 +274,23 @@ void validate_player(const PlayerDTO& expected_player, const PlayerDTO& actual_p
     validate_loadouts(expected_player.loadout, actual_player.loadout);
 }
 
+void validate_item(const ItemDTO& expected_item, const ItemDTO& actual_item) {
+    ASSERT_EQ(expected_item.index(), actual_item.index());
+    if (std::holds_alternative<DroppedGunDTO>(expected_item)) {
+        const auto& expected_gun = std::get<DroppedGunDTO>(expected_item);
+        const auto& actual_gun = std::get<DroppedGunDTO>(actual_item);
+        ASSERT_EQ(expected_gun.position.x, actual_gun.position.x);
+        ASSERT_EQ(expected_gun.position.y, actual_gun.position.y);
+        ASSERT_EQ(expected_gun.gun_type, actual_gun.gun_type);
+        ASSERT_EQ(expected_gun.ammo, actual_gun.ammo);
+    } else {
+        const auto& expected_bomb = std::get<DroppedBombDTO>(expected_item);
+        const auto& actual_bomb = std::get<DroppedBombDTO>(actual_item);
+        ASSERT_EQ(expected_bomb.position.x, actual_bomb.position.x);
+        ASSERT_EQ(expected_bomb.position.y, actual_bomb.position.y);
+    }
+}
+
 TEST(ServerProtocolTest, SendSnapshot) {
     auto [client, server] = create_connected_protocols();
 
@@ -289,6 +306,10 @@ TEST(ServerProtocolTest, SendSnapshot) {
     BombStatus status = BombStatus::EXPLODED;
     Vector2D<int> bomb_pos{100, 200};
     Team winner = Team::TT;
+    std::vector<ItemDTO> items = {
+            DroppedGunDTO{Vector2D<int>(1, 1), GunType::AK47, 30},
+            DroppedBombDTO{Vector2D<int>(2, 2)},
+    };
 
     std::vector<LoadoutDTO> loadouts = get_loadouts();
 
@@ -304,7 +325,7 @@ TEST(ServerProtocolTest, SendSnapshot) {
                 Snapshot snapshot{total_players, phase,     current_round,
                                   total_rounds,  time_left, status,
                                   bomb_pos,      ct,        tt,
-                                  winner};
+                                  winner,        items};
 
                 server->send_game_dto(snapshot);
                 GameDTO response = client->receive_game_dto();
@@ -327,6 +348,10 @@ TEST(ServerProtocolTest, SendSnapshot) {
                 }
                 EXPECT_TRUE(snapshot.current_round_winner.has_value());
                 ASSERT_EQ(snapshotPtr->current_round_winner, winner);
+                ASSERT_EQ(snapshotPtr->items.size(), items.size());
+                for (size_t i = 0; i < items.size(); ++i) {
+                    validate_item(items[i], snapshotPtr->items[i]);
+                }
             }
         }
     }

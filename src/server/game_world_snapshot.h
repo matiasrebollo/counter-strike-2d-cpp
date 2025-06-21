@@ -13,7 +13,7 @@ struct GameWorldSnapshot {
     std::optional<Vector2D<int>> bomb_position;
     const std::vector<PlayerDTO> ct;
     const std::vector<PlayerDTO> tt;
-    // std::vector<ItemDTO> items;
+    std::vector<ItemDTO> items;
 };
 
 #endif

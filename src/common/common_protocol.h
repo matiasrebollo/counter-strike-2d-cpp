@@ -48,6 +48,8 @@ inline constexpr bool always_false_v = false;
 #define CODE_BULLETS 0x50
 #define CODE_SHOT 0x55
 #define CODE_ENDGAME 0x60
+#define CODE_GUN_DROPPED 0x61
+#define CODE_BOMB_DROPPED 0x62
 
 #define CODE_CHOOSE_KNIFE 0x00
 #define CODE_CHOOSE_PRIMARY 0x01

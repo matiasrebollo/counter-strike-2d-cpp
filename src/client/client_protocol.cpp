@@ -177,12 +177,42 @@ Snapshot ClientProtocol::receive_snapshot() {
     int size_tt = this->receive_byte();
     std::vector<PlayerDTO> tts = this->receive_players(size_tt);
     std::optional<Team> current_round_winner = this->receive_current_round_winner();
-    Snapshot snapshot = Snapshot{total_players,       Phase(phase), current_round_number,
-                                 total_rounds,        time_left,    status,
-                                 bomb_position,       cts,          tts,
-                                 current_round_winner};
+    std::vector<ItemDTO> items = this->receive_items();
+    Snapshot snapshot = Snapshot{total_players,        Phase(phase), current_round_number,
+                                 total_rounds,         time_left,    status,
+                                 bomb_position,        cts,          tts,
+                                 current_round_winner, items};
     return snapshot;
 }
+
+std::vector<ItemDTO> ClientProtocol::receive_items() {
+    size_t size = this->receive_big_endian_number();
+    std::vector<ItemDTO> response = {};
+    for (size_t i = 0; i < size; i++) {
+        CommandType cmd = this->codeToCommands.find(this->receive_byte())->second;
+        if (cmd == CommandType::BOMB_DROPPED) {
+            response.push_back(this->receive_dropped_bomb());
+        } else {
+            response.push_back(this->receive_dropped_gun());
+        }
+    }
+    return response;
+}
+
+DroppedGunDTO ClientProtocol::receive_dropped_gun() {
+    int x = this->receive_big_endian_number();
+    int y = this->receive_big_endian_number();
+    GunType gun = this->weaponParser.getWeaponFromByte(this->receive_byte());
+    uint16_t ammo = this->receive_big_endian_number();
+    return DroppedGunDTO{Vector2D<int>(x, y), gun, ammo};
+}
+
+DroppedBombDTO ClientProtocol::receive_dropped_bomb() {
+    int x = this->receive_big_endian_number();
+    int y = this->receive_big_endian_number();
+    return DroppedBombDTO{Vector2D<int>(x, y)};
+}
+
 
 std::vector<PlayerDTO> ClientProtocol::receive_players(const int& size_players) {
     std::vector<PlayerDTO> players = {};
@@ -220,8 +250,8 @@ std::optional<ShotDTO> ClientProtocol::receive_shot() {
 
 std::optional<Vector2D<int>> ClientProtocol::receive_bomb_position() {
     bool has_value = this->code_to_bools.find(this->receive_byte())->second;
-    int x = this->receive_byte();
-    int y = this->receive_byte();
+    int x = this->receive_big_endian_number();
+    int y = this->receive_big_endian_number();
     if (has_value) {
         return Vector2D{x, y};
     } else {

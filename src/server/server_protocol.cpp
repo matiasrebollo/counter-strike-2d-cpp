@@ -110,17 +110,39 @@ void ServerProtocol::send_snapshot(const Snapshot& snapshot) {
     this->send_byte(snapshot.tt.size());
     this->send_players(snapshot.tt);
     this->send_current_round_winner(snapshot.current_round_winner);
+    this->send_items(snapshot.items);
+}
+
+void ServerProtocol::send_items(const std::vector<ItemDTO>& items) {
+    this->send_big_endian_number(items.size());
+    for (const auto& item: items) {
+        std::visit([this](const auto& real_item) { this->send_particular_item(real_item); }, item);
+    }
+}
+
+void ServerProtocol::send_particular_item(const DroppedGunDTO& dropped_gun) {
+    this->send_byte(this->commandsToCode.find(CommandType::GUN_DROPPED)->second);
+    this->send_big_endian_number(dropped_gun.position.x);
+    this->send_big_endian_number(dropped_gun.position.y);
+    this->send_byte(this->weaponParser.getWeaponToByte(dropped_gun.gun_type));
+    this->send_big_endian_number(dropped_gun.ammo);
+}
+
+void ServerProtocol::send_particular_item(const DroppedBombDTO& bomb) {
+    this->send_byte(this->commandsToCode.find(CommandType::BOMB_DROPPED)->second);
+    this->send_big_endian_number(bomb.position.x);
+    this->send_big_endian_number(bomb.position.y);
 }
 
 void ServerProtocol::send_bomb_position(const std::optional<Vector2D<int>>& bomb_position) {
     if (bomb_position.has_value()) {
         this->send_byte(CODE_TRUE);
-        this->send_byte(bomb_position->x);
-        this->send_byte(bomb_position->y);
+        this->send_big_endian_number(bomb_position->x);
+        this->send_big_endian_number(bomb_position->y);
     } else {
         this->send_byte(CODE_FALSE);
-        this->send_byte(0);
-        this->send_byte(0);
+        this->send_big_endian_number(0);
+        this->send_big_endian_number(0);
     }
 }
 

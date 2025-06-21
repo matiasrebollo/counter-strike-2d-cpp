@@ -42,6 +42,9 @@ private:
     void send_bomb_position(const std::optional<Vector2D<int>>& bomb_position);
     void send_current_round_winner(const std::optional<Team>& current_round_winner);
     void send_end_game(const GameEnded& message);
+    void send_items(const std::vector<ItemDTO>& items);
+    void send_particular_item(const DroppedGunDTO& dropped_gun);
+    void send_particular_item(const DroppedBombDTO& bomb);
 
 public:
     explicit ServerProtocol(std::unique_ptr<Socket> socket);
