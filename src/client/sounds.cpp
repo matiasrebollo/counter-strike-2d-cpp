@@ -84,6 +84,7 @@ void Sounds::stop_clock_sound() {
     mixer.HaltChannel(channel);
 }
 
+
 void Sounds::play_step(const std::string& username, const SDL2pp::Point& destino_camera,
                        bool is_moving) {
     if (!is_moving)
@@ -125,8 +126,6 @@ void Sounds::play_step(const std::string& username, const SDL2pp::Point& destino
 
 void Sounds::play_shot(const std::string& username, GunType gun_type,
                        const SDL2pp::Point& destino_camera) {
-    if (gun_type != GLOCK && gun_type != AWP && gun_type != NONE && gun_type != M3)
-        return;
 
     int channel = get_channel(username, SoundType::SHOT_TYPE);
     if (channel == -1)
@@ -154,7 +153,10 @@ void Sounds::play_shot(const std::string& username, GunType gun_type,
     } else if (gun_type == M3) {
         path = texture_parser.get_sound_path(M3_SHOT);
         ticks = 1000;
+    } else if (gun_type == AK47) {
+        path = texture_parser.get_sound_path(AK_SHOT);
     }
+
     SDL2pp::Chunk& sound = texture_manager.get_sound(path);
 
     int used_channel = mixer.PlayChannel(channel, sound, 0, ticks);

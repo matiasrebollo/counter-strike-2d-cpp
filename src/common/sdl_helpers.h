@@ -48,6 +48,7 @@ enum SoundEffect {
     AWP_SHOT,
     KNIFE_HIT,
     M3_SHOT,
+    AK_SHOT,
     START_ROUND_TT,
     START_ROUND_CT,
     ROUND_ALMOST_FINISH,

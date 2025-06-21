@@ -28,6 +28,7 @@ private:
     std::unordered_map<std::string, StepSoundState> step_states;
     std::unordered_map<std::string, int> player_step_channel;
     std::unordered_map<std::string, int> player_shot_channel;
+
     int shop_channel = 0;
     int round_channel = 0;
     int bomb_channel = 0;

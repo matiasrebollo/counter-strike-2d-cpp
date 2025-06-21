@@ -108,7 +108,7 @@ GunVisualData SDLManager::get_gun_visual_info(WeaponType equipped, GunType gun_t
         case PRIMARY:
             switch (gun_type) {
                 case AK47:
-                    return GunVisualData{CARRY_PRIMARY, AK47_GAME, 0, -17, 0, -17, 32, 32, 3};
+                    return GunVisualData{CARRY_PRIMARY, AK47_GAME, 0, -17, -1, -25, 32, 32, 3};
                 case AWP:
                     return GunVisualData{CARRY_PRIMARY, AWP_GAME, 0, -17, -2, -30, 32, 32, 8};
                 case M3:
@@ -147,7 +147,8 @@ void SDLManager::render_bomb(BombStatus bomb_status, int x_world, int y_world) {
 
 /* Renderiza un jugador */
 void SDLManager::render_player(const std::string& username, const PlayerInfo& p,
-                               const CounterTerroristSkin& ct_skin, const TerroristSkin& tt_skin) {
+                               const CounterTerroristSkin& ct_skin, const TerroristSkin& tt_skin,
+                               int it) {
     double angulo = p.orientation + PLAYER_SPRITE_GAP;
     int x_pos = p.x;
     int y_pos = p.y;
@@ -168,7 +169,10 @@ void SDLManager::render_player(const std::string& username, const PlayerInfo& p,
 
     SDL2pp::Rect destino_camera = camera.rect_world_to_screen(destino_mundo);
 
-    if (p.shoot) {
+    // quizas ademas de chequear is ak shot active fijarse que tenga puesta el ak.
+    bool apply_recoil = p.shoot || animation.is_shot_active(username, it);
+
+    if (apply_recoil) {
         double rad = (angulo - 90) * M_PI / 180.0;
         int recoil_x = static_cast<int>(std::cos(rad) * gun_player_info.recoil);
         int recoil_y = static_cast<int>(std::sin(rad) * gun_player_info.recoil);
@@ -186,11 +190,85 @@ void SDLManager::render_player(const std::string& username, const PlayerInfo& p,
     sounds.play_step(username, centro, p.movement);
 }
 
+void SDLManager::render_player_shot(const GunVisualData& gun_info, const std::string& username,
+                                    const PlayerInfo& p, const SDL2pp::Rect& destino_camera,
+                                    int it) {
+
+    SDL2pp::Point end_world(p.impact_position_x / GRAPHIC_SCALE,
+                            p.impact_position_y / GRAPHIC_SCALE);
+
+    // inicio animaciones
+    if (p.shoot && p.equipped != KNIFE && p.equipped != BOMB) {
+        int duration = 1;  // por defecto
+
+        if (p.equipped == PRIMARY) {
+            if (p.primary_gun == AK47)
+                duration = 5;
+            else
+                duration = 2;
+        } else if (p.equipped == SECONDARY) {
+            duration = 2;
+        }
+
+        animation.start_shot(username, it, end_world, duration);
+    }
+
+    // renderizo si hay un disparo activo
+    if (animation.is_shot_active(username, it)) {
+        int size_player = PLAYER_THICKNESS / GRAPHIC_SCALE;
+        int cx = destino_camera.GetX() + destino_camera.GetW() / 2;
+        int cy = destino_camera.GetY() + destino_camera.GetH() / 2;
+
+        SDL2pp::Point local_offset(gun_info.shot_offset_x + gun_info.width / 2 - size_player / 2,
+                                   gun_info.shot_offset_y + gun_info.height / 2 - size_player / 2);
+
+        double rad = (p.orientation + PLAYER_SPRITE_GAP) * M_PI / 180.0;
+        double rotated_x =
+                local_offset.GetX() * std::cos(rad) - local_offset.GetY() * std::sin(rad);
+        double rotated_y =
+                local_offset.GetX() * std::sin(rad) + local_offset.GetY() * std::cos(rad);
+
+        SDL2pp::Point origin(static_cast<int>(cx + rotated_x), static_cast<int>(cy + rotated_y));
+
+        if (p.equipped == SECONDARY) {
+            animation.render_shot(origin, animation.get_shot_impact(username), p.secondary_gun,
+                                  p.orientation);
+        } else if (p.equipped != KNIFE && p.equipped != BOMB) {
+            animation.render_shot(origin, animation.get_shot_impact(username), p.primary_gun,
+                                  p.orientation);
+        }
+    }
+
+    // reproduzco sonido solo al disparar (esto seria lo ideal si consigo un sonido de rafaga de
+    // AK47) mientras tanto tengo que fijarme que arma tengo equipada.
+    bool play_sound = false;
+
+    if (p.primary_gun == AK47 && p.equipped == PRIMARY) {
+        // Reproducir sonido en todos los frames válidos del AK47
+        play_sound = animation.is_shot_active(username, it);
+    } else {
+        // Para el resto, solo reproducir si se disparó en este frame
+        play_sound = p.shoot;
+    }
+    if (play_sound) {
+        SDL2pp::Point centro(destino_camera.GetX() + destino_camera.GetW() / 2,
+                             destino_camera.GetY() + destino_camera.GetH() / 2);
+
+        if (p.equipped == SECONDARY) {
+            sounds.play_shot(username, p.secondary_gun, centro);
+        } else if (p.equipped == KNIFE) {
+            sounds.play_shot(username, NONE, centro);
+        } else if (p.equipped == PRIMARY) {
+            sounds.play_shot(username, p.primary_gun, centro);
+        }
+    }
+}
+
 // falta hacer que quizas podes no ver el player pero si el arma (x la camera)
 // no dibujo las armas junto a cada player para que todas las armas se dibujen sobre los demas
 // players (z order)
 /* Renderiza las armas de cada jugador */
-void SDLManager::render_player_weapon(const std::string& username, const PlayerInfo& p) {
+void SDLManager::render_player_weapon(const std::string& username, const PlayerInfo& p, int it) {
     double angulo = p.orientation + PLAYER_SPRITE_GAP;
     int x_pos = p.x;
     int y_pos = p.y;
@@ -209,7 +287,9 @@ void SDLManager::render_player_weapon(const std::string& username, const PlayerI
         int gun_x = destino_camera.GetX() + gun_info.sprite_offset_x;
         int gun_y = destino_camera.GetY() + gun_info.sprite_offset_y;
 
-        if (p.shoot) {
+        bool apply_recoil = p.shoot || animation.is_shot_active(username, it);
+
+        if (apply_recoil) {
             double rad = (angulo - 90) * M_PI / 180.0;
             gun_x -= static_cast<int>(std::cos(rad) * gun_info.recoil);
             gun_y -= static_cast<int>(std::sin(rad) * gun_info.recoil);
@@ -226,39 +306,7 @@ void SDLManager::render_player_weapon(const std::string& username, const PlayerI
         SDL2pp::Texture& weapon_texture = texture_manager.get_texture(weapon_path);
         renderer.Copy(weapon_texture, SDL2pp::NullOpt, gun_dst, angulo, rotate);
     }
-
-    // Siempre mostramos disparo este o no visible al jugador
-    if (p.shoot) {
-        int cx = destino_camera.GetX() + destino_camera.GetW() / 2;
-        int cy = destino_camera.GetY() + destino_camera.GetH() / 2;
-
-        // Vector desde el centro del jugador hasta la punta del arma (sin rotar)
-        SDL2pp::Point local_offset(gun_info.shot_offset_x + gun_info.width / 2 - size_player / 2,
-                                   gun_info.shot_offset_y + gun_info.height / 2 - size_player / 2);
-
-        double rad = angulo * M_PI / 180.0;
-        double rotated_x =
-                local_offset.GetX() * std::cos(rad) - local_offset.GetY() * std::sin(rad);
-        double rotated_y =
-                local_offset.GetX() * std::sin(rad) + local_offset.GetY() * std::cos(rad);
-
-        SDL2pp::Point origin(static_cast<int>(cx + rotated_x), static_cast<int>(cy + rotated_y));
-        SDL2pp::Point end_world(p.impact_position_x / GRAPHIC_SCALE,
-                                p.impact_position_y / GRAPHIC_SCALE);
-        if (p.equipped == SECONDARY) {
-            animation.render_shot(origin, end_world, p.secondary_gun, angulo - 90);
-        } else if (p.equipped != KNIFE && p.equipped != BOMB) {
-            animation.render_shot(origin, end_world, p.primary_gun, angulo - 90);
-        }
-        SDL2pp::Point centro(cx, cy);
-        if (p.equipped == SECONDARY) {
-            sounds.play_shot(username, p.secondary_gun, centro);
-        } else if (p.equipped == KNIFE) {
-            sounds.play_shot(username, NONE, centro);
-        } else if (p.equipped == PRIMARY) {
-            sounds.play_shot(username, p.primary_gun, centro);
-        }
-    }
+    render_player_shot(gun_info, username, p, destino_camera, it);
 }
 
 void SDLManager::render_fov(float orientation) {
@@ -638,8 +686,6 @@ void SDLManager::render_hud_bomb(const bool& has_bomb, const bool& in_site, cons
 void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
     update_camera(local_info.player.x / GRAPHIC_SCALE, local_info.player.y / GRAPHIC_SCALE);
 
-    (void)it;
-
     // funcion luego para renderizar el mapa.
     if (map.has_value()) {
         GameMapDTO game_map = map.value();
@@ -678,15 +724,16 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
     render_bomb(local_info.bomb_status, local_info.bomb_planted_x, local_info.bomb_planted_y);
 
     // render de mi player
-    render_player(local_info.username, local_info.player, local_info.ct_skin, local_info.tt_skin);
+    render_player(local_info.username, local_info.player, local_info.ct_skin, local_info.tt_skin,
+                  it);
     std::cout << "estoy en: " << local_info.player.x << ", " << local_info.player.y << std::endl;
     for (auto& [username, p]: local_info.players) {
-        render_player(username, p, local_info.ct_skin, local_info.tt_skin);
+        render_player(username, p, local_info.ct_skin, local_info.tt_skin, it);
     }
     // Renderizo las armas luego de los players para que aparezcan por encima
-    render_player_weapon(local_info.username, local_info.player);
+    render_player_weapon(local_info.username, local_info.player, it);
     for (auto& [username, p]: local_info.players) {
-        render_player_weapon(username, p);
+        render_player_weapon(username, p, it);
     }
 
     render_fov(local_info.player.orientation + PLAYER_SPRITE_GAP);

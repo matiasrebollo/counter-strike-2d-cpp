@@ -10,6 +10,36 @@ Animation::Animation(SDL2pp::Renderer& renderer, Camera& camera, TextureManager&
         texture_manager(texture_manager),
         texture_parser(texture_parser) {}
 
+void Animation::start_shot(const std::string& username, int current_it, SDL2pp::Point impact,
+                           int duration) {
+    shots[username] = {current_it, impact, duration};
+}
+
+bool Animation::is_shot_active(const std::string& username, int current_it) {
+    auto it = shots.find(username);
+    if (it == shots.end())
+        return false;
+
+    int diff = current_it - it->second.start_it;
+
+    // ARREGLAR BUG DE QUE SI SE CAMBIA DE FASE, AVECES IT ES 0 Y NO ENTRA A ESTE IF.
+    if (diff >= it->second.duration) {
+        shots.erase(it);
+        return false;
+    }
+    // solo renderizamos en frames 0, 2, 4 si es una animación de 5 frames (AK47)
+    if (it->second.duration == 5 && diff % 2 != 0) {
+        return false;
+    }
+
+    return true;  // activo durante los `duration` frames
+}
+
+
+SDL2pp::Point Animation::get_shot_impact(const std::string& username) const {
+    return shots.at(username).impact_position;
+}
+
 void Animation::render_shot(SDL2pp::Point origin_camera, SDL2pp::Point end_world, GunType gun,
                             int angle) {
     SDL2pp::Rect viewport = camera.get_viewport();
@@ -36,17 +66,11 @@ void Animation::render_shot(SDL2pp::Point origin_camera, SDL2pp::Point end_world
             renderer.SetDrawColor(255, 255, 0);
             renderer.DrawLine(a, b);
         }
-        std::string path = texture_parser.get_other_path(AWP_SHOT_FLARE);
-        SDL2pp::Texture& flare_texture = texture_manager.get_texture(path);
-        flare_texture.SetColorMod(255, 255, 0);
-        flare_texture.SetBlendMode(SDL_BLENDMODE_ADD);
-        SDL2pp::Rect rctdst(origin_camera.GetX() - 16, origin_camera.GetY() - 16, 32, 32);
-        renderer.Copy(flare_texture, SDL2pp::NullOpt, rctdst);
-    } else if (gun == GLOCK) {
+    } else if (gun == GLOCK || gun == AK47) {
         renderer.SetDrawColor(255, 255, 0);
         renderer.DrawLine(origin_camera, end_camera);
     } else if (gun == M3) {
-        const int num_lines = 10;
+        const int num_lines = 8;
         const double spread_angle_deg = 20.0;
         const double length = 100.0;
 
@@ -62,6 +86,9 @@ void Animation::render_shot(SDL2pp::Point origin_camera, SDL2pp::Point end_world
             SDL2pp::Point end(origin_camera.GetX() + dx_m3, origin_camera.GetY() + dy_m3);
             renderer.DrawLine(origin_camera, end);
         }
+    }
+
+    if (gun == AWP || gun == M3 || gun == AK47) {
         std::string path = texture_parser.get_other_path(AWP_SHOT_FLARE);
         SDL2pp::Texture& flare_texture = texture_manager.get_texture(path);
         flare_texture.SetColorMod(255, 255, 0);

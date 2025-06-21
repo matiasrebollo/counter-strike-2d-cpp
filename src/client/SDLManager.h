@@ -52,8 +52,10 @@ private:
     GunVisualData get_gun_visual_info(WeaponType equipped, GunType gun_type);
     void render_bomb(BombStatus bomb_status, int x_world, int y_world);
     void render_player(const std::string& username, const PlayerInfo& p,
-                       const CounterTerroristSkin& ct_skin, const TerroristSkin& tt_skin);
-    void render_player_weapon(const std::string& username, const PlayerInfo& p);
+                       const CounterTerroristSkin& ct_skin, const TerroristSkin& tt_skin, int it);
+    void render_player_shot(const GunVisualData& gun_info, const std::string& username,
+                            const PlayerInfo& p, const SDL2pp::Rect& destino_camera, int it);
+    void render_player_weapon(const std::string& username, const PlayerInfo& p, int it);
     void render_fov(float orientation_deg);
     void render_if_dead(const int& life);
     void render_hud_bomb_not_planted_time(int minutes, int seconds, Phase phase);

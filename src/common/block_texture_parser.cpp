@@ -100,6 +100,7 @@ void BlockTextureParser::set_sound_paths() {
                    {AWP_SHOT, "../assets/sfx/weapons/awp.wav"},
                    {KNIFE_HIT, "../assets/sfx/weapons/knife_hit.wav"},
                    {M3_SHOT, "../assets/sfx/weapons/m3.wav"},
+                   {AK_SHOT, "../assets/sfx/weapons/ak47.wav"},
                    {START_ROUND_TT, "../assets/sfx/radio/go.ogg"},
                    {START_ROUND_CT, "../assets/sfx/radio/letsgo.ogg"},
                    {BOMB_DEFUSE, "../assets/sfx/radio/bombdef.ogg"},
