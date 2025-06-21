@@ -1,5 +1,6 @@
 #include "server/cs2d_game.h"
 
+#include <algorithm>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -14,9 +15,11 @@
 #include "player_in_game_exception.h"
 
 CS2DGame::CS2DGame(const std::string& id, const std::string& map_filename):
+        creator_username(""),
         players_senders(),
         command_queue(),
         game_world(map_filename),
+        forced_start(false),
         current_round(0),
         current_round_winner(std::nullopt),
         ct_wins(0),
@@ -28,16 +31,23 @@ CS2DGame::CS2DGame(const std::string& id, const std::string& map_filename):
     phase = std::make_unique<WaitingPlayersPhase>(*this);
 }
 
+bool CS2DGame::can_force_start() const {
+    return players_senders.size() >=
+           std::max<std::size_t>((COUNTER_TERRORISTS + TERRORISTS) / 2, 2);
+}
+
 bool CS2DGame::should_start() const {
-    return players_senders.size() >= COUNTER_TERRORISTS + TERRORISTS;
+    return forced_start || (players_senders.size() >= COUNTER_TERRORISTS + TERRORISTS);
 }
 
 void CS2DGame::add_player(const std::string& username, std::shared_ptr<ClientSender> sender) {
-    if (players_senders.size() == COUNTER_TERRORISTS + TERRORISTS) {
+    if (forced_start || players_senders.size() == COUNTER_TERRORISTS + TERRORISTS) {
         throw GameFullException();
     } else if (players_senders.contains(username)) {
         throw PlayerAlreadyInGameException();
     }
+    if (creator_username == "")
+        creator_username = username;
     game_world.add_player(username);
     players_senders[username] = sender;
 }
@@ -92,6 +102,13 @@ void CS2DGame::execute_in_attack_phase(std::unique_ptr<Command> cmd) {
 
 void CS2DGame::execute_in_buy_phase(std::unique_ptr<Command> cmd) {
     cmd->execute_in_buy_phase(this->game_world);
+}
+
+void CS2DGame::execute_in_waiting_phase(std::unique_ptr<Command> cmd) {
+    if (auto* force_cmd = dynamic_cast<ForceStartCommand*>(cmd.get())) {
+        if (force_cmd->username == creator_username)
+            forced_start = can_force_start();
+    }
 }
 
 bool CS2DGame::current_round_has_a_winner() const {

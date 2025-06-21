@@ -13,13 +13,9 @@ GameUI::GameUI(Lobby& lobby):
         input_handler(sdl, this->protocol),
         receiver(this->protocol),
         // podria usar move?
-        local_info{lobby.get_username(),
-                   lobby.get_gamecode(),
-                   lobby.get_ct_skin(),
-                   lobby.get_tt_skin(),
-                   {},
-                   PlayerInfo{},
-                   std::nullopt},
+        local_info{lobby.get_username(), lobby.get_gamecode(), lobby.is_creator(),
+                   lobby.get_ct_skin(),  lobby.get_tt_skin(),  {},
+                   PlayerInfo{},         std::nullopt},
         keep_running(true) {
     this->phase = std::make_unique<WaitingForGamePhase>(*this);
 }
@@ -230,7 +226,7 @@ void GameUI::show_waiting(const int& it) {
     sdl.render_waiting_screen(
             local_info.players.size() +
                     1,  // 1 porque si veo esta pantalla quiere decir estoy conectado
-            local_info.total_players, local_info.gamename, it,
+            local_info.total_players, local_info.is_creator, local_info.gamename, it,
             Settings::getInstance().get_fps_client(), false);
     sdl.show_screen();
 }
@@ -400,7 +396,8 @@ void GameUI::handle_game_ended() {
             sdl.render_waiting_screen(
                     local_info.players.size() +
                             1,  // 1 porque si veo esta pantalla quiere decir estoy conectado
-                    local_info.total_players, local_info.gamename, it, fps_client, true);
+                    local_info.total_players, local_info.is_creator, local_info.gamename, it,
+                    fps_client, true);
             sdl.show_screen();
         }
 

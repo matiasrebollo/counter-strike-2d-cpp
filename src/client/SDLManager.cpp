@@ -42,13 +42,11 @@ void SDLManager::set_sound_info(const std::vector<std::string>& usernames) {
     sounds.initialize_channels(usernames);
 }
 
-void SDLManager::render_waiting_screen(int players_connected, int players_required,
+void SDLManager::render_waiting_screen(int players_connected, int players_required, bool is_creator,
                                        const std::string& gamename, int iteration, int FPS,
                                        bool have_ended) {
-
     int large_font_size = 53;
     int small_font_size = 27;
-    // Fondo
 
     const std::string& font_path = texture_parser.get_fw_texture(FONT_WAITING);
     const std::string& background_path = texture_parser.get_fw_texture(BACKGROUND);
@@ -56,6 +54,19 @@ void SDLManager::render_waiting_screen(int players_connected, int players_requir
     SDL2pp::Texture& background = texture_manager.get_texture(background_path);
     SDL2pp::Rect backgroundRect(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
     renderer.Copy(background, SDL2pp::NullOpt, backgroundRect);
+
+    if (have_ended) {
+        std::string ended = "Server has been closed!";
+        SDL2pp::Texture& have_ended_texture = texture_manager.get_text_texture(
+                ended, font_path, small_font_size, SDL2pp::Color(255, 255, 255));
+        int ended_width = have_ended_texture.GetWidth();
+        int ended_height = have_ended_texture.GetHeight();
+        SDL2pp::Rect ended_rect((CAMERA_WIDTH / 2) - (ended_width / 2),
+                                (CAMERA_HEIGHT / 2) - (ended_height / 2), ended_width,
+                                ended_height);
+        renderer.Copy(have_ended_texture, SDL2pp::NullOpt, ended_rect);
+        return;
+    }
 
     // ver forma de no recibir FPS
     int frames_per_dot = static_cast<int>(1.5f * FPS);
@@ -81,8 +92,8 @@ void SDLManager::render_waiting_screen(int players_connected, int players_requir
     SDL2pp::Rect playersRect((CAMERA_WIDTH / 2) - playersW / 2, waitingRect.y + mainH + 10,
                              playersW, playersH);
 
-    if (have_ended) {
-        std::string ended = "Server has been closed!";
+    if (is_creator && players_connected >= std::max(players_required / 2, 2)) {
+        std::string ended = "Press K to start the game";
         SDL2pp::Texture& have_ended_texture = texture_manager.get_text_texture(
                 ended, font_path, small_font_size, SDL2pp::Color(255, 255, 255));
         int ended_width = have_ended_texture.GetWidth();

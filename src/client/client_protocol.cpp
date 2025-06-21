@@ -71,6 +71,8 @@ void ClientProtocol::send_command(const GameCommandDTO& command) {
                     handle_buy_gun(d);
                 } else if constexpr (std::is_same_v<T, BuyAmmoDTO>) {
                     handle_buy_ammo(d);
+                } else if constexpr (std::is_same_v<T, ForceStartDTO>) {
+                    handle_force_start();
                 } else {
                     static_assert(always_false_v<T>, "Unhandled GameCommandDTO type");
                 }
@@ -147,6 +149,8 @@ void ClientProtocol::handle_buy_ammo(const BuyAmmoDTO& dto) {
         this->send_byte(CODE_CHOOSE_SECONDARY);
     }
 }
+
+void ClientProtocol::handle_force_start() { this->send_byte(CODE_START); }
 
 
 GameDTO ClientProtocol::receive_game_dto() {

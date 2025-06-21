@@ -51,7 +51,9 @@ Phase WaitingPlayersPhase::type() { return WAITING_PLAYERS; }
 bool WaitingPlayersPhase::should_continue() {
     return !game.should_start() && game.should_keep_running();
 }
-void WaitingPlayersPhase::execute(std::unique_ptr<Command>) {}
+void WaitingPlayersPhase::execute(std::unique_ptr<Command> cmd) {
+    game.execute_in_waiting_phase(std::move(cmd));
+}
 void WaitingPlayersPhase::end() {
     if (!game.should_keep_running())
         return;

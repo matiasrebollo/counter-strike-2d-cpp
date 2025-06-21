@@ -17,6 +17,7 @@ private:
     bool s = false;
     bool d = false;
     bool e = false;
+    bool k = false;
 
     bool one = false;
     bool two = false;
@@ -27,6 +28,7 @@ private:
     bool click_attack = false;
 
     bool handle_quit_event(const SDL_Event& event);
+    bool handle_force_start(const SDL_Event& event);
     bool handle_weapon_switch_event(const SDL_Event& event);
 
     bool handle_click_shop_event(const SDL_Event& event, int money, GunType primary);
