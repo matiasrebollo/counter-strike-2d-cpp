@@ -90,7 +90,7 @@ public:
     void set_sound_info(const std::vector<std::string>& usernames);
 
     /* Renderiza la fase de waiting */
-    void render_waiting_screen(int players_connected, int players_required,
+    void render_waiting_screen(int players_connected, int players_required, bool is_creator,
                                const std::string& gamename, int iteration, int FPS,
                                bool have_ended);
 
