@@ -271,7 +271,7 @@ void SDLManager::render_fov(float orientation) {
     const int diagonal = static_cast<int>(
             std::ceil(std::sqrt(CAMERA_WIDTH * CAMERA_WIDTH + CAMERA_HEIGHT * CAMERA_HEIGHT)));
     float opacity = 0.9f;
-    int fov_angle = 90;
+    int fov_angle = Settings::getInstance().get_fov_angle();
 
     SDL2pp::Texture& fov_texture = texture_manager.get_fov_texture(fov_angle, opacity, diagonal);
 

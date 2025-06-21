@@ -67,3 +67,4 @@ int Settings::get_fps_client() { return clientSettings.fps; }
 int Settings::get_window_initial_height() { return clientSettings.window_initial_height; }
 int Settings::get_window_initial_width() { return clientSettings.window_initial_width; }
 bool Settings::get_fullscreen() { return clientSettings.fullscreen; }
+int Settings::get_fov_angle() { return clientSettings.fov_angle; }
