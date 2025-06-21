@@ -46,6 +46,7 @@ public:
     CounterTerroristSkin& get_ct_skin();
     std::string get_username();
     std::string get_gamecode();
+    bool is_creator();
 
 private slots:
     void on_CreateGame_clicked();
@@ -80,6 +81,7 @@ private:
     TerroristSkin selected_tt_skin;
     std::string username;
     std::string gamecode;
+    bool is_creator_;
     bool can_change_name;
     std::optional<ClientProtocol> protocol;
     QMediaPlayer* sound_player;

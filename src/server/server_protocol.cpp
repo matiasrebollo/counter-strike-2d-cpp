@@ -197,6 +197,8 @@ GameCommandDTO ServerProtocol::receive_client_game_request() {
             return this->receive_buy_ammo_request();
         case CODE_DEFUSE_BOMB:
             return DefuseBombDTO{this->code_to_bools.find(this->receive_byte())->second};
+        case CODE_START:
+            return ForceStartDTO{};
         default:
             throw std::runtime_error("Command not recognised");
     }

@@ -39,6 +39,7 @@ Lobby::Lobby(QWidget* parent):
         selected_tt_skin(PHEONIX),
         username(""),
         gamecode(""),
+        is_creator_(false),
         can_change_name(false) {
     ui->setupUi(this);
     ui->stack->setCurrentIndex(0);
@@ -128,6 +129,7 @@ void Lobby::on_CreateGameButton_clicked() {
         ServerResponseLobby response = protocol.value().receive_server_response_lobby();
         if (response.status == ResponseStatus::SUCCESS) {
             this->gamecode = response.game_name;
+            this->is_creator_ = true;
             this->sound_player->stop();
             close();
         } else if (response.status == ResponseStatus::GAME_NOT_CREATED) {
@@ -276,6 +278,8 @@ std::string Lobby::get_gamecode() {
     }
     return this->gamecode;
 }
+
+bool Lobby::is_creator() { return is_creator_; }
 
 void Lobby::tryLobbyRequest(const std::function<void()>& func) {
     try {

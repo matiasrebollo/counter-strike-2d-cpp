@@ -31,6 +31,7 @@ struct PlayerInfo {
 struct LocalInfo {
     std::string username;
     std::string gamename;
+    bool is_creator;
 
     CounterTerroristSkin ct_skin;
     TerroristSkin tt_skin;

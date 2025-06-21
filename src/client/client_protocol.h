@@ -56,6 +56,7 @@ private:
     void handle_equip_bomb();
     void handle_buy_gun(const BuyGunDTO& dto);
     void handle_buy_ammo(const BuyAmmoDTO& dto);
+    void handle_force_start();
 
     /*
         Main method and helpers to receive a game snapshot

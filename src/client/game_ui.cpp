@@ -13,13 +13,9 @@ GameUI::GameUI(Lobby& lobby):
         input_handler(sdl, this->protocol),
         receiver(this->protocol),
         // podria usar move?
-        local_info{lobby.get_username(),
-                   lobby.get_gamecode(),
-                   lobby.get_ct_skin(),
-                   lobby.get_tt_skin(),
-                   {},
-                   PlayerInfo{},
-                   std::nullopt},
+        local_info{lobby.get_username(), lobby.get_gamecode(), lobby.is_creator(),
+                   lobby.get_ct_skin(),  lobby.get_tt_skin(),  {},
+                   PlayerInfo{},         std::nullopt},
         keep_running(true) {
     this->phase = std::make_unique<WaitingForGamePhase>(*this);
 }
