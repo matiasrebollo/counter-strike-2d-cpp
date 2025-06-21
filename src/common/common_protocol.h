@@ -53,6 +53,10 @@ inline constexpr bool always_false_v = false;
 #define CODE_CHOOSE_SECONDARY 0x02
 #define CODE_CHOOSE_BOMB 0x03
 
+/*
+    Class from who server and client protocol inherite. It provides the interface for the
+    send and recv "low level" methods.
+*/
 class CommonProtocol {
 protected:
     std::unique_ptr<Socket> socket;
@@ -64,12 +68,18 @@ protected:
 
     double receive_angle();
     void send_angle(const double& angle);
+
     uint8_t receive_byte();
-    uint16_t receive_big_endian_number();
     void send_byte(const uint8_t& number);
+    /*
+        Receive and send a 2 bytes number in big endian.
+    */
+    uint16_t receive_big_endian_number();
     void send_big_endian_number(const uint16_t& number);
+
     void send_string(const std::string& s);
     std::string receive_string();
+
     void send_double(const double& number);
     double receive_double();
 

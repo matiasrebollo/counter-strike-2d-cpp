@@ -10,6 +10,10 @@
 
 #define MSG_CLOSE_SENDER "Closing sender thread ..."
 
+/*
+    Thread where the game command queue lives. It keeps the commands and while it pops commands
+    from the queue it calls to the protocol for send them.
+*/
 class ClientSender: public Thread {
 private:
     Queue<GameCommandDTO> queue;
