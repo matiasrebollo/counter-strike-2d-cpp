@@ -24,6 +24,14 @@ struct KnifeSettings {
     int knife_kill_bonus;
 };
 
+struct BombSettings {
+    int explosion_damage;
+    int explosion_radius;
+    int detonation_time;
+    int plantation_time;
+    int defuse_time;
+};
+
 struct ServerSettings {
     int fps;
     size_t rounds;
@@ -43,31 +51,21 @@ struct ServerSettings {
     int clip_price;
     float damage_variation_factor;
 
+    int team_kill_penalty;
+    int won_round_bonus;
+    int lost_round_bonus;
+
     std::unordered_map<GunType, GunSettings> guns_settings;
     KnifeSettings knife_settings;
+    BombSettings bomb_settings;
 };
 
 #define BLOCK_THICKNESS 400
 #define PLAYER_THICKNESS 320
 
 #define MAX_DISTANCE_SHOT 10000
-
-#define TEAM_KILL_PENALTY 3000
-#define AWP_KILL_BONUS 100
-#define AK47_KILL_BONUS 300
-#define M3_KILL_BONUS 300
-#define GLOCK_KILL_BONUS 500
-#define KNIFE_KILL_BONUS 1500
-#define WON_ROUND_BONUS 3250
-#define LOST_ROUND_BONUS 2000
-
 #define BOMB_THICKNESS 100
 
-#define BOMB_EXPLOSION_DAMAGE 200
-#define BOMB_EXPLOSION_RADIUS 1000
-#define DETONATION_TIME 30
-#define PLANTATION_TIME 4
-#define DEFUSE_TIME 4
 
 #define PATH_FOLDER_MAPS "../maps/"
 #define PATH_SETTINGS "../settings.yaml"
@@ -111,6 +109,9 @@ public:
     size_t get_counter_terrorists_number();
     int get_player_initial_life();
     int get_initial_money();
+    int get_team_kill_penalty();
+    int get_won_round_bonus();
+    int get_lost_round_bonus();
     int get_clip_price();
     GunSettings get_gun(const GunType& gun);
     float get_damage_variation_factor();
@@ -122,6 +123,12 @@ public:
     int get_knife_ar();
     int get_knife_distance();
     int get_knife_kill_bonus();
+
+    int get_bomb_damage();
+    int get_explosion_radius();
+    int get_detonation_time();
+    int get_plantation_time();
+    int get_defuse_time();
 
     int get_fps_client();
     int get_window_initial_width();

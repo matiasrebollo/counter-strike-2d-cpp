@@ -13,6 +13,9 @@ terrorists: 1
 counter_terrorists: 1
 player_initial_life: 100
 initial_money: 800
+team_kill_penalty: 3000
+won_round_bonus: 3250
+lost_round_bonus: 2000
 clip_price: 50
 damage_variation_factor: 0.1
 guns_settings:
@@ -57,3 +60,9 @@ knife_settings:
   knife_damage: 25
   knife_ar: 120
   knife_kill_bonus: 1500
+bomb_settings:
+  bomb_explosion_damage: 200
+  bomb_explosion_radius: 1000
+  detonation_time: 30
+  plantation_time: 4
+  defuse_time: 4

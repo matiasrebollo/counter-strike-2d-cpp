@@ -104,8 +104,12 @@ ServerSettings YamlParser::load_server_settings(const std::string& path) {
                                file["initial_money"].as<int>(),
                                file["clip_price"].as<int>(),
                                file["damage_variation_factor"].as<float>(),
+                               file["team_kill_penalty"].as<int>(),
+                               file["won_round_bonus"].as<int>(),
+                               file["lost_round_bonus"].as<int>(),
                                load_guns_settings(file["guns_settings"]),
-                               load_knife_settings(file["knife_settings"])};
+                               load_knife_settings(file["knife_settings"]),
+                               load_bomb_settings(file["bomb_settings"])};
     return settings;
 }
 
@@ -127,6 +131,12 @@ std::unordered_map<GunType, GunSettings> YamlParser::load_guns_settings(const YA
         guns[str_to_gun[name]] = load_gun_sett(it->second);
     }
     return guns;
+}
+
+BombSettings YamlParser::load_bomb_settings(const YAML::Node& node) {
+    return {node["bomb_explosion_damage"].as<int>(), node["bomb_explosion_radius"].as<int>(),
+            node["detonation_time"].as<int>(), node["plantation_time"].as<int>(),
+            node["defuse_time"].as<int>()};
 }
 
 GunSettings YamlParser::load_gun_sett(const YAML::Node& node) {
