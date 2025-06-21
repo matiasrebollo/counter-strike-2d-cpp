@@ -117,7 +117,8 @@ ClientSettings YamlParser::load_client_settings(const std::string& path) {
     YAML::Node file = YAML::LoadFile(path);
     ClientSettings settings = {file["client_fps"].as<int>(), file["window_initial_width"].as<int>(),
                                file["window_initial_height"].as<int>(),
-                               file["fullscreen"].as<bool>(), file["fov_angle"].as<int>()};
+                               file["fullscreen"].as<bool>(), file["fov_angle"].as<int>(), file["stats_time"].as<float>()};
+
     return settings;
 }
 

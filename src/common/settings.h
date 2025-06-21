@@ -94,6 +94,7 @@ struct ClientSettings {
     bool fullscreen;
 
     int fov_angle;
+    float stats_time;
 };
 
 class Settings {
@@ -137,6 +138,7 @@ public:
     int get_window_initial_height();
     bool get_fullscreen();
     int get_fov_angle();
+    float get_stats_time();
 
     Settings(const Settings&) = delete;
     Settings& operator=(const Settings&) = delete;

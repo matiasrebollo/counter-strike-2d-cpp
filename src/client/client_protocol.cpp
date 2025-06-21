@@ -165,6 +165,8 @@ Snapshot ClientProtocol::receive_snapshot() {
     int phase = this->receive_byte();
     size_t current_round_number = this->receive_byte();
     size_t total_rounds = this->receive_byte();
+    size_t ct_wins = this->receive_byte();
+    size_t tt_wins = this->receive_byte();
     int time_left = this->receive_byte();
     BombStatus status = static_cast<BombStatus>(this->receive_byte());
     std::optional<Vector2D<int>> bomb_position = this->receive_bomb_position();
@@ -173,10 +175,10 @@ Snapshot ClientProtocol::receive_snapshot() {
     int size_tt = this->receive_byte();
     std::vector<PlayerDTO> tts = this->receive_players(size_tt);
     std::optional<Team> current_round_winner = this->receive_current_round_winner();
-    Snapshot snapshot = Snapshot{total_players,       Phase(phase), current_round_number,
-                                 total_rounds,        time_left,    status,
-                                 bomb_position,       cts,          tts,
-                                 current_round_winner};
+    Snapshot snapshot = Snapshot{total_players, Phase(phase), current_round_number,
+                                 total_rounds,  ct_wins,      tt_wins,
+                                 time_left,     status,       bomb_position,
+                                 cts,           tts,          current_round_winner};
     return snapshot;
 }
 
@@ -192,7 +194,7 @@ std::vector<PlayerDTO> ClientProtocol::receive_players(const int& size_players) 
         bool planting_bomb = this->code_to_bools.find(this->receive_byte())->second;
         bool defusing_bomb = this->code_to_bools.find(this->receive_byte())->second;
         bool on_site = this->code_to_bools.find(this->receive_byte())->second;
-        int bonifications = this->receive_byte();
+        int bonifications = this->receive_big_endian_number();
         int kills = this->receive_byte();
         int deaths = this->receive_byte();
         LoadoutDTO loadout = this->receive_loadout();

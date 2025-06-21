@@ -68,3 +68,4 @@ int Settings::get_window_initial_height() { return clientSettings.window_initial
 int Settings::get_window_initial_width() { return clientSettings.window_initial_width; }
 bool Settings::get_fullscreen() { return clientSettings.fullscreen; }
 int Settings::get_fov_angle() { return clientSettings.fov_angle; }
+float Settings::get_stats_time() { return clientSettings.stats_time; }

@@ -15,6 +15,8 @@ bool InputHandler::handle_waiting_events() {
     return true;
 }
 
+bool InputHandler::handle_ended_events() { return handle_waiting_events(); }
+
 bool InputHandler::handle_between_rounds_events() { return handle_attack_events(); }
 
 bool InputHandler::handle_weapon_switch_event(const SDL_Event& event) {
@@ -129,12 +131,13 @@ bool InputHandler::handle_move_shop_event(const SDL_Event& event, int money, Gun
 bool InputHandler::handle_buy_events(int money, GunType primary) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_QUIT)
+            return false;
         if (handle_quit_event(event)) {
             // llamar close shop dentro del handler
             sdl.close_shop();
             continue;
         }
-        // tener un handler y llamar open shop dentro
         if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_b) {
             sdl.open_shop();
             continue;
