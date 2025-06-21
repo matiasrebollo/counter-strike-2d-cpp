@@ -12,8 +12,8 @@
 #include "server_protocol.h"
 
 /*
-    Is the owner of the client queue that lives in the server. The queue saves variant messages
-   being:
+    Is the owner of the client queue that lives in the server. The queue saves a variant message
+   which could be one of these:
 
     - Snapshot: DTO which saves the current state of the game.
     - GameInitialInfo: DTO which saves the game's map info and the shop's info (for buying guns and
@@ -32,7 +32,7 @@ private:
     void send_response();
     /*
         Close the queue and finish the execution of this class, returning to the ClientHandler
-       method.
+        method.
     */
     void game_ended();
 

@@ -45,18 +45,18 @@ public:
                                               const std::string& map_filename,
                                               std::shared_ptr<ClientSender> sender);
     /*
-        Join to a existent game. If the game doesn't exist, it returns a nullptr.
+        Join to an existent game. If the game doesn't exist, it returns a nullptr.
         If the game is dead (is still at the game's map but nobody is playing), it will throw an
-       exception, later cached in the client handler, who will send through the socket an appropiate
-       message. If you join the game succesfully, the game will save the sender thread.
+        exception, later cached in the client handler, who will send through the socket an
+       appropiate message. If you join the game succesfully, the game will save the sender thread.
     */
     std::shared_ptr<CS2DGame> join_game(const std::string& gameName, const std::string& username,
                                         std::shared_ptr<ClientSender> sender);
     /*
-        If somebody leaves the server (it closes the client program or his game have ended), delete
-       the username. Its also called if somebody register a username valid because somebody had left
-       the server, but its still in a current game. In this particular case, you could change your
-       name.
+        If somebody leaves the server (have closed the client program or his game have ended),
+       delete the username. Its also called if somebody register a username valid because somebody
+       had left the server, but its still in a current game. In this particular case, you could
+       change your name.
     */
     void delete_username(const std::string& username);
     /*
