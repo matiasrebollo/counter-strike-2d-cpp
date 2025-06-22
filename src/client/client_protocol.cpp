@@ -263,7 +263,7 @@ GameInitialInfoDTO ClientProtocol::receive_game_initial_info() {
     std::unordered_map<GunType, int> gun_prices = this->receive_gun_prices(shop_gun_prices_size);
     uint8_t shop_gun_clips_size = this->receive_byte();
     std::unordered_map<GunType, int> gun_clips = this->receive_gun_clips_size(shop_gun_clips_size);
-    int price_clips = this->receive_byte();
+    int price_clips = this->receive_big_endian_number();
     ShopInfoDTO shop_info = ShopInfoDTO{gun_prices, gun_clips, price_clips};
     return GameInitialInfoDTO{game_map, shop_info};
 }
@@ -306,13 +306,14 @@ std::vector<MapObject> ClientProtocol::receive_map_objects(const uint8_t& size) 
     for (int i = 0; i < size; i++) {
         uint16_t type = this->receive_big_endian_number();
         uint8_t collidable = this->receive_byte();
-        uint8_t vec_size = this->receive_byte();
+        uint16_t vec_size = this->receive_big_endian_number();
         std::vector<Vector2D<int>> positions;
         for (int j = 0; j < vec_size; j++) {
             uint16_t x = this->receive_big_endian_number();
             uint16_t y = this->receive_big_endian_number();
             positions.push_back(Vector2D<int>(x, y));
         }
+
         objects.push_back({positions, type, this->code_to_bools.find(collidable)->second});
     }
     return objects;
