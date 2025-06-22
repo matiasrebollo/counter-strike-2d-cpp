@@ -186,18 +186,23 @@ bool GameUI::update_waiting() {
     GameDTO game_dto;
     bool pop = true;
     while (pop) {
+        std::cout << "try pop" << std::endl;
         if (!this->receiver.try_pop_game_dto(game_dto)) {
             pop = false;
             continue;
         }
+        std::cout << "popee" << std::endl;
         std::visit(
                 [this, &pop](const auto& game_dto) {
                     using T = std::decay_t<decltype(game_dto)>;
                     if constexpr (std::is_same_v<T, Snapshot>) {
                         update_local_info_from_snapshot(std::move(game_dto));
                     } else if constexpr (std::is_same_v<T, GameInitialInfoDTO>) {
+                        std::cout << "recibo game initial info " << std::endl;
                         this->sdl.set_map(std::move(game_dto.game_map));
+                        std::cout << "setee el mapa " << std::endl;
                         this->sdl.set_shop(std::move(game_dto.shop_info));
+                        std::cout << "setee info de tienda " << std::endl;
                         pop = false;
                     } else if constexpr (std::is_same_v<T, GameEnded>) {
                         // guardar estadisticas

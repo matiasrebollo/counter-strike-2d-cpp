@@ -12,6 +12,7 @@ void GameUIPhase::run() {
     Clock clock;
     bool loop = true;
     while (loop) {
+        std::cout << "1- it: " << it << std::endl;
         show_game(it);  // pasar la iteracion para animaciones
         handle_game_events();
         if (!game_ui.keep_running)
@@ -24,6 +25,7 @@ void GameUIPhase::run() {
         if (!game_ui.keep_running)
             break;
         it = clock.sleep_and_calc_next_it(FPS_CLIENT, it);
+        std::cout << "2- it: " << it << std::endl;
     }
     if (!(game_ui.local_info.phase == ROUND_ENDED && dynamic_cast<RoundEndedPhase*>(this))) {
         change_phase();
@@ -32,7 +34,9 @@ void GameUIPhase::run() {
 
 void GameUIPhase::change_phase() {
     if (game_ui.local_info.phase == WAITING_PLAYERS) {
+        std::cout << "fin waiting phase" << std::endl;
         game_ui.change_phase(std::make_unique<WaitingForGamePhase>(game_ui));
+        std::cout << "fin del fin waiting phase" << std::endl;
     } else if (game_ui.local_info.phase == BUY) {
         game_ui.change_phase(std::make_unique<UIBuyPhase>(game_ui));
     } else if (game_ui.local_info.phase == ATTACK) {

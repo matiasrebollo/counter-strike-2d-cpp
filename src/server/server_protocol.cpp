@@ -67,7 +67,7 @@ void ServerProtocol::send_game_init_info(const GameInitialInfoDTO& dto) {
     for (auto object: dto.game_map.map_objects) {
         this->send_big_endian_number(object.type);
         this->send_byte(this->bools_to_code.find(object.collidable)->second);
-        this->send_byte(object.positions.size());
+        this->send_big_endian_number(object.positions.size());
         for (auto vec: object.positions) {
             this->send_big_endian_number(vec.x);
             this->send_big_endian_number(vec.y);
@@ -88,7 +88,7 @@ void ServerProtocol::send_game_init_info(const GameInitialInfoDTO& dto) {
         this->send_byte(this->weaponParser.getWeaponToByte(gun));
         this->send_big_endian_number(price);
     }
-    this->send_byte(dto.shop_info.price_clips);
+    this->send_big_endian_number(dto.shop_info.price_clips);
 }
 
 
