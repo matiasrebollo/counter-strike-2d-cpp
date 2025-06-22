@@ -54,6 +54,7 @@ private:
     void handle_equip_secondary();
     void handle_equip_knife();
     void handle_equip_bomb();
+    void handle_pick_up_item();
     void handle_buy_gun(const BuyGunDTO& dto);
     void handle_buy_ammo(const BuyAmmoDTO& dto);
     void handle_force_start();
@@ -76,6 +77,10 @@ private:
     std::set<Vector2D<int>> receive_sites(const uint16_t& size);
     std::unordered_map<GunType, int> receive_gun_prices(const uint8_t& size);
     std::unordered_map<GunType, int> receive_gun_clips_size(const uint8_t& size);
+
+    std::vector<ItemDTO> receive_items();
+    DroppedGunDTO receive_dropped_gun();
+    DroppedBombDTO receive_dropped_bomb();
 
 public:
     explicit ClientProtocol(std::unique_ptr<Socket> socket);

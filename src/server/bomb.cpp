@@ -73,10 +73,10 @@ void Bomb::update_planted(const float& delta_t) {
     }
 }
 
-void Bomb::make_damage_to(Player& victim, const float& distance_to_victim) {
+void Bomb::make_damage_to(Player& victim, const float& distance_to_victim, GameWorld& game) {
     float damage_ratio = 1.0f - (distance_to_victim / explosion_radius);
     int damage = static_cast<int>(explosion_damage * damage_ratio);
-    victim.receive_damage(damage);
+    victim.receive_damage(damage, game);
 }
 
 void Bomb::restart() {

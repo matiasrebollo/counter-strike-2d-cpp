@@ -10,4 +10,11 @@ bool Rect::intersects_with(const Rect& other_rect) const {
              position.y >= other_rect.position.y + other_rect.height);
 }
 
+bool Rect::contains(const Rect& other_rect) const {
+    return other_rect.position.x >= position.x &&
+           other_rect.position.x + other_rect.width <= position.x + width &&
+           other_rect.position.y >= position.y &&
+           other_rect.position.y + other_rect.height <= position.y + height;
+}
+
 Rect::~Rect() {}

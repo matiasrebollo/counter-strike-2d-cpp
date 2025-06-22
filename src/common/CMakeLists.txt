@@ -28,6 +28,7 @@ target_sources(taller_common
     vector_2d.h
     commands.h
     game_commands_dto.h
+    item_dto.h
     common_protocol.h
     communication_ended.h
     error_codes.h

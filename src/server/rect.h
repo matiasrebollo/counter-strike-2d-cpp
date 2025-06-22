@@ -11,6 +11,7 @@ public:
     Rect(Vector2D<int> position, int width, int height);
 
     bool intersects_with(const Rect& other_Rect) const;
+    bool contains(const Rect& other_Rect) const;
 
     // Permito la copia para una Rect
     Rect(const Rect&) = default;

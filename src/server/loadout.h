@@ -33,15 +33,17 @@ public:
     void add_money(const int& ammount_of_money);
     void receive_bomb(std::shared_ptr<Bomb> bomb);
     void leave_bomb();
+    std::unique_ptr<Gun> take_primary_gun();
     std::unique_ptr<Gun> new_primary_gun(
             std::unique_ptr<Gun> gun);  // devuelve el arma poseída anteriormente.
+    std::unique_ptr<Gun> new_secondary_gun(std::unique_ptr<Gun> gun);
     void add_ammo_to_primary(const int& ammo_count);
     void add_ammo_to_secondary(const int& ammo_count);
     void equip_primary();
     void equip_secondary();
     void equip_knife();
     void equip_bomb();
-    void reset();
+    void reset(const bool& on_death);
 
     Weapon* equipped_weapon();
     const LoadoutDTO get_dto() const;

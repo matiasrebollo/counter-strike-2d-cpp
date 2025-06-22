@@ -55,6 +55,9 @@ private:
 
     void send_game_init_info(const GameInitialInfoDTO& dto);
     void send_end_game(const GameEnded& message);
+    void send_items(const std::vector<ItemDTO>& items);
+    void send_particular_item(const DroppedGunDTO& dropped_gun);
+    void send_particular_item(const DroppedBombDTO& bomb);
 
 public:
     explicit ServerProtocol(std::unique_ptr<Socket> socket);

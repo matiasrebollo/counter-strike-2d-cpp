@@ -90,7 +90,8 @@ void CS2DGame::broadcast_snapshot(const int time_left) {
                             game_world_snapshot.bomb_position,
                             game_world_snapshot.ct,
                             game_world_snapshot.tt,
-                            this->current_round_winner};
+                            this->current_round_winner,
+                            game_world_snapshot.items};
     broadcast_game_dto(snapshot);
 }
 
@@ -142,7 +143,7 @@ void CS2DGame::begin_new_round() {
 
     game_world.restart_players();
     game_world.spawn_players();
-    // limpiar items del mapa (dejar algunos, random)
+    game_world.restart_items();
 }
 
 void CS2DGame::change_phase(std::unique_ptr<GamePhase> new_phase) {

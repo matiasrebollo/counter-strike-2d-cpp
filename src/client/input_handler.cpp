@@ -288,6 +288,21 @@ bool InputHandler::handle_defuse_event(const SDL_Event& event) {
     return false;
 }
 
+bool InputHandler::handle_pick_up_event(const SDL_Event& event) {
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_f && !f) {
+        f = true;
+        sender.add_command_to_queue(PickUpItemDTO{});
+        return true;
+    }
+
+    if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_f && f) {
+        f = false;
+        return true;
+    }
+
+    return false;
+}
+
 bool InputHandler::handle_attack_events() {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
@@ -304,6 +319,8 @@ bool InputHandler::handle_attack_events() {
         if (handle_shoot_event(event))
             continue;
         if (handle_defuse_event(event))
+            continue;
+        if (handle_pick_up_event(event))
             continue;
     }
     return true;

@@ -60,7 +60,6 @@ void WaitingPlayersPhase::end() {
     game.broadcast_game_initial_info();
     game.begin_new_round();
     game.change_phase(std::make_unique<BuyPhase>(game));
-    // y si salió porque terminó la partida??? -> AGREGAR
 }
 
 
@@ -96,5 +95,4 @@ void BetweenRoundsPhase::execute(std::unique_ptr<Command> cmd) {
 void BetweenRoundsPhase::end() {
     game.begin_new_round();
     game.change_phase(std::make_unique<BuyPhase>(game));
-    // si termina la partida???
 }

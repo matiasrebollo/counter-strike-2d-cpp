@@ -40,6 +40,7 @@ inline constexpr bool always_false_v = false;
 #define CODE_CHANGE_WEAPON 0x11
 #define CODE_PLANT_BOMB 0x12
 #define CODE_DEFUSE_BOMB 0x13
+#define CODE_PICK_UP 0x14
 #define CODE_START 0x15
 #define CODE_SEND_GAME_INIT_INFO 0x25
 #define CODE_GAME_STARTED 0x30
@@ -48,6 +49,8 @@ inline constexpr bool always_false_v = false;
 #define CODE_BULLETS 0x50
 #define CODE_SHOT 0x55
 #define CODE_ENDGAME 0x60
+#define CODE_GUN_DROPPED 0x61
+#define CODE_BOMB_DROPPED 0x62
 
 #define CODE_CHOOSE_KNIFE 0x00
 #define CODE_CHOOSE_PRIMARY 0x01

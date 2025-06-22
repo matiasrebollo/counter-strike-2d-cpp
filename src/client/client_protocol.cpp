@@ -67,6 +67,8 @@ void ClientProtocol::send_command(const GameCommandDTO& command) {
                     handle_equip_knife();
                 } else if constexpr (std::is_same_v<T, EquipBombDTO>) {
                     handle_equip_bomb();
+                } else if constexpr (std::is_same_v<T, PickUpItemDTO>) {
+                    handle_pick_up_item();
                 } else if constexpr (std::is_same_v<T, BuyGunDTO>) {
                     handle_buy_gun(d);
                 } else if constexpr (std::is_same_v<T, BuyAmmoDTO>) {
@@ -136,6 +138,8 @@ void ClientProtocol::handle_equip_bomb() {
     this->send_byte(CODE_CHOOSE_BOMB);
 }
 
+void ClientProtocol::handle_pick_up_item() { this->send_byte(CODE_PICK_UP); }
+
 void ClientProtocol::handle_buy_gun(const BuyGunDTO& dto) {
     this->send_byte(CODE_BUY_WEAPON);
     this->send_byte(this->weaponParser.getWeaponToByte(dto.gun));
@@ -179,12 +183,42 @@ Snapshot ClientProtocol::receive_snapshot() {
     int size_tt = this->receive_byte();
     std::vector<PlayerDTO> tts = this->receive_players(size_tt);
     std::optional<Team> current_round_winner = this->receive_current_round_winner();
-    Snapshot snapshot = Snapshot{total_players, Phase(phase), current_round_number,
-                                 total_rounds,  ct_wins,      tt_wins,
-                                 time_left,     status,       bomb_position,
-                                 cts,           tts,          current_round_winner};
+    std::vector<ItemDTO> items = this->receive_items();
+    Snapshot snapshot = Snapshot{total_players,        Phase(phase), current_round_number,
+                                 total_rounds, ct_wins,   tt_wins,      time_left,    status,
+                                 bomb_position,        cts,          tts,
+                                 current_round_winner, items};
     return snapshot;
 }
+
+std::vector<ItemDTO> ClientProtocol::receive_items() {
+    size_t size = this->receive_big_endian_number();
+    std::vector<ItemDTO> response = {};
+    for (size_t i = 0; i < size; i++) {
+        CommandType cmd = this->codeToCommands.find(this->receive_byte())->second;
+        if (cmd == CommandType::BOMB_DROPPED) {
+            response.push_back(this->receive_dropped_bomb());
+        } else {
+            response.push_back(this->receive_dropped_gun());
+        }
+    }
+    return response;
+}
+
+DroppedGunDTO ClientProtocol::receive_dropped_gun() {
+    int x = this->receive_big_endian_number();
+    int y = this->receive_big_endian_number();
+    GunType gun = this->weaponParser.getWeaponFromByte(this->receive_byte());
+    uint16_t ammo = this->receive_big_endian_number();
+    return DroppedGunDTO{Vector2D<int>(x, y), gun, ammo};
+}
+
+DroppedBombDTO ClientProtocol::receive_dropped_bomb() {
+    int x = this->receive_big_endian_number();
+    int y = this->receive_big_endian_number();
+    return DroppedBombDTO{Vector2D<int>(x, y)};
+}
+
 
 std::vector<PlayerDTO> ClientProtocol::receive_players(const int& size_players) {
     std::vector<PlayerDTO> players = {};
