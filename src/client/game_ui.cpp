@@ -15,9 +15,9 @@ GameUI::GameUI(Lobby& lobby):
         // podria usar move?
         local_info{lobby.get_username(), lobby.get_gamecode(), lobby.is_creator(),
                    lobby.get_ct_skin(),  lobby.get_tt_skin(),  {},
-                   PlayerInfo{},         std::nullopt},
+                   PlayerInfo{},         std::nullopt, {}},
         keep_running(true) {
-    this->phase = std::make_unique<WaitingForGamePhase>(*this);
+    this->phase = std::make_unique<WaitingForGamePhase>(*this, 0);
 }
 
 void GameUI::run() {
@@ -37,21 +37,28 @@ void GameUI::run() {
     this->close_client();
 }
 
-void GameUI::reset_player_events() {
+void GameUI::reset_events() {
     for (auto& [username, p]: local_info.players) {
         p.movement = false;
         p.shoot = false;
         p.impact_position_x = 0;
         p.impact_position_y = 0;
+        p.just_died = false;
+        p.just_damaged = false;
     }
     local_info.player.movement = false;
     local_info.player.shoot = false;
     local_info.player.impact_position_x = 0;
     local_info.player.impact_position_y = 0;
+    local_info.player.just_died = false;
+    local_info.player.just_damaged = false;
+    local_info.exploded = false;
+    local_info.just_planted = false;
+    local_info.just_defused = false;
 }
 
-void GameUI::detect_player_events(const Snapshot& snapshot) {
-    auto check_and_flag = [](PlayerInfo& info, const PlayerDTO& dto) {
+void GameUI::detect_events(const Snapshot& snapshot) {
+    auto check_and_flag = [this](PlayerInfo& info, const PlayerDTO& dto) {
         if (info.x != dto.position.x || info.y != dto.position.y) {
             info.movement = true;
         }
@@ -59,6 +66,22 @@ void GameUI::detect_player_events(const Snapshot& snapshot) {
             info.shoot = true;
             info.impact_position_x = dto.shot->impact_position.x;
             info.impact_position_y = dto.shot->impact_position.y;
+        }
+        if (dto.life == 0 && info.life != dto.life) {
+            info.just_died = true;
+            return;
+        }
+        if (dto.life < info.life) {
+            info.just_damaged = true;
+            int count = 1 + std::rand() % 3;
+            for (int i = 0; i < count; ++i) {
+                int offset_x = std::rand() % PLAYER_THICKNESS;
+                int offset_y = std::rand() % PLAYER_THICKNESS;
+                int size = 2 + std::rand() % 9;  // entre 2 y 10
+
+                BloodSpot spot = {dto.position.x + offset_x, dto.position.y + offset_y, size};
+                local_info.blood_spots.push_back(spot);
+            }
         }
     };
 
@@ -78,17 +101,27 @@ void GameUI::detect_player_events(const Snapshot& snapshot) {
             }
         }
     }
+    if (snapshot.bomb_status == BombStatus::EXPLODED)
+        local_info.exploded = true;
+
+    if (local_info.bomb_status == BombStatus::NOT_PLANTED &&
+        snapshot.bomb_status == BombStatus::PLANTED) {
+        local_info.just_planted = true;
+    }
+
+    if (local_info.bomb_status == BombStatus::PLANTED &&
+        snapshot.bomb_status == BombStatus::DEFUSED) {
+        local_info.just_defused = true;
+    }
 }
 
 
 void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
-    update_game_status(snapshot);
     local_info.time_left = snapshot.time_left;
     local_info.bomb_status = snapshot.bomb_status;
     if (snapshot.bomb_position.has_value()) {
         local_info.bomb_planted_x = snapshot.bomb_position->x;
         local_info.bomb_planted_y = snapshot.bomb_position->y;
-        std::cout << local_info.bomb_planted_x << ", " << local_info.bomb_planted_y << std::endl;
     }
     local_info.total_rounds = snapshot.total_rounds;
     local_info.current_round = snapshot.current_round_number;
@@ -119,6 +152,8 @@ void GameUI::update_player(const PlayerDTO& player, const bool& is_ct) {
         local_info.player.equipped = player.loadout.equipped;
         local_info.player.in_site = player.on_site;
         local_info.player.has_bomb = player.loadout.has_bomb;
+        local_info.player.is_planting = player.planting_bomb;
+        local_info.player.is_defusing = player.defusing_bomb;
         local_info.player.kills = player.kills;
         local_info.player.bonifications = player.bonifications;
         local_info.player.deaths = player.deaths;
@@ -143,9 +178,12 @@ void GameUI::update_player(const PlayerDTO& player, const bool& is_ct) {
             it->second.equipped = player.loadout.equipped;
             it->second.has_bomb = player.loadout.has_bomb;
             it->second.in_site = player.on_site;
+            it->second.is_planting = player.planting_bomb;
+            it->second.is_defusing = player.defusing_bomb;
             it->second.kills = player.kills;
             it->second.bonifications = player.bonifications;
             it->second.deaths = player.deaths;
+          
             if (it->second.equipped == PRIMARY)
                 it->second.equipped_gun_ammo = player.loadout.primary_ammo;
             else if (it->second.equipped == SECONDARY)
@@ -165,6 +203,8 @@ void GameUI::update_player(const PlayerDTO& player, const bool& is_ct) {
             updated.equipped = player.loadout.equipped;
             updated.has_bomb = player.loadout.has_bomb;
             updated.in_site = player.on_site;
+            updated.is_planting = player.planting_bomb;
+            updated.is_defusing = player.defusing_bomb;
             updated.kills = player.kills;
             updated.bonifications = player.bonifications;
             updated.deaths = player.deaths;
@@ -252,6 +292,8 @@ bool GameUI::update_buy() {
         update_local_info_from_snapshot(std::get<Snapshot>(game_dto));
 
         if (local_info.phase != BUY) {
+            sdl.close_shop();
+            sdl.make_round_start_sound(local_info.player.is_ct);
             return false;
         }
     }
@@ -274,27 +316,29 @@ bool GameUI::update_attack() {
     bool got_snapshot = false;
     bool pop = true;
 
-    reset_player_events();
+    reset_events();
     while (pop) {
         if (!this->receiver.try_pop_game_dto(game_dto)) {
             pop = false;
             continue;
         }
 
-        // Identificar en snapshot_tmp cambios/eventos para activar animaciones
         Snapshot snapshot = std::get<Snapshot>(game_dto);
-        detect_player_events(snapshot);
+        detect_events(snapshot);
         last_snapshot = std::move(snapshot);
         got_snapshot = true;
 
         if (local_info.phase != ATTACK) {
+            if (got_snapshot)
+                update_local_info_from_snapshot(last_snapshot);
+            sdl.make_team_winner_sound(local_info.current_round_winner);
             return false;
         }
     }
 
     if (got_snapshot)
         update_local_info_from_snapshot(last_snapshot);
-
+  
     return true;
 }
 
@@ -314,8 +358,7 @@ bool GameUI::update_between_rounds() {
     Snapshot last_snapshot;
     bool got_snapshot = false;
     bool pop = true;
-
-    reset_player_events();
+    reset_events();
     while (pop) {
         if (!this->receiver.try_pop_game_dto(game_dto)) {
             pop = false;
@@ -331,7 +374,12 @@ bool GameUI::update_between_rounds() {
         last_snapshot = std::move(snapshot);
         got_snapshot = true;
 
+        // aca falta detect events
+
         if (local_info.phase != ROUND_ENDED) {
+            if (got_snapshot)
+                update_local_info_from_snapshot(last_snapshot);
+            local_info.blood_spots.clear();
             return false;
         }
     }
@@ -345,12 +393,6 @@ void GameUI::show_between_rounds(const int& it) {
     sdl.render_in_z_order(local_info, it);
     sdl.render_crosshair(local_info);
     sdl.show_screen();
-}
-
-void GameUI::play_start_round_sound() { sdl.make_round_start_sound(local_info.player.is_ct); }
-
-void GameUI::play_team_winner_sound() {
-    sdl.make_team_winner_sound(local_info.current_round_winner);
 }
 
 /*void GameUI::update() { idea para sacar codigo repetido de la actualizacion del juego popeando
@@ -413,41 +455,6 @@ void GameUI::handle_game_ended() {
 
 void GameUI::change_phase(std::unique_ptr<GameUIPhase> new_phase) {
     this->phase = std::move(new_phase);
-}
-
-// just planted just defuse en local info, y las variables de sonido las pondria en Sounds, y en sdl
-// segun lo que leo de local info, hago el sonido.
-void GameUI::update_game_status(const Snapshot& snapshot) {
-    if (local_info.bomb_status == BombStatus::NOT_PLANTED &&
-        snapshot.bomb_status == BombStatus::PLANTED && !make_sound_planted) {
-        sdl.make_clock_sound(false);
-        make_sound_clock = false;
-        sdl.make_bomb_sound(snapshot.bomb_status);
-        just_planted = true;
-        make_sound_planted = true;
-    } else if (local_info.bomb_status == BombStatus::PLANTED &&
-               snapshot.bomb_status == BombStatus::DEFUSED && !make_sound_defused) {
-        sdl.make_clock_sound(false);
-        sdl.make_bomb_sound(local_info.bomb_status);
-        just_defuse = true;
-        make_sound_defused = true;
-    }
-    if (snapshot.phase == ROUND_ENDED && make_sound_clock) {
-        make_sound_clock = false;
-        sdl.make_clock_sound(false);
-    }
-    if (local_info.current_round == snapshot.current_round_number - 1) {
-        sdl.make_clock_sound(false);
-        just_planted = false;
-        just_defuse = false;
-        make_sound_defused = false;
-        make_sound_planted = false;
-        make_sound_clock = false;
-    }
-    if (snapshot.time_left <= 10 && !make_sound_clock && local_info.phase == ATTACK) {
-        sdl.make_clock_sound(true);
-        make_sound_clock = true;
-    }
 }
 
 void GameUI::close_client() {
