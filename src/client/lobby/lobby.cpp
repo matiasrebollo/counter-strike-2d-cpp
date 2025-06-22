@@ -186,6 +186,12 @@ void Lobby::on_JoinGameButton_clicked() {
                 QMessageBox::information(this, TITLE_MSG_JOIN, MSG_GAME_IS_DEAD);
                 break;
 
+            case ResponseStatus::GAME_ALREADY_STARTED:
+                QMessageBox::information(
+                        this, TITLE_MSG_JOIN,
+                        QString::fromStdString(MSG_GAME_ALREADY_STARTED(game_name)));
+                break;
+
             case ResponseStatus::GAME_IS_FULL:
                 QMessageBox::information(this, TITLE_MSG_JOIN,
                                          QString::fromStdString(MSG_GAME_IS_FULL(game_name)));

@@ -11,6 +11,7 @@
 #include "common/game_snapshot.h"
 #include "common/yaml_parser.h"
 
+#include "game_already_started_exception.h"
 #include "game_full_exception.h"
 #include "player_in_game_exception.h"
 
@@ -41,7 +42,9 @@ bool CS2DGame::should_start() const {
 }
 
 void CS2DGame::add_player(const std::string& username, std::shared_ptr<ClientSender> sender) {
-    if (forced_start || players_senders.size() == COUNTER_TERRORISTS + TERRORISTS) {
+    if (forced_start) {
+        throw GameAlreadyStartedException();
+    } else if (players_senders.size() == COUNTER_TERRORISTS + TERRORISTS) {
         throw GameFullException();
     } else if (players_senders.contains(username)) {
         throw PlayerAlreadyInGameException();

@@ -7,6 +7,7 @@
 
 #include "client_receiver.h"
 #include "client_sender.h"
+#include "game_already_started_exception.h"
 #include "game_full_exception.h"
 #include "player_in_game_exception.h"
 #include "server_monitor.h"
@@ -108,6 +109,9 @@ void ClientHandler::manage_join_game(const JoinGameDTO& dto) {
                 receiver.start();
                 this->game_ended = sender->run();
             }
+        } catch (const GameAlreadyStartedException& e) {
+            this->send_lobby_response(CommandType::JOIN_GAME, ResponseStatus::GAME_ALREADY_STARTED,
+                                      "");
         } catch (const GameDeadException& e) {
             this->send_lobby_response(CommandType::JOIN_GAME, ResponseStatus::GAME_IS_DEAD, "");
         } catch (const GameFullException& e) {

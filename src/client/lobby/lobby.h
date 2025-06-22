@@ -16,6 +16,7 @@
 #define MSG_NO_USERNAME "Ingrese un nombre de usuario para registrarse."
 #define MSG_USERNAME_ALREADY_USED "Ya existe un usuario con ese nombre. Ingresa uno distinto."
 #define MSG_USERNAME_ALREADY_USED_IN_GAME "Ya existe un usuario con ese nombre en esta partida."
+#define MSG_GAME_ALREADY_STARTED(id) "La partida con ID " + id + " ya ha comenzado!"
 #define MSG_GAME_IS_FULL(id) "La partida con ID " + id + " está llena."
 #define MSG_GAME_NOT_EXIST(id) "La partida con ID " + id + " no existe."
 #define MSG_GAME_NOT_CREATED "El servidor no ha podido crear su partida."
