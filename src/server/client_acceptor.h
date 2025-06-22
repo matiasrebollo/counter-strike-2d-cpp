@@ -14,6 +14,12 @@
 
 #define MSG_CLIENT_JOINED(id) "Client " + id + " has been joined!"
 
+/*
+    Accepts new client with the acceptor socket and in case it accepts, pass the new socket to the
+    client handler with the purpose client-server communicates via it.
+    It always uses the same socket for accept new ones clients.
+    Pass the reference to the server monitor (who manages the shared resources) to the new clients.
+*/
 class ClientAcceptor: public Thread {
 private:
     Socket acceptor;

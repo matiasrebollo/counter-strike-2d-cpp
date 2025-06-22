@@ -43,10 +43,6 @@ void ServerProtocol::send_lobby_message(const ServerResponseLobby& msg) {
     }
 }
 
-void ServerProtocol::send_start_game(const ServerResponseLobby& msg) {
-    this->send_byte(this->commandsToCode.find(msg.commandType)->second);
-}
-
 void ServerProtocol::send_game_dto(const GameDTO& response) {
     std::visit(
             [this](const auto& response) {
@@ -102,6 +98,8 @@ void ServerProtocol::send_snapshot(const Snapshot& snapshot) {
     this->send_byte(snapshot.phase);
     this->send_byte(snapshot.current_round_number);
     this->send_byte(snapshot.total_rounds);
+    this->send_byte(snapshot.ct_wins);
+    this->send_byte(snapshot.tt_wins);
     this->send_byte(snapshot.time_left);
     this->send_byte(snapshot.bomb_status);
     this->send_bomb_position(snapshot.bomb_position);
@@ -167,7 +165,7 @@ void ServerProtocol::send_players(const std::vector<PlayerDTO>& players) {
         this->send_byte(this->bools_to_code.find(player.planting_bomb)->second);
         this->send_byte(this->bools_to_code.find(player.defusing_bomb)->second);
         this->send_byte(this->bools_to_code.find(player.on_site)->second);
-        this->send_byte(player.bonifications);
+        this->send_big_endian_number(player.bonifications);
         this->send_byte(player.kills);
         this->send_byte(player.deaths);
         this->send_loadout(player.loadout);
@@ -223,6 +221,8 @@ GameCommandDTO ServerProtocol::receive_client_game_request() {
             return DefuseBombDTO{this->code_to_bools.find(this->receive_byte())->second};
         case CODE_PICK_UP:
             return PickUpItemDTO{};
+        case CODE_START:
+            return ForceStartDTO{};
         default:
             throw std::runtime_error("Command not recognised");
     }

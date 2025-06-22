@@ -18,6 +18,7 @@ private:
     bool d = false;
     bool e = false;
     bool f = false;
+    bool k = false;
 
     bool one = false;
     bool two = false;
@@ -28,6 +29,7 @@ private:
     bool click_attack = false;
 
     bool handle_quit_event(const SDL_Event& event);
+    bool handle_force_start(const SDL_Event& event);
     bool handle_weapon_switch_event(const SDL_Event& event);
 
     bool handle_click_shop_event(const SDL_Event& event, int money, GunType primary);
@@ -56,6 +58,7 @@ public:
     /* Maneja eventos del cliente en la fase de juego */
     bool handle_attack_events();
 
+    bool handle_ended_events();
     bool handle_between_rounds_events();
 
     void start_sender();

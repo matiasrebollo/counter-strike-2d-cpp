@@ -310,6 +310,8 @@ TEST(ServerProtocolTest, SendSnapshot) {
             DroppedGunDTO{Vector2D<int>(1, 1), GunType::AK47, 30},
             DroppedBombDTO{Vector2D<int>(2, 2)},
     };
+    size_t ct_wins = 3;
+    size_t tt_wins = 4;
 
     std::vector<LoadoutDTO> loadouts = get_loadouts();
 
@@ -322,11 +324,10 @@ TEST(ServerProtocolTest, SendSnapshot) {
                 std::vector<PlayerDTO> tt = {PlayerDTO{"Facu", Vector2D<int>(10, 10), 100, 100,
                                                        std::optional<ShotDTO>(Vector2D<int>(1, 2)),
                                                        true, true, true, 10, 10, 10, loadout}};
-                Snapshot snapshot{total_players, phase,     current_round,
-                                  total_rounds,  time_left, status,
-                                  bomb_pos,      ct,        tt,
-                                  winner,        items};
 
+                Snapshot snapshot{
+                        total_players, phase,  current_round, total_rounds, ct_wins, tt_wins,
+                        time_left,     status, bomb_pos,      ct,           tt,      winner, items};
                 server->send_game_dto(snapshot);
                 GameDTO response = client->receive_game_dto();
                 auto snapshotPtr = std::get_if<Snapshot>(&response);
@@ -338,6 +339,8 @@ TEST(ServerProtocolTest, SendSnapshot) {
                 ASSERT_EQ(snapshotPtr->total_rounds, total_rounds);
                 ASSERT_EQ(snapshotPtr->time_left, time_left);
                 ASSERT_EQ(snapshotPtr->bomb_status, status);
+                ASSERT_EQ(snapshotPtr->ct_wins, ct_wins);
+                ASSERT_EQ(snapshotPtr->tt_wins, tt_wins);
                 EXPECT_TRUE(snapshot.bomb_position.has_value());
                 ASSERT_EQ(snapshotPtr->bomb_position, bomb_pos);
                 for (size_t i = 0; i < ct.size(); i++) {

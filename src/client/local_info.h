@@ -7,7 +7,6 @@
 #include "../common/skins.h"
 
 struct PlayerInfo {
-    std::string username = " ";
     bool is_ct = false;
     int x = 0;
     int y = 0;
@@ -24,26 +23,32 @@ struct PlayerInfo {
     bool shoot = false;
     int impact_position_x = 0;
     int impact_position_y = 0;
-
-    bool operator<(const PlayerInfo& other) const { return username < other.username; }
+    int bonifications = 0;
+    int kills = 0;
+    int deaths = 0;
 };
 
 struct LocalInfo {
     std::string username;
     std::string gamename;
+    bool is_creator;
 
     CounterTerroristSkin ct_skin;
     TerroristSkin tt_skin;
-
     std::unordered_map<std::string, PlayerInfo> players;
     PlayerInfo player;
     std::optional<Team> current_round_winner;
     BombStatus bomb_status = BombStatus::NOT_PLANTED;
-    Phase phase = WAITING_PLAYERS;
+    int bomb_planted_x = 0;
+    int bomb_planted_y = 0;
+    Phase phase = Phase::WAITING_PLAYERS;
     int time_left = 0;
     int total_players = 0;
     size_t total_rounds = 0;
     size_t current_round = 0;
+    size_t ct_wins = 0;
+    size_t tt_wins = 0;
+    bool server_has_been_closed = false;
 };
 
 #endif

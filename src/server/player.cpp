@@ -15,7 +15,7 @@ Player::Player(const std::string& name, Vector2D<int>& position):
         moving_right(false),
         making_action(false),
         orientation(0.0),
-        life(PLAYER_INITIAL_LIFE),
+        life(Settings::getInstance().get_player_initial_life()),
         shot(std::nullopt),
         is_planting_bomb(false),
         is_defusing_bomb(false),
@@ -23,7 +23,10 @@ Player::Player(const std::string& name, Vector2D<int>& position):
         bonifications(0),
         kills(0),
         deaths(0),
-        loadout() {}
+        loadout(),
+        FPS_SERVER(Settings::getInstance().get_fps_server()),
+        PLAYER_INITIAL_LIFE(Settings::getInstance().get_player_initial_life()),
+        PLAYER_SPEED(Settings::getInstance().get_player_speed()) {}
 
 std::string Player::get_username() const { return name; }
 float Player::get_orientation() const { return orientation; }
@@ -141,10 +144,11 @@ void Player::receive_damage(const int& damage, GameWorld& game) {
     }
     deaths += 1;
 }
+
 void Player::count_kill(Player& victim, const int& money_bonification) {
     if ((this->is_ct() && victim.is_ct()) || (this->is_tt() && victim.is_tt())) {
-        bonifications -= TEAM_KILL_PENALTY;
-        loadout.decrease_money_by(TEAM_KILL_PENALTY);
+        bonifications -= Settings::getInstance().get_team_kill_penalty();
+        loadout.decrease_money_by(Settings::getInstance().get_team_kill_penalty());
     } else {
         kills += 1;
         bonifications += money_bonification;

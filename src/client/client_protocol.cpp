@@ -73,6 +73,8 @@ void ClientProtocol::send_command(const GameCommandDTO& command) {
                     handle_buy_gun(d);
                 } else if constexpr (std::is_same_v<T, BuyAmmoDTO>) {
                     handle_buy_ammo(d);
+                } else if constexpr (std::is_same_v<T, ForceStartDTO>) {
+                    handle_force_start();
                 } else {
                     static_assert(always_false_v<T>, "Unhandled GameCommandDTO type");
                 }
@@ -152,6 +154,8 @@ void ClientProtocol::handle_buy_ammo(const BuyAmmoDTO& dto) {
     }
 }
 
+void ClientProtocol::handle_force_start() { this->send_byte(CODE_START); }
+
 
 GameDTO ClientProtocol::receive_game_dto() {
     uint8_t code = this->receive_byte();
@@ -169,6 +173,8 @@ Snapshot ClientProtocol::receive_snapshot() {
     int phase = this->receive_byte();
     size_t current_round_number = this->receive_byte();
     size_t total_rounds = this->receive_byte();
+    size_t ct_wins = this->receive_byte();
+    size_t tt_wins = this->receive_byte();
     int time_left = this->receive_byte();
     BombStatus status = static_cast<BombStatus>(this->receive_byte());
     std::optional<Vector2D<int>> bomb_position = this->receive_bomb_position();
@@ -179,7 +185,7 @@ Snapshot ClientProtocol::receive_snapshot() {
     std::optional<Team> current_round_winner = this->receive_current_round_winner();
     std::vector<ItemDTO> items = this->receive_items();
     Snapshot snapshot = Snapshot{total_players,        Phase(phase), current_round_number,
-                                 total_rounds,         time_left,    status,
+                                 total_rounds, ct_wins,   tt_wins,      time_left,    status,
                                  bomb_position,        cts,          tts,
                                  current_round_winner, items};
     return snapshot;
@@ -226,7 +232,7 @@ std::vector<PlayerDTO> ClientProtocol::receive_players(const int& size_players) 
         bool planting_bomb = this->code_to_bools.find(this->receive_byte())->second;
         bool defusing_bomb = this->code_to_bools.find(this->receive_byte())->second;
         bool on_site = this->code_to_bools.find(this->receive_byte())->second;
-        int bonifications = this->receive_byte();
+        int bonifications = this->receive_big_endian_number();
         int kills = this->receive_byte();
         int deaths = this->receive_byte();
         LoadoutDTO loadout = this->receive_loadout();
@@ -253,7 +259,7 @@ std::optional<Vector2D<int>> ClientProtocol::receive_bomb_position() {
     int x = this->receive_big_endian_number();
     int y = this->receive_big_endian_number();
     if (has_value) {
-        return Vector2D{x, y};
+        return Vector2D<int>(x, y);
     } else {
         return std::nullopt;
     }

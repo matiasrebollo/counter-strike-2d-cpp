@@ -7,6 +7,8 @@
 #include "movements.h"
 #include "weapon_type.h"
 
+struct ForceStartDTO {};
+
 struct MoveDTO {
     Movement dir;
     bool move;
@@ -37,7 +39,7 @@ struct BuyAmmoDTO {
     const bool for_primary;
 };
 
-using GameCommandDTO = std::variant<MoveDTO, RotateDTO, PlayerActionDTO, DefuseBombDTO,
+using GameCommandDTO = std::variant<ForceStartDTO, MoveDTO, RotateDTO, PlayerActionDTO, DefuseBombDTO,
                                     EquipPrimaryDTO, EquipSecondaryDTO, EquipKnifeDTO, EquipBombDTO,
                                     PickUpItemDTO, BuyGunDTO, BuyAmmoDTO>;
 

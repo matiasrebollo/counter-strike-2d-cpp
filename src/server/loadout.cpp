@@ -7,7 +7,7 @@
 #include <utility>
 
 Loadout::Loadout():
-        money(INITIAL_MONEY),
+        money(Settings::getInstance().get_initial_money()),
         knife(),
         primary_gun(nullptr),
         secondary_gun(Gun::new_gun(GLOCK)),
@@ -95,9 +95,10 @@ const LoadoutDTO Loadout::get_dto() const {
                       bomb != nullptr};
 }
 
+
 void Loadout::reset(const bool& on_death) {
     if (!on_death)
-        money = INITIAL_MONEY;
+        money = Settings::getInstance().get_initial_money();
     primary_gun = nullptr;
     secondary_gun = Gun::new_gun(GLOCK);
     bomb = nullptr;

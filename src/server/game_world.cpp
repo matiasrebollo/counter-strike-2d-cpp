@@ -57,7 +57,13 @@ GameWorld::GameWorld(const std::string& map_filename):
         next_drop_id(0),
         bomb(std::make_shared<Bomb>()),
         shop(),
-        game_map(YamlParser().yaml_to_game_map(PATH_FOLDER_MAPS + map_filename + ".yaml")) {
+        game_map(YamlParser().yaml_to_game_map(PATH_FOLDER_MAPS + map_filename + ".yaml")),
+        COUNTER_TERRORISTS(Settings::getInstance().get_counter_terrorists_number()),
+        TERRORISTS(Settings::getInstance().get_terrorists_number()) {
+    size_t min_spawns_size = std::min(game_map.ct_spawns.size(), game_map.tt_spawns.size());
+    size_t max_team_size = std::max(COUNTER_TERRORISTS, TERRORISTS);
+    if (max_team_size > min_spawns_size)
+        throw std::runtime_error("Not enough spawns on map");
     add_collidables();
     set_sites();
     set_items();
@@ -518,6 +524,28 @@ bool GameWorld::ct_are_all_dead() const {
     return team_is_dead([](const Player& p) { return p.is_ct(); });
 }
 
+
+void GameWorld::apply_won_round_bonus(Team team) {
+    if (team == CT) {
+        for (auto& [_, player]: counter_terrorists) {
+            Loadout& loadout = player->get_loadout();
+            loadout.add_money(Settings::getInstance().get_won_round_bonus());
+        }
+        for (auto& [_, player]: terrorists) {
+            Loadout& loadout = player->get_loadout();
+            loadout.add_money(Settings::getInstance().get_lost_round_bonus());
+        }
+    } else {
+        for (auto& [_, player]: counter_terrorists) {
+            Loadout& loadout = player->get_loadout();
+            loadout.add_money(Settings::getInstance().get_lost_round_bonus());
+        }
+        for (auto& [_, player]: terrorists) {
+            Loadout& loadout = player->get_loadout();
+            loadout.add_money(Settings::getInstance().get_won_round_bonus());
+        }
+    }
+}
 
 GameWorld::~GameWorld() {}
 

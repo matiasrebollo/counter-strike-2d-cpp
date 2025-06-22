@@ -116,11 +116,14 @@ if(TALLER_CLIENT)
     set(CMAKE_AUTORCC ON)
     
     # Buscar Qt
-    find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-    find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+    find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Multimedia)
+    find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Multimedia)
 
     # Ejecutable y fuentes
     add_executable(taller_client)
+
+    # Agrego yaml-cpp
+    find_package(yaml-cpp REQUIRED)
 
     # Make them depend on taller_common lib
     add_dependencies(taller_client taller_common SDL2pp::SDL2pp)
@@ -140,8 +143,10 @@ if(TALLER_CLIENT)
     target_link_libraries(taller_client
     PRIVATE
         Qt${QT_VERSION_MAJOR}::Widgets
+        Qt${QT_VERSION_MAJOR}::Multimedia
         taller_common
         SDL2pp::SDL2pp
+        yaml-cpp
 )
 endif()
 

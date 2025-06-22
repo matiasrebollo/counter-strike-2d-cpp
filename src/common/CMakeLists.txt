@@ -10,6 +10,7 @@ target_sources(taller_common
     clock.cpp
     block_texture_parser.cpp
     yaml_parser.cpp
+    settings.cpp
     PUBLIC
     # .h files
     error_codes.h
@@ -41,6 +42,7 @@ target_sources(taller_common
     block_texture_parser.h
     yaml_parser.h
     sdl_helpers.h
+    settings.h
     )
 
 if(TALLER_TESTS)

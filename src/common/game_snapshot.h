@@ -19,6 +19,8 @@ struct Snapshot {
     Phase phase;
     size_t current_round_number;
     size_t total_rounds;
+    size_t ct_wins;
+    size_t tt_wins;
     int time_left;
     BombStatus bomb_status;
     std::optional<Vector2D<int>> bomb_position;

@@ -3,16 +3,16 @@
 #include <memory>
 #include <stdexcept>
 #include <utility>
+#include <vector>
 
 Shop::Shop() {
-    prices[AWP] = AWP_PRICE;
-    prices[M3] = M3_PRICE;
-    prices[AK47] = AK47_PRICE;
+    std::vector<GunType> guns = {AWP, M3, AK47, GLOCK};
+    Settings& settings = Settings::getInstance();
 
-    ammo_by_clip[AWP] = SIZE_AWP_CLIP;
-    ammo_by_clip[M3] = SIZE_M3_CLIP;
-    ammo_by_clip[AK47] = SIZE_AK47_CLIP;
-    ammo_by_clip[GLOCK] = SIZE_GLOCK_CLIP;
+    for (const auto& gun: guns) {
+        prices[gun] = settings.get_gun_price(gun);
+        ammo_by_clip[gun] = settings.get_clip_size(gun);
+    }
 }
 
 
@@ -34,7 +34,7 @@ int Shop::clip_ammo(const GunType& gun_type) {
     }
 }
 
-int Shop::clip_price() const { return CLIP_PRICE; }
+int Shop::clip_price() const { return Settings::getInstance().get_clip_price(); }
 
 std::unique_ptr<Gun> Shop::buy_gun(const GunType& gun_type, Loadout& buyer_loadout) {
     int price = gun_price(gun_type);

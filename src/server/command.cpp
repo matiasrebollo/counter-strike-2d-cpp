@@ -33,6 +33,8 @@ std::unique_ptr<Command> Command::new_command(const std::string& username,
                     return std::make_unique<BuyGunCommand>(username, d.gun);
                 } else if constexpr (std::is_same_v<T, BuyAmmoDTO>) {
                     return std::make_unique<BuyAmmoCommand>(username, d.for_primary);
+                } else if constexpr (std::is_same_v<T, ForceStartDTO>) {
+                    return std::make_unique<ForceStartCommand>(username);
                 } else {
                     static_assert(always_false_v<T>, "Unhandled command data type");
                 }
@@ -44,6 +46,8 @@ void Command::execute_in_buy_phase(GameWorld&) const {}
 void Command::execute_in_attack_phase(GameWorld&) const {}
 
 Command::~Command() {}
+
+ForceStartCommand::ForceStartCommand(const std::string& username): Command(username) {}
 
 MoveCommand::MoveCommand(const std::string& username, const Movement direction, const bool& move):
         Command(username), direction(direction), should_move(move) {}

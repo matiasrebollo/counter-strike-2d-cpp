@@ -10,10 +10,11 @@ enum ResponseStatus {
     GAME_NOT_CREATED = 1,
     USERNAME_IN_USE = 2,
     GAME_NOT_EXIST = 3,
-    GAME_IS_DEAD = 4,
-    GAME_IS_FULL = 5,
-    USERNAME_ALREADY_IN_GAME = 6,
-    WITHOUT_USERNAME = 7,
+    GAME_ALREADY_STARTED = 4,
+    GAME_IS_DEAD = 5,
+    GAME_IS_FULL = 6,
+    USERNAME_ALREADY_IN_GAME = 7,
+    WITHOUT_USERNAME = 8,
 };
 
 struct ServerResponseLobby {

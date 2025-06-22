@@ -36,10 +36,16 @@ class ClientProtocol: public CommonProtocol {
 private:
     bool isAlive;
 
+    /*
+        Send lobby requests to the server
+    */
     virtual void send_create_username_request(const CreateUsernameDTO& dto);
     virtual void send_create_game_request(const CreateGameDTO& dto);
     virtual void send_join_game_request(const JoinGameDTO& dto);
 
+    /*
+        Send game requests to the server
+    */
     void handle_move(const MoveDTO& dto);
     void handle_rotate(const RotateDTO& dto);
     void handle_player_action(const PlayerActionDTO& dto);
@@ -51,14 +57,21 @@ private:
     void handle_pick_up_item();
     void handle_buy_gun(const BuyGunDTO& dto);
     void handle_buy_ammo(const BuyAmmoDTO& dto);
+    void handle_force_start();
 
+    /*
+        Main method and helpers to receive a game snapshot
+    */
+    Snapshot receive_snapshot();
     std::vector<PlayerDTO> receive_players(const int& size_players);
     std::optional<ShotDTO> receive_shot();
     LoadoutDTO receive_loadout();
     std::optional<Vector2D<int>> receive_bomb_position();
     std::optional<Team> receive_current_round_winner();
 
-    Snapshot receive_snapshot();
+    /*
+        Main method and helpers to receive the static info of a game.
+    */
     GameInitialInfoDTO receive_game_initial_info();
     std::vector<MapObject> receive_map_objects(const uint8_t& size);
     std::set<Vector2D<int>> receive_sites(const uint16_t& size);

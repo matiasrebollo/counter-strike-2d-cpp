@@ -14,16 +14,29 @@
 
 #include "server_protocol.h"
 
+/*
+    Receives commands from the client socket and pass to the game's queue.
+*/
 class ClientReceiver: public Thread {
 private:
     ServerProtocol& protocol;
     std::string& username;
     std::shared_ptr<CS2DGame> game;
+    /*
+        Push a command to the game's queue
+    */
+    void push_command(const GameCommandDTO& command_data);
 
 public:
     ClientReceiver(ServerProtocol& protocol, std::string& username, std::shared_ptr<CS2DGame> game);
+    /*
+        Receives a command from the socket and push to the game's queue with the private method
+        push_command
+    */
     void receive_command();
-    void push_command(const GameCommandDTO& command_data);
+    /*
+        Run this thread calling to receive_command (blocking method)
+    */
     void run() override;
     ~ClientReceiver() override;
 };

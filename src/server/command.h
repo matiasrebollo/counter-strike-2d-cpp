@@ -26,6 +26,12 @@ public:
     virtual ~Command();
 };
 
+class ForceStartCommand: public Command {
+public:
+    explicit ForceStartCommand(const std::string& username);
+    ~ForceStartCommand() override = default;
+};
+
 class MoveCommand: public Command {
 public:
     const Movement direction;

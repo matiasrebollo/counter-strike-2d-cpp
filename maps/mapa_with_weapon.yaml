@@ -707,41 +707,27 @@ ct_spawns:
     y: 3
   - x: 4
     y: 1
-  - x: 4
-    y: 2
-  - x: 4
-    y: 3
 tt_spawns:
   - x: 11
     y: 6
   - x: 11
     y: 7
-  - x: 11
-    y: 8
   - x: 12
     y: 6
   - x: 12
     y: 7
-  - x: 12
-    y: 8
   - x: 13
     y: 6
   - x: 13
     y: 7
-  - x: 13
-    y: 8
   - x: 14
     y: 6
   - x: 14
     y: 7
-  - x: 14
-    y: 8
   - x: 15
     y: 6
   - x: 15
     y: 7
-  - x: 15
-    y: 8
 sites:
   - x: 12
     y: 1
@@ -751,4 +737,8 @@ sites:
     y: 1
   - x: 14
     y: 1
-guns: ~
+guns:
+  - type: 4
+    positions:
+      - x: 12
+        y: 3

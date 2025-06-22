@@ -1,11 +1,14 @@
 #ifndef GAME_UI_PHASE_H
 #define GAME_UI_PHASE_H
 
+#include "../common/settings.h"
+
 class GameUI;  // Forward declaration
 
 class GameUIPhase {
 protected:
     GameUI& game_ui;
+    const int FPS_CLIENT;
 
 public:
     explicit GameUIPhase(GameUI& game_ui);
@@ -52,14 +55,5 @@ public:
     bool update_game_state() override;
     void show_game(const int& it) override;
 };
-
-/*class GameEndedPhase: public GameUIPhase {
-public:
-    explicit GameEndedPhase(GameUI& game_ui);
-    void handle_game_events() override;
-    void update_game_state() override;
-    bool keep_running() override;
-    void show_game() override;
-};*/
 
 #endif
