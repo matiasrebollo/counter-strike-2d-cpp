@@ -44,6 +44,7 @@ private:
     void set_gun_textures();
     void set_editor_gun_textures();
     void set_other_paths();
+    void set_explosion_textures();
 
 protected:
     std::unordered_map<int, BlockTextureInfo> block_textures;
@@ -58,6 +59,7 @@ protected:
     std::unordered_map<SoundEffect, std::string> sound_paths;
     std::unordered_map<GunType, std::string> editor_gun_textures;
     std::unordered_map<Others, std::string> other_paths;
+    std::unordered_map<int, BlockTextureInfo> explosion_textures;
 
 public:
     BlockTextureParser();
@@ -75,6 +77,7 @@ public:
     const std::string& get_sound_path(SoundEffect effect) const;
     const std::string& get_editor_gun_texture(const GunType& gun);
     const std::string& get_other_path(Others other) const;
+    const BlockTextureInfo& get_explosion_texture(int frame) const;
 };
 
 #endif

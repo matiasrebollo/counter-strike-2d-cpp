@@ -16,9 +16,9 @@ void Sounds::initialize_channels(const std::vector<std::string>& usernames) {
     shop_channel = current_channel++;
     bomb_channel = current_channel++;
     round_channel = current_channel++;
-    clock_channel = current_channel;
-
-    total_players = usernames.size();
+    clock_channel = current_channel++;
+    bomb_action_channel = current_channel++;
+    bomb_tick_channel = current_channel;
 }
 
 int Sounds::get_channel(const std::string& username, SoundType type) const {
@@ -47,6 +47,12 @@ int Sounds::get_channel(const std::string& username, SoundType type) const {
         case SoundType::CLOCK_TYPE: {
             return clock_channel;
         }
+        case SoundType::BOMB_ACTION_TYPE: {
+            return bomb_action_channel;
+        }
+        case SoundType::BOMB_TICK_TYPE: {
+            return bomb_tick_channel;
+        }
     }
     return -1;
 }
@@ -72,16 +78,27 @@ void Sounds::play_bomb_sound(SoundEffect effect) {
     mixer.PlayChannel(channel, sound);
 }
 
+
 void Sounds::play_clock_sound(SoundEffect effect) {
+    if (clock_playing)
+        return;  // Ya está sonando, no hacemos nada
+
     std::string path = texture_parser.get_sound_path(effect);
     SDL2pp::Chunk& sound = texture_manager.get_sound(path);
     int channel = get_channel(" ", SoundType::CLOCK_TYPE);
     mixer.PlayChannel(channel, sound);
+
+    clock_playing = true;
 }
 
 void Sounds::stop_clock_sound() {
+    if (!clock_playing)
+        return;  // No está sonando, nada que detener
+
     int channel = get_channel(" ", SoundType::CLOCK_TYPE);
     mixer.HaltChannel(channel);
+
+    clock_playing = false;
 }
 
 
@@ -160,6 +177,129 @@ void Sounds::play_shot(const std::string& username, GunType gun_type,
     SDL2pp::Chunk& sound = texture_manager.get_sound(path);
 
     int used_channel = mixer.PlayChannel(channel, sound, 0, ticks);
+    if (used_channel != -1) {
+        mixer.SetDistance(used_channel, sdl_distance);
+    }
+}
+
+void Sounds::play_bomb_explosion(const SDL2pp::Point& destino_camera) {
+
+    int channel = get_channel(" ", SoundType::BOMB_ACTION_TYPE);
+    if (channel == -1)
+        return;
+
+    int cam_center_x = CAMERA_WIDTH / 2;
+    int cam_center_y = CAMERA_HEIGHT / 2;
+
+    int dx = destino_camera.x - cam_center_x;
+    int dy = destino_camera.y - cam_center_y;
+    double dist = std::sqrt(dx * dx + dy * dy);
+
+    double max_hearing_distance = 6 * std::sqrt((CAMERA_WIDTH / 2.0) * (CAMERA_WIDTH / 2.0) +
+                                                (CAMERA_HEIGHT / 2.0) * (CAMERA_HEIGHT / 2.0));
+    Uint8 sdl_distance = static_cast<Uint8>(std::min(255.0, (dist / max_hearing_distance) * 255.0));
+
+    std::string path = texture_parser.get_sound_path(BOMB_EXPLOSION);
+    SDL2pp::Chunk& sound = texture_manager.get_sound(path);
+
+    int used_channel = mixer.PlayChannel(channel, sound);
+    if (used_channel != -1) {
+        mixer.SetDistance(used_channel, sdl_distance);
+    }
+}
+
+void Sounds::play_bomb_action(const SDL2pp::Point& destino_camera, bool is_planting,
+                              bool is_defusing) {
+    if (!is_planting && !is_defusing)
+        return;
+
+    Uint32 now = SDL_GetTicks();
+    if (now - last_bomb_action_time < bomb_action_delay)
+        return;
+
+    int channel = get_channel("bomb_action", SoundType::BOMB_ACTION_TYPE);
+    if (channel == -1)
+        return;
+
+    int cam_center_x = CAMERA_WIDTH / 2;
+    int cam_center_y = CAMERA_HEIGHT / 2;
+
+    int dx = destino_camera.x - cam_center_x;
+    int dy = destino_camera.y - cam_center_y;
+    double dist = std::sqrt(dx * dx + dy * dy);
+
+    double max_hearing_distance = 0.5 * std::sqrt((CAMERA_WIDTH / 2.0) * (CAMERA_WIDTH / 2.0) +
+                                                  (CAMERA_HEIGHT / 2.0) * (CAMERA_HEIGHT / 2.0));
+    Uint8 sdl_distance = static_cast<Uint8>(std::min(255.0, (dist / max_hearing_distance) * 255.0));
+
+    std::string path = texture_parser.get_sound_path(BOMB_ACTION);
+    SDL2pp::Chunk& sound = texture_manager.get_sound(path);
+    sound.SetVolume(MIX_MAX_VOLUME / 2);
+
+    int used_channel = mixer.PlayChannel(channel, sound);
+    if (used_channel != -1) {
+        mixer.SetDistance(used_channel, sdl_distance);
+    }
+
+    last_bomb_action_time = now;
+}
+
+void Sounds::play_bomb_tick(const SDL2pp::Point& destino_camera) {
+    Uint32 now = SDL_GetTicks();
+    if (now - last_bomb_tick_time < bomb_tick_delay)
+        return;
+
+    int channel = get_channel("bomb_tick", SoundType::BOMB_TICK_TYPE);
+    if (channel == -1)
+        return;
+
+    int cam_center_x = CAMERA_WIDTH / 2;
+    int cam_center_y = CAMERA_HEIGHT / 2;
+
+    int dx = destino_camera.x - cam_center_x;
+    int dy = destino_camera.y - cam_center_y;
+    double dist = std::sqrt(dx * dx + dy * dy);
+
+    double max_hearing_distance = 0.5 * std::sqrt((CAMERA_WIDTH / 2.0) * (CAMERA_WIDTH / 2.0) +
+                                                  (CAMERA_HEIGHT / 2.0) * (CAMERA_HEIGHT / 2.0));
+    Uint8 sdl_distance = static_cast<Uint8>(std::min(255.0, (dist / max_hearing_distance) * 255.0));
+
+    std::string path = texture_parser.get_sound_path(BOMB_TICK);
+    SDL2pp::Chunk& sound = texture_manager.get_sound(path);
+    sound.SetVolume(MIX_MAX_VOLUME / 2);
+
+    int used_channel = mixer.PlayChannel(channel, sound);
+    if (used_channel != -1) {
+        mixer.SetDistance(used_channel, sdl_distance);
+    }
+
+    last_bomb_tick_time = now;
+}
+
+void Sounds::play_death(const std::string& username, const SDL2pp::Point& destino_camera) {
+    int channel = get_channel(username, SoundType::STEP_TYPE);  // Reutilizamos canal
+    if (channel == -1)
+        return;
+
+    int cam_center_x = CAMERA_WIDTH / 2;
+    int cam_center_y = CAMERA_HEIGHT / 2;
+    int dx = destino_camera.x - cam_center_x;
+    int dy = destino_camera.y - cam_center_y;
+    double dist = std::sqrt(dx * dx + dy * dy);
+
+    double max_hearing_distance = 0.4 * std::sqrt((CAMERA_WIDTH / 2.0) * (CAMERA_WIDTH / 2.0) +
+                                                  (CAMERA_HEIGHT / 2.0) * (CAMERA_HEIGHT / 2.0));
+    Uint8 sdl_distance = static_cast<Uint8>(std::min(255.0, (dist / max_hearing_distance) * 255.0));
+
+    // Elegir aleatoriamente entre 3 sonidos
+    std::array<SoundEffect, 3> death_sounds = {DEATH_SOUND_ONE, DEATH_SOUND_TWO, DEATH_SOUND_THREE};
+    int index = std::rand() % death_sounds.size();
+    SoundEffect selected = death_sounds[index];
+
+    std::string path = texture_parser.get_sound_path(selected);
+    SDL2pp::Chunk& sound = texture_manager.get_sound(path);
+
+    int used_channel = mixer.PlayChannel(channel, sound);
     if (used_channel != -1) {
         mixer.SetDistance(used_channel, sdl_distance);
     }

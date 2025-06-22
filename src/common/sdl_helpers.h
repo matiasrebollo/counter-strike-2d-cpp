@@ -54,12 +54,18 @@ enum SoundEffect {
     ROUND_ALMOST_FINISH,
     BOMB_DEFUSE,
     BOMB_PLANTED,
+    BOMB_TICK,
     CT_WINS,
     TT_WINS,
-    FAST_TICK_CLOCK
+    FAST_TICK_CLOCK,
+    BOMB_EXPLOSION,
+    BOMB_ACTION,
+    DEATH_SOUND_ONE,
+    DEATH_SOUND_TWO,
+    DEATH_SOUND_THREE
 };
 
-enum Others { AWP_SHOT_FLARE };
+enum Others { AWP_SHOT_FLARE, BLOOD, BLOOD_SCREEN };
 
 
 #endif

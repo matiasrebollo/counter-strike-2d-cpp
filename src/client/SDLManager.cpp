@@ -124,24 +124,87 @@ GunVisualData SDLManager::get_gun_visual_info(WeaponType equipped, GunType gun_t
     }
 }
 
-/* Renderiza la bomba en el suelo si esta plantada */
-void SDLManager::render_bomb(BombStatus bomb_status, int x_world, int y_world) {
-    if (bomb_status != BombStatus::PLANTED && bomb_status != BombStatus::DEFUSED)
+void SDLManager::render_blood_spots(const LocalInfo& local_info) {
+    const std::string& path = texture_parser.get_other_path(BLOOD);
+    SDL2pp::Texture& blood_texture = texture_manager.get_texture(path);
+    blood_texture.SetAlphaMod(200);
+    for (const BloodSpot& spot: local_info.blood_spots) {
+        SDL2pp::Rect dst_world(spot.x / GRAPHIC_SCALE, spot.y / GRAPHIC_SCALE, spot.size,
+                               spot.size);
+        if (!camera.is_visible(dst_world))
+            continue;
+        SDL2pp::Rect dst_camera = camera.rect_world_to_screen(dst_world);
+        renderer.Copy(blood_texture, SDL2pp::NullOpt, dst_camera);
+    }
+}
+
+
+void SDLManager::render_dead_players(const std::string& username, const PlayerInfo& p) {
+
+    if (p.life != 0)
         return;
 
-    // hacer textura de la bomba exactamente recortada
-    SDL2pp::Rect destino_mundo(x_world / GRAPHIC_SCALE, y_world / GRAPHIC_SCALE,
-                               BOMB_THICKNESS / GRAPHIC_SCALE, BOMB_THICKNESS / GRAPHIC_SCALE);
+    SDL2pp::Rect destino_mundo(p.x / GRAPHIC_SCALE, p.y / GRAPHIC_SCALE,
+                               PLAYER_THICKNESS / GRAPHIC_SCALE, PLAYER_THICKNESS / GRAPHIC_SCALE);
 
     if (!camera.is_visible(destino_mundo))
         return;
 
     SDL2pp::Rect destino_camera = camera.rect_world_to_screen(destino_mundo);
-    destino_camera = SDL2pp::Rect(destino_camera.GetX(), destino_camera.GetY(),
-                                  destino_camera.GetW(), destino_camera.GetH());
+    SDL2pp::Rect sangre_rect(destino_camera.GetX() - 5, destino_camera.GetY() - 5,
+                             destino_camera.GetW() + 10, destino_camera.GetH() + 10);
+
+    // Render BLOOD texture
+    const std::string& path = texture_parser.get_other_path(BLOOD);
+    SDL2pp::Texture& blood_texture = texture_manager.get_texture(path);
+    blood_texture.SetAlphaMod(200);
+    renderer.Copy(blood_texture, SDL2pp::NullOpt, sangre_rect);
+
+    if (p.just_died) {
+        SDL2pp::Point centro(destino_camera.GetX() + destino_camera.GetW() / 2,
+                             destino_camera.GetY() + destino_camera.GetH() / 2);
+        sounds.play_death(username, centro);
+    }
+}
+
+/* Renderiza la bomba en el suelo si esta plantada */
+void SDLManager::render_bomb(const LocalInfo& local_info, int it) {
+    if (local_info.bomb_status == BombStatus::NOT_PLANTED)
+        return;
+
+    if (local_info.just_planted)
+        sounds.play_bomb_sound(BOMB_PLANTED);
+    if (local_info.just_defused)
+        sounds.play_bomb_sound(BOMB_DEFUSE);
+
+    SDL2pp::Rect destino_mundo(local_info.bomb_planted_x / GRAPHIC_SCALE,
+                               local_info.bomb_planted_y / GRAPHIC_SCALE,
+                               BOMB_THICKNESS / GRAPHIC_SCALE, BOMB_THICKNESS / GRAPHIC_SCALE);
+    SDL2pp::Rect destino_camera = camera.rect_world_to_screen(destino_mundo);
+    SDL2pp::Point centro(destino_camera.GetX() + destino_camera.GetW() / 2,
+                         destino_camera.GetY() + destino_camera.GetH() / 2);
+
+    SDL2pp::Point world_position(local_info.bomb_planted_x, local_info.bomb_planted_y);
+
+    if (local_info.exploded) {
+        animation.start_bomb_explosion(it, world_position);
+        animation.start_camera_shake(it);
+        sounds.play_bomb_explosion(centro);
+    }
+
+    if (animation.is_bomb_explosion_active(it)) {
+        animation.render_bomb_explosion(it);
+        return;  // no renderizamos la bomba plantada
+    }
+
+    if (!camera.is_visible(destino_mundo) || local_info.bomb_status == BombStatus::EXPLODED)
+        return;
+
     std::string path = texture_parser.get_gun_texture(BOMB_GAME);
     SDL2pp::Texture& bomb_texture = texture_manager.get_texture(path);
-
+    if (local_info.bomb_status == BombStatus::PLANTED) {
+        sounds.play_bomb_tick(centro);
+    }
     renderer.Copy(bomb_texture, SDL2pp::NullOpt, destino_camera);
 }
 
@@ -149,6 +212,9 @@ void SDLManager::render_bomb(BombStatus bomb_status, int x_world, int y_world) {
 void SDLManager::render_player(const std::string& username, const PlayerInfo& p,
                                const CounterTerroristSkin& ct_skin, const TerroristSkin& tt_skin,
                                int it) {
+    if (p.life == 0)
+        return;
+
     double angulo = p.orientation + PLAYER_SPRITE_GAP;
     int x_pos = p.x;
     int y_pos = p.y;
@@ -187,7 +253,9 @@ void SDLManager::render_player(const std::string& username, const PlayerInfo& p,
 
     SDL2pp::Point centro(destino_camera.GetX() + destino_camera.GetW() / 2,
                          destino_camera.GetY() + destino_camera.GetH() / 2);
+
     sounds.play_step(username, centro, p.movement);
+    sounds.play_bomb_action(centro, p.is_planting, p.is_defusing);
 }
 
 void SDLManager::render_player_shot(const GunVisualData& gun_info, const std::string& username,
@@ -212,7 +280,7 @@ void SDLManager::render_player_shot(const GunVisualData& gun_info, const std::st
 
         animation.start_shot(username, it, end_world, duration);
     }
-
+    // HACER QUE ANIMATION MANEJE SUS PROPIOS SOUNDS.
     // renderizo si hay un disparo activo
     if (animation.is_shot_active(username, it)) {
         int size_player = PLAYER_THICKNESS / GRAPHIC_SCALE;
@@ -269,6 +337,9 @@ void SDLManager::render_player_shot(const GunVisualData& gun_info, const std::st
 // players (z order)
 /* Renderiza las armas de cada jugador */
 void SDLManager::render_player_weapon(const std::string& username, const PlayerInfo& p, int it) {
+    if (p.life == 0)
+        return;
+
     double angulo = p.orientation + PLAYER_SPRITE_GAP;
     int x_pos = p.x;
     int y_pos = p.y;
@@ -323,30 +394,44 @@ void SDLManager::render_fov(float orientation) {
                   orientation - PLAYER_SPRITE_GAP);  // PLAYER_SPRITE_GAP desfasaje textura cono
 }
 
-void SDLManager::render_if_dead(const int& life) {
-    if (life > 0) {
+void SDLManager::render_if_dead_or_damaged(const int& life, bool received_damage, int it) {
+
+
+    if (life == 0) {
+        renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
+        SDL2pp::Rect dst(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
+
+        const std::string& path = texture_parser.get_other_path(BLOOD_SCREEN);
+        SDL2pp::Texture& blood_texture = texture_manager.get_texture(path);
+        blood_texture.SetAlphaMod(100);  // Ajustá la opacidad si querés
+        renderer.Copy(blood_texture, SDL2pp::NullOpt, dst);
+
+        renderer.SetDrawColor(255, 0, 0, 40);
+        renderer.FillRect(dst);
+
+        int font_size = 20;
+        const std::string& font_path = texture_parser.get_fw_texture(FONT_WAITING);
+        std::string message_dead = "You are dead!";
+        SDL2pp::Texture& round_texture = texture_manager.get_text_texture(
+                message_dead, font_path, font_size, SDL2pp::Color(255, 255, 0));
+        round_texture.SetAlphaMod(190);
+        SDL2pp::Rect dstRect((CAMERA_WIDTH - round_texture.GetWidth()) / 2, 100,
+                             round_texture.GetWidth(), round_texture.GetHeight());
+        renderer.Copy(round_texture, SDL2pp::NullOpt, dstRect);
+        renderer.SetDrawBlendMode(SDL_BLENDMODE_NONE);
+        renderer.SetDrawColor(0, 0, 0, 255);
         return;
     }
-    renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
 
-    renderer.SetDrawColor(255, 0, 0, 40);
-
-    SDL2pp::Rect redOverlay(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
-    renderer.FillRect(redOverlay);
-
-    int font_size = 20;
-    const std::string& font_path = texture_parser.get_fw_texture(FONT_WAITING);
-    std::string message_dead = "You are dead!";
-    SDL2pp::Texture& round_texture = texture_manager.get_text_texture(
-            message_dead, font_path, font_size, SDL2pp::Color(255, 255, 0));
-    round_texture.SetAlphaMod(190);
-    SDL2pp::Rect dstRect((CAMERA_WIDTH - round_texture.GetWidth()) / 2, 100,
-                         round_texture.GetWidth(), round_texture.GetHeight());
-    renderer.Copy(round_texture, SDL2pp::NullOpt, dstRect);
-
-    renderer.SetDrawBlendMode(SDL_BLENDMODE_NONE);
-    renderer.SetDrawColor(0, 0, 0, 255);
+    if (received_damage) {
+        animation.start_damage_overlay(it);
+    }
+    if (animation.is_damage_overlay_active(it)) {
+        animation.render_damage_overlay(it);
+        return;
+    }
 }
+
 
 void SDLManager::render_hud_bomb_not_planted_time(int minutes, int seconds, Phase phase) {
     std::stringstream ss;
@@ -473,13 +558,21 @@ void SDLManager::render_hud_bomb_explotion_time(int minutes, int seconds) {
 }
 
 /* Renderiza el tiempo restante de la ronda del HUD */
-void SDLManager::render_hud_time(int time_left, BombStatus bomb_status, Phase phase) {
-    int minutes = time_left / 60;
-    int seconds = time_left % 60;
+void SDLManager::render_hud_time(const LocalInfo& local_info) {
+    int minutes = local_info.time_left / 60;
+    int seconds = local_info.time_left % 60;
 
-    if (bomb_status == BombStatus::NOT_PLANTED) {
-        render_hud_bomb_not_planted_time(minutes, seconds, phase);
-    } else if (bomb_status == BombStatus::PLANTED) {
+    if (local_info.phase == ATTACK && local_info.time_left <= 10) {
+        sounds.play_clock_sound(FAST_TICK_CLOCK);
+    }
+
+    if ((local_info.current_round_winner.has_value() || local_info.just_planted)) {
+        sounds.stop_clock_sound();
+    }
+
+    if (local_info.bomb_status == BombStatus::NOT_PLANTED) {
+        render_hud_bomb_not_planted_time(minutes, seconds, local_info.phase);
+    } else if (local_info.bomb_status == BombStatus::PLANTED) {
         render_hud_bomb_explotion_time(minutes, seconds);
     }
 }
@@ -684,7 +777,9 @@ void SDLManager::render_hud_bomb(const bool& has_bomb, const bool& in_site, cons
 }
 
 void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
-    update_camera(local_info.player.x / GRAPHIC_SCALE, local_info.player.y / GRAPHIC_SCALE);
+    SDL2pp::Point shake_offset = animation.get_camera_shake(it);
+    update_camera((local_info.player.x - shake_offset.GetX()) / GRAPHIC_SCALE,
+                  (local_info.player.y - shake_offset.GetY()) / GRAPHIC_SCALE);
 
     // funcion luego para renderizar el mapa.
     if (map.has_value()) {
@@ -721,12 +816,18 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
         }
     }
 
-    render_bomb(local_info.bomb_status, local_info.bomb_planted_x, local_info.bomb_planted_y);
+    render_blood_spots(local_info);
+
+    render_dead_players(local_info.username, local_info.player);
+    for (auto& [username, p]: local_info.players) {
+        render_dead_players(username, p);
+    }
+
+    render_bomb(local_info, it);
 
     // render de mi player
     render_player(local_info.username, local_info.player, local_info.ct_skin, local_info.tt_skin,
                   it);
-    std::cout << "estoy en: " << local_info.player.x << ", " << local_info.player.y << std::endl;
     for (auto& [username, p]: local_info.players) {
         render_player(username, p, local_info.ct_skin, local_info.tt_skin, it);
     }
@@ -737,8 +838,8 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
     }
 
     render_fov(local_info.player.orientation + PLAYER_SPRITE_GAP);
-    render_if_dead(local_info.player.life);
-    render_hud_time(local_info.time_left, local_info.bomb_status, local_info.phase);
+    render_if_dead_or_damaged(local_info.player.life, local_info.player.just_damaged, it);
+    render_hud_time(local_info);
     render_hud_life(local_info.player.life);
     render_hud_bomb(local_info.player.has_bomb, local_info.player.in_site,
                     local_info.time_left % 60);
@@ -837,21 +938,5 @@ void SDLManager::make_team_winner_sound(std::optional<Team> current_winner) {
         } else {
             sounds.play_round_sound(TT_WINS);
         }
-    }
-}
-
-void SDLManager::make_bomb_sound(const BombStatus& bomb_status) {
-    if (bomb_status == BombStatus::PLANTED) {
-        sounds.play_bomb_sound(BOMB_PLANTED);
-    } else if (bomb_status == BombStatus::DEFUSED) {
-        sounds.play_bomb_sound(BOMB_DEFUSE);
-    }
-}
-
-void SDLManager::make_clock_sound(const bool& play) {
-    if (play) {
-        sounds.play_clock_sound(FAST_TICK_CLOCK);
-    } else {
-        sounds.stop_clock_sound();
     }
 }

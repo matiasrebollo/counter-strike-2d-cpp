@@ -50,17 +50,19 @@ private:
 
     void update_camera(int player_x, int player_y);
     GunVisualData get_gun_visual_info(WeaponType equipped, GunType gun_type);
-    void render_bomb(BombStatus bomb_status, int x_world, int y_world);
+    void render_blood_spots(const LocalInfo& local_info);
+    void render_dead_players(const std::string& username, const PlayerInfo& p);
+    void render_bomb(const LocalInfo& local_info, int it);
     void render_player(const std::string& username, const PlayerInfo& p,
                        const CounterTerroristSkin& ct_skin, const TerroristSkin& tt_skin, int it);
     void render_player_shot(const GunVisualData& gun_info, const std::string& username,
                             const PlayerInfo& p, const SDL2pp::Rect& destino_camera, int it);
     void render_player_weapon(const std::string& username, const PlayerInfo& p, int it);
     void render_fov(float orientation_deg);
-    void render_if_dead(const int& life);
+    void render_if_dead_or_damaged(const int& life, bool received_damage, int it);
     void render_hud_bomb_not_planted_time(int minutes, int seconds, Phase phase);
     void render_hud_bomb_explotion_time(int minutes, int seconds);
-    void render_hud_time(int time_left, BombStatus bomb_status, Phase phase);
+    void render_hud_time(const LocalInfo& local_info);
     void render_hud_round(size_t current_round_number, size_t total_rounds);
     void render_current_round_winner(const std::optional<Team>& winner, const Phase& phase);
     void render_hud_bomb(const bool& has_bomb, const bool& in_site, const int& seconds);

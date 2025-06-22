@@ -6,15 +6,16 @@ class GameUI;  // Forward declaration
 class GameUIPhase {
 protected:
     GameUI& game_ui;
+    int it;
 
 public:
-    explicit GameUIPhase(GameUI& game_ui);
+    GameUIPhase(GameUI& game_ui, int starting_it);
     /* Metodo principal del gameloop, que posee un clock para mantener un
      * game rate constante, renderiza la ultima snapshot, maneja eventos del
      * cliente y actualiza el estado del jugador y del juego.
      */
     void run();
-    void change_phase();
+    void change_phase(int last_it);
     virtual void handle_game_events() = 0;
     virtual bool update_game_state() = 0;
     virtual void show_game(const int& it) = 0;
@@ -23,7 +24,7 @@ public:
 
 class WaitingForGamePhase: public GameUIPhase {
 public:
-    explicit WaitingForGamePhase(GameUI& game_ui);
+    WaitingForGamePhase(GameUI& game_ui, int starting_it);
     void handle_game_events() override;
     bool update_game_state() override;
     void show_game(const int& it) override;
@@ -31,7 +32,7 @@ public:
 
 class UIBuyPhase: public GameUIPhase {
 public:
-    explicit UIBuyPhase(GameUI& game_ui);
+    UIBuyPhase(GameUI& game_ui, int starting_it);
     void handle_game_events() override;
     bool update_game_state() override;
     void show_game(const int& it) override;
@@ -39,7 +40,7 @@ public:
 
 class UIAttackPhase: public GameUIPhase {
 public:
-    explicit UIAttackPhase(GameUI& game_ui);
+    UIAttackPhase(GameUI& game_ui, int starting_it);
     void handle_game_events() override;
     bool update_game_state() override;
     void show_game(const int& it) override;
@@ -47,7 +48,7 @@ public:
 
 class RoundEndedPhase: public GameUIPhase {
 public:
-    explicit RoundEndedPhase(GameUI& game_ui);
+    RoundEndedPhase(GameUI& game_ui, int starting_it);
     void handle_game_events() override;
     bool update_game_state() override;
     void show_game(const int& it) override;
