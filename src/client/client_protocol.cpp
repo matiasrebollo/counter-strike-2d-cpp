@@ -184,10 +184,11 @@ Snapshot ClientProtocol::receive_snapshot() {
     std::vector<PlayerDTO> tts = this->receive_players(size_tt);
     std::optional<Team> current_round_winner = this->receive_current_round_winner();
     std::vector<ItemDTO> items = this->receive_items();
-    Snapshot snapshot = Snapshot{total_players,        Phase(phase), current_round_number,
-                                 total_rounds, ct_wins,   tt_wins,      time_left,    status,
-                                 bomb_position,        cts,          tts,
-                                 current_round_winner, items};
+    Snapshot snapshot = Snapshot{total_players, Phase(phase), current_round_number,
+                                 total_rounds,  ct_wins,      tt_wins,
+                                 time_left,     status,       bomb_position,
+                                 cts,           tts,          current_round_winner,
+                                 items};
     return snapshot;
 }
 

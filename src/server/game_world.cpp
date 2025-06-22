@@ -524,25 +524,13 @@ bool GameWorld::ct_are_all_dead() const {
     return team_is_dead([](const Player& p) { return p.is_ct(); });
 }
 
-
 void GameWorld::apply_won_round_bonus(Team team) {
-    if (team == CT) {
-        for (auto& [_, player]: counter_terrorists) {
-            Loadout& loadout = player->get_loadout();
+    for (auto& [_, player]: players) {
+        Loadout& loadout = player->get_loadout();
+        if ((player->is_ct() && team == CT) || (!player->is_ct() && team == TT)) {
             loadout.add_money(Settings::getInstance().get_won_round_bonus());
-        }
-        for (auto& [_, player]: terrorists) {
-            Loadout& loadout = player->get_loadout();
+        } else if ((!player->is_ct() && team == CT) || (player->is_ct() && team == TT)) {
             loadout.add_money(Settings::getInstance().get_lost_round_bonus());
-        }
-    } else {
-        for (auto& [_, player]: counter_terrorists) {
-            Loadout& loadout = player->get_loadout();
-            loadout.add_money(Settings::getInstance().get_lost_round_bonus());
-        }
-        for (auto& [_, player]: terrorists) {
-            Loadout& loadout = player->get_loadout();
-            loadout.add_money(Settings::getInstance().get_won_round_bonus());
         }
     }
 }

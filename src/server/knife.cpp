@@ -23,7 +23,7 @@ void Knife::update(const float& delta_t, Player& owner, GameWorld& game) {
     Weapon::update(delta_t, owner, game);
 }
 
-void Knife::execute_stab(Player* shot_victim, double shot_distance) {
+void Knife::execute_stab(Player* shot_victim, double shot_distance, GameWorld& game) {
     if (shot_distance < Settings::getInstance().get_knife_distance()) {
         shot_victim->receive_damage(damage, game);
     }

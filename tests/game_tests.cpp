@@ -327,7 +327,8 @@ TEST(ServerProtocolTest, SendSnapshot) {
 
                 Snapshot snapshot{
                         total_players, phase,  current_round, total_rounds, ct_wins, tt_wins,
-                        time_left,     status, bomb_pos,      ct,           tt,      winner, items};
+                        time_left,     status, bomb_pos,      ct,           tt,      winner,
+                        items};
                 server->send_game_dto(snapshot);
                 GameDTO response = client->receive_game_dto();
                 auto snapshotPtr = std::get_if<Snapshot>(&response);
