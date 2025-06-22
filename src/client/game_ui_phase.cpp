@@ -4,7 +4,9 @@
 
 #include "client/game_ui.h"
 
-GameUIPhase::GameUIPhase(GameUI& game_ui, int starting_it): game_ui(game_ui), it(starting_it) {}
+
+GameUIPhase::GameUIPhase(GameUI& game_ui, int starting_it):
+        game_ui(game_ui), it(starting_it), FPS_CLIENT(Settings::getInstance().get_fps_client()) {}
 
 void GameUIPhase::run() {
     Clock clock;
@@ -24,7 +26,9 @@ void GameUIPhase::run() {
             break;
         it = clock.sleep_and_calc_next_it(FPS_CLIENT, it);
     }
-    change_phase(it);
+    if (!(game_ui.local_info.phase == ROUND_ENDED && dynamic_cast<RoundEndedPhase*>(this))) {
+        change_phase(it);
+    }
 }
 
 void GameUIPhase::change_phase(int last_it) {
@@ -37,7 +41,6 @@ void GameUIPhase::change_phase(int last_it) {
     } else if (game_ui.local_info.phase == ROUND_ENDED) {
         game_ui.change_phase(std::make_unique<RoundEndedPhase>(game_ui, last_it));
     }
-    // ended ?
 }
 
 WaitingForGamePhase::WaitingForGamePhase(GameUI& game_ui, int starting_it):
@@ -45,7 +48,6 @@ WaitingForGamePhase::WaitingForGamePhase(GameUI& game_ui, int starting_it):
 void WaitingForGamePhase::handle_game_events() { game_ui.handle_waiting_events(); }
 bool WaitingForGamePhase::update_game_state() { return game_ui.update_waiting(); }
 void WaitingForGamePhase::show_game(const int& it) { game_ui.show_waiting(it); }
-
 
 UIBuyPhase::UIBuyPhase(GameUI& game_ui, int starting_it): GameUIPhase(game_ui, starting_it) {}
 void UIBuyPhase::handle_game_events() { game_ui.handle_buy_events(); }
@@ -62,17 +64,3 @@ RoundEndedPhase::RoundEndedPhase(GameUI& game_ui, int starting_it):
 void RoundEndedPhase::handle_game_events() { game_ui.handle_between_rounds_events(); }
 bool RoundEndedPhase::update_game_state() { return game_ui.update_between_rounds(); }
 void RoundEndedPhase::show_game(const int& it) { game_ui.show_between_rounds(it); }
-
-/*GameEndedPhase::GameEndedPhase(GameUI& game_ui): GameUIPhase(game_ui) {}
-void GameEndedPhase::handle_game_events() {
-
-}
-void GameEndedPhase::update_game_state() {
-
-}
-bool GameEndedPhase::keep_running() {
-
-}
-void GameEndedPhase::show_game() {
-
-}*/

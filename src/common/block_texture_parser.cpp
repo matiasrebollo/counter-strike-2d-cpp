@@ -6,6 +6,8 @@
 
 #include "map_object.h"
 
+#define PATH_ASSETS "../assets/"
+
 BlockTextureParser::BlockTextureParser(): block_textures(), backgrounds_paths() {
     this->set_sound_paths();
     this->set_backgrounds_paths();
@@ -146,19 +148,80 @@ const std::string& BlockTextureParser::get_editor_gun_texture(const GunType& gun
 }
 
 void BlockTextureParser::set_backgrounds_paths() {
-    this->backgrounds_paths = {{AZTEC_BACKGROUND, "../assets/gfx/backgrounds/aztec.png"},
-                               {DUST_BACKGROUND, "../assets/gfx/backgrounds/dust.png"},
-                               {GRASS_BACKGROUND, "../assets/gfx/backgrounds/gras1.jpg"}};
+    this->backgrounds_paths = {
+            {AZTEC_BACKGROUND, std::string(PATH_ASSETS) + "gfx/backgrounds/aztec.png"},
+            {DUST_BACKGROUND, std::string(PATH_ASSETS) + "gfx/backgrounds/dust.png"},
+            {GRASS_BACKGROUND, std::string(PATH_ASSETS) + "gfx/backgrounds/gras1.jpg"},
+            {BLOOD_BACKGROUND, std::string(PATH_ASSETS) + "gfx/backgrounds/blood.jpg"},
+            {INFERNO_BACKGROUND, std::string(PATH_ASSETS) + "gfx/backgrounds/inferno.png"},
+            {LAVA_BACKGROUND, std::string(PATH_ASSETS) + "gfx/backgrounds/lava.jpg"},
+            {MARS_BACKGROUND, std::string(PATH_ASSETS) + "gfx/backgrounds/mars.png"},
+            {NUKE_BACKGROUND, std::string(PATH_ASSETS) + "gfx/backgrounds/nuke.png"},
+            {OFFICE_BACKGROUND, std::string(PATH_ASSETS) + "gfx/backgrounds/office.png"},
+            {SAND1_BACKGROUND, std::string(PATH_ASSETS) + "gfx/backgrounds/sand1.jpg"},
+            {SAND1_NIGHT_BACKGROUND, std::string(PATH_ASSETS) + "gfx/backgrounds/sand1-night.jpg"},
+            {SNOW_BACKGROUND, std::string(PATH_ASSETS) + "gfx/backgrounds/snow.jpg"},
+            {SPACE_BACKGROUND, std::string(PATH_ASSETS) + "gfx/backgrounds/space.jpg"},
+            {STONE1_BACKGROUND, std::string(PATH_ASSETS) + "gfx/backgrounds/stone1.jpg"},
+            {TOXIC_BACKGROUND, std::string(PATH_ASSETS) + "gfx/backgrounds/toxic.jpg"},
+            {WATER1_BACKGROUND, std::string(PATH_ASSETS) + "gfx/backgrounds/water1.jpg"},
+            {WATER2_BACKGROUND, std::string(PATH_ASSETS) + "gfx/backgrounds/water2.jpg"},
+            {WATER3_BACKGROUND, std::string(PATH_ASSETS) + "gfx/backgrounds/water3.jpg"},
+            {WATER4_BACKGROUND, std::string(PATH_ASSETS) + "gfx/backgrounds/water4.jpg"}};
 }
 
 void BlockTextureParser::set_blocks_textures() {
-    std::vector<TilesetInfo> tilesets = {{"../assets/gfx/tiles/aztec.bmp",
-                                          6,
-                                          16,
-                                          32,
-                                          32,
-                                          {1, 2, 3, 4, 5, 6, 7, 8, 47, 46, 45, 93, 92, 88, 87},
-                                          {0, 9, 10, 11, 12, 13, 14, 15, 95, 94, 91, 90, 89, 73}}};
+    std::vector<TilesetInfo> tilesets = {
+            {std::string(PATH_ASSETS) + "gfx/tiles/aztec.bmp",
+             6,
+             16,
+             32,
+             32,
+             {1, 2, 3, 4, 5, 6, 7, 8, 47, 46, 45, 93, 92, 88, 87},
+             {0, 9, 10, 11, 12, 13, 14, 15, 95, 94, 91, 90, 89, 73}},
+            {std::string(PATH_ASSETS) + "gfx/tiles/eldorado.bmp",
+             2,
+             16,
+             32,
+             32,
+             {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 31, 30, 29},
+             {0}},
+            {std::string(PATH_ASSETS) + "gfx/tiles/dust_klin.bmp",
+             17,
+             8,
+             32,
+             32,
+             {1,  2,  3,  4,  5,  6,  7,  23, 22, 21, 20, 63, 62, 61, 60, 59, 58, 66, 67,
+              74, 75, 76, 77, 78, 79, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 98, 132},
+             {0, 39, 55, 71, 70, 69, 68, 64, 65, 72, 73}},
+            {std::string(PATH_ASSETS) + "gfx/tiles/cs_italy_tiles.png",
+             15,
+             5,
+             32,
+             32,
+             {1, 2, 3, 4, 39, 38, 40, 41, 42, 43, 45, 46, 47, 51, 52},
+             {0, 44, 49, 48, 50, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 69, 74}},
+            {std::string(PATH_ASSETS) + "gfx/tiles/default_aztec.png",
+             10,
+             5,
+             32,
+             32,
+             {20, 21, 22, 23, 24, 25, 26, 27, 28, 29},
+             {0, 46, 47, 48, 49}},
+            {std::string(PATH_ASSETS) + "gfx/tiles/default_dust.png",
+             14,
+             5,
+             32,
+             32,
+             {20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 60, 61, 62},
+             {0, 63, 65, 66, 67, 68}},
+            {std::string(PATH_ASSETS) + "gfx/tiles/default_inferno.png",
+             15,
+             5,
+             32,
+             32,
+             {20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 73, 72, 71, 70},
+             {0, 74, 56}}};
 
     int id_block = 0;
     for (const auto& ts: tilesets) {

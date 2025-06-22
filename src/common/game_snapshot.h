@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "bomb_status.h"
+#include "item_dto.h"
 #include "phase.h"
 #include "player_dto.h"
 
@@ -18,13 +19,15 @@ struct Snapshot {
     Phase phase;
     size_t current_round_number;
     size_t total_rounds;
+    size_t ct_wins;
+    size_t tt_wins;
     int time_left;
     BombStatus bomb_status;
     std::optional<Vector2D<int>> bomb_position;
     std::vector<PlayerDTO> ct;
     std::vector<PlayerDTO> tt;
     std::optional<Team> current_round_winner;
-    // std::vector<itemDTO> items;
+    std::vector<ItemDTO> items;
 };
 
 

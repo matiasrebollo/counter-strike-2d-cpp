@@ -1,6 +1,7 @@
 #ifndef GAME_WORLD_H
 #define GAME_WORLD_H
 
+#include <functional>
 #include <iostream>
 #include <list>
 #include <map>
@@ -14,40 +15,41 @@
 #include "common/settings.h"
 #include "server/collidable.h"
 #include "server/game_world_snapshot.h"
+#include "server/item.h"
 #include "server/player.h"
 #include "server/shop.h"
 #include "server/shot.h"
 
 class GameWorld {
 private:
-    std::map<std::string, std::shared_ptr<Player>> terrorists;
-    std::map<std::string, std::shared_ptr<Player>> counter_terrorists;
+    std::map<std::string, std::shared_ptr<Player>> players;
     std::list<std::shared_ptr<Collidable>> collidables;
     std::vector<Rect> sites;
+    std::vector<std::unique_ptr<Item>> items;
+    uint64_t next_drop_id;
     std::shared_ptr<Bomb> bomb;
     Shop shop;
     const GameMap game_map;
+    const size_t COUNTER_TERRORISTS;
+    const size_t TERRORISTS;
 
     void add_collidables();
     void set_sites();
+    void set_items();
 
     Vector2D<int> random_spawn_position(const std::vector<Vector2D<int>>& spawn_points) const;
     Vector2D<int> random_ct_spawn_position() const;
     Vector2D<int> random_tt_spawn_position() const;
 
-    bool team_is_dead(const std::map<std::string, std::shared_ptr<Player>>& team) const;
+    bool team_is_dead(std::function<bool(const Player&)> is_in_team) const;
 
     template <typename PlayerMethod>
     void with_player(const std::string& username, PlayerMethod action) {
-
-        auto ct_it = counter_terrorists.find(username);
-        auto tt_it = terrorists.find(username);
-        if (ct_it != counter_terrorists.end()) {
-            if (ct_it->second->is_alive())
-                action(*ct_it->second);
-        } else if (tt_it != terrorists.end()) {
-            if (tt_it->second->is_alive())
-                action(*tt_it->second);
+        auto it = players.find(username);
+        if (it != players.end()) {
+            if (it->second->is_alive()) {
+                action(*it->second);
+            }
         } else {
             throw std::invalid_argument("Username does not correspond to a player in this game.");
         }
@@ -70,6 +72,7 @@ public:
     void add_player(const std::string& username);
     void swap_teams();
     void restart_players();
+    void restart_items();
     void spawn_players();
     const GameMap get_map() const;
     const ShopInfoDTO get_shop_info() const;
@@ -81,9 +84,9 @@ public:
     bool bomb_exploded() const;
     bool bomb_defused() const;
     void make_bomb_explode();
-    bool are_teammates(const Player& player1, const Player& player2) const;
     bool tt_are_all_dead() const;
     bool ct_are_all_dead() const;
+    void apply_won_round_bonus(Team team);
     void rotate_player(const std::string& username, const double& angle);
     bool on_site(const Player& player) const;
     void move_player_up(const std::string& username);
@@ -102,6 +105,10 @@ public:
     void equip_secondary_for(const std::string& username);
     void equip_knife_for(const std::string& username);
     void equip_bomb_for(const std::string& username);
+    void pick_up_item_for(const std::string& username);
+    void pick_up_gun_for(Player& player, DroppedGun& dropped_gun);
+    void try_pick_up_bomb_for(Player& player, DroppedBomb& dropped_bomb);
+    void drop_weapons(Player& player);
     void buy_gun_for(const std::string& username, const GunType& gun);
     void buy_ammo_for(const std::string& username, const bool& for_primary);
 

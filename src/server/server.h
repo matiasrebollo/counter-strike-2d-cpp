@@ -12,6 +12,10 @@ private:
 
 public:
     explicit Server(const std::string& port);
+    /*
+        Starts the thread acceptor with a socket in the port specified in the
+        command line arg. If the port is occupied the program will end.
+    */
     int Run();
 };
 

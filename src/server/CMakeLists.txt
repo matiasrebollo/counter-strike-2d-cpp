@@ -23,6 +23,7 @@ target_sources(taller_server
         awp.cpp
         m3.cpp
         ak47.cpp
+        item.cpp
         server.cpp
         server_monitor.cpp
         server_protocol.cpp
@@ -50,6 +51,7 @@ target_sources(taller_server
         awp.h
         m3.h
         ak47.cpp
+        item.h
         shot.h
         server.h
         server_monitor.h

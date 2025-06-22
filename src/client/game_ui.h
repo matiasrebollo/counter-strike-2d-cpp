@@ -36,7 +36,6 @@ private:
     friend class UIBuyPhase;
     friend class UIAttackPhase;
     friend class RoundEndedPhase;
-    friend class GameEndedPhase;
 
     /* Setea en false todos los eventos */
     void reset_events();

@@ -25,7 +25,9 @@ CommonProtocol::CommonProtocol(std::unique_ptr<Socket> socket):
                         {CODE_PLANT_BOMB, CommandType::PLANT_BOMB},
                         {CODE_GAME_STARTED, CommandType::GAME_STARTED},
                         {CODE_SHOT, CommandType::SHOT},
-                        {CODE_ENDGAME, CommandType::GAME_ENDED}}),
+                        {CODE_ENDGAME, CommandType::GAME_ENDED},
+                        {CODE_GUN_DROPPED, CommandType::GUN_DROPPED},
+                        {CODE_BOMB_DROPPED, CommandType::BOMB_DROPPED}}),
         commandsToCode({{CommandType::CREATE_USERNAME, CODE_CREATE_USERNAME},
                         {CommandType::CREATE_GAME, CODE_CREATE_GAME},
                         {CommandType::JOIN_GAME, CODE_JOIN_GAME},
@@ -38,7 +40,9 @@ CommonProtocol::CommonProtocol(std::unique_ptr<Socket> socket):
                         {CommandType::PLANT_BOMB, CODE_PLANT_BOMB},
                         {CommandType::GAME_STARTED, CODE_GAME_STARTED},
                         {CommandType::SHOT, CODE_SHOT},
-                        {CommandType::GAME_ENDED, CODE_ENDGAME}}),
+                        {CommandType::GAME_ENDED, CODE_ENDGAME},
+                        {CommandType::GUN_DROPPED, CODE_GUN_DROPPED},
+                        {CommandType::BOMB_DROPPED, CODE_BOMB_DROPPED}}),
         bools_to_code({{true, CODE_TRUE}, {false, CODE_FALSE}}),
         code_to_bools({{CODE_TRUE, true}, {CODE_FALSE, false}}) {}
 

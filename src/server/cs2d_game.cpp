@@ -1,5 +1,6 @@
 #include "server/cs2d_game.h"
 
+#include <algorithm>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -10,31 +11,46 @@
 #include "common/game_snapshot.h"
 #include "common/yaml_parser.h"
 
+#include "game_already_started_exception.h"
 #include "game_full_exception.h"
 #include "player_in_game_exception.h"
 
 CS2DGame::CS2DGame(const std::string& id, const std::string& map_filename):
+        creator_username(""),
         players_senders(),
         command_queue(),
         game_world(map_filename),
+        forced_start(false),
         current_round(0),
         current_round_winner(std::nullopt),
         ct_wins(0),
         tt_wins(0),
+        ROUNDS(Settings::getInstance().get_rounds_server()),
+        TERRORISTS(Settings::getInstance().get_terrorists_number()),
+        COUNTER_TERRORISTS(Settings::getInstance().get_counter_terrorists_number()),
         id(id) {
     phase = std::make_unique<WaitingPlayersPhase>(*this);
 }
 
+bool CS2DGame::can_force_start() const {
+    return players_senders.size() >=
+           std::max<std::size_t>((COUNTER_TERRORISTS + TERRORISTS) / 2, 2);
+}
+
 bool CS2DGame::should_start() const {
-    return players_senders.size() >= COUNTER_TERRORISTS + TERRORISTS;
+    return forced_start || (players_senders.size() >= COUNTER_TERRORISTS + TERRORISTS);
 }
 
 void CS2DGame::add_player(const std::string& username, std::shared_ptr<ClientSender> sender) {
-    if (players_senders.size() == COUNTER_TERRORISTS + TERRORISTS) {
+    if (forced_start) {
+        throw GameAlreadyStartedException();
+    } else if (players_senders.size() == COUNTER_TERRORISTS + TERRORISTS) {
         throw GameFullException();
     } else if (players_senders.contains(username)) {
         throw PlayerAlreadyInGameException();
     }
+    if (creator_username == "")
+        creator_username = username;
     game_world.add_player(username);
     players_senders[username] = sender;
 }
@@ -63,16 +79,19 @@ void CS2DGame::broadcast_game_initial_info() {
 
 void CS2DGame::broadcast_snapshot(const int time_left) {
     const GameWorldSnapshot game_world_snapshot = game_world.get_snapshot();
-    const Snapshot snapshot{COUNTER_TERRORISTS + TERRORISTS,
+    const Snapshot snapshot{int(COUNTER_TERRORISTS + TERRORISTS),
                             this->phase->type(),
                             this->current_round,
                             ROUNDS,
+                            ct_wins,
+                            tt_wins,
                             time_left,
                             game_world_snapshot.bomb_status,
                             game_world_snapshot.bomb_position,
                             game_world_snapshot.ct,
                             game_world_snapshot.tt,
-                            this->current_round_winner};
+                            this->current_round_winner,
+                            game_world_snapshot.items};
     broadcast_game_dto(snapshot);
 }
 
@@ -89,6 +108,13 @@ void CS2DGame::execute_in_buy_phase(std::unique_ptr<Command> cmd) {
     cmd->execute_in_buy_phase(this->game_world);
 }
 
+void CS2DGame::execute_in_waiting_phase(std::unique_ptr<Command> cmd) {
+    if (auto* force_cmd = dynamic_cast<ForceStartCommand*>(cmd.get())) {
+        if (force_cmd->username == creator_username)
+            forced_start = can_force_start();
+    }
+}
+
 bool CS2DGame::current_round_has_a_winner() const {
     return (game_world.tt_are_all_dead() && game_world.bomb_not_planted()) ||
            game_world.ct_are_all_dead() || game_world.bomb_exploded() || game_world.bomb_defused();
@@ -99,9 +125,11 @@ void CS2DGame::decide_winner() {
         game_world.bomb_defused() or !current_round_has_a_winner()) {
         this->current_round_winner = CT;
         this->ct_wins++;
+        game_world.apply_won_round_bonus(CT);
     } else if (game_world.ct_are_all_dead() or game_world.bomb_exploded()) {
         this->current_round_winner = TT;
         this->tt_wins++;
+        game_world.apply_won_round_bonus(TT);
     }
 }
 
@@ -115,7 +143,7 @@ void CS2DGame::begin_new_round() {
 
     game_world.restart_players();
     game_world.spawn_players();
-    // limpiar items del mapa (dejar algunos, random)
+    game_world.restart_items();
 }
 
 void CS2DGame::change_phase(std::unique_ptr<GamePhase> new_phase) {

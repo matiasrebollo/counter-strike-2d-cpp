@@ -9,8 +9,8 @@ Bomb::Bomb():
         just_been_planted(false),
         time_since_planted(0.0f),
         plantation(std::nullopt),
-        explosion_radius(BOMB_EXPLOSION_RADIUS),
-        explosion_damage(BOMB_EXPLOSION_DAMAGE) {}
+        explosion_radius(Settings::getInstance().get_explosion_radius()),
+        explosion_damage(Settings::getInstance().get_bomb_damage()) {}
 
 BombStatus Bomb::get_status() { return status; }
 
@@ -24,7 +24,7 @@ std::optional<Vector2D<int>> Bomb::get_plantation_position() {
 int Bomb::get_explosion_radius() const { return explosion_radius; }
 
 bool Bomb::just_planted() { return just_been_planted; }
-int Bomb::detonation_time() { return DETONATION_TIME; }
+int Bomb::detonation_time() { return Settings::getInstance().get_detonation_time(); }
 
 void Bomb::action() {
     if (status == DEFUSED) {
@@ -44,7 +44,7 @@ void Bomb::update(const float& delta_t, Player& owner, GameWorld& game) {
         return;
     }
     Weapon::update(delta_t, owner, game);
-    if (making_action && time_since_last_action >= PLANTATION_TIME) {
+    if (making_action && time_since_last_action >= Settings::getInstance().get_plantation_time()) {
         just_been_planted = true;
         status = PLANTED;
         Vector2D<int> plantation_posicion(owner.rect.position.x + owner.rect.width / 2,
@@ -64,19 +64,19 @@ void Bomb::update_planted(const float& delta_t) {
     } else {
         time_since_last_action += delta_t;
     }
-    if (time_since_planted >= DETONATION_TIME) {
+    if (time_since_planted >= Settings::getInstance().get_detonation_time()) {
         status = EXPLODED;
         return;
     }
-    if (making_action && time_since_last_action >= DEFUSE_TIME) {
+    if (making_action && time_since_last_action >= Settings::getInstance().get_defuse_time()) {
         defuse();
     }
 }
 
-void Bomb::make_damage_to(Player& victim, const float& distance_to_victim) {
+void Bomb::make_damage_to(Player& victim, const float& distance_to_victim, GameWorld& game) {
     float damage_ratio = 1.0f - (distance_to_victim / explosion_radius);
     int damage = static_cast<int>(explosion_damage * damage_ratio);
-    victim.receive_damage(damage);
+    victim.receive_damage(damage, game);
 }
 
 void Bomb::restart() {

@@ -3,7 +3,8 @@
 
 #include <utility>
 
-#include "game_editor.h"
+#include "editor/game_editor.h"
+
 #include "grid_action.h"
 
 class Game_editor;

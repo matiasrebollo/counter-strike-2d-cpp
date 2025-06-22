@@ -13,14 +13,9 @@ GameUI::GameUI(Lobby& lobby):
         input_handler(sdl, this->protocol),
         receiver(this->protocol),
         // podria usar move?
-        local_info{lobby.get_username(),
-                   lobby.get_gamecode(),
-                   lobby.get_ct_skin(),
-                   lobby.get_tt_skin(),
-                   {},
-                   PlayerInfo{},
-                   std::nullopt,
-                   {}},
+        local_info{lobby.get_username(), lobby.get_gamecode(), lobby.is_creator(),
+                   lobby.get_ct_skin(),  lobby.get_tt_skin(),  {},
+                   PlayerInfo{},         std::nullopt, {}},
         keep_running(true) {
     this->phase = std::make_unique<WaitingForGamePhase>(*this, 0);
 }
@@ -35,6 +30,7 @@ void GameUI::run() {
     } catch (const ClosedQueue& e) {
         std::cout << "The server has been closed!" << std::endl;
         this->keep_running = false;
+        local_info.server_has_been_closed = true;
     }
 
     this->handle_game_ended();
@@ -132,6 +128,9 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
     local_info.total_players = snapshot.total_players;
     local_info.phase = snapshot.phase;
     local_info.current_round_winner = snapshot.current_round_winner;
+    local_info.ct_wins = snapshot.ct_wins;
+    local_info.tt_wins = snapshot.tt_wins;
+
     for (const PlayerDTO& p: snapshot.ct) {
         update_player(p, true);
     }
@@ -155,6 +154,9 @@ void GameUI::update_player(const PlayerDTO& player, const bool& is_ct) {
         local_info.player.has_bomb = player.loadout.has_bomb;
         local_info.player.is_planting = player.planting_bomb;
         local_info.player.is_defusing = player.defusing_bomb;
+        local_info.player.kills = player.kills;
+        local_info.player.bonifications = player.bonifications;
+        local_info.player.deaths = player.deaths;
 
         if (local_info.player.equipped == PRIMARY)
             local_info.player.equipped_gun_ammo = player.loadout.primary_ammo;
@@ -178,6 +180,10 @@ void GameUI::update_player(const PlayerDTO& player, const bool& is_ct) {
             it->second.in_site = player.on_site;
             it->second.is_planting = player.planting_bomb;
             it->second.is_defusing = player.defusing_bomb;
+            it->second.kills = player.kills;
+            it->second.bonifications = player.bonifications;
+            it->second.deaths = player.deaths;
+          
             if (it->second.equipped == PRIMARY)
                 it->second.equipped_gun_ammo = player.loadout.primary_ammo;
             else if (it->second.equipped == SECONDARY)
@@ -199,6 +205,9 @@ void GameUI::update_player(const PlayerDTO& player, const bool& is_ct) {
             updated.in_site = player.on_site;
             updated.is_planting = player.planting_bomb;
             updated.is_defusing = player.defusing_bomb;
+            updated.kills = player.kills;
+            updated.bonifications = player.bonifications;
+            updated.deaths = player.deaths;
 
             if (updated.equipped == PRIMARY)
                 updated.equipped_gun_ammo = player.loadout.primary_ammo;
@@ -217,18 +226,23 @@ bool GameUI::update_waiting() {
     GameDTO game_dto;
     bool pop = true;
     while (pop) {
+        std::cout << "try pop" << std::endl;
         if (!this->receiver.try_pop_game_dto(game_dto)) {
             pop = false;
             continue;
         }
+        std::cout << "popee" << std::endl;
         std::visit(
                 [this, &pop](const auto& game_dto) {
                     using T = std::decay_t<decltype(game_dto)>;
                     if constexpr (std::is_same_v<T, Snapshot>) {
                         update_local_info_from_snapshot(std::move(game_dto));
                     } else if constexpr (std::is_same_v<T, GameInitialInfoDTO>) {
+                        std::cout << "recibo game initial info " << std::endl;
                         this->sdl.set_map(std::move(game_dto.game_map));
+                        std::cout << "setee el mapa " << std::endl;
                         this->sdl.set_shop(std::move(game_dto.shop_info));
+                        std::cout << "setee info de tienda " << std::endl;
                         pop = false;
                     } else if constexpr (std::is_same_v<T, GameEnded>) {
                         // guardar estadisticas
@@ -257,7 +271,8 @@ void GameUI::show_waiting(const int& it) {
     sdl.render_waiting_screen(
             local_info.players.size() +
                     1,  // 1 porque si veo esta pantalla quiere decir estoy conectado
-            local_info.total_players, local_info.gamename, it, FPS_CLIENT);
+            local_info.total_players, local_info.is_creator, local_info.gamename, it,
+            Settings::getInstance().get_fps_client(), false);
     sdl.show_screen();
 }
 
@@ -265,6 +280,7 @@ void GameUI::handle_buy_events() {
     this->keep_running =
             input_handler.handle_buy_events(local_info.player.money, local_info.player.primary_gun);
 }
+
 bool GameUI::update_buy() {
     GameDTO game_dto;
     bool pop = true;
@@ -319,8 +335,10 @@ bool GameUI::update_attack() {
             return false;
         }
     }
+
     if (got_snapshot)
         update_local_info_from_snapshot(last_snapshot);
+  
     return true;
 }
 
@@ -352,6 +370,7 @@ bool GameUI::update_between_rounds() {
             continue;
         }
         Snapshot snapshot = std::get<Snapshot>(game_dto);
+        detect_player_events(snapshot);
         last_snapshot = std::move(snapshot);
         got_snapshot = true;
 
@@ -394,12 +413,49 @@ snapshots GameDTO game_dto; bool pop = true; while (pop) { if
     }
 }*/
 
-void GameUI::handle_game_ended() { std::cout << "Game ended!" << std::endl; }
+void GameUI::handle_game_ended() {
+    if (!local_info.server_has_been_closed && local_info.current_round < local_info.total_rounds &&
+        local_info.time_left > 0) {
+        return;
+    }
+    Clock clock;
+    size_t last_it = 0;
+    size_t it = 0;
+    float time = 0.0f;
+    int fps_client = Settings::getInstance().get_fps_client();
+    float max_time = Settings::getInstance().get_stats_time();
+
+    while (time < max_time) {
+        if (!input_handler.handle_ended_events()) {
+            break;
+        }
+        size_t delta_it = it - last_it;
+        float delta_seconds = static_cast<float>(delta_it) / fps_client;
+        time += delta_seconds;
+
+        if (local_info.phase != WAITING_PLAYERS) {
+            sdl.clear_display();
+            sdl.render_in_z_order(local_info, it);
+            sdl.render_crosshair(local_info);
+            sdl.show_screen();
+        } else {
+            sdl.clear_display();
+            sdl.render_waiting_screen(
+                    local_info.players.size() +
+                            1,  // 1 porque si veo esta pantalla quiere decir estoy conectado
+                    local_info.total_players, local_info.is_creator, local_info.gamename, it,
+                    fps_client, true);
+            sdl.show_screen();
+        }
+
+        last_it = it;
+        it = clock.sleep_and_calc_next_it(fps_client, it);
+    }
+}
 
 void GameUI::change_phase(std::unique_ptr<GameUIPhase> new_phase) {
     this->phase = std::move(new_phase);
 }
-
 
 void GameUI::close_client() {
     this->protocol.close();
@@ -408,8 +464,4 @@ void GameUI::close_client() {
     this->input_handler.join_sender();
 }
 
-GameUI::~GameUI() {
-    if (this->keep_running) {
-        this->close_client();
-    }
-}
+GameUI::~GameUI() {}

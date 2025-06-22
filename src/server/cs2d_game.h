@@ -16,15 +16,20 @@
 
 class CS2DGame: public Thread {
 private:
+    std::string creator_username;
     std::map<std::string, std::shared_ptr<ClientSender>> players_senders;
     Queue<std::unique_ptr<Command>> command_queue;
 
     GameWorld game_world;
+    bool forced_start;
     std::unique_ptr<GamePhase> phase;
     size_t current_round;
     std::optional<Team> current_round_winner;
     size_t ct_wins;
     size_t tt_wins;
+    const size_t ROUNDS;
+    const size_t TERRORISTS;
+    const size_t COUNTER_TERRORISTS;
 
     friend class GamePhase;
     friend class WaitingPlayersPhase;
@@ -32,7 +37,7 @@ private:
     friend class AttackPhase;
     friend class BetweenRoundsPhase;
 
-
+    bool can_force_start() const;
     bool should_start() const;
 
     void broadcast_game_dto(const GameDTO& game_dto);
@@ -49,6 +54,7 @@ private:
     int bomb_detonation_time();
     void execute_in_attack_phase(std::unique_ptr<Command> cmd);
     void execute_in_buy_phase(std::unique_ptr<Command> cmd);
+    void execute_in_waiting_phase(std::unique_ptr<Command> cmd);
     void end_game();
     void end();
 

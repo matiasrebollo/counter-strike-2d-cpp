@@ -34,15 +34,18 @@ struct PlayerInfo {
     bool just_damaged = false;
     int impact_position_x = 0;
     int impact_position_y = 0;
+    int bonifications = 0;
+    int kills = 0;
+    int deaths = 0;
 };
 
 struct LocalInfo {
     std::string username;
     std::string gamename;
+    bool is_creator;
 
     CounterTerroristSkin ct_skin;
     TerroristSkin tt_skin;
-
     std::unordered_map<std::string, PlayerInfo> players;
     PlayerInfo player;
     std::optional<Team> current_round_winner;
@@ -58,6 +61,9 @@ struct LocalInfo {
     int total_players = 0;
     size_t total_rounds = 0;
     size_t current_round = 0;
+    size_t ct_wins = 0;
+    size_t tt_wins = 0;
+    bool server_has_been_closed = false;
 };
 
 #endif

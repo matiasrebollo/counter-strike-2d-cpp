@@ -26,6 +26,12 @@ public:
     virtual ~Command();
 };
 
+class ForceStartCommand: public Command {
+public:
+    explicit ForceStartCommand(const std::string& username);
+    ~ForceStartCommand() override = default;
+};
+
 class MoveCommand: public Command {
 public:
     const Movement direction;
@@ -120,6 +126,13 @@ private:
 public:
     explicit EquipBombCommand(const std::string& username);
     ~EquipBombCommand() override = default;
+};
+
+class PickUpItemCommand: public Command {
+public:
+    explicit PickUpItemCommand(const std::string& username);
+    void execute_in_attack_phase(GameWorld& game) const override;
+    ~PickUpItemCommand() override = default;
 };
 
 

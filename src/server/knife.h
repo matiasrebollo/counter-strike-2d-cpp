@@ -15,7 +15,7 @@ private:
 
     bool can_stab();
     void stab(GameWorld& game, Player& owner);
-    void execute_stab(Player* shot_victim, double shot_distance);
+    void execute_stab(Player* shot_victim, double shot_distance, GameWorld& game);
 
 public:
     Knife();

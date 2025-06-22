@@ -18,7 +18,13 @@ Client::Client() {}
 void Client::run(int argc, char* argv[]) {
     QApplication app(argc, argv);
     Lobby lobby;
-    lobby.show();
+    if (Settings::getInstance().get_fullscreen()) {
+        lobby.showFullScreen();
+    } else {
+        lobby.resize(Settings::getInstance().get_window_initial_width(),
+                     Settings::getInstance().get_window_initial_height());
+        lobby.show();
+    }
     app.exec();
 
     GameUI(lobby).run();

@@ -27,10 +27,14 @@ std::unique_ptr<Command> Command::new_command(const std::string& username,
                     return std::make_unique<EquipKnifeCommand>(username);
                 } else if constexpr (std::is_same_v<T, EquipBombDTO>) {
                     return std::make_unique<EquipBombCommand>(username);
+                } else if constexpr (std::is_same_v<T, PickUpItemDTO>) {
+                    return std::make_unique<PickUpItemCommand>(username);
                 } else if constexpr (std::is_same_v<T, BuyGunDTO>) {
                     return std::make_unique<BuyGunCommand>(username, d.gun);
                 } else if constexpr (std::is_same_v<T, BuyAmmoDTO>) {
                     return std::make_unique<BuyAmmoCommand>(username, d.for_primary);
+                } else if constexpr (std::is_same_v<T, ForceStartDTO>) {
+                    return std::make_unique<ForceStartCommand>(username);
                 } else {
                     static_assert(always_false_v<T>, "Unhandled command data type");
                 }
@@ -42,6 +46,8 @@ void Command::execute_in_buy_phase(GameWorld&) const {}
 void Command::execute_in_attack_phase(GameWorld&) const {}
 
 Command::~Command() {}
+
+ForceStartCommand::ForceStartCommand(const std::string& username): Command(username) {}
 
 MoveCommand::MoveCommand(const std::string& username, const Movement direction, const bool& move):
         Command(username), direction(direction), should_move(move) {}
@@ -119,3 +125,8 @@ void EquipKnifeCommand::execute(GameWorld& game) const { game.equip_knife_for(us
 
 EquipBombCommand::EquipBombCommand(const std::string& username): EquipCommand(username) {}
 void EquipBombCommand::execute(GameWorld& game) const { game.equip_bomb_for(username); }
+
+PickUpItemCommand::PickUpItemCommand(const std::string& username): Command(username) {}
+void PickUpItemCommand::execute_in_attack_phase(GameWorld& game) const {
+    game.pick_up_item_for(username);
+}

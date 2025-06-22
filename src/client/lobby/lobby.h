@@ -2,6 +2,7 @@
 #define LOBBY_H
 
 #include <QMainWindow>
+#include <QMediaPlayer>
 #include <optional>
 #include <string>
 #include <vector>
@@ -15,6 +16,7 @@
 #define MSG_NO_USERNAME "Ingrese un nombre de usuario para registrarse."
 #define MSG_USERNAME_ALREADY_USED "Ya existe un usuario con ese nombre. Ingresa uno distinto."
 #define MSG_USERNAME_ALREADY_USED_IN_GAME "Ya existe un usuario con ese nombre en esta partida."
+#define MSG_GAME_ALREADY_STARTED(id) "La partida con ID " + id + " ya ha comenzado!"
 #define MSG_GAME_IS_FULL(id) "La partida con ID " + id + " está llena."
 #define MSG_GAME_NOT_EXIST(id) "La partida con ID " + id + " no existe."
 #define MSG_GAME_NOT_CREATED "El servidor no ha podido crear su partida."
@@ -45,6 +47,7 @@ public:
     CounterTerroristSkin& get_ct_skin();
     std::string get_username();
     std::string get_gamecode();
+    bool is_creator();
 
 private slots:
     void on_CreateGame_clicked();
@@ -79,11 +82,14 @@ private:
     TerroristSkin selected_tt_skin;
     std::string username;
     std::string gamecode;
+    bool is_creator_;
     bool can_change_name;
     std::optional<ClientProtocol> protocol;
+    QMediaPlayer* sound_player;
 
     void create_game();
     void format_string(std::string& s);
+    void tryLobbyRequest(const std::function<void()>& func);
 
     enum TerroristSkin skins_tt[4] = {PHEONIX, L3337_KREW, ARTIC_AVENGER, GUERRILLA};
     enum CounterTerroristSkin skins_ct[4] = {SEAL_FORCE, GSG_9, UK_SAS, GIGN};

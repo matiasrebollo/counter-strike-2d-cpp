@@ -43,10 +43,6 @@ void ServerProtocol::send_lobby_message(const ServerResponseLobby& msg) {
     }
 }
 
-void ServerProtocol::send_start_game(const ServerResponseLobby& msg) {
-    this->send_byte(this->commandsToCode.find(msg.commandType)->second);
-}
-
 void ServerProtocol::send_game_dto(const GameDTO& response) {
     std::visit(
             [this](const auto& response) {
@@ -71,7 +67,7 @@ void ServerProtocol::send_game_init_info(const GameInitialInfoDTO& dto) {
     for (auto object: dto.game_map.map_objects) {
         this->send_big_endian_number(object.type);
         this->send_byte(this->bools_to_code.find(object.collidable)->second);
-        this->send_byte(object.positions.size());
+        this->send_big_endian_number(object.positions.size());
         for (auto vec: object.positions) {
             this->send_big_endian_number(vec.x);
             this->send_big_endian_number(vec.y);
@@ -92,7 +88,7 @@ void ServerProtocol::send_game_init_info(const GameInitialInfoDTO& dto) {
         this->send_byte(this->weaponParser.getWeaponToByte(gun));
         this->send_big_endian_number(price);
     }
-    this->send_byte(dto.shop_info.price_clips);
+    this->send_big_endian_number(dto.shop_info.price_clips);
 }
 
 
@@ -102,6 +98,8 @@ void ServerProtocol::send_snapshot(const Snapshot& snapshot) {
     this->send_byte(snapshot.phase);
     this->send_byte(snapshot.current_round_number);
     this->send_byte(snapshot.total_rounds);
+    this->send_byte(snapshot.ct_wins);
+    this->send_byte(snapshot.tt_wins);
     this->send_byte(snapshot.time_left);
     this->send_byte(snapshot.bomb_status);
     this->send_bomb_position(snapshot.bomb_position);
@@ -110,6 +108,28 @@ void ServerProtocol::send_snapshot(const Snapshot& snapshot) {
     this->send_byte(snapshot.tt.size());
     this->send_players(snapshot.tt);
     this->send_current_round_winner(snapshot.current_round_winner);
+    this->send_items(snapshot.items);
+}
+
+void ServerProtocol::send_items(const std::vector<ItemDTO>& items) {
+    this->send_big_endian_number(items.size());
+    for (const auto& item: items) {
+        std::visit([this](const auto& real_item) { this->send_particular_item(real_item); }, item);
+    }
+}
+
+void ServerProtocol::send_particular_item(const DroppedGunDTO& dropped_gun) {
+    this->send_byte(this->commandsToCode.find(CommandType::GUN_DROPPED)->second);
+    this->send_big_endian_number(dropped_gun.position.x);
+    this->send_big_endian_number(dropped_gun.position.y);
+    this->send_byte(this->weaponParser.getWeaponToByte(dropped_gun.gun_type));
+    this->send_big_endian_number(dropped_gun.ammo);
+}
+
+void ServerProtocol::send_particular_item(const DroppedBombDTO& bomb) {
+    this->send_byte(this->commandsToCode.find(CommandType::BOMB_DROPPED)->second);
+    this->send_big_endian_number(bomb.position.x);
+    this->send_big_endian_number(bomb.position.y);
 }
 
 void ServerProtocol::send_bomb_position(const std::optional<Vector2D<int>>& bomb_position) {
@@ -145,7 +165,7 @@ void ServerProtocol::send_players(const std::vector<PlayerDTO>& players) {
         this->send_byte(this->bools_to_code.find(player.planting_bomb)->second);
         this->send_byte(this->bools_to_code.find(player.defusing_bomb)->second);
         this->send_byte(this->bools_to_code.find(player.on_site)->second);
-        this->send_byte(player.bonifications);
+        this->send_big_endian_number(player.bonifications);
         this->send_byte(player.kills);
         this->send_byte(player.deaths);
         this->send_loadout(player.loadout);
@@ -199,6 +219,10 @@ GameCommandDTO ServerProtocol::receive_client_game_request() {
             return this->receive_buy_ammo_request();
         case CODE_DEFUSE_BOMB:
             return DefuseBombDTO{this->code_to_bools.find(this->receive_byte())->second};
+        case CODE_PICK_UP:
+            return PickUpItemDTO{};
+        case CODE_START:
+            return ForceStartDTO{};
         default:
             throw std::runtime_error("Command not recognised");
     }

@@ -10,6 +10,10 @@
 
 #define MSG_CLOSE_RECEIVER "Closing receiver thread ..."
 
+/*
+    Owner of the server -> client queue, who receives messages which the game's status,
+    so the client can be up to date.
+*/
 class ClientReceiver: public Thread {
 private:
     Queue<GameDTO> queue;
