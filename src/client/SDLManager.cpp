@@ -582,7 +582,7 @@ void SDLManager::render_hud_time(const LocalInfo& local_info) {
     if (local_info.phase == ROUND_ENDED) {
         return;
     }
-    
+
     int minutes = local_info.time_left / 60;
     int seconds = local_info.time_left % 60;
 

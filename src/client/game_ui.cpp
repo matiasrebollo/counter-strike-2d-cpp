@@ -15,7 +15,7 @@ GameUI::GameUI(Lobby& lobby):
         // podria usar move?
         local_info{lobby.get_username(), lobby.get_gamecode(), lobby.is_creator(),
                    lobby.get_ct_skin(),  lobby.get_tt_skin(),  {},
-                   PlayerInfo{},         std::nullopt, {}},
+                   PlayerInfo{},         std::nullopt,         {}},
         keep_running(true) {
     this->phase = std::make_unique<WaitingForGamePhase>(*this, 0);
 }
@@ -183,7 +183,7 @@ void GameUI::update_player(const PlayerDTO& player, const bool& is_ct) {
             it->second.kills = player.kills;
             it->second.bonifications = player.bonifications;
             it->second.deaths = player.deaths;
-          
+
             if (it->second.equipped == PRIMARY)
                 it->second.equipped_gun_ammo = player.loadout.primary_ammo;
             else if (it->second.equipped == SECONDARY)
@@ -226,23 +226,18 @@ bool GameUI::update_waiting() {
     GameDTO game_dto;
     bool pop = true;
     while (pop) {
-        std::cout << "try pop" << std::endl;
         if (!this->receiver.try_pop_game_dto(game_dto)) {
             pop = false;
             continue;
         }
-        std::cout << "popee" << std::endl;
         std::visit(
                 [this, &pop](const auto& game_dto) {
                     using T = std::decay_t<decltype(game_dto)>;
                     if constexpr (std::is_same_v<T, Snapshot>) {
                         update_local_info_from_snapshot(std::move(game_dto));
                     } else if constexpr (std::is_same_v<T, GameInitialInfoDTO>) {
-                        std::cout << "recibo game initial info " << std::endl;
                         this->sdl.set_map(std::move(game_dto.game_map));
-                        std::cout << "setee el mapa " << std::endl;
                         this->sdl.set_shop(std::move(game_dto.shop_info));
-                        std::cout << "setee info de tienda " << std::endl;
                         pop = false;
                     } else if constexpr (std::is_same_v<T, GameEnded>) {
                         // guardar estadisticas
@@ -284,19 +279,31 @@ void GameUI::handle_buy_events() {
 bool GameUI::update_buy() {
     GameDTO game_dto;
     bool pop = true;
+    Snapshot last_snapshot;
+    bool got_snapshot;
+    reset_events();
     while (pop) {
         if (!this->receiver.try_pop_game_dto(game_dto)) {
             pop = false;
             continue;
         }
-        update_local_info_from_snapshot(std::get<Snapshot>(game_dto));
+
+        Snapshot snapshot = std::get<Snapshot>(game_dto);
+        last_snapshot = std::move(snapshot);
+        got_snapshot = true;
 
         if (local_info.phase != BUY) {
+            if (got_snapshot)
+                update_local_info_from_snapshot(last_snapshot);
             sdl.close_shop();
             sdl.make_round_start_sound(local_info.player.is_ct);
             return false;
         }
     }
+
+    if (got_snapshot)
+        update_local_info_from_snapshot(last_snapshot);
+
     return true;
 }
 
@@ -338,7 +345,7 @@ bool GameUI::update_attack() {
 
     if (got_snapshot)
         update_local_info_from_snapshot(last_snapshot);
-  
+
     return true;
 }
 
@@ -370,11 +377,9 @@ bool GameUI::update_between_rounds() {
             continue;
         }
         Snapshot snapshot = std::get<Snapshot>(game_dto);
-        detect_player_events(snapshot);
+        detect_events(snapshot);
         last_snapshot = std::move(snapshot);
         got_snapshot = true;
-
-        // aca falta detect events
 
         if (local_info.phase != ROUND_ENDED) {
             if (got_snapshot)
@@ -424,7 +429,7 @@ void GameUI::handle_game_ended() {
     float time = 0.0f;
     int fps_client = Settings::getInstance().get_fps_client();
     float max_time = Settings::getInstance().get_stats_time();
-
+    reset_events();
     while (time < max_time) {
         if (!input_handler.handle_ended_events()) {
             break;
