@@ -50,19 +50,20 @@ private:
     */
     void manage_create_game(const CreateGameDTO&);
     /*
-        Manage the join to a game calling to the server monitor method which
+        Manage the join to a game calling to the server monitor's method which
         use a mutex.
         It fails in these cases, each one send an aproppiate message explaining the error:
         - User don't have a name yet.
         - Game doesn't exist.
         - The game is already dead because all the clients had left it.
         - The game is full of players.abort
-        - A user with the username is already in the game. It only pass if someone used to
+        - A user with the username is already in the game. It only happens if someone used to
         have the username as the actual client, and had left the game and also the server =>
         in the moment the new client joined the server, nobody have his name, but in the game
         world is still somebody with this username.
     */
     void manage_join_game(const JoinGameDTO& dto);
+
     bool in_game();
     /*
         Manages all the lobby requests
