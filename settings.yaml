@@ -1,0 +1,70 @@
+client_fps: 30
+window_initial_height: 400
+window_initial_width: 640
+fullscreen: false
+fov_angle: 90
+server_fps: 60
+rounds: 2
+buy_phase_duration: 2
+attack_phase_duration: 10
+waiting_players_phase_duration: 300
+between_rounds_phase_duration: 1
+player_speed: 15
+terrorists: 2
+counter_terrorists: 2
+player_initial_life: 100
+initial_money: 800
+team_kill_penalty: 3000
+won_round_bonus: 3250
+lost_round_bonus: 2000
+clip_price: 50
+damage_variation_factor: 0.1
+stats_time: 10.0
+guns_settings:
+  glock:
+    initial_ammo: 20
+    precision: 0.87
+    falloff: 6400
+    damage: 30
+    rate_of_fire: 200
+    price: 400
+    clip_size: 20
+    kill_bonus: 500
+  awp:
+    initial_ammo: 5
+    precision: 1.0
+    falloff: -1
+    damage: 130
+    rate_of_fire: 40
+    price: 4750
+    clip_size: 10
+    kill_bonus: 100
+  ak-47:
+    initial_ammo: 30
+    precision: 0.92
+    falloff: 8000
+    damage: 25
+    rate_of_fire: 150
+    price: 2700
+    clip_size: 30
+    kill_bonus: 300
+  m3:
+    initial_ammo: 8
+    precision: 0.90
+    falloff: 3200
+    damage: 10
+    rate_of_fire: 60
+    price: 1700
+    clip_size: 8
+    kill_bonus: 300
+knife_settings:
+  knife_distance: 200 # Must be > 160 (PLAYER_THICKNESS/2)
+  knife_damage: 25
+  knife_ar: 120
+  knife_kill_bonus: 1500
+bomb_settings:
+  bomb_explosion_damage: 200
+  bomb_explosion_radius: 1000
+  detonation_time: 30
+  plantation_time: 4
+  defuse_time: 4
