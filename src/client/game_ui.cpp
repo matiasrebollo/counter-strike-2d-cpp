@@ -279,19 +279,31 @@ void GameUI::handle_buy_events() {
 bool GameUI::update_buy() {
     GameDTO game_dto;
     bool pop = true;
+    Snapshot last_snapshot;
+    bool got_snapshot;
+    reset_events();
     while (pop) {
         if (!this->receiver.try_pop_game_dto(game_dto)) {
             pop = false;
             continue;
         }
-        update_local_info_from_snapshot(std::get<Snapshot>(game_dto));
+
+        Snapshot snapshot = std::get<Snapshot>(game_dto);
+        last_snapshot = std::move(snapshot);
+        got_snapshot = true;
 
         if (local_info.phase != BUY) {
+            if (got_snapshot)
+                update_local_info_from_snapshot(last_snapshot);
             sdl.close_shop();
             sdl.make_round_start_sound(local_info.player.is_ct);
             return false;
         }
     }
+
+    if (got_snapshot)
+        update_local_info_from_snapshot(last_snapshot);
+
     return true;
 }
 
@@ -369,8 +381,6 @@ bool GameUI::update_between_rounds() {
         last_snapshot = std::move(snapshot);
         got_snapshot = true;
 
-        // aca falta detect events
-
         if (local_info.phase != ROUND_ENDED) {
             if (got_snapshot)
                 update_local_info_from_snapshot(last_snapshot);
@@ -418,7 +428,7 @@ void GameUI::handle_game_ended() {
     float time = 0.0f;
     int fps_client = Settings::getInstance().get_fps_client();
     float max_time = Settings::getInstance().get_stats_time();
-
+    reset_events();
     while (time < max_time) {
         if (!input_handler.handle_ended_events()) {
             break;
