@@ -77,6 +77,8 @@ private:
     void handle_game_ended();
     void close_client();
 
+    bool game_has_ended();
+
     void update_player(const PlayerDTO& player, const bool& is_ct);
 
 public:

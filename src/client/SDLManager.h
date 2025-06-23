@@ -75,8 +75,9 @@ private:
     void draw_line(const std::string& line, int y, SDL_Color color, const int& size_box);
     void stats_team(int& line_y, const bool& are_ct,
                     const std::vector<std::pair<std::string, PlayerInfo>>& team,
-                    const int& size_box);
+                    const int& size_box, const std::string& username_client);
     void render_stats(const LocalInfo& local_info);
+    void render_server_closed();
     bool game_ended(const LocalInfo& local_info);
     Crosshairs get_crosshair_color(int mouse_x, int mouse_y, const LocalInfo& local_info);
 
@@ -134,12 +135,6 @@ public:
 
     /* Emite un sonido con el equipo ganador, si es que hay uno */
     void make_team_winner_sound(std::optional<Team> current_winner);
-
-    /* Emite un sonido de la bomba: plantada o defuseada */
-    void make_bomb_sound(const BombStatus& bomb_status);
-
-    /* Emite un sonido de la bomba: plantada o defuseada */
-    void make_clock_sound(const bool& play);
 };
 
 #endif

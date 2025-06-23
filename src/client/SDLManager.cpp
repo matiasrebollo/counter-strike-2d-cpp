@@ -582,7 +582,7 @@ void SDLManager::render_hud_time(const LocalInfo& local_info) {
     if (local_info.phase == ROUND_ENDED) {
         return;
     }
-    
+
     int minutes = local_info.time_left / 60;
     int seconds = local_info.time_left % 60;
 
@@ -856,60 +856,54 @@ void SDLManager::draw_line(const std::string& line, int y, SDL_Color color, cons
 
 void SDLManager::stats_team(int& line_y, const bool& are_ct,
                             const std::vector<std::pair<std::string, PlayerInfo>>& team,
-                            const int& size_box) {
+                            const int& size_box, const std::string& username_client) {
     std::string team_s = are_ct ? "Counter Terrorirsts" : "Terrorists";
     SDL_Color blue = {0, 150, 255, 255};
     SDL_Color yellow = {255, 200, 0, 255};
     SDL_Color team_c = are_ct ? blue : yellow;
     SDL_Color white = {255, 255, 255, 255};
+    SDL_Color user_color = {68, 179, 157, 255};
 
     draw_line(team_s, line_y, team_c, size_box);
     int spacing = 15;
     line_y += spacing + 10;
 
     for (const auto& [username, p]: team) {
+        SDL_Color actual_color = username == username_client ? user_color : white;
         draw_line("* " + username + " | Kills: " + std::to_string(p.kills) +
                           " | Deaths: " + std::to_string(p.deaths) + " | Bonifications: $" +
                           std::to_string(p.bonifications),
-                  line_y, white, size_box);
+                  line_y, actual_color, size_box);
         line_y += spacing;
     }
 }
 
+void SDLManager::render_server_closed() {
+    int box_width = static_cast<int>(CAMERA_WIDTH * 0.59);
+    int box_height = static_cast<int>(CAMERA_HEIGHT * 0.1);
+    int box_x = (CAMERA_WIDTH - box_width) / 2;
+    int box_y = (CAMERA_HEIGHT - box_height) / 2;
+
+    SDL2pp::Rect stats_box{box_x, box_y, box_width, box_height};
+    renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
+    renderer.SetDrawColor(0, 0, 0, 180);
+    renderer.FillRect(stats_box);
+    renderer.SetDrawColor(255, 255, 255, 255);
+    renderer.DrawRect(stats_box);
+
+    int start_y = stats_box.y + 10;
+    SDL2pp::Color red = {255, 0, 0, 255};
+    int line_y = start_y;
+    this->draw_line("Connection lost with server!", line_y, red, box_x);
+}
+
 void SDLManager::render_stats(const LocalInfo& local_info) {
-    if (local_info.server_has_been_closed) {
-        int box_width = static_cast<int>(CAMERA_WIDTH * 0.59);
-        int box_height = static_cast<int>(CAMERA_HEIGHT * 0.1);
-        int box_x = (CAMERA_WIDTH - box_width) / 2;
-        int box_y = (CAMERA_HEIGHT - box_height) / 2;
-
-        SDL_Rect stats_box{box_x, box_y, box_width, box_height};
-
-        renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
-        renderer.SetDrawColor(0, 0, 0, 180);
-        renderer.FillRect(stats_box);
-
-        renderer.SetDrawColor(255, 255, 255, 255);
-        renderer.DrawRect(stats_box);
-
-        int start_y = stats_box.y + 10;
-
-        SDL_Color red = {255, 0, 0, 255};
-
-        int line_y = start_y;
-
-        this->draw_line("Connection lost with server!", line_y, red, box_x);
-    }
-    if (!game_ended(local_info)) {
-        return;
-    }
-
     int box_width = static_cast<int>(CAMERA_WIDTH * 0.7);
     int box_height = static_cast<int>(CAMERA_HEIGHT * 0.8);
     int box_x = (CAMERA_WIDTH - box_width) / 2;
     int box_y = (CAMERA_HEIGHT - box_height) / 2;
 
-    SDL_Rect stats_box{box_x, box_y, box_width, box_height};
+    SDL2pp::Rect stats_box{box_x, box_y, box_width, box_height};
 
     renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
     renderer.SetDrawColor(0, 0, 0, 180);
@@ -919,7 +913,7 @@ void SDLManager::render_stats(const LocalInfo& local_info) {
     renderer.DrawRect(stats_box);
 
     std::string result_text;
-    SDL_Color result_color;
+    SDL2pp::Color result_color;
 
     bool player_is_ct = local_info.player.is_ct;
 
@@ -947,11 +941,11 @@ void SDLManager::render_stats(const LocalInfo& local_info) {
 
     auto [cts, tts] = this->get_teams(local_info);
 
-    this->stats_team(line_y, true, cts, box_x);
+    this->stats_team(line_y, true, cts, box_x, local_info.username);
 
     line_y = stats_box.y + static_cast<int>(stats_box.h / 1.8);
 
-    this->stats_team(line_y, false, tts, box_x);
+    this->stats_team(line_y, false, tts, box_x, local_info.username);
 
     renderer.SetDrawBlendMode(SDL_BLENDMODE_NONE);
     renderer.SetDrawColor(0, 0, 0, 255);
@@ -1019,17 +1013,23 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
         render_player_weapon(username, p, it);
     }
 
-    render_fov(local_info.player.orientation + PLAYER_SPRITE_GAP);
-    render_if_dead_or_damaged(local_info.player.life, local_info.player.just_damaged, it);
-    render_hud_time(local_info);
-    render_hud_life(local_info.player.life);
-    render_hud_bomb(local_info.player.has_bomb, local_info.player.in_site,
-                    local_info.time_left % 60);
-    render_hud_rounds(local_info.ct_wins, local_info.tt_wins);
-    render_hud_ammo(local_info.player.equipped_gun_ammo);
-    render_hud_money(local_info.player.money);
-    render_current_round_winner(local_info.current_round_winner, local_info.phase);
-    render_stats(local_info);
+    if (local_info.server_has_been_closed) {
+        render_server_closed();
+    } else if (game_ended(local_info)) {
+        render_hud_rounds(local_info.ct_wins, local_info.tt_wins);
+        render_stats(local_info);
+    } else {
+        render_fov(local_info.player.orientation + PLAYER_SPRITE_GAP);
+        render_if_dead_or_damaged(local_info.player.life, local_info.player.just_damaged, it);
+        render_hud_time(local_info);
+        render_hud_life(local_info.player.life);
+        render_hud_bomb(local_info.player.has_bomb, local_info.player.in_site,
+                        local_info.time_left % 60);
+        render_hud_rounds(local_info.ct_wins, local_info.tt_wins);
+        render_hud_ammo(local_info.player.equipped_gun_ammo);
+        render_hud_money(local_info.player.money);
+        render_current_round_winner(local_info.current_round_winner, local_info.phase);
+    }
 }
 
 std::optional<ShopButtonType> SDLManager::interact_button(int x, int y, int money, GunType primary,
