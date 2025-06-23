@@ -62,7 +62,7 @@ struct ServerSettings {
 
 #define BLOCK_THICKNESS 400
 #define PLAYER_THICKNESS 320
-#define ITEM_THICKNESS 100
+#define ITEM_THICKNESS 200
 #define MAX_DISTANCE_SHOT 10000
 #define BOMB_THICKNESS 100
 

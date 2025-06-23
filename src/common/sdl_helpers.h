@@ -25,12 +25,16 @@ enum Crosshairs { GREEN = 0, RED = 1, YELLOW = 2, TIME = 3 };
 enum GunSprites {
     AK47_GAME,
     AK47_SHOP,
+    AK47_FLOOR,
     AWP_GAME,
     AWP_SHOP,
+    AWP_FLOOR,
     M3_GAME,
     M3_SHOP,
+    M3_FLOOR,
     GLOCK_GAME,
     GLOCK_SHOP,
+    GLOCK_FLOOR,
     KNIFE_GAME,
     KNIFE_SHOP,
     BOMB_GAME
@@ -65,7 +69,7 @@ enum SoundEffect {
     DEATH_SOUND_THREE
 };
 
-enum Others { AWP_SHOT_FLARE, BLOOD, BLOOD_SCREEN };
+enum Others { AWP_SHOT_FLARE, BLOOD, BLOOD_SCREEN, ITEM_SHADOW };
 
 
 #endif

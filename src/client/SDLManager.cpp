@@ -131,25 +131,30 @@ void SDLManager::update_camera(int player_x, int player_y) {
 GunVisualData SDLManager::get_gun_visual_info(WeaponType equipped, GunType gun_type) {
     switch (equipped) {
         case KNIFE:
-            return GunVisualData{CARRY_KNIFE, KNIFE_GAME, 18, -10, 0, 0, 20, 40, 0};
+            return GunVisualData{CARRY_KNIFE, KNIFE_GAME, KNIFE_GAME, 18, -10, 0, 0, 20, 40, 0};
         case SECONDARY:
-            return GunVisualData{CARRY_SECONDARY, GLOCK_GAME, 0, -17, 0, -17, 32, 32, 3};
+            return GunVisualData{
+                    CARRY_SECONDARY, GLOCK_GAME, GLOCK_FLOOR, 0, -17, 0, -17, 32, 32, 3};
         case PRIMARY:
             switch (gun_type) {
                 case AK47:
-                    return GunVisualData{CARRY_PRIMARY, AK47_GAME, 0, -17, -1, -25, 32, 32, 3};
+                    return GunVisualData{CARRY_PRIMARY, AK47_GAME, AK47_FLOOR, 0, -17, -1,
+                                         -25,           32,        32,         3};
                 case AWP:
-                    return GunVisualData{CARRY_PRIMARY, AWP_GAME, 0, -17, -2, -30, 32, 32, 8};
+                    return GunVisualData{CARRY_PRIMARY, AWP_GAME, AWP_FLOOR, 0, -17, -2,
+                                         -30,           32,       32,        8};
                 case M3:
-                    return GunVisualData{CARRY_PRIMARY, M3_GAME, 0, -17, 0, -17, 32, 32, 5};
+                    return GunVisualData{CARRY_PRIMARY, M3_GAME, M3_FLOOR, 0, -17, 0,
+                                         -17,           32,      32,       5};
                 default:
                     // nunca deberia llegar aca
-                    return GunVisualData{CARRY_PRIMARY, AK47_GAME, 0, -17, 0, -17, 32, 32, 0};
+                    return GunVisualData{CARRY_PRIMARY, AK47_GAME, AK47_FLOOR, 0, -17, 0,
+                                         -17,           32,        32,         0};
             }
         case BOMB:
-            return GunVisualData{CARRY_BOMB, BOMB_GAME, 10, -5, 0, 0, 10, 10, 0};
+            return GunVisualData{CARRY_BOMB, BOMB_GAME, BOMB_GAME, 10, -5, 0, 0, 10, 10, 0};
         default:
-            return GunVisualData{CARRY_KNIFE, KNIFE_GAME, 0, 0, 0, 0, 32, 32, 0};
+            return GunVisualData{CARRY_KNIFE, KNIFE_GAME, KNIFE_GAME, 0, 0, 0, 0, 32, 32, 0};
     }
 }
 
@@ -195,6 +200,38 @@ void SDLManager::render_dead_players(const std::string& username, const PlayerIn
         sounds.play_death(username, centro);
     }
 }
+
+void SDLManager::render_dropped_items(const std::vector<Drop>& drops) {
+    for (const auto& drop: drops) {
+        SDL2pp::Rect destino_mundo(drop.position.x / GRAPHIC_SCALE, drop.position.y / GRAPHIC_SCALE,
+                                   ITEM_THICKNESS / GRAPHIC_SCALE, ITEM_THICKNESS / GRAPHIC_SCALE);
+
+        if (!camera.is_visible(destino_mundo))
+            continue;
+
+        SDL2pp::Rect destino_camera = camera.rect_world_to_screen(destino_mundo);
+
+        std::string path;
+        if (drop.is_bomb) {
+            path = texture_parser.get_gun_texture(BOMB_GAME);
+
+            destino_camera = SDL2pp::Rect(destino_camera.GetX(), destino_camera.GetY(),
+                                          destino_camera.GetW() / 2, destino_camera.GetH() / 2);
+        } else {
+            std::string shadow_path = texture_parser.get_other_path(ITEM_SHADOW);
+            SDL2pp::Texture& shadow_texture = texture_manager.get_texture(shadow_path);
+            shadow_texture.SetBlendMode(SDL_BLENDMODE_ADD);
+            renderer.Copy(shadow_texture, SDL2pp::NullOpt, destino_camera);
+
+            GunSprites sprite = get_gun_visual_info(PRIMARY, drop.gun_type).floor_sprite;
+            path = texture_parser.get_gun_texture(sprite);
+        }
+
+        SDL2pp::Texture& texture = texture_manager.get_texture(path);
+        renderer.Copy(texture, SDL2pp::NullOpt, destino_camera);
+    }
+}
+
 
 /* Renderiza la bomba en el suelo si esta plantada */
 void SDLManager::render_bomb(const LocalInfo& local_info, int it) {
@@ -580,6 +617,7 @@ void SDLManager::render_hud_bomb_explotion_time(int minutes, int seconds) {
 /* Renderiza el tiempo restante de la ronda del HUD */
 void SDLManager::render_hud_time(const LocalInfo& local_info) {
     if (local_info.phase == ROUND_ENDED) {
+        sounds.stop_clock_sound();
         return;
     }
 
@@ -590,7 +628,7 @@ void SDLManager::render_hud_time(const LocalInfo& local_info) {
         sounds.play_clock_sound(FAST_TICK_CLOCK);
     }
 
-    if ((local_info.current_round_winner.has_value() || local_info.just_planted)) {
+    if (local_info.just_planted) {
         sounds.stop_clock_sound();
     }
 
@@ -1000,6 +1038,8 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
         render_dead_players(username, p);
     }
 
+    render_dropped_items(local_info.drops);
+
     render_bomb(local_info, it);
 
     // render de mi player
@@ -1043,26 +1083,92 @@ void SDLManager::render_shop(int player_money, GunType primary_gun, GunType seco
     shop.render(player_money, primary_gun, secondary_gun);
 }
 
-/* Devuelve el color de la mira a usar dependiendo donde esta posicionado el mouse */
-Crosshairs SDLManager::get_crosshair_color(int mouse_x, int mouse_y, const LocalInfo& local_info) {
+std::string SDLManager::get_gun_name(GunType gun_type) {
+    switch (gun_type) {
+        case AK47:
+            return "AK47";
+        case AWP:
+            return "AWP";
+        case M3:
+            return "M3";
+        case GLOCK:
+            return "GLOCK";
+        case NONE:
+            return "NONE";
+    }
+    return " ";
+}
 
+/* Devuelve el color de la mira a usar dependiendo donde esta posicionado el mouse */
+Crosshairs SDLManager::get_crosshair_and_render_info(int mouse_x, int mouse_y,
+                                                     const LocalInfo& local_info) {
     int size_player = PLAYER_THICKNESS / GRAPHIC_SCALE;
 
+    // Verificamos si se apunta a un enemigo
     for (const auto& [_, e]: local_info.players) {
         if ((local_info.player.is_ct && e.is_ct) || (!local_info.player.is_ct && !e.is_ct)) {
             continue;
         }
+        if (e.life == 0)
+            continue;
+
         SDL2pp::Rect destino_mundo(e.x / GRAPHIC_SCALE, e.y / GRAPHIC_SCALE, size_player,
                                    size_player);
 
-        if (!camera.is_visible(destino_mundo)) {
+        if (!camera.is_visible(destino_mundo))
             continue;
-        }
 
         SDL2pp::Rect destino_camera = camera.rect_world_to_screen(destino_mundo);
 
         if (destino_camera.Contains(mouse_x, mouse_y)) {
             return RED;
+        }
+    }
+
+    // Verificamos si se apunta a un drop
+    int size_drop = ITEM_THICKNESS / GRAPHIC_SCALE;
+    for (const auto& drop: local_info.drops) {
+        SDL2pp::Rect destino_mundo(drop.position.x / GRAPHIC_SCALE, drop.position.y / GRAPHIC_SCALE,
+                                   size_drop, size_drop);
+
+        if (!camera.is_visible(destino_mundo))
+            continue;
+
+        SDL2pp::Rect destino_camera = camera.rect_world_to_screen(destino_mundo);
+
+        if (drop.is_bomb) {
+            destino_camera = SDL2pp::Rect(destino_camera.GetX(), destino_camera.GetY(),
+                                          destino_camera.GetW() / 2, destino_camera.GetH() / 2);
+        }
+
+        if (destino_camera.Contains(mouse_x, mouse_y)) {
+            if (!drop.is_bomb) {
+                std::string gun_name = get_gun_name(drop.gun_type);
+                std::string message = gun_name + " | " + std::to_string(drop.ammo);
+
+                const std::string& font_path = texture_parser.get_fw_texture(FONT_SHOP);
+                SDL2pp::Texture& text_texture = texture_manager.get_text_texture(
+                        message, font_path, 10, SDL2pp::Color(255, 255, 0));
+
+                int box_width = 50;
+                int box_height = 12;
+                int box_x = mouse_x + 10;
+                int box_y = mouse_y + 10;
+
+                SDL2pp::Rect box_rect(box_x, box_y, box_width, box_height);
+                renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
+                renderer.SetDrawColor(0, 0, 0, 150);  // negro semi-transparente
+                renderer.FillRect(box_rect);
+
+                int text_x = box_x + (box_width - text_texture.GetWidth()) / 2;
+                int text_y = box_y + (box_height - text_texture.GetHeight()) / 2;
+                SDL2pp::Rect dst(text_x, text_y, text_texture.GetWidth(), text_texture.GetHeight());
+
+                renderer.Copy(text_texture, SDL2pp::NullOpt, dst);
+                renderer.SetDrawBlendMode(SDL_BLENDMODE_NONE);
+                renderer.SetDrawColor(0, 0, 0, 255);
+            }
+            return YELLOW;
         }
     }
 
@@ -1082,8 +1188,10 @@ void SDLManager::render_crosshair(const LocalInfo& local_info) {
 
     int size = 20;
 
-    Crosshairs color = get_crosshair_color(static_cast<int>(logical_mouse_x),
-                                           static_cast<int>(logical_mouse_y), local_info);
+    Crosshairs color = GREEN;
+    if (!shop.is_shop_open())
+        color = get_crosshair_and_render_info(static_cast<int>(logical_mouse_x),
+                                              static_cast<int>(logical_mouse_y), local_info);
 
     const BlockTextureInfo& crosshair_info = texture_parser.get_crosshair_texture(color);
     SDL2pp::Texture& crosshair_texture = texture_manager.get_texture(crosshair_info.tileset_path);
@@ -1093,7 +1201,6 @@ void SDLManager::render_crosshair(const LocalInfo& local_info) {
     SDL2pp::Rect dst(logical_mouse_x - size / 2, logical_mouse_y - size / 2, size, size);
 
     renderer.Copy(crosshair_texture, src, dst);
-    //  el mouse no se ve arriba de los bordes negros (ver si solucionar)
 }
 
 

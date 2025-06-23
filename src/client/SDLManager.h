@@ -23,6 +23,7 @@
 struct GunVisualData {
     Position carry_sprite;
     GunSprites weapon_sprite;
+    GunSprites floor_sprite;
     int sprite_offset_x;
     int sprite_offset_y;
     int shot_offset_x;
@@ -52,6 +53,7 @@ private:
     GunVisualData get_gun_visual_info(WeaponType equipped, GunType gun_type);
     void render_blood_spots(const LocalInfo& local_info);
     void render_dead_players(const std::string& username, const PlayerInfo& p);
+    void render_dropped_items(const std::vector<Drop>& drops);
     void render_bomb(const LocalInfo& local_info, int it);
     void render_player(const std::string& username, const PlayerInfo& p,
                        const CounterTerroristSkin& ct_skin, const TerroristSkin& tt_skin, int it);
@@ -79,7 +81,8 @@ private:
     void render_stats(const LocalInfo& local_info);
     void render_server_closed();
     bool game_ended(const LocalInfo& local_info);
-    Crosshairs get_crosshair_color(int mouse_x, int mouse_y, const LocalInfo& local_info);
+    std::string get_gun_name(GunType gun_type);
+    Crosshairs get_crosshair_and_render_info(int mouse_x, int mouse_y, const LocalInfo& local_info);
 
 public:
     SDLManager();

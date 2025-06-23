@@ -112,7 +112,8 @@ void BlockTextureParser::set_explosion_textures() {
 void BlockTextureParser::set_other_paths() {
     other_paths = {{AWP_SHOT_FLARE, "../assets/gfx/flare3.bmp"},
                    {BLOOD, "../assets/gfx/blood_floor.png"},
-                   {BLOOD_SCREEN, "../assets/gfx/blood.png"}};
+                   {BLOOD_SCREEN, "../assets/gfx/blood.png"},
+                   {ITEM_SHADOW, "../assets/gfx/shadow.bmp"}};
 }
 
 void BlockTextureParser::set_sound_paths() {
@@ -335,12 +336,16 @@ void BlockTextureParser::set_font_and_waiting() {
 void BlockTextureParser::set_gun_textures() {
     gun_textures = {{AK47_GAME, "../assets/gfx/weapons/ak47.bmp"},
                     {AK47_SHOP, "../assets/gfx/weapons/ak47_k.bmp"},
+                    {AK47_FLOOR, "../assets/gfx/weapons/ak47_d.bmp"},
                     {AWP_GAME, "../assets/gfx/weapons/awp.bmp"},
                     {AWP_SHOP, "../assets/gfx/weapons/awp_k.bmp"},
+                    {AWP_FLOOR, "../assets/gfx/weapons/awp_d.bmp"},
                     {M3_GAME, "../assets/gfx/weapons/m3.bmp"},
                     {M3_SHOP, "../assets/gfx/weapons/m3_k.bmp"},
+                    {M3_FLOOR, "../assets/gfx/weapons/m3_d.bmp"},
                     {GLOCK_GAME, "../assets/gfx/weapons/glock.bmp"},
                     {GLOCK_SHOP, "../assets/gfx/weapons/glock_k.bmp"},
+                    {GLOCK_FLOOR, "../assets/gfx/weapons/glock_d.bmp"},
                     {KNIFE_GAME, "../assets/gfx/weapons/knife.bmp"},
                     {KNIFE_SHOP, "../assets/gfx/weapons/knife_k.bmp"},
                     {BOMB_GAME, "../assets/gfx/weapons/bomb_sq.bmp"}};

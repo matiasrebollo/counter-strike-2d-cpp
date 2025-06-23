@@ -7,6 +7,13 @@
 
 #include "../common/skins.h"
 
+struct Drop {
+    Vector2D<int> position;
+    bool is_bomb;
+    GunType gun_type;  // solo válido si !is_bomb
+    uint16_t ammo;
+};
+
 struct BloodSpot {
     int x;
     int y;
@@ -50,6 +57,7 @@ struct LocalInfo {
     PlayerInfo player;
     std::optional<Team> current_round_winner;
     std::vector<BloodSpot> blood_spots;
+    std::vector<Drop> drops;
     BombStatus bomb_status = BombStatus::NOT_PLANTED;
     bool exploded = false;
     int bomb_planted_x = 0;

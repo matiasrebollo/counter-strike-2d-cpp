@@ -81,6 +81,8 @@ public:
     void close_shop();
 
     void open_shop();
+
+    bool is_shop_open() const;
 };
 
 
