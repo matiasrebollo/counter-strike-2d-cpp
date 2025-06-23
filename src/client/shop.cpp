@@ -466,3 +466,5 @@ std::optional<ShopButtonType> Shop::interact_button(int x, int y, int money, Gun
 
     return std::nullopt;
 }
+
+bool Shop::is_shop_open() const { return this->open; }

@@ -13,9 +13,16 @@ GameUI::GameUI(Lobby& lobby):
         input_handler(sdl, this->protocol),
         receiver(this->protocol),
         // podria usar move?
-        local_info{lobby.get_username(), lobby.get_gamecode(), lobby.is_creator(),
-                   lobby.get_ct_skin(),  lobby.get_tt_skin(),  {},
-                   PlayerInfo{},         std::nullopt,         {}},
+        local_info{lobby.get_username(),
+                   lobby.get_gamecode(),
+                   lobby.is_creator(),
+                   lobby.get_ct_skin(),
+                   lobby.get_tt_skin(),
+                   {},
+                   PlayerInfo{},
+                   std::nullopt,
+                   {},
+                   {}},
         keep_running(true) {
     this->phase = std::make_unique<WaitingForGamePhase>(*this, 0);
 }
@@ -136,6 +143,27 @@ void GameUI::update_local_info_from_snapshot(const Snapshot& snapshot) {
     }
     for (const PlayerDTO& p: snapshot.tt) {
         update_player(p, false);
+    }
+
+    local_info.drops.clear();
+
+    for (const auto& item: snapshot.items) {
+        std::visit(
+                [&](const auto& obj) {
+                    using T = std::decay_t<decltype(obj)>;
+                    if constexpr (std::is_same_v<T, DroppedGunDTO>) {
+                        local_info.drops.push_back(Drop{.position = obj.position,
+                                                        .is_bomb = false,
+                                                        .gun_type = obj.gun_type,
+                                                        .ammo = obj.ammo});
+                    } else if constexpr (std::is_same_v<T, DroppedBombDTO>) {
+                        local_info.drops.push_back(Drop{.position = obj.position,
+                                                        .is_bomb = true,
+                                                        .gun_type = GunType::NONE,
+                                                        .ammo = 0});
+                    }
+                },
+                item);
     }
 }
 
