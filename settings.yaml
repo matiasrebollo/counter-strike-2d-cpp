@@ -3,9 +3,10 @@ window_initial_height: 400
 window_initial_width: 640
 fullscreen: false
 fov_angle: 90
+sdl_window_title: "CS2D Remake"
 server_fps: 60
-rounds: 4
-buy_phase_duration: 15
+rounds: 2
+buy_phase_duration: 5
 attack_phase_duration: 50
 waiting_players_phase_duration: 300
 between_rounds_phase_duration: 5

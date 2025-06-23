@@ -64,6 +64,7 @@ private:
     */
     Snapshot receive_snapshot();
     std::vector<PlayerDTO> receive_players(const int& size_players);
+    int receive_bonification();
     std::optional<ShotDTO> receive_shot();
     LoadoutDTO receive_loadout();
     std::optional<Vector2D<int>> receive_bomb_position();

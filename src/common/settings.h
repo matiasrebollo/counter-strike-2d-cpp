@@ -94,6 +94,7 @@ struct ClientSettings {
     bool fullscreen;
 
     int fov_angle;
+    std::string sdl_window_title;
     float stats_time;
 };
 
@@ -137,6 +138,7 @@ public:
     int get_window_initial_width();
     int get_window_initial_height();
     bool get_fullscreen();
+    const std::string& get_sdl_window_title();
     int get_fov_angle();
     float get_stats_time();
 

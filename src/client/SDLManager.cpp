@@ -21,8 +21,6 @@ SDLManager::SDLManager():
                Settings::getInstance().get_window_initial_height(),
                Settings::getInstance().get_fullscreen() ? SDL_WINDOW_FULLSCREEN_DESKTOP :
                                                           SDL_WINDOW_RESIZABLE),
-
-
         renderer(window, -1, SDL_RENDERER_ACCELERATED),
         texture_manager(renderer),
         camera(CAMERA_WIDTH, CAMERA_HEIGHT),
@@ -30,6 +28,7 @@ SDLManager::SDLManager():
         animation(renderer, camera, texture_manager, texture_parser),
         shop(renderer, mixer, texture_manager, texture_parser, sounds) {
     renderer.SetLogicalSize(CAMERA_WIDTH, CAMERA_HEIGHT);
+    SDL_SetWindowTitle(window.Get(), Settings::getInstance().get_sdl_window_title().c_str());
     SDL_ShowCursor(SDL_DISABLE);
     mixer.AllocateChannels(30);
 }
@@ -893,6 +892,31 @@ void SDLManager::draw_line(const std::string& line, int y, SDL2pp::Color color,
                   SDL2pp::Rect(text_x, y, text_texture.GetWidth(), text_texture.GetHeight()));
 }
 
+void SDLManager::draw_player_line(const std::string& username, const PlayerInfo& p,
+                                  SDL2pp::Color color, const int& size_box, const int& line_y) {
+    std::string prefix = "* " + username + " | Kills: " + std::to_string(p.kills) +
+                         " | Deaths: " + std::to_string(p.deaths) + " | Bonifications: ";
+    std::string bonus = "$" + std::to_string(std::abs(p.bonifications));
+    SDL2pp::Color bonus_color = p.bonifications < 0 ? SDL2pp::Color(231, 76, 60, 255) : color;
+
+
+    int font_size = static_cast<int>(size_box * 0.15);
+    int text_x = size_box + 10;
+
+    const std::string& font_path = texture_parser.get_fw_texture(FONT_WAITING);
+    SDL2pp::Texture& prefix_texture =
+            texture_manager.get_text_texture(prefix, font_path, font_size, color);
+    renderer.Copy(
+            prefix_texture, SDL2pp::NullOpt,
+            SDL2pp::Rect(text_x, line_y, prefix_texture.GetWidth(), prefix_texture.GetHeight()));
+
+    SDL2pp::Texture& bonus_texture =
+            texture_manager.get_text_texture(bonus, font_path, font_size, bonus_color);
+    renderer.Copy(bonus_texture, SDL2pp::NullOpt,
+                  SDL2pp::Rect(text_x + prefix_texture.GetWidth(), line_y, bonus_texture.GetWidth(),
+                               bonus_texture.GetHeight()));
+}
+
 void SDLManager::stats_team(int& line_y, const bool& are_ct,
                             const std::vector<std::pair<std::string, PlayerInfo>>& team,
                             const int& size_box, const std::string& username_client) {
@@ -909,10 +933,7 @@ void SDLManager::stats_team(int& line_y, const bool& are_ct,
 
     for (const auto& [username, p]: team) {
         SDL_Color actual_color = username == username_client ? user_color : white;
-        draw_line("* " + username + " | Kills: " + std::to_string(p.kills) +
-                          " | Deaths: " + std::to_string(p.deaths) + " | Bonifications: $" +
-                          std::to_string(p.bonifications),
-                  line_y, actual_color, size_box);
+        draw_player_line(username, p, actual_color, size_box, line_y);
         line_y += spacing;
     }
 }

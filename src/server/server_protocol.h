@@ -48,6 +48,7 @@ private:
     */
     void send_snapshot(const Snapshot& snapshot);
     void send_players(const std::vector<PlayerDTO>& players);
+    void send_bonification(const int& bonification);
     void send_shot(const PlayerDTO& player);
     void send_loadout(const LoadoutDTO& loadout);
     void send_bomb_position(const std::optional<Vector2D<int>>& bomb_position);

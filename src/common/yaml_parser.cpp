@@ -120,6 +120,7 @@ ClientSettings YamlParser::load_client_settings(const std::string& path) {
                                file["window_initial_height"].as<int>(),
                                file["fullscreen"].as<bool>(),
                                file["fov_angle"].as<int>(),
+                               file["sdl_window_title"].as<std::string>(),
                                file["stats_time"].as<float>()};
 
     return settings;

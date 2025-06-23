@@ -26,6 +26,9 @@ void Client::run(int argc, char* argv[]) {
         lobby.show();
     }
     app.exec();
+    SDL_SetHint(SDL_HINT_AUDIO_DEVICE_APP_NAME,
+                Settings::getInstance().get_sdl_window_title().c_str());
+
 
     GameUI(lobby).run();
 }

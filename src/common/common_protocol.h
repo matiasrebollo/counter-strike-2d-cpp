@@ -57,6 +57,9 @@ inline constexpr bool always_false_v = false;
 #define CODE_CHOOSE_SECONDARY 0x02
 #define CODE_CHOOSE_BOMB 0x03
 
+#define CODE_NEGATIVE_NUMBER 0x01
+#define CODE_POSITIVE_NUMBER 0x00
+
 /*
     Class from who server and client protocol inherite. It provides the interface for the
     send and recv "low level" methods.

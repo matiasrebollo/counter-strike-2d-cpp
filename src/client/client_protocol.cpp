@@ -234,7 +234,7 @@ std::vector<PlayerDTO> ClientProtocol::receive_players(const int& size_players) 
         bool planting_bomb = this->code_to_bools.find(this->receive_byte())->second;
         bool defusing_bomb = this->code_to_bools.find(this->receive_byte())->second;
         bool on_site = this->code_to_bools.find(this->receive_byte())->second;
-        int bonifications = this->receive_big_endian_number();
+        int bonifications = this->receive_bonification();
         int kills = this->receive_byte();
         int deaths = this->receive_byte();
         LoadoutDTO loadout = this->receive_loadout();
@@ -244,6 +244,17 @@ std::vector<PlayerDTO> ClientProtocol::receive_players(const int& size_players) 
     }
     return players;
 }
+
+int ClientProtocol::receive_bonification() {
+    uint8_t sign = this->receive_byte();
+    uint16_t absolute = this->receive_big_endian_number();
+    if (sign == CODE_NEGATIVE_NUMBER) {
+        return -absolute;
+    } else {
+        return absolute;
+    }
+}
+
 
 std::optional<ShotDTO> ClientProtocol::receive_shot() {
     bool has_value = this->code_to_bools.find(this->receive_byte())->second;

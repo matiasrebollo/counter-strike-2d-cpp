@@ -1,5 +1,6 @@
 #include "server_protocol.h"
 
+#include <cstdlib>
 #include <cstring>
 #include <memory>
 #include <numbers>
@@ -166,11 +167,20 @@ void ServerProtocol::send_players(const std::vector<PlayerDTO>& players) {
         this->send_byte(this->bools_to_code.find(player.planting_bomb)->second);
         this->send_byte(this->bools_to_code.find(player.defusing_bomb)->second);
         this->send_byte(this->bools_to_code.find(player.on_site)->second);
-        this->send_big_endian_number(player.bonifications);
+        this->send_bonification(player.bonifications);
         this->send_byte(player.kills);
         this->send_byte(player.deaths);
         this->send_loadout(player.loadout);
     }
+}
+
+void ServerProtocol::send_bonification(const int& bonification) {
+    if (bonification > 0) {
+        this->send_byte(CODE_POSITIVE_NUMBER);
+    } else {
+        this->send_byte(CODE_NEGATIVE_NUMBER);
+    }
+    this->send_big_endian_number(std::abs(bonification));
 }
 
 void ServerProtocol::send_shot(const PlayerDTO& player) {
