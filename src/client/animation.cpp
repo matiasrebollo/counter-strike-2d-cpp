@@ -204,3 +204,10 @@ void Animation::render_damage_overlay(int current_it) {
     SDL2pp::Rect full_screen(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
     renderer.Copy(texture, SDL2pp::NullOpt, full_screen);
 }
+
+void Animation::restart_animations() {
+    shots.clear();
+    bomb_explosion.reset();
+    camera_shake.reset();
+    damage_overlay.reset();
+}

@@ -143,7 +143,6 @@ void Player::receive_damage(const int& damage, GameWorld& game) {
         deaths += 1;
         game.drop_weapons(*this);
     }
-    deaths += 1;
 }
 
 void Player::count_kill(Player& victim, const int& money_bonification) {

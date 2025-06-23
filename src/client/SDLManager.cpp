@@ -1235,3 +1235,5 @@ void SDLManager::make_team_winner_sound(std::optional<Team> current_winner) {
         }
     }
 }
+
+void SDLManager::restart_animations() { this->animation.restart_animations(); }

@@ -69,6 +69,8 @@ public:
     void start_damage_overlay(int current_it);
     bool is_damage_overlay_active(int current_it);
     void render_damage_overlay(int current_it);
+
+    void restart_animations();
 };
 
 #endif

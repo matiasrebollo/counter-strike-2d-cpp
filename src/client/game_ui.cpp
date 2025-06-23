@@ -413,6 +413,7 @@ bool GameUI::update_between_rounds() {
             if (got_snapshot)
                 update_local_info_from_snapshot(last_snapshot);
             local_info.blood_spots.clear();
+            sdl.restart_animations();
             return false;
         }
     }
@@ -457,6 +458,7 @@ void GameUI::handle_game_ended() {
     int fps_client = Settings::getInstance().get_fps_client();
     float max_time = Settings::getInstance().get_stats_time();
     reset_events();
+    sdl.restart_animations();
     while (time < max_time) {
         if (!input_handler.handle_ended_events()) {
             break;

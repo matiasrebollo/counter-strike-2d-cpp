@@ -406,7 +406,7 @@ void Game_editor::on_save_button_clicked() {
         YAML::Node yaml = parser.game_map_to_Yaml(map);
 
         QString fileName = QFileDialog::getSaveFileName(
-                this, "Guardar Mapa", "", "Archivos YAML (*.yaml);;Todos los archivos (*)");
+                this, "Guardar Mapa", "../maps", "Archivos YAML (*.yaml);;Todos los archivos (*)");
 
         if (fileName.isEmpty()) {
             return;

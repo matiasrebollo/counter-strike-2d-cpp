@@ -138,6 +138,7 @@ void LogicMap::clearMap() {
     this->tt_spawns.clear();
     this->ct_spawns.clear();
     this->bomb_sites.clear();
+    this->guns.clear();
     this->selected_background = AZTEC_BACKGROUND;
 }
 
