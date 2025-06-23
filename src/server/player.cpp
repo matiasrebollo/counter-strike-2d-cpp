@@ -116,6 +116,7 @@ void Player::restart() {
     is_defusing_bomb = false;
     shot = std::nullopt;
     orientation = 0.0;
+    stop_making_action();
     leave_bomb();
 }
 

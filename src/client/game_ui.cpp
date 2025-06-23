@@ -107,7 +107,8 @@ void GameUI::detect_events(const Snapshot& snapshot) {
             }
         }
     }
-    if (snapshot.bomb_status == BombStatus::EXPLODED)
+    if (local_info.bomb_status == BombStatus::PLANTED &&
+        snapshot.bomb_status == BombStatus::EXPLODED)
         local_info.exploded = true;
 
     if (local_info.bomb_status == BombStatus::NOT_PLANTED &&
