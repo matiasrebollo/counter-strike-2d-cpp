@@ -862,7 +862,7 @@ void SDLManager::stats_team(int& line_y, const bool& are_ct,
     SDL_Color yellow = {255, 200, 0, 255};
     SDL_Color team_c = are_ct ? blue : yellow;
     SDL_Color white = {255, 255, 255, 255};
-    SDL_Color user_color = {68, 179, 157, 255};
+    SDL_Color user_color = {68, 67, 96, 255};
 
     draw_line(team_s, line_y, team_c, size_box);
     int spacing = 15;

@@ -10,7 +10,9 @@ void ClientSender::run() {
     } catch (const CommunicationEnded& e) {
         std::cout << MSG_CLOSE_SENDER << std::endl;
         this->stop();
-        this->close_queue();
+        try {
+            this->close_queue();
+        } catch (const ClosedQueue& e2) {}
         return;
     } catch (const ClosedQueue& e) {
         std::cout << MSG_CLOSE_SENDER << std::endl;
@@ -21,7 +23,11 @@ void ClientSender::run() {
 
 void ClientSender::add_command_to_queue(const GameCommandDTO& dto) { this->queue.push(dto); }
 
-void ClientSender::close_queue() { this->queue.close(); }
+void ClientSender::close_queue() {
+    try {
+        this->queue.close();
+    } catch (const ClosedQueue& e) {}
+}
 
 void ClientSender::send_command_to_server() {
     GameCommandDTO dto = this->queue.pop();
