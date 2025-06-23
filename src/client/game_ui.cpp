@@ -34,7 +34,6 @@ void GameUI::run() {
     }
 
     this->handle_game_ended();
-    this->close_client();
 }
 
 void GameUI::reset_events() {
@@ -465,11 +464,9 @@ void GameUI::change_phase(std::unique_ptr<GameUIPhase> new_phase) {
     this->phase = std::move(new_phase);
 }
 
-void GameUI::close_client() {
+GameUI::~GameUI() {
     this->protocol.close();
     this->receiver.join();
     this->input_handler.close_sender_queue();
     this->input_handler.join_sender();
 }
-
-GameUI::~GameUI() {}

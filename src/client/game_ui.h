@@ -75,7 +75,6 @@ private:
     void change_phase(std::unique_ptr<GameUIPhase> new_phase);
 
     void handle_game_ended();
-    void close_client();
 
     bool game_has_ended();
 

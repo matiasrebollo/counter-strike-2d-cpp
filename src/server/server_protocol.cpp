@@ -8,6 +8,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
+#include "../common/liberror.h"
 #include "../common/player_dto.h"
 #include "../common/skins.h"
 
@@ -286,13 +287,15 @@ JoinGameDTO ServerProtocol::receive_join_game_request() {
 RotateDTO ServerProtocol::receive_rotate() { return RotateDTO{this->receive_angle()}; }
 
 void ServerProtocol::kill() {
-    if (!this->socket->is_stream_recv_closed()) {
-        this->socket->shutdown(SHUT_RD);
-    }
-    if (!this->socket->is_stream_send_closed()) {
-        this->socket->shutdown(SHUT_WR);
-    }
-    this->socket->close();
+    try {
+        if (!this->socket->is_stream_recv_closed()) {
+            this->socket->shutdown(SHUT_RD);
+        }
+        if (!this->socket->is_stream_send_closed()) {
+            this->socket->shutdown(SHUT_WR);
+        }
+        this->socket->close();
+    } catch (const LibError& e) {}
 }
 
 ServerProtocol::~ServerProtocol() {}

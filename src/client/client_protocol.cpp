@@ -10,6 +10,7 @@
 
 #include "../common/commands.h"
 #include "../common/communication_ended.h"
+#include "../common/liberror.h"
 #include "../common/message.h"
 #include "../common/vector_2d.h"
 
@@ -359,11 +360,13 @@ std::vector<MapObject> ClientProtocol::receive_map_objects(const uint8_t& size) 
 }
 
 void ClientProtocol::close() {
-    if (!this->socket->is_stream_recv_closed()) {
-        this->socket->shutdown(SHUT_RD);
-    }
-    if (!this->socket->is_stream_send_closed()) {
-        this->socket->shutdown(SHUT_WR);
-    }
-    this->socket->close();
+    try {
+        if (!this->socket->is_stream_recv_closed()) {
+            this->socket->shutdown(SHUT_RD);
+        }
+        if (!this->socket->is_stream_send_closed()) {
+            this->socket->shutdown(SHUT_WR);
+        }
+        this->socket->close();
+    } catch (const LibError& e) {}
 }

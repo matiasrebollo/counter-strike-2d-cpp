@@ -72,7 +72,7 @@ private:
     std::pair<std::vector<std::pair<std::string, PlayerInfo>>,
               std::vector<std::pair<std::string, PlayerInfo>>>
             get_teams(const LocalInfo& local_info);
-    void draw_line(const std::string& line, int y, SDL_Color color, const int& size_box);
+    void draw_line(const std::string& line, int y, SDL2pp::Color color, const int& size_box);
     void stats_team(int& line_y, const bool& are_ct,
                     const std::vector<std::pair<std::string, PlayerInfo>>& team,
                     const int& size_box, const std::string& username_client);

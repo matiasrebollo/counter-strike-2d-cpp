@@ -5,13 +5,13 @@ fullscreen: false
 fov_angle: 90
 server_fps: 60
 rounds: 2
-buy_phase_duration: 2
-attack_phase_duration: 10
+buy_phase_duration: 1
+attack_phase_duration: 5
 waiting_players_phase_duration: 300
 between_rounds_phase_duration: 1
 player_speed: 15
-terrorists: 2
-counter_terrorists: 2
+terrorists: 1
+counter_terrorists: 1
 player_initial_life: 100
 initial_money: 800
 team_kill_penalty: 3000

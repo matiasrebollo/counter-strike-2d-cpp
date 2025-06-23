@@ -844,7 +844,8 @@ std::pair<std::vector<std::pair<std::string, PlayerInfo>>,
     return std::make_pair(cts, tts);
 }
 
-void SDLManager::draw_line(const std::string& line, int y, SDL_Color color, const int& size_box) {
+void SDLManager::draw_line(const std::string& line, int y, SDL2pp::Color color,
+                           const int& size_box) {
     int font_size = static_cast<int>(size_box * 0.15);
     int text_x = size_box + 10;
     const std::string& font_path = texture_parser.get_fw_texture(FONT_WAITING);
@@ -858,11 +859,11 @@ void SDLManager::stats_team(int& line_y, const bool& are_ct,
                             const std::vector<std::pair<std::string, PlayerInfo>>& team,
                             const int& size_box, const std::string& username_client) {
     std::string team_s = are_ct ? "Counter Terrorirsts" : "Terrorists";
-    SDL_Color blue = {0, 150, 255, 255};
-    SDL_Color yellow = {255, 200, 0, 255};
-    SDL_Color team_c = are_ct ? blue : yellow;
-    SDL_Color white = {255, 255, 255, 255};
-    SDL_Color user_color = {68, 67, 96, 255};
+    SDL2pp::Color blue = {0, 150, 255, 255};
+    SDL2pp::Color yellow = {255, 200, 0, 255};
+    SDL2pp::Color team_c = are_ct ? blue : yellow;
+    SDL2pp::Color white = {255, 255, 255, 255};
+    SDL2pp::Color user_color = {68, 179, 157, 255};
 
     draw_line(team_s, line_y, team_c, size_box);
     int spacing = 15;
