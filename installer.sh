@@ -2,12 +2,14 @@
 
 BLUE='\033[0;34m'
 GREEN='\033[0;32m'
+RED='\033[0;31m'
 NC='\033[0m'
 
 chmod +x "$0"
 
 echo -e "${BLUE}Bienvenido al instalador del CS2D Remake!${NC}"
 echo -e "${BLUE}Descargando lo necesario para jugar ...${NC}"
+
 
 # Actualización de paquetes
 sudo apt-get update
@@ -96,6 +98,16 @@ echo -e "${GREEN}Descargas completadas :)${NC}"
 
 echo -e "${BLUE}Instalando juego ...${NC}"
 
+echo -e "${RED}Verificando dependencias faltantes...${NC}"
+ldd build/taller_client | grep "not found"
+echo -e "${RED}Verificando dependencias faltantes...${NC}"
+ldd build/taller_server | grep "not found"
+echo -e "${RED}Verificando dependencias faltantes...${NC}"
+ldd build/taller_editor | grep "not found"
+
+sudo apt-get update
+
+make clean
 make run-tests
 
 # Copio binarios
