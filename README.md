@@ -9,6 +9,13 @@ chmox +x installer.sh
 ./installer.sh
 ```
 
+En caso de estar en Fedora >= 40 hacerlo de manera simétrica con
+
+```
+chmox +x fedora_installer.sh
+./fedora_installer.sh
+```
+
 ## Juego
 
 Se debe ejecutar una terminal y correr:
