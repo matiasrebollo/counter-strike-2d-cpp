@@ -43,6 +43,8 @@ void Player::update(GameWorld& game, const float& delta_t) {
     shot = std::nullopt;
     is_planting_bomb = false;
     int delta_it = static_cast<int>(std::round(delta_t * FPS_SERVER));
+    if (!is_alive())
+        return;
 
     Weapon* weapon = loadout.equipped_weapon();
 
