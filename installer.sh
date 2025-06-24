@@ -52,6 +52,7 @@ sudo apt-get install -y \
   qt5-qmake \
   qtdeclarative5-dev \
   libqt5multimedia5-dev \
+  qt5-qtmultimedia-dev \
   libqt5network5-dev
 
 # Audio codecs y formatos
