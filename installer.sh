@@ -18,6 +18,7 @@ sudo apt-get install -y make
 
 # SDL y sonido
 sudo apt-get install -y \
+  libwavpack-dev \
   fluidsynth \
   libfluidsynth-dev \
   libxmp-dev \
