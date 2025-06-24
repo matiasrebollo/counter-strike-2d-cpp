@@ -2,6 +2,10 @@
 
 [Página web](https://cs2d.vercel.app/)
 
+![AK-Kills](images/ak_kills.gif)
+
+![Bomb explosion](images/bomb.gif)
+
 ## Instalación
 
 Para utilizar el juego se debe utilizar un SO Ubuntu 24.04, y parado sobre la raíz del proyecto ejecutar una terminal y correr:
