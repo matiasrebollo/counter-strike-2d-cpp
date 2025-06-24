@@ -1,5 +1,5 @@
-#ifndef MESSAGE_H
-#define MESSAGE_H
+#ifndef SERVER_RESPONSE_LOBBY_H
+#define SERVER_RESPONSE_LOBBY_H
 
 #include <string>
 

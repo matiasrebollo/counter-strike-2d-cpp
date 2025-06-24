@@ -13,7 +13,7 @@
 #include "common/commands.h"
 #include "common/communication_ended.h"
 #include "common/lobby_request.h"
-#include "common/message.h"
+#include "common/server_response_lobby.h"
 #include "common/skins.h"
 
 #include "ui_lobby.h"
@@ -26,7 +26,7 @@ using Socket = MockSocket;
 using Socket = RealSocket;
 #endif
 
-#define PATH_CS_FONT "../../../assets/cs_regular.ttf"
+#define PATH_CS_FONT "/var/cs2d-remake/cs_regular.ttf"
 #define TITLE_NO_SV "Fallo de conexion"
 #define MSG_NO_SV "No hay un servidor en la direccion solicidada"
 #define TITLE_SV_CLOSED "Servidor Desconectado"
@@ -52,8 +52,7 @@ Lobby::Lobby(QWidget* parent):
     connect(ui->connectButton, &QPushButton::clicked, this, &Lobby::connect_to_sv);
 
     this->sound_player = new QMediaPlayer(this);
-    QString relativePath = "../src/client/lobby/cs_music.mp3";
-    QString absolutePath = QFileInfo(relativePath).absoluteFilePath();
+    QString absolutePath = "/var/cs2d-remake/sfx/cs_music.mp3";
     sound_player->setMedia(QUrl::fromLocalFile(absolutePath));
     sound_player->setVolume(10);
 }

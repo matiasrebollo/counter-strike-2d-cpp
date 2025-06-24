@@ -21,8 +21,8 @@
 #include "../common/loadout_dto.h"
 #include "../common/lobby_request.h"
 #include "../common/map_object.h"
-#include "../common/message.h"
 #include "../common/player_dto.h"
+#include "../common/server_response_lobby.h"
 
 #ifdef TESTS
 #include "../common/mock_socket.h"

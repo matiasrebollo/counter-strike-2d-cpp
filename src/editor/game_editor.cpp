@@ -18,7 +18,7 @@
 #include "../common/yaml_parser.h"
 #include "./ui_game_editor.h"
 
-#define MAP_PATH "../maps"
+#define MAP_PATH "/etc/cs2d-remake/maps/"
 
 
 Game_editor::Game_editor(QWidget* parent):
@@ -406,7 +406,7 @@ void Game_editor::on_save_button_clicked() {
         YAML::Node yaml = parser.game_map_to_Yaml(map);
 
         QString fileName = QFileDialog::getSaveFileName(
-                this, "Guardar Mapa", "../maps", "Archivos YAML (*.yaml);;Todos los archivos (*)");
+                this, "Guardar Mapa", MAP_PATH, "Archivos YAML (*.yaml);;Todos los archivos (*)");
 
         if (fileName.isEmpty()) {
             return;

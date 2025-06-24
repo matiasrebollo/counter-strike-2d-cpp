@@ -11,7 +11,7 @@
 #include "../common/commands.h"
 #include "../common/communication_ended.h"
 #include "../common/liberror.h"
-#include "../common/message.h"
+#include "../common/server_response_lobby.h"
 #include "../common/vector_2d.h"
 
 ClientProtocol::ClientProtocol(std::unique_ptr<Socket> socket):
