@@ -176,10 +176,10 @@ Los agregados se visualizarán como íconos encima del bloque, igual que los col
 
 Es igual a la creación, pero sobre un mapa ya existente (uno del juego o uno que hayas hecho).
 
-Guardá tus mapas en la carpeta:
+Guardá tus mapas en la carpeta (es la carpeta default):
 
 ```bash
-maps
+/etc/cs2d-remake/maps
 ```
 
 Esto es necesario para que el mapa aparezca como opción al crear una partida.
