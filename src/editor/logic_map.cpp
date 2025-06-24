@@ -27,6 +27,8 @@ LogicMap::LogicMap():
         selected_gun(NONE) {}
 
 void LogicMap::loadMap(const GameMap& map) {
+    this->clearMap();
+
     this->grid.resize(map.height);
 
     for (auto& row: grid) {
@@ -39,12 +41,6 @@ void LogicMap::loadMap(const GameMap& map) {
             this->grid[vector.y][vector.x] = object.type;
         }
     }
-
-    this->tt_spawns.clear();
-    this->ct_spawns.clear();
-    this->bomb_sites.clear();
-    this->guns.clear();
-
     for (auto vector: map.ct_spawns) {
         this->ct_spawns.emplace(std::make_pair(vector.x, vector.y));
     }

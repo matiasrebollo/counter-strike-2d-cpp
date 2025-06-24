@@ -52,8 +52,7 @@ Lobby::Lobby(QWidget* parent):
     connect(ui->connectButton, &QPushButton::clicked, this, &Lobby::connect_to_sv);
 
     this->sound_player = new QMediaPlayer(this);
-    QString relativePath = "../src/client/lobby/cs_music.mp3";
-    QString absolutePath = QFileInfo(relativePath).absoluteFilePath();
+    QString absolutePath = "/var/cs2d-remake/sfx/cs_music.mp3";
     sound_player->setMedia(QUrl::fromLocalFile(absolutePath));
     sound_player->setVolume(10);
 }
