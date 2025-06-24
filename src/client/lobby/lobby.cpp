@@ -5,7 +5,6 @@
 #include <QFontDatabase>
 #include <QMessageBox>
 #include <filesystem>
-#include <iostream>
 #include <memory>
 #include <utility>
 
