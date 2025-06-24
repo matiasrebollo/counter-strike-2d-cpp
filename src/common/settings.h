@@ -67,9 +67,9 @@ struct ServerSettings {
 #define BOMB_THICKNESS 100
 
 
-#define PATH_FOLDER_MAPS "etc/cs2d-remake/maps/"
-#define PATH_SETTINGS "etc/cs2d-remake/settings.yaml"
-#define PATH_CS_FONT "var/cs2d-remake/cs_regular.ttf"
+#define PATH_FOLDER_MAPS "/etc/cs2d-remake/maps/"
+#define PATH_SETTINGS "/etc/cs2d-remake/settings.yaml"
+#define PATH_CS_FONT "/var/cs2d-remake/cs_regular.ttf"
 
 // client
 #define CAMERA_WIDTH 640

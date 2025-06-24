@@ -139,4 +139,8 @@ sudo fc-cache -f -v
 sudo mkdir -p /etc/cs2d-remake
 sudo cp -r settings.yaml /etc/cs2d-remake/
 
+# Copiando carpeta maps
+sudo mkdir -p /etc/cs2d-remake/maps
+sudo cp -r maps/* /etc/cs2d-remake/maps
+
 echo -e "${GREEN}Juego instalado! Esperemos que lo disfrutes :)${NC}"

@@ -2,7 +2,7 @@
 #include <QFontDatabase>
 
 #include "game_editor.h"
-#define PATH_CS_FONT "var/cs2d-remake/cs_regular.ttf"
+#define PATH_CS_FONT "/var/cs2d-remake/cs_regular.ttf"
 
 int main(int argc, char* argv[]) {
     QApplication a(argc, argv);

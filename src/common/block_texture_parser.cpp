@@ -6,7 +6,7 @@
 
 #include "map_object.h"
 
-#define PATH_ASSETS "var/cs2d-remake/"
+#define PATH_ASSETS "/var/cs2d-remake/"
 
 BlockTextureParser::BlockTextureParser(): block_textures(), backgrounds_paths() {
     this->set_sound_paths();
