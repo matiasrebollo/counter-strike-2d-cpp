@@ -49,14 +49,29 @@ sudo apt-get install -y \
 sudo apt-get install -y libyaml-cpp-dev
 
 # Qt5
+sudo apt-get update
+sudo apt-cache search qtmultimedia
+
 sudo apt-get install -y \
   qtbase5-dev \
   qtchooser \
   qt5-qmake \
   qtdeclarative5-dev \
   libqt5multimedia5-dev \
-  qt5-qtmultimedia-dev \
+  qtmultimedia5-dev \
   libqt5network5-dev
+
+sudo apt-get install -y \
+	qtmultimedia5-dev \
+	qtmultimedia5-plugins \
+	gstreamer1.0-plugins-base \
+	gstreamer1.0-plugins-good \
+	gstreamer1.0-plugins-bad \
+	gstreamer1.0-plugins-ugly \
+	gstreamer1.0-plugins-libav \
+	libqt5multimedia5 \
+	libqt5multimediawidgets5 \
+	libqt5multimedia5-plugins
 
 # Audio codecs y formatos
 sudo apt-get install -y \
