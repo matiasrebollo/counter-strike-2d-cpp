@@ -18,7 +18,7 @@
 #include "../common/yaml_parser.h"
 #include "./ui_game_editor.h"
 
-#define MAP_PATH "../maps"
+#define MAP_PATH "etc/cs2d-remake/maps/"
 
 
 Game_editor::Game_editor(QWidget* parent):

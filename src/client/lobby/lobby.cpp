@@ -26,7 +26,7 @@ using Socket = MockSocket;
 using Socket = RealSocket;
 #endif
 
-#define PATH_CS_FONT "../../../assets/cs_regular.ttf"
+#define PATH_CS_FONT "var/cs2d-remake/cs_regular.ttf"
 #define TITLE_NO_SV "Fallo de conexion"
 #define MSG_NO_SV "No hay un servidor en la direccion solicidada"
 #define TITLE_SV_CLOSED "Servidor Desconectado"

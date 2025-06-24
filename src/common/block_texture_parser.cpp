@@ -6,7 +6,7 @@
 
 #include "map_object.h"
 
-#define PATH_ASSETS "../assets/"
+#define PATH_ASSETS "var/cs2d-remake/"
 
 BlockTextureParser::BlockTextureParser(): block_textures(), backgrounds_paths() {
     this->set_sound_paths();
@@ -93,7 +93,8 @@ const BlockTextureInfo& BlockTextureParser::get_explosion_texture(int frame) con
 
 
 void BlockTextureParser::set_explosion_textures() {
-    TilesetInfo explosion_tileset = {"../assets/gfx/explosion.png", 5, 5, 64, 64, {}, {}};
+    TilesetInfo explosion_tileset = {
+            std::string(PATH_ASSETS) + "gfx/explosion.png", 5, 5, 64, 64, {}, {}};
 
     int frame_index = 0;
     for (int row = 0; row < explosion_tileset.rows; ++row) {
@@ -110,38 +111,38 @@ void BlockTextureParser::set_explosion_textures() {
 }
 
 void BlockTextureParser::set_other_paths() {
-    other_paths = {{AWP_SHOT_FLARE, "../assets/gfx/flare3.bmp"},
-                   {BLOOD, "../assets/gfx/blood_floor.png"},
-                   {BLOOD_SCREEN, "../assets/gfx/blood.png"},
-                   {ITEM_SHADOW, "../assets/gfx/shadow.bmp"}};
+    other_paths = {{AWP_SHOT_FLARE, std::string(PATH_ASSETS) + "gfx/flare3.bmp"},
+                   {BLOOD, std::string(PATH_ASSETS) + "gfx/blood_floor.png"},
+                   {BLOOD_SCREEN, std::string(PATH_ASSETS) + "gfx/blood.png"},
+                   {ITEM_SHADOW, std::string(PATH_ASSETS) + "gfx/shadow.bmp"}};
 }
 
 void BlockTextureParser::set_sound_paths() {
-    sound_paths = {{DENY_SELECT, "../assets/sfx/wpn_denyselect.wav"},
-                   {SELECT, "../assets/sfx/wpn_select.wav"},
-                   {MOVE_SELECT, "../assets/sfx/wpn_moveselect.wav"},
-                   {OPEN_SHOP, "../assets/sfx/wpn_hudon.wav"},
-                   {CLOSE_SHOP, "../assets/sfx/wpn_hudoff.wav"},
-                   {DIRT_STEP_ONE, "../assets/sfx/player/pl_dirt1.wav"},
-                   {DIRT_STEP_TWO, "../assets/sfx/player/pl_dirt2.wav"},
-                   {GLOCK_SHOT, "../assets/sfx/weapons/glock18.wav"},
-                   {AWP_SHOT, "../assets/sfx/weapons/awp.wav"},
-                   {KNIFE_HIT, "../assets/sfx/weapons/knife_hit.wav"},
-                   {M3_SHOT, "../assets/sfx/weapons/m3.wav"},
-                   {AK_SHOT, "../assets/sfx/weapons/ak47.wav"},
-                   {START_ROUND_TT, "../assets/sfx/radio/go.ogg"},
-                   {START_ROUND_CT, "../assets/sfx/radio/letsgo.ogg"},
-                   {BOMB_DEFUSE, "../assets/sfx/radio/bombdef.ogg"},
-                   {BOMB_PLANTED, "../assets/sfx/radio/bombpl.ogg"},
-                   {BOMB_TICK, "../assets/sfx/weapons/c4.wav"},
-                   {CT_WINS, "../assets/sfx/radio/ctwin.ogg"},
-                   {TT_WINS, "../assets/sfx/radio/terwin.ogg"},
-                   {FAST_TICK_CLOCK, "../assets/sfx/fast-ticking-clock-sound.wav"},
-                   {BOMB_EXPLOSION, "../assets/sfx/weapons/c4_explode.wav"},
-                   {BOMB_ACTION, "../assets/sfx/weapons/c4_disarm.wav"},
-                   {DEATH_SOUND_ONE, "../assets/sfx/player/die1.wav"},
-                   {DEATH_SOUND_TWO, "../assets/sfx/player/die2.wav"},
-                   {DEATH_SOUND_THREE, "../assets/sfx/player/die3.wav"}};
+    sound_paths = {{DENY_SELECT, std::string(PATH_ASSETS) + "sfx/wpn_denyselect.wav"},
+                   {SELECT, std::string(PATH_ASSETS) + "sfx/wpn_select.wav"},
+                   {MOVE_SELECT, std::string(PATH_ASSETS) + "sfx/wpn_moveselect.wav"},
+                   {OPEN_SHOP, std::string(PATH_ASSETS) + "sfx/wpn_hudon.wav"},
+                   {CLOSE_SHOP, std::string(PATH_ASSETS) + "sfx/wpn_hudoff.wav"},
+                   {DIRT_STEP_ONE, std::string(PATH_ASSETS) + "sfx/player/pl_dirt1.wav"},
+                   {DIRT_STEP_TWO, std::string(PATH_ASSETS) + "sfx/player/pl_dirt2.wav"},
+                   {GLOCK_SHOT, std::string(PATH_ASSETS) + "sfx/weapons/glock18.wav"},
+                   {AWP_SHOT, std::string(PATH_ASSETS) + "sfx/weapons/awp.wav"},
+                   {KNIFE_HIT, std::string(PATH_ASSETS) + "sfx/weapons/knife_hit.wav"},
+                   {M3_SHOT, std::string(PATH_ASSETS) + "sfx/weapons/m3.wav"},
+                   {AK_SHOT, std::string(PATH_ASSETS) + "sfx/weapons/ak47.wav"},
+                   {START_ROUND_TT, std::string(PATH_ASSETS) + "sfx/radio/go.ogg"},
+                   {START_ROUND_CT, std::string(PATH_ASSETS) + "sfx/radio/letsgo.ogg"},
+                   {BOMB_DEFUSE, std::string(PATH_ASSETS) + "sfx/radio/bombdef.ogg"},
+                   {BOMB_PLANTED, std::string(PATH_ASSETS) + "sfx/radio/bombpl.ogg"},
+                   {BOMB_TICK, std::string(PATH_ASSETS) + "sfx/weapons/c4.wav"},
+                   {CT_WINS, std::string(PATH_ASSETS) + "sfx/radio/ctwin.ogg"},
+                   {TT_WINS, std::string(PATH_ASSETS) + "sfx/radio/terwin.ogg"},
+                   {FAST_TICK_CLOCK, std::string(PATH_ASSETS) + "sfx/fast-ticking-clock-sound.wav"},
+                   {BOMB_EXPLOSION, std::string(PATH_ASSETS) + "sfx/weapons/c4_explode.wav"},
+                   {BOMB_ACTION, std::string(PATH_ASSETS) + "sfx/weapons/c4_disarm.wav"},
+                   {DEATH_SOUND_ONE, std::string(PATH_ASSETS) + "sfx/player/die1.wav"},
+                   {DEATH_SOUND_TWO, std::string(PATH_ASSETS) + "sfx/player/die2.wav"},
+                   {DEATH_SOUND_THREE, std::string(PATH_ASSETS) + "sfx/player/die3.wav"}};
 }
 
 const std::string& BlockTextureParser::get_editor_gun_texture(const GunType& gun) {
@@ -247,16 +248,16 @@ void BlockTextureParser::set_blocks_textures() {
 void BlockTextureParser::set_skins_textures() {
     TilesetInfo tileset_skins = {"", 3, 2, 32, 32, {}, {}};
     std::unordered_map<CounterTerroristSkin, std::string> ct = {
-            {SEAL_FORCE, "../assets/gfx/player/ct1.bmp"},
-            {GSG_9, "../assets/gfx/player/ct2.bmp"},
-            {UK_SAS, "../assets/gfx/player/ct3.bmp"},
-            {GIGN, "../assets/gfx/player/ct4.bmp"}};
+            {SEAL_FORCE, std::string(PATH_ASSETS) + "gfx/player/ct1.bmp"},
+            {GSG_9, std::string(PATH_ASSETS) + "gfx/player/ct2.bmp"},
+            {UK_SAS, std::string(PATH_ASSETS) + "gfx/player/ct3.bmp"},
+            {GIGN, std::string(PATH_ASSETS) + "gfx/player/ct4.bmp"}};
 
     std::unordered_map<TerroristSkin, std::string> tt = {
-            {PHEONIX, "../assets/gfx/player/t1.bmp"},
-            {L3337_KREW, "../assets/gfx/player/t2.bmp"},
-            {ARTIC_AVENGER, "../assets/gfx/player/t3.bmp"},
-            {GUERRILLA, "../assets/gfx/player/t4.bmp"}};
+            {PHEONIX, std::string(PATH_ASSETS) + "gfx/player/t1.bmp"},
+            {L3337_KREW, std::string(PATH_ASSETS) + "gfx/player/t2.bmp"},
+            {ARTIC_AVENGER, std::string(PATH_ASSETS) + "gfx/player/t3.bmp"},
+            {GUERRILLA, std::string(PATH_ASSETS) + "gfx/player/t4.bmp"}};
 
     for (const auto& pair: ct) {
         std::vector<BlockTextureInfo> sprites;
@@ -283,7 +284,8 @@ void BlockTextureParser::set_skins_textures() {
 }
 
 void BlockTextureParser::set_tileset_numbers() {
-    TilesetInfo tileset_numbers = {"../assets/gfx/hud_nums.png", 1, 11, 48, 66, {}, {}};
+    TilesetInfo tileset_numbers = {
+            std::string(PATH_ASSETS) + "gfx/hud_nums.png", 1, 11, 48, 66, {}, {}};
     std::vector<HudNumbers> numbers = {ZERO, ONE,   TWO,   THREE, FOUR, FIVE,
                                        SIX,  SEVEN, EIGHT, NINE,  DP};
     // DP (:) tiene ancho 10px en el spritesheet en vez de 48
@@ -302,7 +304,8 @@ void BlockTextureParser::set_tileset_numbers() {
 
 void BlockTextureParser::set_symbols() {
     // por ahora cargo todas las texturas de este archivo, luego podria solo cargar las necesarias.
-    TilesetInfo tileset_symbols = {"../assets/gfx/hud_symbols.png", 1, 13, 64, 64, {}, {}};
+    TilesetInfo tileset_symbols = {
+            std::string(PATH_ASSETS) + "gfx/hud_symbols.png", 1, 13, 64, 64, {}, {}};
     for (int i = 0; i < tileset_symbols.columns; ++i) {
         symbol_textures[i] = {tileset_symbols.file,      i * tileset_symbols.tileWidth, 0,
                               tileset_symbols.tileWidth, tileset_symbols.tileHeight,    false};
@@ -310,7 +313,8 @@ void BlockTextureParser::set_symbols() {
 }
 
 void BlockTextureParser::set_crosshairs() {
-    TilesetInfo tileset_crosshairs = {"../assets/gfx/pointer.png", 2, 2, 46, 46, {}, {}};
+    TilesetInfo tileset_crosshairs = {
+            std::string(PATH_ASSETS) + "gfx/pointer.png", 2, 2, 46, 46, {}, {}};
     std::vector<Crosshairs> crosshairs = {GREEN, RED, YELLOW, TIME};
 
     int i = 0;
@@ -328,32 +332,32 @@ void BlockTextureParser::set_crosshairs() {
 }
 
 void BlockTextureParser::set_font_and_waiting() {
-    font_and_waiting_textures = {{BACKGROUND, "../assets/gfx/splash.bmp"},
-                                 {FONT_WAITING, "../assets/cs_regular.ttf"},
-                                 {FONT_SHOP, "../assets/gfx/fonts/korean.ttf"}};
+    font_and_waiting_textures = {{BACKGROUND, std::string(PATH_ASSETS) + "gfx/splash.bmp"},
+                                 {FONT_WAITING, std::string(PATH_ASSETS) + "cs_regular.ttf"},
+                                 {FONT_SHOP, std::string(PATH_ASSETS) + "gfx/fonts/korean.ttf"}};
 }
 
 void BlockTextureParser::set_gun_textures() {
-    gun_textures = {{AK47_GAME, "../assets/gfx/weapons/ak47.bmp"},
-                    {AK47_SHOP, "../assets/gfx/weapons/ak47_k.bmp"},
-                    {AK47_FLOOR, "../assets/gfx/weapons/ak47_d.bmp"},
-                    {AWP_GAME, "../assets/gfx/weapons/awp.bmp"},
-                    {AWP_SHOP, "../assets/gfx/weapons/awp_k.bmp"},
-                    {AWP_FLOOR, "../assets/gfx/weapons/awp_d.bmp"},
-                    {M3_GAME, "../assets/gfx/weapons/m3.bmp"},
-                    {M3_SHOP, "../assets/gfx/weapons/m3_k.bmp"},
-                    {M3_FLOOR, "../assets/gfx/weapons/m3_d.bmp"},
-                    {GLOCK_GAME, "../assets/gfx/weapons/glock.bmp"},
-                    {GLOCK_SHOP, "../assets/gfx/weapons/glock_k.bmp"},
-                    {GLOCK_FLOOR, "../assets/gfx/weapons/glock_d.bmp"},
-                    {KNIFE_GAME, "../assets/gfx/weapons/knife.bmp"},
-                    {KNIFE_SHOP, "../assets/gfx/weapons/knife_k.bmp"},
-                    {BOMB_GAME, "../assets/gfx/weapons/bomb_sq.bmp"}};
+    gun_textures = {{AK47_GAME, std::string(PATH_ASSETS) + "gfx/weapons/ak47.bmp"},
+                    {AK47_SHOP, std::string(PATH_ASSETS) + "gfx/weapons/ak47_k.bmp"},
+                    {AK47_FLOOR, std::string(PATH_ASSETS) + "gfx/weapons/ak47_d.bmp"},
+                    {AWP_GAME, std::string(PATH_ASSETS) + "gfx/weapons/awp.bmp"},
+                    {AWP_SHOP, std::string(PATH_ASSETS) + "gfx/weapons/awp_k.bmp"},
+                    {AWP_FLOOR, std::string(PATH_ASSETS) + "gfx/weapons/awp_d.bmp"},
+                    {M3_GAME, std::string(PATH_ASSETS) + "gfx/weapons/m3.bmp"},
+                    {M3_SHOP, std::string(PATH_ASSETS) + "gfx/weapons/m3_k.bmp"},
+                    {M3_FLOOR, std::string(PATH_ASSETS) + "gfx/weapons/m3_d.bmp"},
+                    {GLOCK_GAME, std::string(PATH_ASSETS) + "gfx/weapons/glock.bmp"},
+                    {GLOCK_SHOP, std::string(PATH_ASSETS) + "gfx/weapons/glock_k.bmp"},
+                    {GLOCK_FLOOR, std::string(PATH_ASSETS) + "gfx/weapons/glock_d.bmp"},
+                    {KNIFE_GAME, std::string(PATH_ASSETS) + "gfx/weapons/knife.bmp"},
+                    {KNIFE_SHOP, std::string(PATH_ASSETS) + "gfx/weapons/knife_k.bmp"},
+                    {BOMB_GAME, std::string(PATH_ASSETS) + "gfx/weapons/bomb_sq.bmp"}};
 }
 
 void BlockTextureParser::set_editor_gun_textures() {
-    editor_gun_textures = {{AK47, "../assets/gfx/weapons/ak47_k.bmp"},
-                           {GLOCK, "../assets/gfx/weapons/glock_k.bmp"},
-                           {M3, "../assets/gfx/weapons/m3_k.bmp"},
-                           {AWP, "../assets/gfx/weapons/awp_k.bmp"}};
+    editor_gun_textures = {{AK47, std::string(PATH_ASSETS) + "gfx/weapons/ak47_k.bmp"},
+                           {GLOCK, std::string(PATH_ASSETS) + "gfx/weapons/glock_k.bmp"},
+                           {M3, std::string(PATH_ASSETS) + "gfx/weapons/m3_k.bmp"},
+                           {AWP, std::string(PATH_ASSETS) + "gfx/weapons/awp_k.bmp"}};
 }
