@@ -51,6 +51,7 @@ sudo apt-get install -y libyaml-cpp-dev
 # Qt5
 sudo apt-get install -y \
   qtbase5-dev \
+  qtchooser \
   qt5-qmake \
   qtdeclarative5-dev \
   libqt5multimedia5-dev \
