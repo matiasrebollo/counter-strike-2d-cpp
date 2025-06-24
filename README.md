@@ -114,6 +114,18 @@ Al finalizar la última ronda, se mostrarán las **estadísticas** (rondas ganad
 
 Para volver a jugar, simplemente ejecutá el programa de nuevo; podrás usar tu nombre (ya que al desconectarte, se borra tu usuario del registro).
 
+## Controles 
+
+Dentro del juego con 'B' o con el botón en pantalla podes abrir la tienda y luego clickeando se comprarán las armas/balas que desees.
+
+Para moverte utilizas 'W' (adelante), 'A' (izquierda), 'S' (atrás) y 'D' (derecha).
+
+Con '1' te equipas tu arma principal (de tener una), con '2' la glock, con '3' el cuchillo y si sos terrorista y posees el C4 con '4' lo equipas.
+
+Moviendo el cursor apuntás y disparas con click izquierdo.
+
+Si sos tt y tenes el C4 podes plantar dentro de un site (las zonas con un pincelado rosa) con la bomba equipada ('4') y manteniendo el click izquierdo apretando 4 segundos. Para defusear siendo ct aplica lo mismo de los 4 segundos pero tocando la letra 'E'.
+
 ---
 
 ## Editor de niveles
