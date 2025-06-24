@@ -26,7 +26,9 @@ bool ClientSender::run() {
 }
 
 void ClientSender::game_ended() {
-    this->queue.close();
+    try {
+        this->queue.close();
+    } catch (const ClosedQueue& e) {}
     this->keep_running = false;
 }
 

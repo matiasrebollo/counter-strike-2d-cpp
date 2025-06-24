@@ -33,7 +33,14 @@ bool InputHandler::handle_waiting_events() {
     return true;
 }
 
-bool InputHandler::handle_ended_events() { return handle_waiting_events(); }
+bool InputHandler::handle_ended_events() {
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_QUIT)
+            return false;
+    }
+    return true;
+}
 
 bool InputHandler::handle_between_rounds_events() { return handle_attack_events(); }
 

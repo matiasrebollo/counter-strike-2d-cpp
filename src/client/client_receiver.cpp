@@ -20,7 +20,11 @@ void ClientReceiver::run() {
 
 bool ClientReceiver::try_pop_game_dto(GameDTO& response) { return this->queue.try_pop(response); }
 
-void ClientReceiver::close_queue() { this->queue.close(); }
+void ClientReceiver::close_queue() {
+    try {
+        this->queue.close();
+    } catch (const ClosedQueue& e) {}
+}
 
 void ClientReceiver::receive_snapshot_from_server() {
     GameDTO response = this->protocol.receive_game_dto();
