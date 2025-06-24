@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/images">
-        <file alias="fondo">header.jpg</file>
+        <file alias="fondo">../../../assets/gfx/header.jpg</file>
         <file alias="seal-force">../../../assets/gfx/player/ct1.bmp</file>
         <file alias="gsg9">../../../assets/gfx/player/ct2.bmp</file>
         <file alias="sas">../../../assets/gfx/player/ct3.bmp</file>
