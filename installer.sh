@@ -57,6 +57,8 @@ sudo apt-get install -y \
 # Audio codecs y formatos
 sudo apt-get install -y \
   libpulse-dev \
+  libopusfile-dev \ 
+  libmodplug-dev \
   libsndfile1-dev \
   libmpg123-dev \
   libmp3lame-dev \
