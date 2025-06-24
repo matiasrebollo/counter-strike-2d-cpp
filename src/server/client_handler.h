@@ -9,7 +9,7 @@
 
 #include "../common/socket.h"
 #include "../common/thread.h"
-#include "common/message.h"
+#include "common/server_response_lobby.h"
 
 #include "server_monitor.h"
 #include "server_protocol.h"

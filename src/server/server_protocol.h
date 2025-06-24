@@ -17,7 +17,7 @@
 #include "../common/game_commands_dto.h"
 #include "../common/game_dto.h"
 #include "../common/lobby_request.h"
-#include "../common/message.h"
+#include "../common/server_response_lobby.h"
 #include "../common/socket.h"
 
 /*

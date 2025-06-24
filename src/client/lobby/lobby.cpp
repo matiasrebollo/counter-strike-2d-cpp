@@ -13,7 +13,7 @@
 #include "common/commands.h"
 #include "common/communication_ended.h"
 #include "common/lobby_request.h"
-#include "common/message.h"
+#include "common/server_response_lobby.h"
 #include "common/skins.h"
 
 #include "ui_lobby.h"

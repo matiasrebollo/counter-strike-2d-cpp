@@ -33,7 +33,7 @@ target_sources(taller_common
     communication_ended.h
     error_codes.h
     liberror.h
-    message.h
+    server_response_lobby.h
     movements.h
     resolver.h
     resolvererror.h

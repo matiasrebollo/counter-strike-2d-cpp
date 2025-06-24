@@ -2,8 +2,8 @@
 #define CLIENT_SENDER_H
 
 #include "../common/communication_ended.h"
-#include "../common/message.h"
 #include "../common/queue.h"
+#include "../common/server_response_lobby.h"
 #include "../common/thread.h"
 
 #include "client_protocol.h"

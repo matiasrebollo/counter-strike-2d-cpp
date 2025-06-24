@@ -6,7 +6,7 @@
 
 #include "common/communication_ended.h"
 #include "common/game_commands_dto.h"
-#include "common/message.h"
+#include "common/server_response_lobby.h"
 #include "common/thread.h"
 #include "server/cs2d_game.h"
 
