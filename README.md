@@ -1,5 +1,7 @@
 # CS2D Remake
 
+[Página web](https://cs2d.vercel.app/)
+
 ## Instalación
 
 Para utilizar el juego se debe utilizar un SO Ubuntu 24.04, y parado sobre la raíz del proyecto ejecutar una terminal y correr:
