@@ -32,19 +32,14 @@ void Bomb::action() {
     }
     Weapon::action();
 }
-void Bomb::stop_action() {
-    if (status == DEFUSED) {
-        return;
-    }
-    Weapon::stop_action();
-}
 
 void Bomb::update(const float& delta_t, Player& owner, GameWorld& game) {
     if (status == DEFUSED) {
         return;
     }
     Weapon::update(delta_t, owner, game);
-    if (making_action && time_since_last_action >= Settings::getInstance().get_plantation_time()) {
+    if (owner.is_on_site() && making_action &&
+        time_since_last_action >= Settings::getInstance().get_plantation_time()) {
         just_been_planted = true;
         status = PLANTED;
         Vector2D<int> plantation_posicion(owner.rect.position.x + owner.rect.width / 2,
@@ -80,6 +75,9 @@ void Bomb::make_damage_to(Player& victim, const float& distance_to_victim, GameW
 }
 
 void Bomb::restart() {
+    stop_action();
+    just_triggered_action = false;
+    time_since_last_action = 0.0f;
     status = NOT_PLANTED;
     time_since_planted = 0.0f;
     plantation = std::nullopt;

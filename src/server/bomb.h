@@ -31,7 +31,6 @@ public:
     bool just_planted();
     int detonation_time();
     void action() override;
-    void stop_action() override;
     void update(const float& delta_t, Player& owner, GameWorld& game) override;
     void update_planted(const float& delta_t);
     void make_damage_to(Player& victim, const float& distance_to_victim, GameWorld& game);

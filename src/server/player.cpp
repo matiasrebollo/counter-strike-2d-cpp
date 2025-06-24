@@ -49,7 +49,7 @@ void Player::update(GameWorld& game, const float& delta_t) {
     if (is_defusing_bomb)
         return;
 
-    if (making_action && dynamic_cast<Bomb*>(weapon)) {
+    if (making_action && on_site && dynamic_cast<Bomb*>(weapon)) {
         is_planting_bomb = true;
         weapon->update(delta_t, *this, game);
         return;
