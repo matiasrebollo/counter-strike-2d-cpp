@@ -105,8 +105,14 @@ void Shop::set_shop_info(const ShopInfoDTO& info) {
                 button.weapon_type = M3;
                 button.price = info.prices.at(M3);
                 break;
+            case AmmoPrimary:
+                button.price = info.price_clips;
+                break;
+            case AmmoSecondary:
+                button.price = info.price_clips;
+                break;
             default:
-                break;  // AmmoPrimary y AmmoSecondary se resuelven en render()
+                break;
         }
     }
 }
@@ -246,7 +252,7 @@ void Shop::render(int player_money, GunType primary_gun, GunType secondary_gun) 
         // Precio
         int price = 0;
         if (btn.type == ShopButtonType::AmmoPrimary || btn.type == ShopButtonType::AmmoSecondary) {
-            price = 50;  // hardcodeado por ahora
+            price = btn.price;
         } else if (btn.weapon_type != NONE) {
             price = btn.price;
         }
@@ -399,7 +405,6 @@ void Shop::open_shop() {
     }
 }
 
-// se puede modificar el volumen del canal o de cada chunk si esta muy fuerta ahora
 std::optional<ShopButtonType> Shop::interact_button(int x, int y, int money, GunType primary_gun,
                                                     bool click) {
     SDL2pp::Point point(x, y);
@@ -434,9 +439,6 @@ std::optional<ShopButtonType> Shop::interact_button(int x, int y, int money, Gun
 
                 return ShopButtonType::Close;
             }
-
-            // quizas un if que incluya ambas condiciones, para setear los dos true
-            // si queres comprar un arma que ya tenes y ADEMAS no te alcanza
 
             if (money < button.price) {
                 highlight_money = true;

@@ -22,7 +22,6 @@ bool Animation::is_shot_active(const std::string& username, int current_it) {
 
     int diff = current_it - it->second.start_it;
 
-    // ARREGLAR BUG DE QUE SI SE CAMBIA DE FASE, AVECES IT ES 0 Y NO ENTRA A ESTE IF.
     if (diff >= it->second.duration) {
         shots.erase(it);
         return false;

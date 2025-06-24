@@ -81,7 +81,7 @@ void Sounds::play_bomb_sound(SoundEffect effect) {
 
 void Sounds::play_clock_sound(SoundEffect effect) {
     if (clock_playing)
-        return;  // Ya está sonando, no hacemos nada
+        return;
 
     std::string path = texture_parser.get_sound_path(effect);
     SDL2pp::Chunk& sound = texture_manager.get_sound(path);
@@ -93,7 +93,7 @@ void Sounds::play_clock_sound(SoundEffect effect) {
 
 void Sounds::stop_clock_sound() {
     if (!clock_playing)
-        return;  // No está sonando, nada que detener
+        return;
 
     int channel = get_channel(" ", SoundType::CLOCK_TYPE);
     mixer.HaltChannel(channel);
@@ -163,7 +163,7 @@ void Sounds::play_shot(const std::string& username, GunType gun_type,
     int ticks = 100000;
     if (gun_type == GLOCK) {
         path = texture_parser.get_sound_path(GLOCK_SHOT);
-    } else if (gun_type == AWP) {  // quizas bajarle los ticks aca
+    } else if (gun_type == AWP) {
         path = texture_parser.get_sound_path(AWP_SHOT);
     } else if (gun_type == NONE) {
         path = texture_parser.get_sound_path(KNIFE_HIT);
@@ -277,7 +277,7 @@ void Sounds::play_bomb_tick(const SDL2pp::Point& destino_camera) {
 }
 
 void Sounds::play_death(const std::string& username, const SDL2pp::Point& destino_camera) {
-    int channel = get_channel(username, SoundType::STEP_TYPE);  // Reutilizamos canal
+    int channel = get_channel(username, SoundType::STEP_TYPE);
     if (channel == -1)
         return;
 
@@ -291,7 +291,6 @@ void Sounds::play_death(const std::string& username, const SDL2pp::Point& destin
                                                   (CAMERA_HEIGHT / 2.0) * (CAMERA_HEIGHT / 2.0));
     Uint8 sdl_distance = static_cast<Uint8>(std::min(255.0, (dist / max_hearing_distance) * 255.0));
 
-    // Elegir aleatoriamente entre 3 sonidos
     std::array<SoundEffect, 3> death_sounds = {DEATH_SOUND_ONE, DEATH_SOUND_TWO, DEATH_SOUND_THREE};
     int index = std::rand() % death_sounds.size();
     SoundEffect selected = death_sounds[index];

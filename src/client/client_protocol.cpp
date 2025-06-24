@@ -25,7 +25,6 @@ ServerResponseLobby ClientProtocol::receive_server_response_lobby() {
         response.status = static_cast<ResponseStatus>(this->receive_byte());
         if (response.commandType == CommandType::CREATE_GAME) {
             response.game_name = this->receive_string();
-            // recibo el nombre de la partida que el server me generó automáticamente
         }
     }
     return response;

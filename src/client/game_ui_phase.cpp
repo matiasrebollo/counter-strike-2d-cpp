@@ -13,15 +13,14 @@ void GameUIPhase::run() {
     bool loop = true;
 
     while (loop) {
-        show_game(it);  // pasar la iteracion para animaciones
+        show_game(it);
         handle_game_events();
         if (!game_ui.keep_running)
             break;
         if (!update_game_state()) {
             loop = false;  // hubo cambio de fase
-        }                  // identificar cambios en el juego y detectar eventos. LANZAR
-                           // animaciones que se veran en show_game.
-        // luego habria que sacarlo
+        }
+
         if (!game_ui.keep_running)
             break;
         it = clock.sleep_and_calc_next_it(FPS_CLIENT, it);

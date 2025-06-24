@@ -16,4 +16,4 @@ public:
     void run(int argc, char* argv[]);
 };
 
-#endif  // CLIENT_H
+#endif

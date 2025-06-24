@@ -131,7 +131,7 @@ SDL2pp::Texture& TextureManager::get_fov_texture(int angle_deg, float opacity, i
         SDL_RenderGeometry(renderer.Get(), nullptr, triangle, 3, nullptr, 0);
     }
 
-    renderer.SetTarget();  // Volvemos al render target original
+    renderer.SetTarget();
     renderer.SetDrawColor(0, 0, 0, 255);
 
     texture_cache.emplace(key, std::move(texture));

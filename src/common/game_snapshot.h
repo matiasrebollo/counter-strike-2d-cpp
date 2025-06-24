@@ -9,10 +9,7 @@
 #include "phase.h"
 #include "player_dto.h"
 
-enum Team {
-    CT = 0,
-    TT = 1
-};  // para el protocolo se puede crear otro enum y reemplazar este por ese
+enum Team { CT = 0, TT = 1 };
 
 struct Snapshot {
     int total_players;

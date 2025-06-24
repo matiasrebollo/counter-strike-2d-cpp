@@ -20,7 +20,7 @@ void GameWorld::add_collidables() {
         }
     }
 
-    // paredes invisibles al borde del mapa
+    // invisible walls
     collidables.emplace_back(std::make_shared<StaticMapObject>(
             Vector2D<int>(0, -BLOCK_THICKNESS), game_map.width * BLOCK_THICKNESS, BLOCK_THICKNESS));
     collidables.emplace_back(
@@ -69,8 +69,6 @@ GameWorld::GameWorld(const std::string& map_filename):
     set_items();
 }
 
-// spawn_points deben ser suficientes como para que eventualmente se pueda spawnear a un jugador y
-// no quedarse buscando.
 Vector2D<int> GameWorld::random_spawn_position(
         const std::vector<Vector2D<int>>& spawn_points) const {
     static std::random_device rd;
@@ -472,8 +470,6 @@ void GameWorld::update(const float& delta_t) {
 
         player->update(*this, delta_t);
     }
-
-    // otro for de jugadores
 }
 
 
@@ -563,13 +559,7 @@ std::optional<std::pair<double, Vector2D<float>>> GameWorld::impacts(
 
     return best;
 }
-// R(t) = origin + direction * t, con t ≥ 0 - Semirrecta por la que recorrerá el disparo.
-// S(u) = seg_start + seg_dir * u, con 0 ≤ u ≤ 1 - Segmento, se quiere ver si la recta lo corta.
-// Buscamos u y t para los que se cumpla: origin + direction * t  ==  seg_start + seg_dir * u
-// => direction * t - seg_dir * u = seg_start - origin
-// => direction * t + (-seg_dir) * u = r (siendo r = seg_start - origin)
-// => ... (wolfram) =>  t = (r x (seg_dir)) / ((direction))x(seg_dir)), u = (r x direction) /
-// ((shoot_direction))x(seg_dir))
+
 std::optional<std::pair<double, Vector2D<float>>> GameWorld::intersects_segment(
         const Shot& shot, const Vector2D<float>& seg_start, const Vector2D<float>& seg_end) const {
 

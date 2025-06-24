@@ -55,7 +55,7 @@ protected:
     std::unordered_map<FontsAndBackground, std::string> font_and_waiting_textures;
     std::unordered_map<Crosshairs, BlockTextureInfo> crosshair_textures;
     std::unordered_map<GunSprites, std::string> gun_textures;
-    std::unordered_map<Background, std::string> backgrounds_paths;  // juntar el waiting Background
+    std::unordered_map<Background, std::string> backgrounds_paths;
     std::unordered_map<SoundEffect, std::string> sound_paths;
     std::unordered_map<GunType, std::string> editor_gun_textures;
     std::unordered_map<Others, std::string> other_paths;

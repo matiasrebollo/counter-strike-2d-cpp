@@ -41,7 +41,7 @@ struct ServerSettings {
     int waiting_players_phase_duration;
     int between_rounds_phase_duration;
 
-    int player_speed;  // debe ser un numero par
+    int player_speed;
     size_t terrorists;
     size_t counter_terrorists;
 
@@ -84,8 +84,6 @@ struct ServerSettings {
 
 
 struct ClientSettings {
-    // int camera_width;
-    // int camera_height;
     int fps;
 
     int window_initial_width;

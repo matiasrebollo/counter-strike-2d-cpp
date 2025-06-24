@@ -152,7 +152,6 @@ bool InputHandler::handle_buy_events(int money, GunType primary) {
         if (event.type == SDL_QUIT)
             return false;
         if (handle_quit_event(event)) {
-            // llamar close shop dentro del handler
             sdl.close_shop();
             continue;
         }

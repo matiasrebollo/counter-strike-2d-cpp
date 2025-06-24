@@ -57,7 +57,6 @@ private:
     BlockTextureParser& texture_parser;
 
 public:
-    // PROBABLEMENTE HAYA QUE BAJARLE EL VOLUMEN A TODOS LOS SONIDOS
     Sounds(SDL2pp::Mixer& mixer, TextureManager& texture_manager,
            BlockTextureParser& texture_parser);
 

@@ -11,7 +11,6 @@ private:
     SDLManager& sdl;
     ClientSender sender;
 
-    // quizas englobar logica de botones/clicks en otra clase
     bool w = false;
     bool a = false;
     bool s = false;

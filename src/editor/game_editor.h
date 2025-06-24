@@ -95,4 +95,4 @@ private:
     bool has_entry_create;
 };
 
-#endif  // GAME_EDITOR_H
+#endif

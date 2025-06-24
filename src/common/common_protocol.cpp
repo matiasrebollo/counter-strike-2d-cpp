@@ -159,8 +159,6 @@ double CommonProtocol::receive_angle() {
     return (static_cast<double>(encoded) / 65535.0f) * 360.0f;
 }
 
-// 10000 max distance de las armas
-
 void CommonProtocol::send_double(const double& number) {
     double normalized = std::clamp(number / MAX_DISTANCE_SHOT, 0.0, 1.0);
     uint16_t encoded = static_cast<uint16_t>(normalized * 65535.0);

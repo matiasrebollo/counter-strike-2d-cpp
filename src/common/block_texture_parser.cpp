@@ -288,7 +288,7 @@ void BlockTextureParser::set_tileset_numbers() {
             std::string(PATH_ASSETS) + "gfx/hud_nums.png", 1, 11, 48, 66, {}, {}};
     std::vector<HudNumbers> numbers = {ZERO, ONE,   TWO,   THREE, FOUR, FIVE,
                                        SIX,  SEVEN, EIGHT, NINE,  DP};
-    // DP (:) tiene ancho 10px en el spritesheet en vez de 48
+
     for (size_t i = 0; i < numbers.size(); ++i) {
         auto n = numbers[i];
         bool is_dp = (n == HudNumbers::DP);
@@ -303,7 +303,6 @@ void BlockTextureParser::set_tileset_numbers() {
 }
 
 void BlockTextureParser::set_symbols() {
-    // por ahora cargo todas las texturas de este archivo, luego podria solo cargar las necesarias.
     TilesetInfo tileset_symbols = {
             std::string(PATH_ASSETS) + "gfx/hud_symbols.png", 1, 13, 64, 64, {}, {}};
     for (int i = 0; i < tileset_symbols.columns; ++i) {

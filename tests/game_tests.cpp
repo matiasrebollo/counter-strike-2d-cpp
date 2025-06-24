@@ -132,18 +132,15 @@ TEST(ClientProtocolTest, SendBuyAmmo) {
 
     std::vector<bool> for_primary_values = {false, true};
 
-    // for (int i = 0; i < 65536; ++i) {
     for (bool value: for_primary_values) {
-        BuyAmmoDTO dto{/*static_cast<uint16_t>(i),*/ value};
+        BuyAmmoDTO dto{value};
         client->send_command(dto);
 
         GameCommandDTO request = server->receive_client_game_request();
         auto BuyAmmoDTOPtr = std::get_if<BuyAmmoDTO>(&request);
         ASSERT_NE(BuyAmmoDTOPtr, nullptr) << "Expected BuyAmmoDTO but got another";
-        // ASSERT_EQ(BuyAmmoDTOPtr->ammo, static_cast<uint16_t>(i));
         ASSERT_EQ(BuyAmmoDTOPtr->for_primary, value);
     }
-    // }
 }
 
 /* SERVER PROTOCOL RESPONSES */

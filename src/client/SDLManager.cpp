@@ -10,12 +10,10 @@
 #include "../common/block_texture_parser.h"
 #include "../common/settings.h"
 
-// Es una clase muy grande, quizas se pueda separar en subclases (como una para el HUD).
-
 SDLManager::SDLManager():
         sdl(SDL_INIT_VIDEO),
         mix(MIX_INIT_OGG | MIX_INIT_MP3),
-        mixer(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 1024),  // jugar con valor 1024
+        mixer(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 1024),
         window("GAME", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                Settings::getInstance().get_window_initial_width(),
                Settings::getInstance().get_window_initial_height(),
@@ -67,7 +65,6 @@ void SDLManager::render_waiting_screen(int players_connected, int players_requir
         return;
     }
 
-    // ver forma de no recibir FPS
     int frames_per_dot = static_cast<int>(1.5f * FPS);
     int dots = (iteration / frames_per_dot) % 4;
     std::string waiting_text = "Waiting for players";
@@ -121,7 +118,6 @@ void SDLManager::clear_display() { renderer.Clear(); }
 
 /* Centra la camara en el player */
 void SDLManager::update_camera(int player_x, int player_y) {
-    // una vez que sea cte el player thickness en el server, ponemos su resultado.
     int size_player = PLAYER_THICKNESS / GRAPHIC_SCALE;
     camera.follow(player_x + size_player / 2, player_y + size_player / 2);
 }
@@ -259,7 +255,7 @@ void SDLManager::render_bomb(const LocalInfo& local_info, int it) {
 
     if (animation.is_bomb_explosion_active(it)) {
         animation.render_bomb_explosion(it);
-        return;  // no renderizamos la bomba plantada
+        return;
     }
 
     if (!camera.is_visible(destino_mundo) || local_info.bomb_status == BombStatus::EXPLODED)
@@ -300,7 +296,6 @@ void SDLManager::render_player(const std::string& username, const PlayerInfo& p,
 
     SDL2pp::Rect destino_camera = camera.rect_world_to_screen(destino_mundo);
 
-    // quizas ademas de chequear is ak shot active fijarse que tenga puesta el ak.
     bool apply_recoil = p.shoot || animation.is_shot_active(username, it);
 
     if (apply_recoil) {
@@ -330,7 +325,6 @@ void SDLManager::render_player_shot(const GunVisualData& gun_info, const std::st
     SDL2pp::Point end_world(p.impact_position_x / GRAPHIC_SCALE,
                             p.impact_position_y / GRAPHIC_SCALE);
 
-    // inicio animaciones
     if (p.shoot && p.equipped != KNIFE && p.equipped != BOMB) {
         int duration = 1;  // por defecto
 
@@ -345,8 +339,7 @@ void SDLManager::render_player_shot(const GunVisualData& gun_info, const std::st
 
         animation.start_shot(username, it, end_world, duration);
     }
-    // HACER QUE ANIMATION MANEJE SUS PROPIOS SOUNDS.
-    // renderizo si hay un disparo activo
+
     if (animation.is_shot_active(username, it)) {
         int size_player = PLAYER_THICKNESS / GRAPHIC_SCALE;
         int cx = destino_camera.GetX() + destino_camera.GetW() / 2;
@@ -372,15 +365,12 @@ void SDLManager::render_player_shot(const GunVisualData& gun_info, const std::st
         }
     }
 
-    // reproduzco sonido solo al disparar (esto seria lo ideal si consigo un sonido de rafaga de
-    // AK47) mientras tanto tengo que fijarme que arma tengo equipada.
+
     bool play_sound = false;
 
     if (p.primary_gun == AK47 && p.equipped == PRIMARY) {
-        // Reproducir sonido en todos los frames válidos del AK47
         play_sound = animation.is_shot_active(username, it);
     } else {
-        // Para el resto, solo reproducir si se disparó en este frame
         play_sound = p.shoot;
     }
     if (play_sound) {
@@ -397,9 +387,6 @@ void SDLManager::render_player_shot(const GunVisualData& gun_info, const std::st
     }
 }
 
-// falta hacer que quizas podes no ver el player pero si el arma (x la camera)
-// no dibujo las armas junto a cada player para que todas las armas se dibujen sobre los demas
-// players (z order)
 /* Renderiza las armas de cada jugador */
 void SDLManager::render_player_weapon(const std::string& username, const PlayerInfo& p, int it) {
     if (p.life == 0)
@@ -412,11 +399,10 @@ void SDLManager::render_player_weapon(const std::string& username, const PlayerI
 
     SDL2pp::Rect destino_mundo(x_pos / GRAPHIC_SCALE, y_pos / GRAPHIC_SCALE, size_player,
                                size_player);
-    SDL2pp::Rect destino_camera = camera.rect_world_to_screen(destino_mundo);  // calcular SIEMPRE
+    SDL2pp::Rect destino_camera = camera.rect_world_to_screen(destino_mundo);
 
     GunVisualData gun_info = get_gun_visual_info(p.equipped, p.primary_gun);
 
-    // Solo renderizamos el arma si el jugador es visible
     if (camera.is_visible(destino_mundo)) {
         std::string weapon_path = texture_parser.get_gun_texture(gun_info.weapon_sprite);
 
@@ -455,8 +441,7 @@ void SDLManager::render_fov(float orientation) {
 
     SDL2pp::Rect dest_rect((CAMERA_WIDTH / 2) - (diagonal / 2),
                            (CAMERA_HEIGHT / 2) - (diagonal / 2), diagonal, diagonal);
-    renderer.Copy(fov_texture, SDL2pp::NullOpt, dest_rect,
-                  orientation - PLAYER_SPRITE_GAP);  // PLAYER_SPRITE_GAP desfasaje textura cono
+    renderer.Copy(fov_texture, SDL2pp::NullOpt, dest_rect, orientation - PLAYER_SPRITE_GAP);
 }
 
 
@@ -467,7 +452,7 @@ void SDLManager::render_if_dead_or_damaged(const int& life, bool received_damage
 
         const std::string& path = texture_parser.get_other_path(BLOOD_SCREEN);
         SDL2pp::Texture& blood_texture = texture_manager.get_texture(path);
-        blood_texture.SetAlphaMod(100);  // Ajustá la opacidad si querés
+        blood_texture.SetAlphaMod(100);
         renderer.Copy(blood_texture, SDL2pp::NullOpt, dst);
 
         renderer.SetDrawColor(255, 0, 0, 40);
@@ -508,7 +493,6 @@ void SDLManager::render_hud_bomb_not_planted_time(int minutes, int seconds, Phas
     int dp_width = 5;
     int spacing = 2;
 
-    // porque me lo pide los linters
     int text_width = std::accumulate(time_str.begin(), time_str.end(), 0,
                                      [char_width, dp_width, spacing](int sum, char c) {
                                          return sum + (c == ':' ? dp_width : char_width) + spacing;
@@ -521,7 +505,7 @@ void SDLManager::render_hud_bomb_not_planted_time(int minutes, int seconds, Phas
     const BlockTextureInfo& clock_info = texture_parser.get_symbol_texture(CLOCK);
     SDL2pp::Texture& clock_texture = texture_manager.get_texture(clock_info.tileset_path);
     int r, g, b;
-    // por que nos fijamos la phase?
+
     if (phase == Phase::ATTACK && minutes == 0 && seconds <= 10) {
         r = 255;
         g = 0;
@@ -570,7 +554,6 @@ void SDLManager::render_hud_bomb_explotion_time(int minutes, int seconds) {
     int dp_width = 5;
     int spacing = 2;
 
-    // porque me lo pide los linters
     int text_width = std::accumulate(time_str.begin(), time_str.end(), 0,
                                      [char_width, dp_width, spacing](int sum, char c) {
                                          return sum + (c == ':' ? dp_width : char_width) + spacing;
@@ -679,7 +662,6 @@ void SDLManager::render_hud_life(int life) {
     }
 }
 
-// fijarse de quizas agregar un iconito
 /* Renderiza la municion del HUD */
 void SDLManager::render_hud_ammo(int ammo) {
     int char_width = 24;
@@ -872,7 +854,7 @@ std::pair<std::vector<std::pair<std::string, PlayerInfo>>,
     auto f_cmp = [](const auto& pj1, const auto& pj2) {
         if (pj1.second.kills != pj2.second.kills)
             return pj1.second.kills > pj2.second.kills;
-        return pj1.first < pj2.first;  // desempata el nombre
+        return pj1.first < pj2.first;
     };
 
     std::sort(cts.begin(), cts.end(), f_cmp);
@@ -1017,7 +999,6 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
     update_camera((local_info.player.x - shake_offset.GetX()) / GRAPHIC_SCALE,
                   (local_info.player.y - shake_offset.GetY()) / GRAPHIC_SCALE);
 
-    // funcion luego para renderizar el mapa.
     if (map.has_value()) {
         GameMapDTO game_map = map.value();
 
@@ -1063,13 +1044,11 @@ void SDLManager::render_in_z_order(const LocalInfo& local_info, int it) {
 
     render_bomb(local_info, it);
 
-    // render de mi player
     render_player(local_info.username, local_info.player, local_info.ct_skin, local_info.tt_skin,
                   it);
     for (auto& [username, p]: local_info.players) {
         render_player(username, p, local_info.ct_skin, local_info.tt_skin, it);
     }
-    // Renderizo las armas luego de los players para que aparezcan por encima
     render_player_weapon(local_info.username, local_info.player, it);
     for (auto& [username, p]: local_info.players) {
         render_player_weapon(username, p, it);
@@ -1125,7 +1104,6 @@ Crosshairs SDLManager::get_crosshair_and_render_info(int mouse_x, int mouse_y,
                                                      const LocalInfo& local_info) {
     int size_player = PLAYER_THICKNESS / GRAPHIC_SCALE;
 
-    // Verificamos si se apunta a un enemigo
     for (const auto& [_, e]: local_info.players) {
         if ((local_info.player.is_ct && e.is_ct) || (!local_info.player.is_ct && !e.is_ct)) {
             continue;
@@ -1146,7 +1124,6 @@ Crosshairs SDLManager::get_crosshair_and_render_info(int mouse_x, int mouse_y,
         }
     }
 
-    // Verificamos si se apunta a un drop
     int size_drop = ITEM_THICKNESS / GRAPHIC_SCALE;
     for (const auto& drop: local_info.drops) {
         SDL2pp::Rect destino_mundo(drop.position.x / GRAPHIC_SCALE, drop.position.y / GRAPHIC_SCALE,
@@ -1178,7 +1155,7 @@ Crosshairs SDLManager::get_crosshair_and_render_info(int mouse_x, int mouse_y,
 
                 SDL2pp::Rect box_rect(box_x, box_y, box_width, box_height);
                 renderer.SetDrawBlendMode(SDL_BLENDMODE_BLEND);
-                renderer.SetDrawColor(0, 0, 0, 150);  // negro semi-transparente
+                renderer.SetDrawColor(0, 0, 0, 150);
                 renderer.FillRect(box_rect);
 
                 int text_x = box_x + (box_width - text_texture.GetWidth()) / 2;
@@ -1200,12 +1177,12 @@ Crosshairs SDLManager::get_crosshair_and_render_info(int mouse_x, int mouse_y,
 void SDLManager::render_crosshair(const LocalInfo& local_info) {
 
     int mouse_x, mouse_y;
-    SDL_GetMouseState(&mouse_x, &mouse_y);  // da coords fisicas
+    SDL_GetMouseState(&mouse_x, &mouse_y);  // coordenadass fisicas
 
     float logical_mouse_x, logical_mouse_y;
     SDL_RenderWindowToLogical(renderer.Get(), static_cast<float>(mouse_x),
                               static_cast<float>(mouse_y), &logical_mouse_x,
-                              &logical_mouse_y);  // da coords logicas
+                              &logical_mouse_y);  // coordenadass logicas
 
     int size = 20;
 

@@ -12,7 +12,6 @@ GameUI::GameUI(Lobby& lobby):
         sdl(SDLManager()),
         input_handler(sdl, this->protocol),
         receiver(this->protocol),
-        // podria usar move?
         local_info{lobby.get_username(),
                    lobby.get_gamecode(),
                    lobby.is_creator(),
@@ -268,8 +267,6 @@ bool GameUI::update_waiting() {
                         this->sdl.set_shop(std::move(game_dto.shop_info));
                         pop = false;
                     } else if constexpr (std::is_same_v<T, GameEnded>) {
-                        // guardar estadisticas
-                        // estado ended?
                         this->keep_running = false;
                         pop = false;
                     }
@@ -291,11 +288,9 @@ bool GameUI::update_waiting() {
 
 void GameUI::show_waiting(const int& it) {
     sdl.clear_display();
-    sdl.render_waiting_screen(
-            local_info.players.size() +
-                    1,  // 1 porque si veo esta pantalla quiere decir estoy conectado
-            local_info.total_players, local_info.is_creator, local_info.gamename, it,
-            Settings::getInstance().get_fps_client(), false);
+    sdl.render_waiting_screen(local_info.players.size() + 1, local_info.total_players,
+                              local_info.is_creator, local_info.gamename, it,
+                              Settings::getInstance().get_fps_client(), false);
     sdl.show_screen();
 }
 
@@ -429,24 +424,6 @@ void GameUI::show_between_rounds(const int& it) {
     sdl.show_screen();
 }
 
-/*void GameUI::update() { idea para sacar codigo repetido de la actualizacion del juego popeando
-snapshots GameDTO game_dto; bool pop = true; while (pop) { if
-(!this->receiver.try_pop_game_dto(game_dto)) { pop = false; continue;
-        }
-        handle_x_game_dto(game_dto); // x = segun fase
-        if (std::holds_alternative<GameEnded>(game_dto)) {
-            keep_running = false;
-            pop = false;
-            continue;
-        }
-
-        Snapshot snapshot_tmp = std::get<Snapshot>(game_dto);
-        // Identificar en snapshot_tmp cambios/eventos para activar animaciones
-        this->game_snapshot = std::move(snapshot_tmp);
-        // chequear keep running de fase!
-    }
-}*/
-
 void GameUI::handle_game_ended() {
     if (this->game_has_ended()) {
         return;
@@ -473,11 +450,9 @@ void GameUI::handle_game_ended() {
             sdl.show_screen();
         } else {
             sdl.clear_display();
-            sdl.render_waiting_screen(
-                    local_info.players.size() +
-                            1,  // 1 porque si veo esta pantalla quiere decir estoy conectado
-                    local_info.total_players, local_info.is_creator, local_info.gamename, it,
-                    fps_client, true);
+            sdl.render_waiting_screen(local_info.players.size() + 1, local_info.total_players,
+                                      local_info.is_creator, local_info.gamename, it, fps_client,
+                                      true);
             sdl.show_screen();
         }
 

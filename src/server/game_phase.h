@@ -61,6 +61,4 @@ public:
     void end() override;
 };
 
-// Ended ???
-
 #endif

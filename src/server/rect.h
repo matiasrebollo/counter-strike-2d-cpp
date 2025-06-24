@@ -13,7 +13,6 @@ public:
     bool intersects_with(const Rect& other_Rect) const;
     bool contains(const Rect& other_Rect) const;
 
-    // Permito la copia para una Rect
     Rect(const Rect&) = default;
     Rect& operator=(const Rect&) = default;
 

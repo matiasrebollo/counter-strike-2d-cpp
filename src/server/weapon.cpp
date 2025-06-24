@@ -15,7 +15,7 @@ void Weapon::action() {
 
 void Weapon::stop_action() { making_action = false; }
 
-void Weapon::update(const float& delta_t, Player& /*owner*/, GameWorld& /*game*/) {
+void Weapon::update(const float& delta_t, Player&, GameWorld&) {
     if (just_triggered_action) {
         just_triggered_action = false;
         return;

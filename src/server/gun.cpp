@@ -103,7 +103,6 @@ void Gun::shoot(GameWorld& game, Player& shooter) {
     if (Player* hit_player = dynamic_cast<Player*>(shot.hit)) {
         execute_shot(hit_player, shot.impact_info->first, game);
         if (!hit_player->is_alive())
-            // avisar al gameworld que murio para drop items.
             shooter.count_kill(*hit_player, kill_bonification);
     }
 }

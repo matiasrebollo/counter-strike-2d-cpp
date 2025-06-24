@@ -10,7 +10,6 @@ void ClientReceiver::run() {
     while (this->should_keep_running()) {
         try {
             this->receive_command();
-            // Im sleeping inside the queue so im not burning CPU (i think)
         } catch (const CommunicationEnded& e) {
             std::cout << MSG_CLOSE_RECEIVER << std::endl;
             this->stop();

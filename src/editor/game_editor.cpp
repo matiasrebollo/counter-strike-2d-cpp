@@ -469,7 +469,6 @@ void Game_editor::on_load_map_button_clicked() {
     this->loadMapFromFile(map_name);
     this->setupEditorUi();
     this->has_entry_create = false;
-    // Not very sure if this will work always, it should load the blocks at least
     ui->stack->setCurrentIndex(1);
 }
 
