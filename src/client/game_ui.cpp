@@ -463,7 +463,7 @@ void GameUI::handle_game_ended() {
 
 bool GameUI::game_has_ended() {
     return !local_info.server_has_been_closed &&
-           local_info.current_round < local_info.total_rounds && local_info.time_left > 0;
+           local_info.current_round <= local_info.total_rounds && local_info.time_left > 0;
 }
 
 void GameUI::change_phase(std::unique_ptr<GameUIPhase> new_phase) {
