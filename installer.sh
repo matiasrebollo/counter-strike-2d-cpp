@@ -18,11 +18,13 @@ sudo apt-get install -y make
 
 # SDL y sonido
 sudo apt-get install -y \
+  libxmp-dev \
   libsdl2-dev \
   libsdl2-image-dev \
   libsdl2-ttf-dev \
   libsdl2-mixer-dev \
-  libasound2-dev
+  libasound2-dev 
+
 
 # Compiladores C++
 sudo apt-get install -y gcc g++ clang
