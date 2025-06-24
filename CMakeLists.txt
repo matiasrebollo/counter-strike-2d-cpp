@@ -138,6 +138,7 @@ if(TALLER_CLIENT)
     PRIVATE
         ${CMAKE_CURRENT_BINARY_DIR}
         ${libSDL2pp_SOURCE_DIR}
+        ${yaml-cpp_INCLUDE_DIRS} 
 )
 
     target_link_libraries(taller_client
