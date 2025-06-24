@@ -118,3 +118,4 @@ sudo fc-cache -f -v
 sudo mkdir -p /etc/cs2d-remake
 sudo cp -r settings.yaml /etc/cs2d-remake/
 
+echo -e "${GREEN}Juego instalado! Esperemos que lo disfrutes :)${NC}"
