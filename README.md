@@ -25,13 +25,13 @@ cs2d-remake-client
 
 Una vez que se inicia la interfaz gráfica verás esto:
 
-![Vista al iniciar el juego](imagenes/lobby-connect.png)
+![Vista al iniciar el juego](imageslobby-connect.png)
 
 Allí deberás colocar `localhost` en el espacio donde dice **host** y en puerto colocar `8080`. En caso de ejecutar el servidor en otro puerto (es decir, con otro número como `cs2d-remake-server xxxx`), deberás usar ese número como puerto.
 
 Una vez conectado al servidor verás la siguiente pantalla:
 
-![Menú principal](imagenes/lobby-menu.png)
+![Menú principal](imageslobby-menu.png)
 
 Acá tenés dos opciones:
 
@@ -42,7 +42,7 @@ Para cualquiera de estas dos opciones debés crearte un nombre de usuario. El se
 
 Además, podés cambiar las skins con las que verás a ambos bandos, seleccionando **Seleccionar skins**. Allí verás:
 
-![Selección de skins](imagenes/lobby-skins.png)
+![Selección de skins](imageslobby-skins.png)
 
 Las skins a la izquierda son las **terrorists**, y las de la derecha las **counter-terrorist**.
 
@@ -50,17 +50,17 @@ Para cambiar la skin de los terrorists, usá las dos primeras flechas y confirm�
 
 ### Crear una partida
 
-![Creación de una partida](imagenes/lobby-create.png)
+![Creación de una partida](imageslobby-create.png)
 
 Seleccioná el mapa donde querés jugar y tocá el botón **Crear**. Verás una pantalla de carga donde aparece el nombre/código del juego y cuántos jugadores hay conectados.
 
-![Esperando jugadores](imagenes/lobby-waiting.png)
+![Esperando jugadores](imageslobby-waiting.png)
 
 ### Unirse a una partida
 
 Ingresá el nombre del juego al que te querés unir (el mismo que se muestra en la pantalla de carga):
 
-![Unirse a una partida](imagenes/lobby-join.png)
+![Unirse a una partida](imageslobby-join.png)
 
 ---
 
@@ -117,11 +117,11 @@ cs2d-remake-editor
 
 Verás el siguiente menú:
 
-![Menú principal del editor](imagenes/editor-menu.png)
+![Menú principal del editor](imageseditor-menu.png)
 
 ### Crear mapa
 
-![Crear mapa](imagenes/editor-create-fs.png)
+![Crear mapa](imageseditor-create-fs.png)
 
 Se creará una grilla 10x10 en la que podrás indicar por celda:
 
@@ -151,7 +151,7 @@ Los agregados se visualizarán como íconos encima del bloque, igual que los col
 
 ### Editar mapa
 
-![Editar mapa](imagenes/editor-edit-map-fs.png)
+![Editar mapa](imageseditor-edit-map-fs.png)
 
 Es igual a la creación, pero sobre un mapa ya existente (uno del juego o uno que hayas hecho).
 
