@@ -11,14 +11,14 @@
 Para utilizar el juego se debe utilizar un SO Ubuntu 24.04, y parado sobre la raíz del proyecto ejecutar una terminal y correr:
 
 ```
-chmox +x installer.sh
+chmod +x installer.sh
 ./installer.sh
 ```
 
 En caso de estar en Fedora >= 40 hacerlo de manera simétrica con
 
 ```
-chmox +x fedora_installer.sh
+chmod +x fedora_installer.sh
 ./fedora_installer.sh
 ```
 
