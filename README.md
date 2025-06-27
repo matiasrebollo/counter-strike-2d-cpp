@@ -134,7 +134,7 @@ Si sos tt y tenes el C4 podes plantar dentro de un site (las zonas con un pincel
 
 ## Editor de niveles
 
-El juego incluye un editor de mapas. Para usarlo, ejecutá desde el directorio raíz:
+El juego incluye un editor de mapas. Para usarlo, ejecutá:
 
 ```bash
 cs2d-remake-editor
@@ -209,3 +209,7 @@ Integrantes:
 - Rocha Diaz, Tomás
 
 Agradecemos por la ayuda y buena onda a nuestro corrector designado Mateo Capón :)
+
+### Créditos
+
+Clase Socket, Resolver, ResolverError y QUeue fueron diseñadas y creadas por ![Di Paola Martín](https://github.com/eldipa), docente de la materia.
