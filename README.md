@@ -212,4 +212,4 @@ Agradecemos por la ayuda y buena onda a nuestro corrector designado Mateo Capón
 
 ### Créditos
 
-Clase Socket, Resolver, ResolverError y QUeue fueron diseñadas y creadas por ![Di Paola Martín](https://github.com/eldipa), docente de la materia.
+Clase Socket, Resolver, ResolverError y Queue fueron diseñadas y creadas por ![Di Paola Martín](https://github.com/eldipa), docente de la materia.
