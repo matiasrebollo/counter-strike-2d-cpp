@@ -1,3 +1,23 @@
+### Acerca del trabajo
+
+Este fue nuestro trabajo práctico grupal para la materia Taller de Programación I de la Facultad de Ingeniería Universidad de Buenos Aires, 1C2025.
+
+#### Grupo 5
+
+Integrantes: 
+
+- Fernandez, Facundo 
+- Molina, Taiel
+- Rebollo, Matías
+- Rocha Diaz, Tomás
+
+### Mi aporte
+Desarrollo completo del frontend del cliente, incluyendo:
+  - Renderizado gráfico de mapas, HUD y animaciones.
+  - Implementación y manejo de sonidos en el juego.
+  - Control del loop principal para mantener FPS estables.
+  - Gestión de comunicación cliente-servidor para actualización de estado y envío de peticiones.
+
 # CS2D Remake
 
 [Página web](https://cs2d.vercel.app/)
@@ -195,21 +215,7 @@ El editor requiere:
 
 Esto permite también jugar partidas al estilo **deathmatch**.
 
-### Acerca del trabajo
-
-Este fue nuestro trabajo práctico grupal para la materia Taller de Programación I de la Facultad de Ingeniería Universidad de Buenos Aires, 1C2025.
-
-#### Grupo 5
-
-Integrantes: 
-
-- Fernandez, Facundo 
-- Molina, Taiel
-- Rebollo, Matías
-- Rocha Diaz, Tomás
-
-Agradecemos por la ayuda y buena onda a nuestro corrector designado Mateo Capón :)
-
 ### Créditos
 
+Agradecemos por la ayuda y buena onda a nuestro corrector designado Mateo Capón :)
 Clase Socket, Resolver, ResolverError y Queue fueron diseñadas y creadas por [Di Paola Martín](https://github.com/eldipa), docente de la materia.
